@@ -502,7 +502,7 @@ begin
       begin
         Mouse.Move(B);
       
-        if MainScreen.IsUpText('Withdraw ' + ToString(Amount)) then
+        if MainScreen.IsUpText('Withdraw-' + ToString(Amount)) then
         begin
           Mouse.Click(MOUSE_LEFT);
           
