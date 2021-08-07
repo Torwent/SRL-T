@@ -449,6 +449,8 @@ function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): 
 var
   Item: TRSItem;
 begin
+if Self.Open() then
+  Wait(RandomRange(200, 600));
   if not Self.Open() then
     Exit;
 
@@ -475,8 +477,10 @@ function TRSInventory.FindItem(Item: TRSItem; out Slot: Int32): Boolean; overloa
 var
   Slots: TIntegerArray;
 begin
-  if not Self.Open() then
-    Exit;
+if Self.Open() then
+  Wait(RandomRange(200, 600));
+    if not Self.Open() then
+      Exit;
 
   Slots := ItemFinder.Find(Item, Self.GetSlotBoxes(), 1);
   
@@ -518,15 +522,22 @@ var
 begin
   Result := Self.FindItem(Item, Slot);
   if Result then
+  begin
+    Wait(100+Random(300));
     Mouse.Move(Self.GetSlotBox(Slot));
+end;
 end;
 
 function TRSInventory.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
 begin
   if Self.HoverItem(Item) then
   begin
+  Wait(100+Random(200));
     if (Option <> '') then
-      Result := ChooseOption.Select(Option)
+    begin
+      Wait(RandomRange(100, 300));
+      Result := ChooseOption.Select(Option);
+      end
     else
     begin
       Mouse.Click(MOUSE_LEFT);
