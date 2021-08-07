@@ -70,6 +70,8 @@ var
   Boxes: TBoxArray;
   Slots: TIntegerArray;
 begin
+if Self.Open() then
+ Wait(RandomRange(200, 600));
   if not Self.Open() then
     Exit;
 
@@ -99,9 +101,13 @@ begin
   if Self.FindItem(Item, B) then
   begin
     Mouse.Move(B);
+    Wait(100+Random(200));
 
     if Option <> '' then
-      Result := ChooseOption.Select(Option)
+    begin
+      Wait(RandomRange(100, 300));
+      Result := ChooseOption.Select(Option);
+      end
     else
     begin
       Result := True;
