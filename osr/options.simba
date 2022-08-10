@@ -15,90 +15,25 @@ type ERSOptionsTab
     DISPLAY
   );
 
-(*
-type ERSOptionsButton
-~~~~~~~~~~~~~~~~~~~~~
-  Enumerator type for each of the main screen of the options gametab buttons.
-*)
-  ERSOptionsButton = (
-    AID,
-    RUN,
-    HOUSE,
-    BOND
-  );
-
-(*
-type ERSOptionsButton
-~~~~~~~~~~~~~~~~~~~~~
-  Enumerator type for each of the house screen of the options gametab buttons.
-*)
-  ERSHouseOptionsButton = (
-    CLOSE,
-    VIEWER,
-    EXPEL,
-    SERVANT,
-    LEAVE
-  );
-
-  TRSOptions = type TRSInterface;
-  
-procedure TRSOptions.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Options';
-  Self.ButtonColors += CTS1(2369440, 5);
-end;
-
-procedure TRSOptions.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
-
-(*
-Options.GetBrightnessSliderBounds
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSOptions.GetBrightnessSliderBounds: TBox;
-
-Returns a TBox of the brightness slider.
-
-Example
--------
-
-  Debug(Options.GetBrightnessSliderBounds());
-*)
-function TRSOptions.GetBrightnessSliderBounds(): TBox;
-begin
-  Result.X1 := Self.X1 + 57;
-  Result.Y1 := Self.Y1 + 72;
-  Result.X2 := Result.X1 + 96;
-  Result.Y2 := Result.Y1 + 9;
-end;
-
-(*
-Options.GetZoomSliderBounds
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSOptions.GetZoomSliderBounds(): TBox;
-
-Returns a TBox of the zoom slider.
-
-Example
--------
-
-  Debug(Options.GetZoomSliderBounds());
-*)
-function TRSOptions.GetZoomSliderBounds(): TBox;
-begin
-  Result.X1 := Self.X1 + 57;
-  Result.Y1 := Self.Y1 + 109;
-  Result.X2 := Result.X1 + 96;
-  Result.Y2 := Result.Y1 + 9;
-end;
+  TRSOptions = record(TRSGameTab)
+  class const
+    ELEMENT_TAB_CONTROL:       TRSInterfaceElement = [0, 4, 57, 26];
+    ELEMENT_TAB_AUDIO:         TRSInterfaceElement = [66, 4, 58, 26];
+    ELEMENT_TAB_DISPLAY:       TRSInterfaceElement = [130, 4, 57, 26];
+    ELEMENT_SLIDER_ZOOM:       TRSInterfaceElement = [60, 109, 97, 10];
+    ELEMENT_SLIDER_BRIGHTNESS: TRSInterfaceElement = [60, 72, 97, 10];
+    ELEMENT_BUTTON_AID:        TRSInterfaceElement = [15, 179, 34, 34];
+    ELEMENT_BUTTON_RUN:        TRSInterfaceElement = [57, 179, 34, 34];
+    ELEMENT_BUTTON_HOUSE:      TRSInterfaceElement = [99, 179, 34, 34];
+    ELEMENT_BUTTON_BOND:       TRSInterfaceElement = [141, 179, 34, 34];
+    ELEMENT_PLAYER_ATTACK:     TRSInterfaceElement = [15, 112, 160, 18];
+    ELEMENT_NPC_ATTACK:        TRSInterfaceElement = [15, 151, 160, 18];
+    ELEMENT_HOUSE_CLOSE:       TRSInterfaceElement = [164, 9, 21, 20];
+    ELEMENT_HOUSE_TITLE:       TRSInterfaceElement = [37, 2, 116, 20];
+    ELEMENT_HOUSE_GUEST:       TRSInterfaceElement = [15, 141, 160, 26];
+    ELEMENT_HOUSE_SERVANT:     TRSInterfaceElement = [15, 176, 160, 26];
+    ELEMENT_HOUSE_LEAVE:       TRSInterfaceElement = [15, 211, 160, 26];
+  end;
 
 (*
 Options.GetSliderLevel
@@ -139,7 +74,7 @@ Example
 *)
 function TRSOptions.GetZoomLevel(): Integer;
 begin
-  Result := Self.GetSliderLevel(Self.GetZoomSliderBounds(), 2106152);
+  Result := Self.GetSliderLevel(Self.ElementFinder.Bounds(Self.ELEMENT_SLIDER_ZOOM), 2106152);
 end;
 
 (*
@@ -173,7 +108,7 @@ begin
       Self.SetZoomLevel(CurrentLevel - Random(20, 40));
   end;
   
-  SliderBounds := Self.GetZoomSliderBounds();
+  SliderBounds := Self.ElementFinder.Bounds(Self.ELEMENT_SLIDER_ZOOM);
   Mouse.Click(
     SliderBounds.X1 + Round((Level * (SliderBounds.Width() - 1) / 100)) + 1,
     SliderBounds.Y1 + Random(SliderBounds.Y2 - SliderBounds.Y1),
@@ -197,7 +132,7 @@ Example
 *)
 function TRSOptions.GetBrightnessLevel(): Integer;
 begin
-  Result := Self.GetSliderLevel(Self.GetBrightnessSliderBounds(), 2040359);
+  Result := Self.GetSliderLevel(Self.ElementFinder.Bounds(Self.ELEMENT_SLIDER_BRIGHTNESS), 2040359);
 end;
 
 (*
@@ -215,7 +150,7 @@ Example
 function TRSOptions.SetMaxBrightness(): Boolean;
 begin
   if Result := Self.OpenTab(ERSOptionsTab.DISPLAY) then
-    with Self.GetBrightnessSliderBounds() do
+    with Self.ElementFinder.Bounds(Self.ELEMENT_SLIDER_BRIGHTNESS) do
       Mouse.Click(X2 + Random(3, 5), Random(Y1, Y2), MOUSE_LEFT); 
 end;
 
@@ -228,7 +163,7 @@ Returns true if the options tab is open.
 *)
 function TRSOptions.IsOpen(): Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab = ERSGameTab.OPTIONS);
+  Result := (GameTabs.GetCurrentTab = ERSGameTab.OPTIONS) or Self.IsHouseOptionsOpen();
 end;
 
 (*
@@ -241,33 +176,6 @@ Attempts to open the options tab.
 function TRSOptions.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.OPTIONS);
-end;
-
-function TRSOptions.GetButtons(): TRSButtonArray;
-begin
-  Result := Self.FindButtons([[38,38]]);
-end;
-
-function TRSOptions.GetButton(Button: ERSOptionsButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetButtons;
-begin
-  if Length(Buttons) = Length(ERSOptionsButton) then
-    Result := Buttons[Button];
-end;
-
-function TRSOptions.GetHouseOptionsButtons(): TRSButtonArray;
-begin
-  Result := Self.FindButtons([[21, 21], [103, 38], [164, 30]]);
-end;
-
-function TRSOptions.GetHouseOptionsButton(Button: ERSHouseOptionsButton): TRSButton;
-var
-  Buttons: TRSButtonArray;
-begin
-  Buttons := Self.GetHouseOptionsButtons;
-  if High(Buttons) = Ord(High(ERSHouseOptionsButton)) then
-    Result := Buttons[Button];
 end;
 
 (*
@@ -284,7 +192,7 @@ Example
 *)
 function TRSOptions.IsHouseOptionsOpen(): Boolean;
 begin
-  Result := Self.GetHouseOptionsButton(ERSHouseOptionsButton.CLOSE).Visible;
+  Result := Self.ElementFinder.HasText(Self.ELEMENT_HOUSE_TITLE, [RSColors.TEXT_ORANGE], 'House options', RS_FONT_BOLD_12);
 end;
 
 (*
@@ -296,15 +204,17 @@ Attempts to open the house options.
 *)
 function TRSOptions.OpenHouseOptions(): Boolean;
 begin
-  if Self.IsHouseOptionsOpen then
+  if not Self.Open() then
+    Exit(False);
+  if Self.IsHouseOptionsOpen() then
     Exit(True);
 
-  if not Self.Open or not Self.OpenTab(ERSOptionsTab.CONTROLS) then
-    Exit(False);
+  if Self.OpenTab(ERSOptionsTab.CONTROLS) then
+  begin
+    Self.ElementFinder.Click(Self.ELEMENT_BUTTON_HOUSE);
 
-  Self.GetButton(ERSOptionsButton.HOUSE).Click;
-
-  Result := WaitUntil(Self.IsHouseOptionsOpen, SRL.TruncatedGauss(50, 1500), 3000);
+    Result := WaitUntil(Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+  end;
 end;
 
 (*
@@ -319,26 +229,9 @@ begin
   if not Self.IsHouseOptionsOpen then
     Exit(True);
 
-  Self.GetHouseOptionsButton(ERSHouseOptionsButton.CLOSE).Click;
+  Self.ElementFinder.Click(Self.ELEMENT_HOUSE_CLOSE);
 
-  Result := WaitUntil(not Self.IsHouseOptionsOpen, SRL.TruncatedGauss(50, 1500), 3000);
-end;
-
-(*
-Options.GetTabs
-~~~~~~~~~~~~~~~
-.. pascal:: function TRSOptions.GetTabs(): TBoxArray;
-
-Returns a TBoxArray of the tabs in the options gametab.
-
-Example
--------
-
-  Debug(Options.GetTabs());
-*)
-function TRSOptions.GetTabs(): TBoxArray;
-begin
-  Result := Grid(3, 1, 55, 24, [9], [Self.X1, Self.Y1 + 5]);
+  Result := WaitUntil(not Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
 (*
@@ -354,17 +247,13 @@ Example
   WriteLn Options.GetCurrentTab();
 *)
 function TRSOptions.GetCurrentTab(): ERSOptionsTab;
-var
-  Tabs: TBoxArray;
-  I: Int32;
 begin
-  Tabs := Self.GetTabs;
-
-  for I := 0 to High(Tabs) do
-  begin
-    if SRL.CountColor(4741213, Tabs[I]) < 50 then //finds the one without the bottom white line
-      Exit(ERSOptionsTab(I));
-  end
+  if Self.ElementFinder.HasColor(Self.ELEMENT_TAB_AUDIO, [2700606]) then
+    Exit(ERSOptionsTab.AUDIO);
+  if Self.ElementFinder.HasColor(Self.ELEMENT_TAB_CONTROL, [2700606]) then
+    Exit(ERSOptionsTab.CONTROLS);
+  if Self.ElementFinder.HasColor(Self.ELEMENT_TAB_DISPLAY, [2700606]) then
+    Exit(ERSOptionsTab.DISPLAY);
 end;
 
 (*
@@ -381,45 +270,33 @@ Example
 *)
 function TRSOptions.OpenTab(Tab: ERSOptionsTab): Boolean;
 begin
-  if not Self.Open or not Self.CloseHouseOptions then
+  if (not Self.Open()) or (Self.IsHouseOptionsOpen() and (not Self.CloseHouseOptions())) then
     Exit(False);
-  if Self.GetCurrentTab = Tab then
+  if (Self.GetCurrentTab() = Tab) then
     Exit(True);
 
-  Mouse.Click(Self.GetTabs[Tab], MOUSE_LEFT);
-
-  Result := WaitUntil(Self.GetCurrentTab = Tab, SRL.TruncatedGauss(50, 1500), 3000);
-end;
-
-procedure TRSOptions.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if not Self.IsOpen then
-    Exit;
-
-  inherited;
-
-  if Self.IsHouseOptionsOpen() then
-    Bitmap.DrawButtons(Self.GetHouseOptionsButtons)
-  else
-  begin
-    Bitmap.DrawBoxArray(Self.GetTabs(), False, $00FFFF);
-    if (Self.GetCurrentTab = ERSOptionsTab.DISPLAY) then
-    begin
-      Bitmap.DrawBox(Self.GetBrightnessSliderBounds(), $00FFFF);
-      Bitmap.DrawBox(Self.GetZoomSliderBounds(), $00FFFF);
-    end;
+  case Tab of
+    ERSOptionsTab.CONTROLS: Self.ElementFinder.Click(Self.ELEMENT_TAB_CONTROL);
+    ERSOptionsTab.DISPLAY:  Self.ElementFinder.Click(Self.ELEMENT_TAB_DISPLAY);
+    ERSOptionsTab.AUDIO:    Self.ElementFinder.Click(Self.ELEMENT_TAB_AUDIO);
   end;
 
-  Bitmap.DrawButtons(Self.GetButtons());
+  Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-(*
-var Options
-~~~~~~~~~~~
-  Global Options variable.
-*)
+procedure TRSOptions.Setup(Name: String); override;
+begin
+  inherited;
+
+  // Self.ID := ERSGameTab.OPTIONS;
+end;
+
 var
   Options: TRSOptions;
+
+begin
+  Options.Setup('Options');
+end;
 
 function TRSGameTabs.GetCurrentTab(): ERSGameTab; override;
 begin
@@ -427,26 +304,5 @@ begin
 
   if (Result = ERSGameTab.UNKNOWN) and Options.IsHouseOptionsOpen then
     Result := ERSGameTab.OPTIONS;
-end;
-
-procedure TRSClient.ClientModeChanged(); override;
-begin
-  inherited;
-
-  Options.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup(); override;
-begin
-  inherited;
-
-  Options.Setup;
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Options.Draw(Bitmap);
 end;
 

@@ -186,12 +186,15 @@ begin
   Bitmap := Self.GetCleanMinimap();
   Mask := Self.ScaleMinimap(Bitmap, Self.Scaling);
 
-  for X := 0 to Mask.getWidth() - 1 do
-    for Y := 0 to Mask.getHeight() - 1 do
-      if (Mask.GetPixel(X, Y) <> 0) then
-        Mask.SetPixel(X, Y, $FFFFFF);
+  //for X := 0 to Mask.getWidth() - 1 do
+  //  for Y := 0 to Mask.getHeight() - 1 do
+  //    if (Mask.GetPixel(X, Y) <> 0) then
+  //      Mask.SetPixel(X, Y, $FFFFFF);
 
-  Self.Cache := TMatchTemplateCache.Create(Sample.ToMatrix(), Mask.ToMatrix());
+  //Self.Cache := TMatchTemplateCache.Create(Sample.ToMatrix(), Mask.ToMatrix(), TM_CCOEFF_NORMED);
+
+  Self.Cache := TMatchTemplateCache.Create(Sample, Mask, TM_CCOEFF_NORMED);
+
 
   Sample.Free();
   Bitmap.Free();
@@ -311,7 +314,7 @@ var
 begin
   Sample := Self.ScaleMinimap(Bitmap, Self.Scaling);
 
-  Matrix := MatchTemplateMask(Self.Cache, Sample.ToMatrix, TM_CCOEFF_NORMED);
+  Matrix := MatchTemplateMask(Self.Cache, Sample, TM_CCOEFF_NORMED);
 
   while Length(Result) < Samples do
     with Matrix.ArgMax() do

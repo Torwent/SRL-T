@@ -46,42 +46,16 @@ var
   ];
 
 type
-  TRSCombat = type TRSInterface;
-
-(*
-Combat.Setup
-~~~~~~~~~~~~
-.. pascal:: procedure TRSCombat.Setup; override;
-
-Initializes **Combat** variables.
-
-.. note:: This is automatically called on the **Combat** variable.
-*)
-procedure TRSCombat.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Combat';
-end;
-
-(*
-Combat.SetupAlignment
-~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
+  TRSCombat = record(TRSGameTab)
+  class const
+    ELEMENT_WEAPON:         TRSInterfaceElement = [9, 6, 173, 17];
+    ELEMENT_COMBAT_LEVEL:   TRSInterfaceElement = [35, 25, 119, 15];
+    ELEMENT_STYLE_1:        TRSInterfaceElement = [22, 49, 65, 41];
+    ELEMENT_STYLE_2:        TRSInterfaceElement = [102, 49, 65, 41];
+    ELEMENT_STYLE_3:        TRSInterfaceElement = [23, 103, 65, 41];
+    ELEMENT_STYLE_4:        TRSInterfaceElement = [102, 103, 65, 41];
+    ELEMENT_AUTO_RETALIATE: TRSInterfaceElement = [23, 157, 144, 38];
+  end;
 
 (*
 Combat.IsOpen
@@ -97,6 +71,7 @@ Example
 *)
 function TRSCombat.IsOpen: Boolean;
 begin
+  Exit(True);
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.COMBAT);
 end;
 
@@ -114,19 +89,8 @@ Example
 *)
 function TRSCombat.Open: Boolean;
 begin
-  Result := GameTabs.Open(ERSGameTab.COMBAT);
-end;
-
-(*
-Combat.GetButtons
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSCombat.GetButtons: TRSButtonArray;
-
-Internal function to get the available buttons in the combat tab.
-*)
-function TRSCombat.GetButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[69,45], [148,24], [148,42], [69,30], [69,48]])
+  Exit(True);
+  //Result := GameTabs.Open(ERSGameTab.COMBAT);
 end;
 
 (*
@@ -143,23 +107,29 @@ Example
 
 *)
 function TRSCombat.GetCombatStyle: String;
+
+  function GetStyle(Element: TRSInterfaceElement): String;
+  var
+    Style: String;
+  begin
+    for Style in COMBAT_STYLES do
+      if Self.ElementFinder.HasText(Element, [RSColors.TEXT_ORANGE], Style, RS_FONT_PLAIN_11) then
+      begin
+        Result := Style;
+        Exit;
+      end;
+  end;
+
 var
   I: Int32;
-  Buttons: TRSButtonArray;
 begin
   if not Self.Open() then
     Exit;
 
-  Buttons := Self.GetButtons();
-  
-  for I := 0 to High(Buttons) do
-  begin
-    if not Buttons[I].Enabled() then
-      Continue;
-      
-    if Buttons[I].FindText(COMBAT_STYLES, RS_FONT_PLAIN_11, Result) then
-      Exit;
-  end;
+  if Self.ElementFinder.HasColor(Self.ELEMENT_STYLE_1, [RSColors.BUTTON_RED], [5]) then Result := GetStyle(Self.ELEMENT_STYLE_1) else
+  if Self.ElementFinder.HasColor(Self.ELEMENT_STYLE_2, [RSColors.BUTTON_RED], [5]) then Result := GetStyle(Self.ELEMENT_STYLE_2) else
+  if Self.ElementFinder.HasColor(Self.ELEMENT_STYLE_3, [RSColors.BUTTON_RED], [5]) then Result := GetStyle(Self.ELEMENT_STYLE_3) else
+  if Self.ElementFinder.HasColor(Self.ELEMENT_STYLE_4, [RSColors.BUTTON_RED], [5]) then Result := GetStyle(Self.ELEMENT_STYLE_4);
 end;
 
 (*
@@ -176,21 +146,18 @@ Example
 
 *)
 function TRSCombat.SetCombatStyle(Style: String): Boolean;
-var
-  Buttons: TRSButtonArray;
-  Button: TRSButton;
+
+  function Toggle(Element: TRSInterfaceElement): Boolean;
+  begin
+    Result := Self.ElementFinder.HasText(Element, [RSColors.TEXT_ORANGE], Style, RS_FONT_PLAIN_11) and
+              Self.ElementFinder.Toggle(Element, RSColors.BUTTON_RED, 5);
+  end;
+
 begin
   if not Self.Open() then
     Exit;
-    
-  Buttons := Self.GetButtons();
-  for Button in Buttons do
-    if Button.FindText(Style, RS_FONT_PLAIN_11) then
-    begin
-      Result := Button.Enable();
-      
-      Exit;
-    end;
+
+  Result := Toggle(Self.ELEMENT_STYLE_1) or Toggle(Self.ELEMENT_STYLE_2) or Toggle(Self.ELEMENT_STYLE_3) or Toggle(Self.ELEMENT_STYLE_4);
 end;
 
 (*
@@ -207,21 +174,11 @@ Example
 
 *)
 function TRSCombat.GetAutoRetaliate: Boolean;
-var
-  Buttons: TRSButtonArray;
-  Button: TRSButton;
 begin
   if not Self.Open() then
     Exit;
-    
-  Buttons := Self.GetButtons();
-  for Button in Buttons do
-    if Button.FindText('Auto Retaliate', RS_FONT_PLAIN_12) then
-    begin
-      Result := Button.Enabled();
-      
-      Exit;
-    end;
+
+  Result := Self.ElementFinder.HasColor(Self.ELEMENT_AUTO_RETALIATE, [RSColors.BUTTON_RED], [5]);
 end;
 
 (*
@@ -238,21 +195,14 @@ Example
 
 *)
 function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
-var
-  Buttons: TRSButtonArray;
-  Button: TRSButton;
 begin
-  if not Self.Open() then
-    Exit;
-    
-  Buttons := Self.GetButtons();
-  for Button in Buttons do
-    if Button.FindText('Auto Retaliate', RS_FONT_PLAIN_12) then
-    begin
-      Result := (Value and Button.Enable()) or (not Value and Button.Disable());
-      
-      Exit;
-    end;
+  if (not Self.Open()) then
+    Exit(False);
+
+  case Value of
+    True:  Result := Self.ElementFinder.Toggle(Self.ELEMENT_AUTO_RETALIATE, RSColors.BUTTON_RED, 5);
+    False: Result := Self.ElementFinder.Toggle(Self.ELEMENT_AUTO_RETALIATE, RSColors.BUTTON_GREY, 5);
+  end;
 end;
 
 (*
@@ -278,7 +228,7 @@ begin
   B := Self.Bounds;
   B.Y2 := B.Y1 + 25;
 
-  Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_QUILL_8);
+  Result := OCR.Recognize(B, TOCRColorFilter.Create([2070783]), RS_FONT_QUILL_8);
 end;
 
 (*
@@ -301,13 +251,14 @@ begin
   if not Self.Open() then
     Exit;
 
-  B := Self.Bounds;
-  B.Y1 += 27;
-  B.Y2 := B.Y1 + 15;
-  B.X1 += 20;
-  B.X2 -= 20;
+  Result := Self.ElementFinder.ReadNumber(Self.ELEMENT_COMBAT_LEVEL, [RSColors.TEXT_ORANGE], RS_FONT_PLAIN_11);
+end;
 
-  Result := OCR.RecognizeNumber(B, TOCRColorRule.Create([2070783]), RS_FONT_PLAIN_11);
+procedure TRSCombat.Setup(Name: String); override;
+begin
+  inherited;
+
+  // Self.ID := ERSGameTab.COMBAT;
 end;
 
 (*
@@ -317,6 +268,10 @@ var Combat
 *)
 var
   Combat: TRSCombat;
+
+begin
+  Combat.Setup('Combat');
+end;
 
 (*
 Minimap
@@ -444,25 +399,3 @@ begin
     end;
   end;
 end;
-
-procedure TRSClient.ClientModeChanged; override;
-begin
-  inherited;
-
-  Combat.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Combat.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Combat.Draw(Bitmap);
-end;
-

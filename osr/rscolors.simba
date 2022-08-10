@@ -1,0 +1,24 @@
+type
+  RSColors = record
+  class const
+    TEXT_BLACK  = $000000;
+    TEXT_WHITE  = $FFFFFF;
+    TEXT_ORANGE = $1F98FF; // Interface titles
+    TEXT_ORANGE_LIGHT = $3EB7FE; // Interface titles
+    TEXT_BROWN  = $203040; // Make interface
+    TEXT_RED    = $0000FF;
+    TEXT_YELLOW = $00FFFF;
+
+    BUTTON_RED  = $2326A0; // Button enabled background. Use ~5 tolerance
+    BUTTON_GREY = $516370; // Button disabled background. Use ~5 tolerance
+
+    ITEM_SHADOW = $202030;
+    ITEM_BORDER = $010000;
+    ITEM_BORDER_SELECTED = $FFFFFF;
+
+    ITEM_TEXT_YELLOW = $00FFFF;
+    ITEM_TEXT_WHITE  = $FFFFFF;
+    ITEM_TEXT_GREEN  = $80FF00;
+
+    HINT_BACKGROUND = $A0FFFF;
+  end;

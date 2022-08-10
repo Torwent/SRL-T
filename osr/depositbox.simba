@@ -4,66 +4,17 @@
 {$ENDIF}
 
 type
-  ERSDepositButton = (
-    QUANTITY_1,
-    QUANTITY_5,
-    QUANTITY_10,
-    QUANTITY_CUSTOM,
-    QUANTITY_ALL,
-    
-    DEPOSIT_INVENTORY,
-    DEPOSIT_WORN,
-    DEPOSIT_LOOT
-  );
-
-  TRSDepositBox = type TRSTitledInteface;
-
-procedure TRSDepositBox.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Deposit Screen';
-end;
-
-procedure TRSDepositBox.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  case Self.Mode of
-    ERSClientMode.FIXED:
-      begin
-        Self.Alignment.Left := [@InterfaceArea.X1];
-        Self.Alignment.Right := [@InterfaceArea.X2];
-        Self.Alignment.Top := [@InterfaceArea.Y1];
-        Self.Alignment.Bottom := [@InterfaceArea.Y2];
-        Self.Alignment.Center.MaxWidth := 452;
-        Self.Alignment.Center.MaxHeight := 276;
-      end;
-
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@InterfaceArea.X1];
-        Self.Alignment.Right := [@InterfaceArea.X2];
-        Self.Alignment.Top := [@InterfaceArea.Y1, -1];
-        Self.Alignment.Bottom := [@InterfaceArea.Y2];
-        Self.Alignment.Center.MaxWidth := 452;
-        Self.Alignment.Center.MaxHeight := 276;
-      end;
+  TRSDepositBox = record(TRSInterface)
+  class const
+    ELEMENT_QUANTITY_1:        TRSInterfaceElement = [19, 233, 30, 30];
+    ELEMENT_QUANTITY_5:        TRSInterfaceElement = [60, 233, 30, 30];
+    ELEMENT_QUANTITY_10:       TRSInterfaceElement = [103, 233, 30, 30];
+    ELEMENT_QUANTITY_X:        TRSInterfaceElement = [144, 233, 30, 30];
+    ELEMENT_QUANTITY_ALL:      TRSInterfaceElement = [188, 233, 30, 30];
+    ELEMENT_DEPOSIT_INVENTORY: TRSInterfaceElement = [285, 233, 30, 30];
+    ELEMENT_DEPOSIT_WORN:      TRSInterfaceElement = [342, 233, 30, 30];
+    ELEMENT_DEPOSIT_LOOT:      TRSInterfaceElement = [399, 233, 30, 30];
   end;
-end;
-
-function TRSDepositBox.GetButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[34,34]]);
-end;
-
-function TRSDepositBox.GetButton(Button: ERSDepositButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetButtons();
-begin
-  if (Length(Buttons) = Length(ERSDepositButton)) then
-    Result := Buttons[Button];
-end;
 
 function TRSDepositBox.GetSlotBoxes: TBoxArray; 
 begin
@@ -72,7 +23,7 @@ end;
 
 function TRSDepositBox.IsOpen: Boolean; overload;
 begin
-  Result := Self.GetButton(ERSDepositButton.QUANTITY_1).Visible();
+  Result := Self.IsTitle('Deposit Box');
 end;
 
 function TRSDepositBox.IsOpen(WaitTime: Int32): Boolean; overload;
@@ -98,8 +49,51 @@ begin
   Bitmap.DrawBoxArray(Self.GetSlotBoxes(), False, $00FFFF);
 end;
 
+procedure TRSDepositBox.Setup(Name: String); override;
+begin
+  inherited;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 452;
+    Center.MaxHeight := 276;
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 452;
+    Center.MaxHeight := 276;
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 452;
+    Center.MaxHeight := 276;
+  end;
+end;
+
 var
   DepositBox: TRSDepositBox;
+
+begin
+  DepositBox.Setup('DepositBox');
+end;
 
 (*
 GameTabs.GetCurrentTab
@@ -114,25 +108,4 @@ begin
 
   if (Result = ERSGameTab.UNKNOWN) and (Bank.IsOpen or DepositBox.IsOpen) then
     Result := ERSGameTab.INVENTORY;
-end;
-
-procedure TRSClient.ClientModeChanged; override;
-begin
-  inherited;
-
-  DepositBox.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  DepositBox.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  DepositBox.Draw(Bitmap);
 end;

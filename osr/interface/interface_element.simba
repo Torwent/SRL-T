@@ -1,0 +1,130 @@
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  ERSInterfaceElementAnchor = enum(TOP, BOTTOM);
+
+  TRSInterfaceElement = record
+    X, Y: Integer;
+    Width, Height: Int32;
+    Anchor: ERSInterfaceElementAnchor;
+  end;
+  TRSInterfaceElementArray = array of TRSInterfaceElement;
+
+  TRSInterfaceElementFinder = record(TSRLBaseRecord)
+    GetBoundsFunction: function(ClientMode: ERSClientMode): TBox of object;
+  end;
+
+function TRSInterfaceElementFinder.Bounds(Element: TRSInterfaceElement): TBox;
+var
+  InterfaceBounds: TBox;
+begin
+  if (@Self.GetBoundsFunction = nil) then
+    Self.Fatal('GetBoundsFunction = nil');
+
+  InterfaceBounds := Self.GetBoundsFunction(RSClient.ClientMode);
+  case Element.Anchor of
+    ERSInterfaceElementAnchor.TOP:
+      begin
+        Result.X1 := InterfaceBounds.X1 + Element.X;
+        Result.Y1 := InterfaceBounds.Y1 + Element.Y;
+
+        Result.X2 := Result.X1 + (Element.Width - 1);
+        Result.Y2 := Result.Y1 + (Element.Height - 1);
+      end;
+
+    ERSInterfaceElementAnchor.BOTTOM:
+      begin
+        Result.X1 := InterfaceBounds.X1 + Element.X;
+        Result.Y2 := InterfaceBounds.Y2 - Element.Y;
+
+        Result.X2 := Result.X1 + (Element.Width - 1);
+        Result.Y1 := Result.Y2 - (Element.Height - 1);
+      end;
+  end;
+end;
+
+function TRSInterfaceElementFinder.ReadText(Element: TRSInterfaceElement; Colors: TIntegerArray; Font: TFontSet): String; overload;
+begin
+  Result := OCR.Recognize(Self.Bounds(Element), TOCRColorFilter.Create(Colors), Font);
+end;
+
+function TRSInterfaceElementFinder.ReadText(Element: TRSInterfaceElement; Colors, Tolerances: TIntegerArray; Font: TFontSet): String; overload;
+begin
+  Result := OCR.Recognize(Self.Bounds(Element), TOCRColorFilter.Create(Colors, Tolerances), Font);
+end;
+
+function TRSInterfaceElementFinder.ReadNumber(Element: TRSInterfaceElement; Colors: TIntegerArray; Font: TFontSet): Int64;
+begin
+  Result := OCR.RecognizeNumber(Self.Bounds(Element), TOCRColorFilter.Create(Colors), Font);
+end;
+
+function TRSInterfaceElementFinder.ReadNumber(Element: TRSInterfaceElement; Colors, Tolerances: TIntegerArray; Font: TFontSet): Int64; overload;
+begin
+  Result := OCR.RecognizeNumber(Self.Bounds(Element), TOCRColorFilter.Create(Colors, Tolerances), Font);
+end;
+
+function TRSInterfaceElementFinder.HasText(Element: TRSInterfaceElement; Colors: TIntegerArray; Text: String; Font: TFontSet): Boolean;
+var
+  FoundBounds: TBox;
+begin
+  Result := OCR.LocateText(Self.Bounds(Element), Text, Font, TOCRColorFilter.Create(Colors), FoundBounds) = 1;
+end;
+
+function TRSInterfaceElementFinder.HasColor(Element: TRSInterfaceElement; Colors: TIntegerArray): Boolean; overload;
+var
+  B: TBox;
+  X, Y, Color: Integer;
+begin
+  B := Self.Bounds(Element);
+  for Color in Colors do
+    if FindColor(X, Y, Color, B) then
+      Exit(True);
+end;
+
+function TRSInterfaceElementFinder.HasColor(Element: TRSInterfaceElement; Colors, Tolerances: TIntegerArray): Boolean; overload;
+var
+  B: TBox;
+  I, X, Y: Integer;
+begin
+  B := Self.Bounds(Element);
+  for I := 0 to High(Colors) do
+    if FindColorTolerance(X, Y, Colors[I], B, Tolerances[I]) then
+      Exit(True);
+end;
+
+function TRSInterfaceElementFinder.CountColor(Element: TRSInterfaceElement; Colors: TIntegerArray): Integer; overload;
+var
+  B: TBox;
+  Color: Integer;
+begin
+  B := Self.Bounds(Element);
+  for Color in Colors do
+    Result := Result + CountColor(Color, B);
+end;
+
+function TRSInterfaceElementFinder.CountColor(Element: TRSInterfaceElement; Colors, Tolerances: TIntegerArray): Integer; overload;
+var
+  B: TBox;
+  I, X, Y: Integer;
+begin
+  B := Self.Bounds(Element);
+  for I := 0 to High(Colors) do
+    Result := Result + CountColorTolerance(Colors[I], B, Tolerances[I]);
+end;
+
+function TRSInterfaceElementFinder.Toggle(Element: TRSInterfaceElement; Color, Tolerance: Integer): Boolean;
+begin
+  if Self.HasColor(Element, [Color], [Tolerance]) then
+    Exit(True);
+
+  Self.Click(Element);
+
+  Result := WaitUntil(Self.HasColor(Element, [Color], [Tolerance]), 100, SRL.TruncatedGauss(1500, 3000));
+end;
+
+procedure TRSInterfaceElementFinder.Click(Element: TRSInterfaceElement);
+begin
+  Mouse.Click(Self.Bounds(Element), MOUSE_LEFT);
+end;

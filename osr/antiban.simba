@@ -604,21 +604,21 @@ begin
   begin
     B := Box(MainScreen.Center, 250, 100);
 
-    if OCR.LocateText(B, Name, RS_FONT_BOLD_12, TOCRColorRule.Create([$00FFFF, 0]), 0.85) then
-    begin
-      if Self.DebugRandoms then
-      begin
-        CreateDirectory('randoms');
-
-        Number := Length(GetFiles('randoms/', 'png'));
-        if Number > 1000 then
-          TerminateScript('Lots of randoms debugged');
-
-        SaveScreenshot('randoms/' + IntToStr(Number) + '.png');
-
-        Wait(5000);
-      end;
-    end;
+    //if OCR.LocateText(B, Name, RS_FONT_BOLD_12, TOCRColorFilter.Create([$00FFFF, 0]), 0.85) then
+    //begin
+    //  if Self.DebugRandoms then
+    //  begin
+    //    CreateDirectory('randoms');
+    //
+    //    Number := Length(GetFiles('randoms/', 'png'));
+    //    if Number > 1000 then
+    //      TerminateScript('Lots of randoms debugged');
+    //
+    //    SaveScreenshot('randoms/' + IntToStr(Number) + '.png');
+    //
+    //    Wait(5000);
+    //  end;
+    //end;
   end;
 end;
 

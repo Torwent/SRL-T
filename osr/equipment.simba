@@ -4,7 +4,7 @@
 {$ENDIF}
 
 type
-  ERSEquipmentButton = (
+  ERSEquipmentSlot = (
     HELM,
     CAPE,
     AMULET,
@@ -15,32 +15,27 @@ type
     LEGS,
     GLOVES,
     FEET,
-    RING,
-    
-    STATS,
-    PRICES,
-    DEATH,
-    FOLLOWER
+    RING
   );
   
-  TRSEquipment = type TRSInterface;
-
-procedure TRSEquipment.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Equipment';
-end;
-
-procedure TRSEquipment.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
+  TRSEquipment = record(TRSGameTab)
+  class const
+    ELEMENT_SLOT_HELM:       TRSInterfaceElement = [80, 8, 30, 30];
+    ELEMENT_SLOT_CAPE:       TRSInterfaceElement = [39, 47, 30, 30];
+    ELEMENT_SLOT_AMULET:     TRSInterfaceElement = [81, 47, 30, 30];
+    ELEMENT_SLOT_AMMO:       TRSInterfaceElement = [121, 47, 30, 30];
+    ELEMENT_SLOT_WEAPON:     TRSInterfaceElement = [24, 86, 30, 30];
+    ELEMENT_SLOT_BODY:       TRSInterfaceElement = [81, 86, 30, 30];
+    ELEMENT_SLOT_SHIELD:     TRSInterfaceElement = [136, 86, 30, 30];
+    ELEMENT_SLOT_LEGS:       TRSInterfaceElement = [80, 126, 30, 30];
+    ELEMENT_SLOT_GLOVES:     TRSInterfaceElement = [24, 166, 30, 30];
+    ELEMENT_SLOT_FEET:       TRSInterfaceElement = [80, 166, 30, 30];
+    ELEMENT_SLOT_RING:       TRSInterfaceElement = [136, 166, 30, 30];
+    ELEMENT_BUTTON_STATS:    TRSInterfaceElement = [9, 211, 36, 36];
+    ELEMENT_BUTTON_PRICE:    TRSInterfaceElement = [54, 211, 36, 36];
+    ELEMENT_BUTTON_DEATH:    TRSInterfaceElement = [99, 211, 36, 36];
+    ELEMENT_BUTTON_FOLLOWER: TRSInterfaceElement = [144, 211, 36, 36];
+  end;
 
 function TRSEquipment.IsOpen: Boolean;
 begin
@@ -52,19 +47,6 @@ begin
   Result := GameTabs.Open(ERSGameTab.EQUIPMENT);
 end;
 
-function TRSEquipment.GetButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[34,34], [40,40]]);
-end;
-
-function TRSEquipment.GetButton(Button: ERSEquipmentButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetButtons();
-begin
-  if Length(Buttons) = Length(ERSEquipmentButton) then
-    Result := Buttons[Button];
-end;
-
 function TRSEquipment.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
 var
   Boxes: TBoxArray;
@@ -73,7 +55,7 @@ begin
   if not Self.Open() then
     Exit;
 
-  Boxes := Self.GetButtons().ToBoxes();
+ // Boxes := Self.GetButtons().ToBoxes();
 
   Slots := ItemFinder.Find(Item, Boxes, 1);
   if Length(Slots) > 0 then
@@ -127,48 +109,64 @@ begin
     Result := SRL.GetItemAmount(B);
 end;
 
+function TRSEquipment.GetSlotBox(Slot: ERSEquipmentSlot): TBox;
+var
+  Elements: TRSInterfaceElementArray;
+begin
+  Elements := [
+    Self.ELEMENT_SLOT_HELM, Self.ELEMENT_SLOT_CAPE, Self.ELEMENT_SLOT_AMULET,
+    Self.ELEMENT_SLOT_AMMO, Self.ELEMENT_SLOT_WEAPON, Self.ELEMENT_SLOT_BODY,
+    Self.ELEMENT_SLOT_SHIELD, Self.ELEMENT_SLOT_LEGS, Self.ELEMENT_SLOT_GLOVES,
+    Self.ELEMENT_SLOT_FEET, Self.ELEMENT_SLOT_RING
+  ];
 
-function TRSEquipment.IsSlotUsed(B: TBox): Boolean; overload;
+  Result := Self.ElementFinder.Bounds(Elements[Slot]);
+end;
+
+function TRSEquipment.ClickSlot(Slot: ERSEquipmentSlot): Boolean;
+begin
+  Result := Self.IsSlotUsed(Slot);
+  if Result then
+    Mouse.Click(Self.GetSlotBox(Slot), MOUSE_LEFT);
+end;
+
+function TRSEquipment.InteractSlot(Slot: ERSEquipmentSlot; Option: String): Boolean;
+begin
+  Result := Self.IsSlotUsed(Slot);
+
+  if Result then
+  begin
+    Mouse.Move(Self.GetSlotBox(Slot));
+
+    Result := ChooseOption.Select(Option);
+  end;
+end;
+
+function TRSEquipment.IsSlotUsed(Slot: ERSEquipmentSlot): Boolean;
 begin
   // black with tolerance for when item is transparent
-  Result := SRL.CountColor(CTS1(1118740, 35), B) > 0;
+  Result := SRL.CountColor(CTS1(1118740, 35), Self.GetSlotBox(Slot)) > 0;
 end;
 
-function TRSEquipment.IsSlotUsed(Slot: ERSEquipmentButton): Boolean; overload;
-begin
-  Result := Self.Open and Self.IsSlotUsed(Self.GetButton(Slot).Bounds);
-end;
-
-function TRSEquipment.CountGear: Int32;
+function TRSEquipment.CountUsedSlots: Integer;
 var
-  i: ERSEquipmentButton;
+  e: ERSEquipmentSlot;
 begin
-  for i := ERSEquipmentButton.HELM to ERSEquipmentButton.Ring do
-    if Self.IsSlotUsed(i) then
-      Result += 1;
+  for e in ERSEquipmentSlot do
+    if Self.IsSlotUsed(e) then
+      Result := Result + 1;
 end;
 
+procedure TRSEquipment.Setup(Name: String); override;
+begin
+  inherited;
+
+  // Self.ID := ERSGameTab.EQUIPMENT;
+end;
 
 var
   Equipment: TRSEquipment;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Equipment.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Equipment.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Equipment.Draw(Bitmap);
+  Equipment.Setup('Equipment');
 end;

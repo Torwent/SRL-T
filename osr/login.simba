@@ -33,6 +33,16 @@ type
   end;
 
   TRSLogin = record(TRSInterface)
+  class const
+    ELEMENT_EXISTING_USER:  TRSInterfaceElement = [395, 275, 135, 33];
+    ELEMENT_WS_OPEN:        TRSInterfaceElement = [8, 465, 94, 31];
+    ELEMENT_LOGIN:          TRSInterfaceElement = [235, 305, 135, 33];
+    ELEMENT_LOGIN_FIELD:    TRSInterfaceElement = [312, 240, 239, 18];
+    ELEMENT_PASSWORD_FIELD: TRSInterfaceElement = [342, 257, 209, 12];
+    ELEMENT_WS_CANCEL:      TRSInterfaceElement = [708, 4, 50, 16];
+    ELEMENT_LOGIN_RESPONSE: TRSInterfaceElement = [211, 183, 340, 56];
+    ELEMENT_ENTER_GAME:     TRSInterfaceElement = [272, 296, 221, 82];
+  var
     Players: array of TRSLoginPlayer;
     PlayerIndex: Int32;
     
@@ -73,51 +83,25 @@ const
     LOGIN_MESSAGE_MEMBERS,
     LOGIN_MESSAGE_IN_MEMBERS_AREA
   ];
-  
+
   LOGIN_DIALOG_OK = 'Ok';
   LOGIN_DIALOG_TRY_AGAIN = 'Try again';
-  LOGIN_DIALOG_EXISTING_USER = 'Existing User';
   LOGIN_DIALOG_CONTINUE = 'Continue';
-  
-  LOGIN_DIALOGS = [
+
+  LOGIN_DIALOGS: TStringArray = [
     LOGIN_DIALOG_OK,
-    LOGIN_DIALOG_TRY_AGAIN,
-    LOGIN_DIALOG_EXISTING_USER
+    LOGIN_DIALOG_TRY_AGAIN
   ];
-  
-  LOGIN_DIALOGS_DANGEROUS = [
+
+  LOGIN_DIALOGS_DANGEROUS: TStringArray = [
     LOGIN_DIALOG_CONTINUE
   ];
-
-function TRSLogin.FindText(Text: String; out B: TBox): Boolean; overload;
-begin
-  Result := (OCR.LocateText(Self.Bounds, Text, RS_FONT_BOLD_12,  TOCRColorRule.Create([$FFFFFF]), B) = 1) or
-            (OCR.LocateText(Self.Bounds, Text, RS_FONT_BOLD_12,  TOCRColorRule.Create([$00FFFF]), B) = 1) or
-            (OCR.LocateText(Self.Bounds, Text, RS_FONT_PLAIN_12, TOCRColorRule.Create([$FFFFFF]), B) = 1) or
-            (OCR.LocateText(Self.Bounds, Text, RS_FONT_PLAIN_11, TOCRColorRule.Create([$FFFFFF]), B) = 1);
-end;
-
-function TRSLogin.FindText(Text: String): Boolean; overload;
-var
-  _: TBox;
-begin
-  Result := Self.FindText(Text, _);
-end;  
-
-function TRSLogin.ClickText(Text: String): Boolean;
-var
-  B: TBox;
-begin
-  Result := Self.FindText(Text, B);
-  if Result then 
-    Mouse.Click(B, MOUSE_LEFT);
-end;
 
 function TRSLogin.ClickWorld(World: Int32): Boolean;
 var
   B: TBox;
 begin
-  Result := OCR.LocateText(Self.Bounds, ToString(World), RS_FONT_BOLD_12, TOCRColorRule.Create([$000000]), B) = 1;
+  Result := OCR.LocateText(Self.Bounds, ToString(World), RS_FONT_BOLD_12, TOCRColorFilter.Create([$000000]), B) = 1;
   
   if Result then 
   begin
@@ -135,34 +119,35 @@ end;
 
 function TRSLogin.IsOpen: Boolean;
 begin
-  Result := Self.FindText('Click to switch');
+  Result := Self.ElementFinder.HasText(Self.ELEMENT_WS_OPEN, [RSColors.TEXT_WHITE], 'Click to switch', RS_FONT_PLAIN_11) or
+            Self.IsWorldSwitcherOpen();
 end;
 
 function TRSLogin.IsWorldSwitcherOpen: Boolean;
 begin
-  Result := Self.FindText('Cancel');
+  Result := Self.ElementFinder.HasText(Self.ELEMENT_WS_CANCEL, [RSColors.TEXT_WHITE], 'Cancel', RS_FONT_PLAIN_11);
 end;
 
 function TRSLogin.OpenWorldSwitcher: Boolean;
 begin
-  Result := Self.ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000); 
+  Self.ElementFinder.Click(Self.ELEMENT_WS_OPEN);
+
+  Result := WaitUntil(Self.IsWorldSwitcherOpen(), 500, 8000);
 end;
 
 function TRSLogin.CloseWorldSwitcher: Boolean;
 begin
-  Result := Self.IsOpen() or (Self.ClickText('Cancel') and WaitUntil(Self.IsOpen(), 100, 1000));
+  if (not Self.IsOpen()) or (not Self.IsWorldSwitcherOpen()) then
+    Exit(True);
+
+  Keyboard.PressKey(VK_ESCAPE);
+
+  Result := WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 2000);
 end;
 
 function TRSLogin.GetCurrentWorld: Int32;
-var
-  B: TBox;
 begin
-  if Self.CloseWorldSwitcher() and Self.FindText('Click to switch', B) then
-  begin
-    B.Y1 -= 25;
-    
-    Result := OCR.RecognizeNumber(B, TOCRColorRule.Create([$FFFFFF]), RS_FONT_BOLD_12);
-  end;
+  Result := Self.ElementFinder.ReadNumber(Self.ELEMENT_WS_OPEN, [RSColors.TEXT_WHITE], RS_FONT_BOLD_12);
 end;
 
 function TRSLogin.SwitchToWorld(World: Int32): Boolean;
@@ -191,67 +176,62 @@ function TRSLogin.HandleDialogs: Boolean;
 var
   Dialog: String;
 begin
-  for Dialog in LOGIN_DIALOGS do
-    if Self.ClickText(' ' + Dialog + ' ') then
+  if Self.ElementFinder.HasText(Self.ELEMENT_EXISTING_USER, [RSColors.TEXT_WHITE], 'Existing User', RS_FONT_BOLD_12) then
+  begin
+    Self.ElementFinder.Click(Self.ELEMENT_EXISTING_USER);
+
+    Exit(True);
+  end;
+
+  for Dialog in LOGIN_DIALOGS + LOGIN_DIALOGS_DANGEROUS do
+    if Self.ElementFinder.HasText(Self.ELEMENT_LOGIN, [RSColors.TEXT_WHITE], Dialog, RS_FONT_BOLD_12) then
+    begin
+      if (Dialog in LOGIN_DIALOGS_DANGEROUS) and (not Self.AllowDangerousWorlds) Then
+        Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(Self.GetCurrentWorld()) + ')');
+
+      Self.ElementFinder.Click(Self.ELEMENT_LOGIN);
+
       Exit(True);
-    
-  for Dialog in LOGIN_DIALOGS_DANGEROUS do
-    case Self.AllowDangerousWorlds of
-      True:
-        if Self.ClickText(' ' + Dialog + ' ') then
-          Exit(True);
-          
-      False: 
-        if Self.FindText(' ' + Dialog + ' ') then
-          Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(Self.GetCurrentWorld()) + ')');  
     end;
 end;
 
-function TRSLogin.EnterField(Field, Details: String): Boolean;
-var
-  B: TBox;
+function TRSLogin.EnterField(Element: TRSInterfaceElement; Text: String): Boolean;
 begin
-  if Self.FindText(Details + ' ') then
-    Exit(True);
-  
-  if Self.FindText(Field, B) then
-  begin
-    B.X1 := B.X2;
-    B.X2 := B.X1 + 250;
+  Result := True;
+  if Self.ElementFinder.HasText(Element, [RSColors.TEXT_WHITE], Text + ' ', RS_FONT_BOLD_12) then
+    Exit;
 
-    // Move caret
-    while not WaitUntil(SRL.CountColor($00FFFF, B) > 15, 100, SRL.TruncatedGauss(800, 1600)) do
-    begin
-      if not Self.IsOpen() then 
-        Exit(False);
-      
-      Keyboard.PressKey(VK_TAB);
-    end;
-  
-    // Erase field
-    while SRL.CountColor($FFFFFF, B) > 0 do
-      Keyboard.PressKey(VK_BACK);
-    Keyboard.Send(Details);
-    
-    Wait(0, 1000, wdLeft);
-    
-    Result := True;
+  // Move caret
+  while not WaitUntil(Self.ElementFinder.CountColor(Element, [RSColors.TEXT_YELLOW]) > 10, 100, SRL.TruncatedGauss(800, 1600)) do
+  begin
+    if not Self.IsOpen() then
+      Exit(False);
+
+    Keyboard.PressKey(VK_TAB);
   end;
+
+  // Erase field
+  while Self.ElementFinder.HasColor(Element, [RSColors.TEXT_WHITE]) do
+  begin
+    if not Self.IsOpen() then
+      Exit(False);
+
+    Keyboard.PressKey(VK_BACK);
+  end;
+  Keyboard.Send(Text);
+
+  Wait(0, 1000, wdLeft);
 end;
 
 function TRSLogin.GetLoginMessage: String;
 var
-  I: Int32;
+  Message: String;
 begin
   Result := LOGIN_MESSAGE_NONE;
 
-  for I := 0 to High(LOGIN_MESSAGES) do
-    if Self.FindText(LOGIN_MESSAGES[I]) then
-    begin
-      Result := LOGIN_MESSAGES[I];
-      
-      Exit;
-    end;
+  for Message in LOGIN_MESSAGES do
+    if Self.ElementFinder.HasText(Self.ELEMENT_LOGIN_RESPONSE, [RSColors.TEXT_YELLOW], Message, RS_FONT_BOLD_12) then
+      Exit(Message);
 end;
 
 function TRSLogin.HandleMessage(Message: String): Boolean;
@@ -292,20 +272,16 @@ begin
   end;
 end;
 
-function TRSLogin.EnterGame: Boolean;
-var
-  T: UInt64;
+function TRSLogin.ClickEnterGame: Boolean;
 begin
-  T := GetTickCount() + 2500;
-  while (T > GetTickCount()) do
-  begin
-    if Self.ClickText('CLICK HERE TO PLAY') then
-      Break;
-      
-    Wait(100);
-  end;
-  
-  Result := RSClient.IsLoggedIn(5000);
+  Result := Self.ElementFinder.HasText(Self.ELEMENT_ENTER_GAME, [RSColors.TEXT_WHITE], 'CLICK HERE TO PLAY', RS_FONT_BOLD_12);
+  if Result then
+    Self.ElementFinder.Click(Self.ELEMENT_ENTER_GAME);
+end;
+
+function TRSLogin.EnterGame: Boolean;
+begin
+  Result := WaitUntil(Self.ClickEnterGame() or RSClient.IsLoggedIn(), 100, 3500) and RSClient.IsLoggedIn(3500);
 end;
 
 function TRSLogin.GetPlayer: TRSLoginPlayer;
@@ -341,25 +317,27 @@ begin
         Exit;
     end;
     
-    if Self.HandleDialogs() then
-      Wait(500);
-
-    if Self.EnterField('Login:', Player.User) and
-       Self.EnterField('Password:', Player.Password) then
+    if not Self.HandleDialogs() then
     begin
-      Keyboard.PressKey(VK_ENTER);
-  
-      while Self.IsOpen() and (Self.GetLoginMessage() in [LOGIN_MESSAGE_CONNECTING, LOGIN_MESSAGE_NONE]) do
-        Wait(500);
-  
-      if Self.IsOpen() then
+      if Self.EnterField(Self.ELEMENT_LOGIN_FIELD, Player.User) and
+         Self.EnterField(Self.ELEMENT_PASSWORD_FIELD, Player.Password) then
       begin
-        Message := Self.GetLoginMessage();
-        if not Self.HandleMessage(Message) then
-          Exit(False);
+        Keyboard.PressKey(VK_ENTER);
+
+        while Self.IsOpen() and (Self.GetLoginMessage() in [LOGIN_MESSAGE_CONNECTING, LOGIN_MESSAGE_NONE]) do
+          Wait(500);
+
+        if Self.IsOpen() then
+        begin
+          Message := Self.GetLoginMessage();
+          if not Self.HandleMessage(Message) then
+            Exit(False);
+        end;
       end;
     end;
-    
+
+    Wait(500, 1000, wdLeft);
+
     Inc(Attempts);
   end;
 
@@ -410,44 +388,27 @@ begin
   inherited;
 end;
 
-procedure TRSLogin.Setup; override;
+procedure TRSLogin.Setup(Name: String); override;
 begin
   inherited;
 
-  Self.Name := 'Login';
-end;
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left := [@RootInterface.X1];
+    Right := [@RootInterface.X2];
+    Top := [@RootInterface.Y1];
+    Bottom := [@RootInterface.Y1, 502];
+    Center := [764, 0];
+  end;
 
-procedure TRSLogin.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@RootInterface.X1];
-  Self.Alignment.Right := [@RootInterface.X2];
-  Self.Alignment.Top := [@RootInterface.Y1];
-  Self.Alignment.Bottom := [@RootInterface.Y1, 502];
-  Self.Alignment.Center := [764, 0];
+  // Same as above
+  Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] := Self.BoundsFinder.Alignments[ERSClientMode.FIXED];
+  Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN]  := Self.BoundsFinder.Alignments[ERSClientMode.FIXED];
 end;
 
 var
   Login: TRSLogin;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Login.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Login.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Login.Draw(Bitmap);
+  Login.Setup('Login');
 end;

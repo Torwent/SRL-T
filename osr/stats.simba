@@ -68,28 +68,11 @@ type
   end;
 
 type
-  TRSStats = type TRSInterface;
-
-procedure TRSStats.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Stats';
-end;
-
-procedure TRSStats.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
+  TRSStats = type TRSGameTab;
 
 function TRSStats.GetSkillBoxes: TBoxArray;
 begin
-  Result := Grid(3, 8, 53, 23, [10, 9], [Self.X1 + 2, Self.Y1 + 6]);
+  Result := Grid(3, 8, 53, 23, [10, 9], [Self.X1 + 5, Self.Y1 + 6]);
 end;
 
 function TRSStats.GetSkillBox(Skill: ERSSkill): TBox;
@@ -114,51 +97,55 @@ begin
   Mouse.Move(Self.GetSkillBox(Skill));
 end;
 
-function TRSStats.GetSkillInfo(Skill: ERSSkill; WaitTime: Int32 = 1000): TRSSkillInfo;
-var
-  TPA: TPointArray;
-  Lines: TStringArray;
-  T: UInt64;
-  B: TBox;
-  I: Int32;
-begin
-  if not Self.MouseOver(Skill) then
-    Exit();
+function TRSStats.GetSkillInfo(Skill: ERSSkill; WaitTime: Int32 = 1500): TRSSkillInfo;
 
-  T := GetTickCount() + WaitTime;
-  repeat
-    if SRL.FindColors(TPA, CTS0($A0FFFF), Self.Bounds) then
+  function ReadHint(HintBounds: TBox; var Info: TRSSkillInfo): Boolean;
+  var
+    LineBoxes: TBoxArray;
+    LineText: String;
+    I: Integer;
+  begin
+    if (HintBounds.Area() < 100) then
+      Exit;
+
+    HintBounds := HintBounds.Expand(-1);
+    LineBoxes := HintBounds.Partition(Ceil(HintBounds.Height() / 15), 1);
+
+    for I := 0 to High(LineBoxes) do
     begin
-      B := TPA.Bounds;
+      LineBoxes[I].Y1 -= 1;
+      LineBoxes[I].Y2 += 3;
 
-      SetLength(Lines, B.Height div 12);
-      for I := 0 to High(Lines) do
-        Lines[I] := OCR.Recognize([B.X1, B.Y1 + (I * 12), B.X2, B.Y1 + ((I+1) * 12) + 3],  TOCRColorRule.Create([0]), RS_FONT_PLAIN_12);
+      LineText := OCR.Recognize(LineBoxes[I], TOCRColorFilter.Create([RSColors.TEXT_BLACK]), RS_FONT_PLAIN_12);
 
-      if Length(Lines) = 0 then
-        Continue;
-      if not (SKILLNAMES[Skill] in Lines[0]) then
-        Continue;
-
-      Result.XP := StrToIntDef(ExtractFromStr(Lines[0], Numbers), 0);
-      Result.Level := SRL.GetLevelAtXP(Result.XP);
-
-      if Length(Lines) = 3 then
-      begin
-        Result.Next := StrToIntDef(ExtractFromStr(Lines[1], Numbers), 0);
-        Result.Remainder := StrToIntDef(ExtractFromStr(Lines[2], Numbers), 0);
+      case I of
+        0:
+          begin
+            if not (SKILLNAMES[Skill] in LineText) then
+              Exit;
+            Info.XP := LineText.ExtractInteger();
+          end;
+        1: Info.Next      := LineText.ExtractInteger();
+        2: Info.Remainder := LineText.ExtractInteger();
       end;
-
-      Break;
     end;
 
-    Wait(50);
-  until GetTickCount() >= T;
+    Info.Level := SRL.GetLevelAtXP(Info.XP);
+
+    Result := True;
+  end;
+
+var
+  TPA: TPointArray;
+begin
+  if not Self.MouseOver(Skill) then
+    Exit;
+
+  WaitUntil(FindColors(TPA, RSColors.HINT_BACKGROUND, Self.Bounds) and ReadHint(TPA.Bounds(), Result), SRL.TruncatedGauss(100, 200), WaitTime);
 end;
 
 function TRSStats.GetCurrentLevel(Skill: ERSSkill): Int32;
 var
-  Text: String;
   B: TBox;
 begin
   if not Self.Open() then
@@ -167,8 +154,7 @@ begin
   B := Self.GetSkillBox(Skill);
   B.Y2 := B.Y1 + (B.Height div 2);
 
-  Text := OCR.Recognize(B,  TOCRColorRule.Create([65535]), RS_FONT_PLAIN_11);
-  Result := StrToIntDef(ExtractFromStr(Text, Numbers), -1);
+  Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([RSColors.TEXT_YELLOW]), RS_FONT_PLAIN_11);
 end;
 
 procedure TRSStats.Draw(Bitmap: TMufasaBitmap); override;
@@ -181,27 +167,18 @@ begin
   Bitmap.DrawBoxArray(Self.GetSkillBoxes(), False, $00FFFF);
 end;
 
+procedure TRSStats.Setup(Name: String); override;
+begin
+  inherited;
+
+  // Self.ID := ERSGameTab.INVENTORY;
+  // Self.ItemFinder.GetSearchBoxesFunction := @Self.GetItemBoxes;
+end;
+
 var
   Stats: TRSStats;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Stats.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Stats.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Stats.Draw(Bitmap);
+  Stats.Setup('Stats');
 end;
 

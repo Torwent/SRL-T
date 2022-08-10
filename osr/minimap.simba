@@ -13,49 +13,54 @@ type
 
 type
   TRSMinimap = record(TRSInterface)
-    CompassCircleOffset: TPoint;
-    XPCircleOffset: TPoint;
-    HitpointsCircleOffset: TPoint;
-    PrayerCircleOffset: TPoint;
-    RunCircleOffset: TPoint;
-    SpecAttackCircleOffset: TPoint;
-    PolygonOffset: TPointArray;
-    FlagBitmap: TMufasaBitmap;
+    CompassCircleOffset:    array[ERSClientMode] of TPoint;
+    XPCircleOffset:         array[ERSClientMode] of TPoint;
+    HitpointsCircleOffset:  array[ERSClientMode] of TPoint;
+    PrayerCircleOffset:     array[ERSClientMode] of TPoint;
+    RunCircleOffset:        array[ERSClientMode] of TPoint;
+    SpecAttackCircleOffset: array[ERSClientMode] of TPoint;
+    PolygonOffset:          array[ERSClientMode] of TPointArray;
   end;
 
 function TRSMinimap.GetCompassCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.CompassCircleOffset.X, Self.Y1 + Self.CompassCircleOffset.Y, 17];
+  with Self.CompassCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 17];
 end;
 
 function TRSMinimap.GetXPCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.XPCircleOffset.X + 10, Self.Y1 + Self.XPCircleOffset.Y, 11];
+  with Self.XPCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X + 10, Self.Y1 + Y, 11];
 end;
 
 function TRSMinimap.GetHPCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.HitpointsCircleOffset.X, Self.Y1 + Self.HitpointsCircleOffset.Y, 12];
+  with Self.HitpointsCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 12];
 end;
 
 function TRSMinimap.GetPrayerCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.PrayerCircleOffset.X, Self.Y1 + Self.PrayerCircleOffset.Y, 12];
+  with Self.PrayerCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 12];
 end;
 
 function TRSMinimap.GetRunCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.RunCircleOffset.X, Self.Y1 + Self.RunCircleOffset.Y, 12];
+  with Self.RunCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 12];
 end;
 
 function TRSMinimap.GetSpecAttackCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.SpecAttackCircleOffset.X, Self.Y1 + Self.SpecAttackCircleOffset.Y, 12];
+  with Self.SpecAttackCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 12];
 end;
 
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
 begin
-  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y-1, Orb.X-15, Orb.Y+9], TOCRShadowRule.Create(), RS_FONT_PLAIN_11);
+  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y-1, Orb.X-15, Orb.Y+9], TOCRShadowFilter.Create(), RS_FONT_PLAIN_11);
 end;
 
 function TRSMinimap.GetRunEnergy: Int32;
@@ -65,7 +70,7 @@ end;
 
 function TRSMinimap.GetPolygon: TPointArray;
 begin
-  Result := Self.PolygonOffset.Offset(Self.Center);
+  Result := Self.PolygonOffset[RSClient.ClientMode].Offset(Self.Center);
 end;
 
 function TRSMinimap.GetCompassAngle(AsDegrees: Boolean = True): Double;
@@ -92,7 +97,6 @@ begin
       end;
     end;
 end;
-
 
 procedure TRSMinimap.SetCompassAngle(Degrees: Double; Accuracy: Double = 5);
 const
@@ -186,60 +190,6 @@ begin
   Bitmap.SetPixel(Self.Center.X, Self.Center.Y, $0000FF);
 end;
 
-procedure TRSMinimap.Free;
-begin
-  Self.FlagBitmap.Free();
-end;
-
-procedure TRSMinimap.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Minimap';
-  Self.FlagBitmap := TMufasaBitmap.CreateFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
-
-  AddOnTerminate(@Self.Free);
-end;
-
-procedure TRSMinimap.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  case Self.Mode of
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@RootInterface.X2, -157];
-        Self.Alignment.Right := [@RootInterface.X2, -6];
-        Self.Alignment.Top := [@RootInterface.Y1, 8];
-        Self.Alignment.Bottom := [@RootInterface.Y1, 159];
-
-        Self.CompassCircleOffset := [-2, 14];
-        Self.XPCircleOffset := [-50, 32];
-        Self.HitpointsCircleOffset := [-13, 55];
-        Self.PrayerCircleOffset := [-13, 90];
-        Self.RunCircleOffset := [-3, 121];
-        Self.SpecAttackCircleOffset := [19, 148];
-        Self.PolygonOffset := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
-      end;
-
-    ERSClientMode.FIXED:
-      begin
-        Self.Alignment.Left := [@RootInterface.X2, -195];
-        Self.Alignment.Right := [@RootInterface.X2,-50];
-        Self.Alignment.Top := [@RootInterface.Y1, 8];
-        Self.Alignment.Bottom := [@RootInterface.Y1, 159];
-
-        Self.CompassCircleOffset := [-8, 12];
-        Self.XPCircleOffset := [-50, 26];
-        Self.HitpointsCircleOffset := [-13, 49];
-        Self.PrayerCircleOffset := [-13, 84];
-        Self.RunCircleOffset := [-3, 116];
-        Self.SpecAttackCircleOffset := [19, 142];
-        Self.PolygonOffset := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
-      end;
-  end;
-end;
-
 function TRSMinimap.IsPointOn(P: TPoint): Boolean; overload;
 begin
   Result := SRL.PointInPoly(P, Self.GetPolygon());
@@ -321,7 +271,7 @@ end;
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
-  Result := FindBitmapToleranceIn(Self.FlagBitmap, P.X, P.Y, Self.Bounds, 5);
+  Result := FindBitmapToleranceIn(RSBitmaps.MinimapFlag, P.X, P.Y, Self.Bounds, 5);
 end;
 
 function TRSMinimap.HasFlag: Boolean; overload;
@@ -499,26 +449,63 @@ begin
     Result := 100 - Ceil((Y2 - Y1) / (Circle.Bounds.Y2 - Circle.Bounds.Y1) * 100);
 end;
 
+procedure TRSMinimap.Setup(Name: String); override;
+begin
+  inherited;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@RootInterface.X2, -198];
+    Right  := [@RootInterface.X2,-47];
+    Top    := [@RootInterface.Y1, 8];
+    Bottom := [@RootInterface.Y1, 159];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@RootInterface.X2, -157];
+    Right  := [@RootInterface.X2, -6];
+    Top    := [@RootInterface.Y1, 8];
+    Bottom := [@RootInterface.Y1, 159];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@RootInterface.X2, -157];
+    Right  := [@RootInterface.X2, -6];
+    Top    := [@RootInterface.Y1, 8];
+    Bottom := [@RootInterface.Y1, 159];
+  end;
+
+  Self.CompassCircleOffset[ERSClientMode.FIXED]    := [-8, 12];
+  Self.XPCircleOffset[ERSClientMode.FIXED]         := [-50, 26];
+  Self.HitpointsCircleOffset[ERSClientMode.FIXED]  := [-13, 49];
+  Self.PrayerCircleOffset[ERSClientMode.FIXED]     := [-13, 84];
+  Self.RunCircleOffset[ERSClientMode.FIXED]        := [-3, 116];
+  Self.SpecAttackCircleOffset[ERSClientMode.FIXED] := [19, 142];
+  Self.PolygonOffset[ERSClientMode.FIXED]          := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
+
+  Self.CompassCircleOffset[ERSClientMode.RESIZABLE_MODERN]    := [-2, 14];
+  Self.XPCircleOffset[ERSClientMode.RESIZABLE_MODERN]         := [-50, 32];
+  Self.HitpointsCircleOffset[ERSClientMode.RESIZABLE_MODERN]  := [-13, 55];
+  Self.PrayerCircleOffset[ERSClientMode.RESIZABLE_MODERN]     := [-13, 90];
+  Self.RunCircleOffset[ERSClientMode.RESIZABLE_MODERN]        := [-3, 121];
+  Self.SpecAttackCircleOffset[ERSClientMode.RESIZABLE_MODERN] := [19, 148];
+  Self.PolygonOffset[ERSClientMode.RESIZABLE_MODERN]          := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
+
+  // Same as above
+  Self.CompassCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]    := [-2, 14];
+  Self.XPCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]         := [-50, 32];
+  Self.HitpointsCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]  := [-13, 55];
+  Self.PrayerCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]     := [-13, 90];
+  Self.RunCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]        := [-3, 121];
+  Self.SpecAttackCircleOffset[ERSClientMode.RESIZABLE_CLASSIC] := [19, 148];
+  Self.PolygonOffset[ERSClientMode.RESIZABLE_CLASSIC]          := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
+end;
+
 var
   Minimap: TRSMinimap;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Minimap.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Minimap.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Minimap.Draw(Bitmap);
+  Minimap.Setup('Minimap');
 end;

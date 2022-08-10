@@ -4,164 +4,195 @@
 {$ENDIF}
 
 type
-  TRSBankPin = type TRSTitledInteface;
-
-procedure TRSBankPin.Setup; override;
-begin
-  inherited;
-  
-  Self.Name := 'Bank Pin';
-  Self.ButtonColors := [CTS1(988769, 30)];
-end;
-
-procedure TRSBankPin.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  case Self.Mode of
-    ERSClientMode.FIXED:
-      begin
-        Self.Alignment.Left := [@InterfaceArea.X1];
-        Self.Alignment.Right := [@InterfaceArea.X2];
-        Self.Alignment.Top := [@InterfaceArea.Y1, 11];
-        Self.Alignment.Bottom := [@InterfaceArea.Y2];
-        Self.Alignment.Center.MaxWidth := 488;
-        Self.Alignment.Center.MaxHeight := 305;
-      end;
-
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@InterfaceArea.X1];
-        Self.Alignment.Right := [@InterfaceArea.X2];
-        Self.Alignment.Top := [@InterfaceArea.Y1, 10];
-        Self.Alignment.Bottom := [@InterfaceArea.Y2];
-        Self.Alignment.Center.MaxWidth := 488;
-        Self.Alignment.Center.MaxHeight := 305;
-      end;
+  TRSBankPin = record(TRSInterface)
+  class const
+    ELEMENT_BUTTON_0: TRSInterfaceElement = [21, 83, 64, 64];
+    ELEMENT_BUTTON_1: TRSInterfaceElement = [115, 83, 64, 64];
+    ELEMENT_BUTTON_2: TRSInterfaceElement = [210, 83, 64, 64];
+    ELEMENT_BUTTON_3: TRSInterfaceElement = [293, 83, 64, 64];
+    ELEMENT_BUTTON_4: TRSInterfaceElement = [21, 155, 64, 64];
+    ELEMENT_BUTTON_5: TRSInterfaceElement = [115, 155, 64, 64];
+    ELEMENT_BUTTON_6: TRSInterfaceElement = [209, 155, 64, 64];
+    ELEMENT_BUTTON_7: TRSInterfaceElement = [21, 227, 64, 64];
+    ELEMENT_BUTTON_8: TRSInterfaceElement = [115, 227, 64, 64];
+    ELEMENT_BUTTON_9: TRSInterfaceElement = [209, 227, 64, 64];
+    ELEMENT_EXIT:     TRSInterfaceElement = [374, 230, 32, 17];
+    ELEMENT_STATE:    TRSInterfaceElement = [147, 57, 204, 22];
+  var
+    Entering: Boolean;
   end;
-end;
-
-function TRSBankPin.GetButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[56,56]]);
-end;
-
 
 function TRSBankPin.IsOpen: Boolean;
 begin
-  Result := Length(Self.GetButtons()) = 10;
+  Result := Self.ElementFinder.HasText(Self.ELEMENT_EXIT, [RSColors.TEXT_WHITE, RSColors.TEXT_RED], 'Exit', RS_FONT_QUILL_8);
 end;
 
-function TRSBankPin.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+procedure TRSBankPin.Setup(Name: String); override;
 begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
+  inherited;
 
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
-end;
-
-
-function TRSBankPin.ClickDigit(Digit: Char): Boolean; overload;
-var
-  Buttons: TRSButtonArray;
-  I: Int32;
-begin
-  Buttons := Self.GetButtons();
-  
-  if Length(Buttons) = 10 then
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
   begin
-    Result := True;
-    
-    for I := 0 to High(Buttons) do
-      if Buttons[I].FindText(Digit, RS_FONT_BOLD_12) then
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 11];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth  := 488;
+    Center.MaxHeight := 305;
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 10];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth  := 488;
+    Center.MaxHeight := 305;
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 10];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth  := 488;
+    Center.MaxHeight := 305;
+  end;
+end;
+
+function TRSBankPin.Enter(Pin: String; IsNextInterfaceOpen: function: Boolean of object): Boolean;
+
+  function GetDigitToEnter: Integer;
+  begin
+    if Self.ElementFinder.HasText(Self.ELEMENT_STATE, [RSColors.TEXT_WHITE], 'FIRST', RS_FONT_BOLD_12)  then Exit(1);
+    if Self.ElementFinder.HasText(Self.ELEMENT_STATE, [RSColors.TEXT_WHITE], 'SECOND', RS_FONT_BOLD_12) then Exit(2);
+    if Self.ElementFinder.HasText(Self.ELEMENT_STATE, [RSColors.TEXT_WHITE], 'THIRD', RS_FONT_BOLD_12)  then Exit(3);
+    if Self.ElementFinder.HasText(Self.ELEMENT_STATE, [RSColors.TEXT_WHITE], 'FOURTH', RS_FONT_BOLD_12) then Exit(4);
+  end;
+
+  function ClickDigit(Digit: Char): Boolean;
+  var
+    Buttons: TRSInterfaceElementArray;
+    Button: TRSInterfaceElement;
+  begin
+    Buttons := [
+      Self.ELEMENT_BUTTON_0, Self.ELEMENT_BUTTON_1, Self.ELEMENT_BUTTON_2,
+      Self.ELEMENT_BUTTON_3, Self.ELEMENT_BUTTON_4, Self.ELEMENT_BUTTON_5,
+      Self.ELEMENT_BUTTON_6, Self.ELEMENT_BUTTON_7, Self.ELEMENT_BUTTON_8,
+      Self.ELEMENT_BUTTON_9
+    ];
+    for Button in Buttons do
+      if Self.ElementFinder.HasText(Button, [$007FFF], Digit, RS_FONT_BOLD_12) then
       begin
-        Mouse.Click(Buttons[I].Bounds, MOUSE_LEFT);
-        
-        Exit;
-      end;   
-      
-    // Already hovering
-    Mouse.Click(MOUSE_LEFT);  
+        Self.ElementFinder.Click(Button);
+
+        Exit(True);
+      end;
   end;
-end;
 
-function TRSBankPin.Enter(Pin: String): Boolean;
+  function EnterDigit(Digit: Char): Boolean;
+  begin
+    if WaitUntil(ClickDigit(Digit), 100, SRL.TruncatedGauss(1000, 2000)) then
+      Exit(True);
 
-  function GetDigitToEnter: Char;
-  begin 
-    if OCR.LocateText(Self.Bounds, 'FIRST',  RS_FONT_BOLD_12, TOCRColorRule.Create([$FFFFFF]), 1) then Exit(Pin[1]);
-    if OCR.LocateText(Self.Bounds, 'SECOND', RS_FONT_BOLD_12, TOCRColorRule.Create([$FFFFFF]), 1) then Exit(Pin[2]);
-    if OCR.LocateText(Self.Bounds, 'THIRD',  RS_FONT_BOLD_12, TOCRColorRule.Create([$FFFFFF]), 1) then Exit(Pin[3]);
-    if OCR.LocateText(Self.Bounds, 'FOURTH', RS_FONT_BOLD_12, TOCRColorRule.Create([$FFFFFF]), 1) then Exit(Pin[4]);
+    // Likely hovering the button but mouse away to make sure.
+    if Mouse.Position() in Self.Bounds() then
+    begin
+      with Self.Bounds().Invert(Self.Bounds().Expand(50)) do
+        Mouse.Move(RandomValue());
+      Result := ClickDigit(Digit);
+    end;
   end;
 
 var
-  I: Int32;
-  Digit: Char;
+  Digit: Int32;
 begin
-  for 1 to 3 do // 3 Attempts
-  begin
-    for I := 1 to 4 do
+  Self.Entering := True;
+
+  try
+    while Self.IsOpen() do
     begin
       Digit := GetDigitToEnter();
-      if Digit = '' then
-        Break;
-    
-      if not Self.ClickDigit(Digit) then
+
+      if (Digit > 0) then
       begin
-        if Chat.ClickContinue() then   //When you enter the bankpin wrong which sometimes happens for whatever reason,
-          Self.IsOpen(3000);           //the bankpin interface closes and displays a chatbox warning with a continue option.
-        Break;                         //You need to click it and wait for the bankpin UI to open again.
+        if EnterDigit(Pin[Digit]) then
+        begin
+          case Digit of
+            1,2,3:
+              begin
+                if not WaitUntil(GetDigitToEnter() > Digit, 500, 2500 + Random(1000)) then
+                  Self.DebugLn('Failed to progress to next digit');
+              end;
+            4:
+              begin
+                if WaitUntil(IsNextInterfaceOpen(), 500, 2500 + Random(1000)) then
+                  Exit(True);
+
+                Self.DebugLn('Failed to progress to next interface');
+              end;
+          end;
+        end;
       end;
 
-      Wait(1000, 2000, wdLeft);
+      Wait(0, 1500, wdLeft);
     end;
-    
-    if Bank.IsOpen(3000) then
-      Exit(True);
+
+    Result := IsNextInterfaceOpen();
+    if Result then
+      Self.DebugLn('Progressed to interface somehow!');
+  finally
+    Self.Entering := False;
   end;
-
-  Result := Bank.IsOpen(3000); // wait 3 extra seconds before failing.
-end;
-
-procedure TRSBankPin.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if (not Self.IsOpen()) then
-    Exit;
-
-  inherited(Bitmap);
-
- // Bitmap.DrawBoxes(GetDigitBoxes(), False, $00FF00);
 end;
 
 var
   BankPin: TRSBankPin;
 
-function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean; override;
 begin
-  if BankPin.IsOpen() and (not BankPin.Enter(Login.GetPlayerPin())) then
-    Self.Fatal('Failed to enter bank pin');
-
-  Result := inherited(WaitForItems);
+  BankPin.Setup('BankPin');
 end;
 
-procedure TRSClient.ClientModeChanged; override;
+(*
+TRSBank.IsOpen
+~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.IsOpen: Boolean; override;
+Overrides **Bank.IsOpen** to handle pin.
+*)
+function TRSBank.IsOpen: Boolean; override;
 begin
-  inherited;
+  if inherited() then
+    Exit(True);
 
-  BankPin.SetupAlignment(Self.Mode);
+  if (not BankPin.Entering) and BankPin.IsOpen()then
+  begin
+    Result := BankPin.Enter(Login.GetPlayerPin(), @Bank.IsOpen);
+    if not Result then
+      Self.Fatal('Failed to enter bank pin');
+  end;
 end;
 
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  BankPin.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  BankPin.Draw(Bitmap);
-end;
+(*
+TRSGrandExchange.IsOpen
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSGrandExchange.IsOpen: Boolean; override;
+Overrides **GrandExchange.IsOpen** to handle pin.
+*)
+//function TRSGrandExchange.IsOpen: Boolean; override;
+//begin
+//  if Result := inherited() then
+//    Exit(True);
+//
+//  if (not BankPin.Entering) and BankPin.IsOpen()then
+//  begin
+//    Result := BankPin.Enter(Login.GetPlayerPin(), @GrandExchange.IsOpen);
+//    if not Result then
+//      Self.Fatal('Failed to enter bank pin');
+//  end;
+//end;

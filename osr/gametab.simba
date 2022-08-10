@@ -1,4 +1,4 @@
-{$DEFINE SRL_GAMEERSGameTab.INCLUDED}
+{$DEFINE SRL_GAMETAB_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
@@ -6,57 +6,32 @@
 type
   TRSGameTab = type TRSInterface;
 
-procedure TRSGameTab.Setup; override;
-begin
-  inherited; 
-  
-  Self.Name := 'GameTab';
-end;
-
-procedure TRSGameTab.SetupAlignment(Mode: ERSClientMode); override;
+procedure TRSGameTab.Setup(Name: String); override;
 begin
   inherited;
 
-  case Self.Mode of
-    ERSClientMode.FIXED, ERSClientMode.RESIZABLE_CLASSIC:
-      begin
-        Self.Alignment.Left := [@GameTabs.X1, 28];
-        Self.Alignment.Right := [@GameTabs.X2, -29];
-        Self.Alignment.Top := [@GameTabs.Y1, 36];
-        Self.Alignment.Bottom := [@GameTabs.Y2, -37];
-      end;
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@GameTabs.X1, 25];
+    Right  := [@GameTabs.X2, -26];
+    Top    := [@GameTabs.Y1, 36];
+    Bottom := [@GameTabs.Y2, -37];
+  end;
 
-    ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@GameTabs.X1, 37];
-        Self.Alignment.Right := [@GameTabs.X2, -10];
-        Self.Alignment.Top := [@GameTabs.Y1, 6];
-        Self.Alignment.Bottom := [@GameTabs.Y2, -78];
-      end;
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@GameTabs.X1, 25];
+    Right  := [@GameTabs.X2, -26];
+    Top    := [@GameTabs.Y1, 36];
+    Bottom := [@GameTabs.Y1, 297];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@GameTabs.X2, -196];
+    Right  := [@GameTabs.X2, -7];
+    Top    := [@GameTabs.Y1, 6];
+    Bottom := [@GameTabs.Y1, 267];
   end;
 end;
-
-var
-  GameTab: TRSGameTab;
-
-procedure TRSClient.ClientModeChanged; override;
-begin
-  inherited;
-  
-  GameTab.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  GameTab.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  GameTab.Draw(Bitmap);
-end;
-

@@ -33,70 +33,89 @@ const
     CHAT_COLOR_GREEN
   ];
 
-const
-  CHAT_MESSAGE_LINES = [0..7];
-  CHAT_INPUT_LINE = 8;
-
 type
-  TRSChat = type TRSInterface;
-  
+  ERSChatTab = enum(
+    NONE,
+    ALL_CHAT,
+    GAME_CHAT,
+    PUBLIC_CHAT,
+    PRIVATE_CHAT,
+    CHANNEL_CHAT,
+    CLAN_CHAT,
+    TRADE_CHAT,
+    REPORT
+  );
 
-(*
-Chat.Setup
-~~~~~~~~~~
-.. pascal:: procedure TRSChat.Setup; override;
+  TRSChat = record(TRSInterface)
+  class const
+    ELEMENT_LINE_INPUT:  TRSInterfaceElement = [10, 122, 484, 14];
+    ELEMENT_LINE_7:      TRSInterfaceElement = [10, 106, 484, 14];
+    ELEMENT_LINE_6:      TRSInterfaceElement = [10, 92, 484, 14];
+    ELEMENT_LINE_5:      TRSInterfaceElement = [10, 78, 484, 14];
+    ELEMENT_LINE_4:      TRSInterfaceElement = [10, 64, 484, 14];
+    ELEMENT_LINE_3:      TRSInterfaceElement = [10, 50, 484, 14];
+    ELEMENT_LINE_2:      TRSInterfaceElement = [10, 36, 484, 14];
+    ELEMENT_LINE_1:      TRSInterfaceElement = [10, 22, 484, 14];
+    ELEMENT_LINE_0:      TRSInterfaceElement = [10, 8, 484, 14];
+    ELEMENT_TAB_ALL:     TRSInterfaceElement = [7, 142, 48, 22];
+    ELEMENT_TAB_GAME:    TRSInterfaceElement = [69, 142, 48, 22];
+    ELEMENT_TAB_PUBLIC:  TRSInterfaceElement = [132, 142, 47, 22];
+    ELEMENT_TAB_PRIVATE: TRSInterfaceElement = [193, 142, 48, 22];
+    ELEMENT_TAB_CHANNEL: TRSInterfaceElement = [255, 142, 48, 22];
+    ELEMENT_TAB_CLAN:    TRSInterfaceElement = [317, 142, 48, 22];
+    ELEMENT_TAB_TRADE:   TRSInterfaceElement = [379, 142, 48, 22];
+  end;
 
-Initializes **Chat** variables.
-
-.. note:: This is automatically called on the **Chat** variable.
-*)
-procedure TRSChat.Setup; override;
+function TRSChat.GetTabBox(Tab: ERSChatTab): TBox;
+const
+  Elements: TRSInterfaceElementArray := [
+    Self.ELEMENT_TAB_ALL, Self.ELEMENT_TAB_GAME, Self.ELEMENT_TAB_PUBLIC,
+    Self.ELEMENT_TAB_PRIVATE, Self.ELEMENT_TAB_CHANNEL, Self.ELEMENT_TAB_CLAN, Self.ELEMENT_TAB_TRADE
+  ];
 begin
-  inherited;
-
-  Self.Name := 'Chatbox';
+  Result := Self.ElementFinder.Bounds(Elements[Tab - 1]);
 end;
 
-(*
-Chat.SetupAlignment
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
+function TRSChat.GetCurrentTab: ERSChatTab;
+var
+  Tab: ERSChatTab;
 begin
-  inherited;
-
-  Self.Alignment.Left := [@ChatButtons.X1];
-  Self.Alignment.Right := [@ChatButtons.X2];
-  Self.Alignment.Top := [@ChatButtons.Y1, -142];
-  Self.Alignment.Bottom := [@ChatButtons.Y1, -1];
+  for Tab in [ERSChatTab.ALL_CHAT..ERSChatTab.TRADE_CHAT] do
+    if CountColorTolerance(1452342, Self.GetTabBox(Tab), 10) > 100 then
+      Exit(Tab);
 end;
 
-procedure TRSChat.Draw(Bitmap: TMufasaBitmap); override;
+function TRSChat.OpenTab(Tab: ERSChatTab): Boolean;
 begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited;
-
-  Bitmap.DrawBoxArray(Self.GetLineBoxes(), False, $00FFFF);
+  Mouse.Click(Self.GetTabBox(Tab), MOUSE_LEFT);
 end;
 
-(*
-Chat.GetLineBoxes
-~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSChat.GetLineBoxes: TBoxArray;
-
-Internal function that returns the bounds of the chat lines.
-*)
-function TRSChat.GetLineBoxes: TBoxArray;
+function TRSChat.GetTabState(Tab: ERSChatTab): String;
+var
+  B: TBox;
 begin
-  Result := Grid(1, 9, Self.Width - 35, 13, [0, 1], [Self.X1 + 10, Self.Y1 + 8]);
-  Result[CHAT_INPUT_LINE].Y2 += 2;
+  B := Self.GetTabBox(Tab);
+  B.Y1 += (B.Height() div 2) - 1;
+
+  Result := OCR.Recognize(B, TOCRShadowFilter.Create(), RS_FONT_PLAIN_11);
+  Result := Result.Replace('0', 'O').Replace('I', 'l');
+end;
+
+function TRSChat.SetTabState(Tab: ERSChatTab; State: String): Boolean;
+begin
+  Mouse.Move(Self.GetTabBox(Tab));
+
+  Result := ChooseOption.Select(State);
+end;
+
+function TRSChat.GetLineBox(Index: Integer): TBox;
+const
+  Elements: TRSInterfaceElementArray := [
+    Self.ELEMENT_LINE_0, Self.ELEMENT_LINE_1, Self.ELEMENT_LINE_2, Self.ELEMENT_LINE_3,
+    Self.ELEMENT_LINE_4, Self.ELEMENT_LINE_5, Self.ELEMENT_LINE_6, Self.ELEMENT_LINE_7
+  ];
+begin
+  Result := Self.ElementFinder.Bounds(Elements[Index]);
 end;
 
 (*
@@ -112,15 +131,14 @@ Example
 
   Debug(Chat.GetDisplayNameBox());
 *)
-function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]; out Color: Int32): TBox;
+function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]; out Color: Int32): TBox; overload;
 var
   TPA: TPointArray;
 begin
+  Result := Self.ElementFinder.Bounds(Self.ELEMENT_LINE_INPUT);
   for Color in Colors do
-    if SRL.FindColors(TPA, Color, Self.GetLineBoxes()[CHAT_INPUT_LINE]) then
-      Break;
-
-  Result := TPA.Bounds();
+    if SRL.FindColors(TPA, Color, Result) then
+      Exit(TPA.Bounds());
 end;
 
 function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
@@ -146,10 +164,8 @@ function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): Str
 var
   Color: Int32;
 begin
-  Result := OCR.RecognizeStatic(Self.GetDisplayNameBox(Colors, Color).Expand(0, 2), TOCRColorRule.Create([Color]), RS_FONT_PLAIN_12);
-
-  if Result.Contains(':') then
-    Result.Before(':');
+  Result := OCR.RecognizeStatic(Self.GetDisplayNameBox(Colors, Color).Expand(2), TOCRColorFilter.Create([Color]), RS_FONT_PLAIN_12);
+  Result := Result.TrimRight([':']);
 end;
 
 (*
@@ -201,7 +217,7 @@ Example
 *)
 function TRSChat.GetQuery: String;
 begin
-  Result := OCR.Recognize(Self.Bounds(), TOCRColorRule.Create([$000000]), RS_FONT_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds(), TOCRColorFilter.Create([$000000]), RS_FONT_BOLD_12);
 end;
 
 (*
@@ -218,7 +234,7 @@ Example
 *)
 function TRSChat.GetQueryAnswer: String;
 begin
-  Result := OCR.Recognize(Self.Bounds(), TOCRColorRule.Create([8388608]), RS_FONT_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds(), TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12);
 end;
 
 (*
@@ -286,7 +302,7 @@ var
   Boxes: TBoxArray;
   I, Key: Int32;
 begin
-  Strings := OCR.RecognizeMulti(Self.Bounds(), TOCRColorRule.Create(Colors), RS_FONT_QUILL_8, Boxes);
+  Strings := OCR.RecognizeLines(Self.Bounds(), TOCRColorFilter.Create(Colors), RS_FONT_QUILL_8, Boxes);
 
   SetLength(Result, Length(Strings));
   for I := 0 to High(Result) do
@@ -430,28 +446,35 @@ var
   B: TBox;
   X: Int32;
   Transparent: Boolean;
-  Matrix: T2DIntegerArray;
 begin
-  B := Self.GetLineBoxes()[Line];
+  B := Self.GetLineBox(Line);
   B.Y1 -= StaticOffset; 
   
   Transparent := Self.IsTransparent();
   if Transparent then
-    Colors.Remove(CHAT_COLOR_BLACK);
+    Colors.RemoveAll(CHAT_COLOR_BLACK);
   
   if (Length(Colors) > 0) then
   begin
-    Matrix := GetColorsMatrix(B.X1, B.Y1, B.X2, B.Y2);
+    OCR.Client := GetColorsMatrix(B.X1, B.Y1, B.X2, B.Y2);
     
     // Shadow from above line draws over our line.
     // Mark the shadow as a match since OCR requires 100% character match.
     if Transparent then
-      for X := 0 to High(Matrix[StaticOffset]) do
-        if (Matrix[StaticOffset][X] = CHAT_COLOR_BLACK) theN
-          Matrix[StaticOffset][X] := Colors[0];
-  
-    Result := OCR.RecognizeStatic(Matrix, TOCRColorRule.Create(Colors), RS_FONT_PLAIN_12);
+      for X in OCR.Client[StaticOffset].IndicesOf(CHAT_COLOR_BLACK) do
+        OCR.Client[StaticOffset, X] := Colors[0];
+
+    Result := OCR._RecognizeStatic(TOCRColorFilter.Create(Colors), RS_FONT_PLAIN_12);
   end;
+end;
+
+function TRSChat.GetMessages(Colors: TIntegerArray = CHAT_MESSAGE_COLORS): TStringArray;
+var
+  Line: Integer;
+begin
+  Result.SetLength(8);
+  for Line := 0 to 7 do
+    Result[Line] := Self.GetMessage(Line, Colors);
 end;
 
 (*
@@ -470,9 +493,9 @@ function TRSChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSA
 var
   I: Int32;
 begin
-  for I := 0 to CHAT_INPUT_LINE - 1 do
-    if Message in Self.GetMessage(I, Colors) then
-      Exit(True);    
+  //for I := 0 to CHAT_INPUT_LINE - 1 do
+  //  if Message in Self.GetMessage(I, Colors) then
+  //    Exit(True);    
 end;
 
 (*
@@ -541,6 +564,32 @@ begin
 end;
 
 (*
+Chat.Setup
+~~~~~~~~~~
+.. pascal:: procedure TRSChat.Setup; override;
+
+Initializes **Chat** variables.
+
+.. note:: This is automatically called on the **Chat** variable.
+*)
+procedure TRSChat.Setup(Name: String); override;
+begin
+  inherited;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@RootInterface.X1];
+    Right  := [@RootInterface.X1, 518];
+    Top    := [@RootInterface.Y2, -164];
+    Bottom := [@RootInterface.Y2];
+  end;
+
+  // Same as above
+  Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] := Self.BoundsFinder.Alignments[ERSClientMode.FIXED];
+  Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN]  := Self.BoundsFinder.Alignments[ERSClientMode.FIXED];
+end;
+
+(*
 var Chat
 ~~~~~~~~
   Global Chat variable.
@@ -548,23 +597,6 @@ var Chat
 var
   Chat: TRSChat;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Chat.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Chat.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Chat.Draw(Bitmap);
+  Chat.Setup('Chat');
 end;

@@ -62,12 +62,10 @@ end;
 RSClient.DetectClientMode
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSClient.DetectClientMode(Update: Boolean): ERSClientMode;
-
-Detects the client mode. If **Update** is True ClientModeChanged will be called.
-Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
-Are there any other cases where music tab won't be visible?
+Detects the client mode using the music tab.
+Returns RS_CLIENT_UNKNOWN when not logged in.
 *)
-function TRSClient.DetectClientMode(Update: Boolean = False): ERSClientMode;
+function TRSClient.ClientMode(Default: ERSClientMode = ERSClientMode.FIXED): ERSClientMode;
 var
   W, H: Int32;
 begin
@@ -79,35 +77,14 @@ begin
     2435372, 658467: Result := ERSClientMode.FIXED;
     3555653, 922425: Result := ERSClientMode.RESIZABLE_MODERN;
     2896180, 790059: Result := ERSClientMode.RESIZABLE_CLASSIC;
+    else
+      Result := Default;
   end;
-  
-  if Update then 
-    Self.Mode := Result;
-end;
-
-(*
-RSClient.ClientModeChanged
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSClient.ClientModeChanged;
-
-Anything that needs an alert when the client mode changes should override this.
-*)
-procedure TRSClient.ClientModeChanged;
-begin
-  Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
 end;
 
 function TRSClient.IsLoggedIn: Boolean;
-var
-  ClientMode: ERSClientMode := Self.DetectClientMode();
 begin
-  if (ClientMode <> ERSClientMode.UNKNOWN) and (ClientMode <> Self.Mode) then
-  begin
-    Self.Mode := ClientMode;
-    Self.ClientModeChanged();
-  end;
-
-  Result := ClientMode <> ERSClientMode.UNKNOWN;
+  Result := Self.ClientMode(ERSClientMode.UNKNOWN) <> ERSClientMode.UNKNOWN;
 end;
 
 function TRSClient.IsLoggedIn(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
@@ -116,6 +93,11 @@ begin
     Interval := SRL.TruncatedGauss(50, 1500);
 
   Result := WaitUntil(Self.IsLoggedIn(), Interval, WaitTime);
+end;
+
+function TRSClient.IsLoggedOut(WaitTime: Integer): Boolean;
+begin
+  Result := WaitUntil(not Self.IsLoggedIn(), 100, WaitTime);
 end;
 
 (*
@@ -170,11 +152,11 @@ begin
   Self.RemoteInput.Setup();
   {$ENDIF}
 
-  Self.Mode := Self.DetectClientMode();
-  if Self.Mode = ERSClientMode.UNKNOWN then
-    Self.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
-  
-  Self.ClientModeChanged();
+  //Self.Mode := Self.DetectClientMode();
+  //if Self.Mode = ERSClientMode.UNKNOWN then
+  //  Self.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
+  //
+  //Self.ClientModeChanged();
 end;
 
 var

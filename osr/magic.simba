@@ -310,43 +310,10 @@ const
     ERSSpell.SENNTISTEN_TELEPORT]);
   
 type
-  TRSMagic = type TRSInterface;
-
-(*
-Magic.Setup
-~~~~~~~~~~~
-.. pascal:: procedure TRSMagic.Setup; override;
-
-Initializes **Magic** variables.
-
-.. note:: This is automatically called on the **Magic** variable.
-*)
-procedure TRSMagic.Setup; override;
-begin
-  inherited;
-  
-  Self.Name := 'Magic';
-end;
-
-(*
-Magic.SetupAlignment
-~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
-
+  TRSMagic = record(TRSGameTab)
+  class const
+    ELEMENT_BUTTON_FILTER: TRSInterfaceElement = [75, 248, 40, 11];
+  end;
 (*
 Magic.IsOpen
 ~~~~~~~~~~~~
@@ -362,6 +329,11 @@ Example
 function TRSMagic.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.MAGIC);
+end;
+
+function TRSMagic.FilteringEnabled: Boolean;
+begin
+  Result := Self.ElementFinder.HasText(Self.ELEMENT_BUTTON_FILTER, [RSColors.TEXT_ORANGE, RSColors.TEXT_WHITE], 'Filters', RS_FONT_PLAIN_11);
 end;
 
 (*
@@ -394,23 +366,16 @@ Example
   WriteLn Magic.GetSpellBook;
 *)
 function TRSMagic.GetSpellBook: ERSSpellBook;
-const
-  ARCEUUS_COLOR := CTS0(9801276, 78); // Colors of the book on the gametab
-  ANCIENT_COLOR := CTS1(8273495, 27);
-  LUNAR_COLOR   := CTS1(12761525, 27);
 var
-  Box: TBox := Gametabs.GetTabBox(ERSGameTab.MAGIC); 
+  Box: TBox;
+  X, Y: Integer;
 begin
-  (* BROKEN DETECTION: 22. May 2022, STANDARD BOOK NOT DETECTED
-     QUICK FIX IN SCRIPT =
-        function TRSMagic.GetSpellBook: ERSSpellBook; override;
-        begin
-          Result := ERSSpellBook.STANDARD;
-        end;
-  *)
-  if SRL.CountColor(ARCEUUS_COLOR, Box) >= 85 then Exit(ERSSpellBook.ARCEUUS);
-  if SRL.CountColor(ANCIENT_COLOR, Box) >= 85 then Exit(ERSSpellBook.ANCIENT);
-  if SRL.CountColor(LUNAR_COLOR,   Box) >= 85 then Exit(ERSSpellBook.LUNAR);
+  Result := ERSSpellBook.STANDARD;
+  Box := GameTabs.GetTabBox(ERSGameTab.MAGIC);
+
+  if FindBitmapToleranceIn(RSBitmaps.SpellBookAncient, X,Y, Box, 80) then Result := ERSSpellBook.ANCIENT;
+  if FindBitmapToleranceIn(RSBitmaps.SpellBookLunar, X,Y, Box, 80)   then Result := ERSSpellBook.LUNAR;
+  if FindBitmapToleranceIn(RSBitmaps.SpellBookArceuus, X,Y, Box, 80) then Result := ERSSpellBook.ARCEUUS;
 end;
 
 (*
@@ -440,12 +405,21 @@ Internal function to get the bounds of the spells of the current spell book.
 function TRSMagic.GetSpellBoxes(out Spellbook: ERSSpellBook): TBoxArray;
 begin 
   Spellbook := Self.GetSpellBook;
-  case Spellbook of
-    ERSSpellBook.STANDARD: Result := Grid(7, 10, 23, 23, [3, 1],   [Self.X1 + 2, Self.Y1 + 1]);
-    ERSSpellBook.ARCEUUS:  Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1, Self.Y1 + 1]);
-    ERSSpellBook.LUNAR:    Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 2, Self.Y1 + 1]);
-    ERSSpellBook.ANCIENT:  Result := Grid(4, 7,  23, 23, [25, 13], [Self.X1 + 8, Self.Y1 + 1]);
-  end;
+
+  if Self.FilteringEnabled() then
+    case Spellbook of
+      ERSSpellBook.STANDARD: Result := Grid(7, 10, 23, 23, [3, 1],   [Self.X1 + 5, Self.Y1 + 1]);
+      ERSSpellBook.ARCEUUS:  Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 3, Self.Y1 + 1]);
+      ERSSpellBook.LUNAR:    Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 3, Self.Y1 + 1]);
+      ERSSpellBook.ANCIENT:  Result := Grid(4, 7,  23, 23, [25, 13], [Self.X1 + 11, Self.Y1 + 1]);
+    end
+  else
+    case Spellbook of
+      ERSSpellBook.STANDARD: Result := Grid(7, 10, 23, 23, [1, 1],   [Self.X1 + 12, Self.Y1 + 16]);
+      ERSSpellBook.ARCEUUS:  Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 3, Self.Y1 + 1]);
+      ERSSpellBook.LUNAR:    Result := Grid(6, 8,  23, 23, [7, 6],  [Self.X1 + 8, Self.Y1 + 9]);
+      ERSSpellBook.ANCIENT:  Result := Grid(4, 7,  23, 23, [21, 5],  [Self.X1 + 19, Self.Y1 + 9]);
+    end
 end;
 
 (*
@@ -640,6 +614,13 @@ begin
   Bitmap.DrawBoxArray(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
 end;
 
+procedure TRSMagic.Setup(Name: String); override;
+begin
+  inherited;
+
+  //Self.ID := ERSGameTab.MAGIC;
+end;
+
 (*
 var Magic
 ~~~~~~~~~~
@@ -648,23 +629,6 @@ var Magic
 var
   Magic: TRSMagic;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Magic.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Magic.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Magic.Draw(Bitmap);
+  Magic.Setup('Magic');
 end;

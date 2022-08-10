@@ -47,44 +47,8 @@ type
     AUGURY
   );
 
-  TRSPrayer = type TRSInterface;
-  TRSQuickPrayer = type TRSInterface;
-
-
-(*
-Prayer.Setup
-~~~~~~~~~~~~
-.. pascal:: procedure TRSPrayer.Setup; override;
-
-Initializes **Prayer** variables.
-
-.. note:: This is automatically called on the **Prayer** variable.
-*)
-procedure TRSPrayer.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Prayer';
-end;
-
-(*
-Prayer.SetupAlignment
-~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSPrayer.SetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSPrayer.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  Self.Mode := Mode;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
+  TRSPrayer = type TRSGameTab;
+  TRSQuickPrayer = type TRSGameTab;
 
 (*
 Prayer.GetPrayerLevel
@@ -106,7 +70,7 @@ begin
 
   if (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) then
   begin
-    Text := OCR.Recognize(Self.Bounds, TOCRColorRule.Create([$1F98FF]), RS_FONT_PLAIN_12); 
+    Text := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$1F98FF]), RS_FONT_PLAIN_12);
     
     Result := Text.Before('/').ExtractNumber();
   end;
@@ -151,7 +115,7 @@ Internal function to get the bounds of all or the specified prayers.
 *)
 function TRSPrayer.GetPrayerBoxes: TBoxArray;
 begin
-  Result := Grid(5, 6, 33, 33, [4, 4], [Self.X1 + 1, Self.Y1 + 10])
+  Result := Grid(5, 6, 33, 33, [4, 4], [Self.X1 + 4, Self.Y1 + 10])
 end;
 
 (*
@@ -378,6 +342,13 @@ begin
   Bitmap.DrawBoxArray(Self.GetPrayerBoxes(Self.GetActivePrayers), False, $FFFFFF);
 end;
 
+procedure TRSPrayer.Setup(Name: String); override;
+begin
+  inherited;
+
+  //Self.ID := ERSGameTab.PRAYER;
+end;
+
 (*
 var Prayer
 ~~~~~~~~~~
@@ -386,39 +357,9 @@ var Prayer
 var
   Prayer: TRSPrayer;
 
-(*
-QuickPrayer.Setup
-~~~~~~~~~~~~~~~~~
-.. pascal:: procedure QuickPrayer.Setup;
-
-Initializes **QuickPrayer** variables.
-
-.. note:: This is automatically called on the **QuickPrayer** variable.
-*)
-procedure TRSQuickPrayer.Setup; override;
 begin
-  inherited;
-
-  Self.Name := 'QuickPrayer';
-end;
-
-(*
-QuickPrayer.SetupSetupAlignment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure QuickPrayer.SetupSetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSQuickPrayer.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  Self.Mode := Mode;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
+  Prayer.Setup('Prayer');
+  //QuickPrayer.Setup('QuickPrayer', ERSGameTab.PRAYER);
 end;
 
 (*
@@ -755,27 +696,3 @@ begin
 end;
 
 
-
-procedure TRSClient.ClientModeChanged; override;
-begin
-  inherited;
-
-  Prayer.SetupAlignment(Self.Mode);
-  QuickPrayer.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Prayer.Setup();
-  QuickPrayer.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Prayer.Draw(Bitmap);
-  QuickPrayer.Draw(Bitmap);
-end;
