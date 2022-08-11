@@ -12,16 +12,6 @@ type
     ELEMENT_BUTTON_WS_WORLD: TRSInterfaceElement = [10, 4, 150, 16];
   end;
 
-function TRSLogout.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.LOGOUT);
-end;
-
-function TRSLogout.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.LOGOUT);
-end;
-
 function TRSLogout.IsWorldSwitcherOpen: Boolean;
 begin
   Result := Self.IsOpen() and Self.ElementFinder.HasText(Self.ELEMENT_BUTTON_WS_WORLD, [RSColors.TEXT_ORANGE], 'Current world', RS_FONT_BOLD_12);
@@ -59,7 +49,7 @@ procedure TRSLogout.Setup(Name: String); override;
 begin
   inherited;
 
-  // Self.ID := ERSGameTab.LOGOUT;
+  Self.ID := ERSGameTab.LOGOUT;
 end;
 
 var

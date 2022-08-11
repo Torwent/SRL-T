@@ -37,16 +37,6 @@ type
     ELEMENT_BUTTON_FOLLOWER: TRSInterfaceElement = [144, 211, 36, 36];
   end;
 
-function TRSEquipment.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.EQUIPMENT);
-end;
-
-function TRSEquipment.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.EQUIPMENT);
-end;
-
 function TRSEquipment.GetSlotBox(Slot: ERSEquipmentSlot): TBox;
 const
   Elements: TRSInterfaceElementArray := [
@@ -127,7 +117,7 @@ begin
   inherited;
 
   Self.ItemFinder.GetSearchBoxesFunction := @Self.GetSlotBoxes;
-  // Self.ID := ERSGameTab.EQUIPMENT;
+  Self.ID := ERSGameTab.EQUIPMENT;
 end;
 
 var

@@ -77,35 +77,6 @@ begin
 end;
 
 (*
-Prayer.IsOpen
-~~~~~~~~~~~~~
-.. pascal:: function TRSPrayer.IsOpen: Boolean;
-
-Returns true if the Prayer tab is open.
-*)
-function TRSPrayer.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) and (Self.GetPrayerLevel <> -1);
-end;
-
-(*
-Prayer.Open
-~~~~~~~~~~~
-.. pascal:: function TRSPrayer.Open: Boolean;
-
-Attempts to open the prayer tab.
-
-Example
--------
-
-  Prayer.Open;
-*)
-function TRSPrayer.Open: Boolean;
-begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.PRAYER);
-end;
-
-(*
 Prayer.GetPrayerBoxes
 ~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSPrayer.GetPrayerBoxes: TBoxArray;
@@ -346,7 +317,7 @@ procedure TRSPrayer.Setup(Name: String); override;
 begin
   inherited;
 
-  //Self.ID := ERSGameTab.PRAYER;
+  Self.ID := ERSGameTab.PRAYER;
 end;
 
 (*
@@ -359,28 +330,11 @@ var
 
 begin
   Prayer.Setup('Prayer');
-  //QuickPrayer.Setup('QuickPrayer', ERSGameTab.PRAYER);
 end;
 
-(*
-QuickPrayer.IsOpen
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function QuickPrayer.IsOpen: Boolean;
-.. pascal:: function QuickPrayer.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
-
-Returns true if the quick prayers are open.
-*)
-function TRSQuickPrayer.IsOpen: Boolean;
+function TRSQuickPrayer.IsOpen: Boolean; override;
 begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) and (Prayer.GetPrayerLevel = -1);
-end;
-
-function TRSQuickPrayer.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
-begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
-
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+  Result := Prayer.IsOpen() and (Prayer.GetPrayerLevel() = -1);
 end;
 
 (*
@@ -395,15 +349,14 @@ Example
 
   QuickPrayer.Open;
 *)
-function TRSQuickPrayer.Open: Boolean;
+function TRSQuickPrayer.Open: Boolean; override;
 begin
   if Self.IsOpen then
     Exit(True);
 
   Mouse.Move(Minimap.GetPrayerCircle);
-  ChooseOption.Open;
   if ChooseOption.Select('Setup') then
-    Result := Self.IsOpen(2000);
+    Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(100, 1000), 2000);
 end;
 
 (*

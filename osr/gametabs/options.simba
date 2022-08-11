@@ -155,30 +155,6 @@ begin
 end;
 
 (*
-Options.IsOpen
-~~~~~~~~~~~~~~
-.. pascal:: function TRSOptions.IsOpen(): Boolean;
-
-Returns true if the options tab is open.
-*)
-function TRSOptions.IsOpen(): Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab = ERSGameTab.OPTIONS) or Self.IsHouseOptionsOpen();
-end;
-
-(*
-Options.Open
-~~~~~~~~~~~~
-.. pascal:: function TRSOptions.Open(): Boolean;
-
-Attempts to open the options tab.
-*)
-function TRSOptions.Open(): Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.OPTIONS);
-end;
-
-(*
 Options.IsHouseOptionsOpen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSOptions.IsHouseOptionsOpen(): Boolean;
@@ -288,7 +264,7 @@ procedure TRSOptions.Setup(Name: String); override;
 begin
   inherited;
 
-  // Self.ID := ERSGameTab.OPTIONS;
+  Self.ID := ERSGameTab.OPTIONS;
 end;
 
 var

@@ -80,16 +80,6 @@ begin
   Result := Self.GetSkillBoxes()[Ord(Skill)];
 end;
 
-function TRSStats.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.STATS);
-end;
-
-function TRSStats.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.STATS);
-end;
-
 function TRSStats.MouseOver(Skill: ERSSkill): Boolean;
 begin
   Result := Self.Open();
@@ -171,8 +161,7 @@ procedure TRSStats.Setup(Name: String); override;
 begin
   inherited;
 
-  // Self.ID := ERSGameTab.INVENTORY;
-  // Self.ItemFinder.GetSearchBoxesFunction := @Self.GetItemBoxes;
+  Self.ID := ERSGameTab.STATS;
 end;
 
 var

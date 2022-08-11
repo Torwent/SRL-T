@@ -38,16 +38,6 @@ type
     end;
   end;
 
-function TRSInventory.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY);
-end;
-
-function TRSInventory.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.INVENTORY);
-end;
-
 function TRSInventory.GetSlotBoxes: TBoxArray;
 var
   ClientW, ClientH: Integer;
@@ -624,7 +614,7 @@ procedure TRSInventory.Setup(Name: String); override;
 begin
   inherited;
 
-  // Self.ID := ERSGameTab.INVENTORY;
+  Self.ID := ERSGameTab.INVENTORY;
   Self.ItemFinder.GetSearchBoxesFunction := @Self.GetSlotBoxes;
 end;
 

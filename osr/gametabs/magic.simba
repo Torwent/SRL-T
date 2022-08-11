@@ -314,43 +314,10 @@ type
   class const
     ELEMENT_BUTTON_FILTER: TRSInterfaceElement = [75, 248, 40, 11];
   end;
-(*
-Magic.IsOpen
-~~~~~~~~~~~~
-.. pascal:: function TRSMagic.IsOpen: Boolean;
-
-Returns true if the Magic tab is open.
-
-Example
--------
-
-  WriteLn Magic.IsOpen;
-*)
-function TRSMagic.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.MAGIC);
-end;
 
 function TRSMagic.FilteringEnabled: Boolean;
 begin
   Result := Self.ElementFinder.HasText(Self.ELEMENT_BUTTON_FILTER, [RSColors.TEXT_ORANGE, RSColors.TEXT_WHITE], 'Filters', RS_FONT_PLAIN_11);
-end;
-
-(*
-Magic.Open
-~~~~~~~~~~
-.. pascal:: function TRSMagic.Open: Boolean;
-
-Attempts to open the magic tab.
-
-Example
--------
-
-  Magic.Open;
-*)
-function TRSMagic.Open: Boolean;
-begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.MAGIC);
 end;
 
 (*
@@ -618,7 +585,7 @@ procedure TRSMagic.Setup(Name: String); override;
 begin
   inherited;
 
-  //Self.ID := ERSGameTab.MAGIC;
+  Self.ID := ERSGameTab.MAGIC;
 end;
 
 (*

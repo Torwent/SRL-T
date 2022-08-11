@@ -4,7 +4,19 @@
 {$ENDIF}
 
 type
-  TRSGameTab = type TRSInterface;
+  TRSGameTab = record(TRSInterface)
+    ID: ERSGameTab;
+  end;
+
+function TRSGameTab.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = Self.ID);
+end;
+
+function TRSGameTab.Open: Boolean;
+begin
+  Result := GameTabs.Open(Self.ID);
+end;
 
 procedure TRSGameTab.Setup(Name: String); override;
 begin

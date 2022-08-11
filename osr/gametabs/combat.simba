@@ -58,42 +58,6 @@ type
   end;
 
 (*
-Combat.IsOpen
-~~~~~~~~~~~~~
-.. pascal:: function TRSCombat.IsOpen: Boolean;
-
-Returns true if the combat tab is open.
-
-Example
--------
-
-  WriteLn Combat.IsOpen;
-*)
-function TRSCombat.IsOpen: Boolean;
-begin
-  Exit(True);
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.COMBAT);
-end;
-
-(*
-Combat.Open
-~~~~~~~~~~~
-.. pascal:: function TRSCombat.Open: Boolean;
-
-Attempts to open the combat tab.
-
-Example
--------
-
-  Combat.Open;
-*)
-function TRSCombat.Open: Boolean;
-begin
-  Exit(True);
-  //Result := GameTabs.Open(ERSGameTab.COMBAT);
-end;
-
-(*
 Combat.GetCombatStyle
 ~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSCombat.GetCombatStyle: String;
@@ -258,7 +222,7 @@ procedure TRSCombat.Setup(Name: String); override;
 begin
   inherited;
 
-  // Self.ID := ERSGameTab.COMBAT;
+  Self.ID := ERSGameTab.COMBAT;
 end;
 
 (*
