@@ -94,6 +94,36 @@ type
     FINDER_OPTION: TStringArray;
   end;
 
+function TRSBank.FindItem(Item: TRSItem; out Box: TBox): Boolean;
+begin
+  Result := Self.ItemFinder.Find([Item], Box);
+end;
+
+function TRSBank.ClickItem(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Click(Item);
+end;
+
+function TRSBank.InteractItem(Item: TRSItem; Option: String): Boolean;
+begin
+  Result := Self.ItemFinder.Interact(Item, Option);
+end;
+
+function TRSBank.ContainsItem(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Contains(Item);
+end;
+
+function TRSBank.ContainsAnyItem(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.ContainsAny(Items);
+end;
+
+function TRSBank.CountItemStack(Item: TRSItem): Integer;
+begin
+  Result := Self.ItemFinder.CountStack(Item);
+end;
+
 function TRSBank.GetItemArea: TBox;
 begin
   Result := Self.Bounds;
@@ -771,70 +801,6 @@ begin
   Result := WaitUntil(Self.GetCurrentTab() = TabIndex, 100, SRL.TruncatedGauss(1000, 2000));
 end;
 
-function TRSBank.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
-var
-  Boxes: TBoxArray;
-  Indices: TIntegerArray;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Boxes := Self.FindItemBoundaries();
-  Indices := ItemFinder.Find(Item, Boxes, 1);
-  if Result := Indices <> [] then
-    Bounds := Boxes[Indices[0]];
-end;
-
-//overload to not require passing a TBox.
-function TRSBank.FindItem(Item: TRSItem): Boolean; overload;
-var
-  B: TBox;
-begin
-  Result := Self.FindItem(Item, B);
-end;
-
-
-function TRSBank.CountItem(Item: TRSItem): Int32;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Result := Length(ItemFinder.Find(Item, Self.FindItemBoundaries()));
-end;
-
-function TRSBank.CountItemStack(Item: TRSItem): Int32;
-var
-  B: TBox;
-begin
-  Result := -1;
-  if Self.FindItem(Item, B) then
-    Result := SRL.GetItemAmount(B);
-end;
-
-function TRSBank.MouseItem(Item: TRSItem): Boolean;
-var
-  B: TBox;
-begin
-  Result := Self.FindItem(Item, B);
-  if Result then
-    Mouse.Move(B);
-end;
-
-function TRSBank.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
-begin
-  if Self.MouseItem(Item) then
-  begin
-    if Option <> '' then
-      Result := ChooseOption.Select(Option)
-    else
-    begin
-      Mouse.Click(MOUSE_LEFT);
-      
-      Result := True;
-    end;
-  end;
-end;
-
 (*
 Bank.WithdrawItem
 ~~~~~~~~~~~~~~~~~
@@ -882,10 +848,11 @@ end;
 
 function TRSBank.DepositItem(Item: TRSBankDepositItem; UseQuantityButtons: Boolean): Boolean;
 var
-  Slot: Int32;
+  SlotIndex: Int32;
 begin
-  if Inventory.FindItem(Item.Item, Slot) then
-    Result := Self.DepositHelper(Inventory.GetSlotBox(Slot), Item.Quantity, UseQuantityButtons);
+  SlotIndex := Inventory.FindItem(Item.Item);
+  if (SlotIndex > -1) then
+    Result := Self.DepositHelper(Inventory.GetSlotBox(SlotIndex), Item.Quantity, UseQuantityButtons);
 end;
 
 function TRSBank.DepositSlot(Item: TRSBankDepositSlot; UseQuantityButtons: Boolean): Boolean; 
@@ -908,6 +875,9 @@ end;
 procedure TRSBank.Setup(Name: String); override;
 begin
   inherited;
+
+  Self.ItemFinder.Name := Name + '.ItemFinder';
+  Self.ItemFinder.GetSearchBoxesFunction := @Self.GetSlotBoxes;
 
   with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
   begin

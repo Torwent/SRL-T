@@ -285,21 +285,14 @@ begin
   Result := System.Random() < ChancePercent / 100;
 end;
 
-function TSRL.RandomBoxNearby(P: TPoint; Boxes: TBoxArray; CUTOFF: Single=0): Int32; static;
-var
-  Points: TPointArray;
-  I: Int32;
+function TSRL.RandomBoxNearby(P: TPoint; Boxes: TBoxArray; CUTOFF: Single=0): TBox;
 begin
   if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
 
-  SetLength(Points, Length(Boxes));
-  for I := 0 to High(Points) do
-    Points[I] := SRL.RandomPoint(Boxes[I]);
+  Boxes := Copy(Boxes);
+  Boxes.SortFromMidPoint(P);
 
-  P := Points.Sorted(P)[SRL.TruncatedGauss(0, High(Boxes), CUTOFF)];
-  for I := 0 to High(Boxes) do
-    if P.InBox(Boxes[I]) then
-      Exit(I);
+  Result := Boxes[SRL.TruncatedGauss(0, High(Boxes), CUTOFF)];
 end;
 
 (*

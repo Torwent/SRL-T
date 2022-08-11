@@ -24,6 +24,11 @@ begin
   RSBitmaps.XPBarSmall.Free();
   RSBitmaps.XPBarMedium.Free();
   RSBitmaps.XPBarLarge.Free();
+
+  RSBitmaps.SpellBookRegular.Free();
+  RSBitmaps.SpellBookLunar.Free();
+  RSBitmaps.SpellBookArceuus.Free();
+  RSBitmaps.SpellBookAncient.Free();
 end;
 
 begin

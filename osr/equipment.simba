@@ -47,80 +47,25 @@ begin
   Result := GameTabs.Open(ERSGameTab.EQUIPMENT);
 end;
 
-function TRSEquipment.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
-var
-  Boxes: TBoxArray;
-  Slots: TIntegerArray;
-begin
-  if not Self.Open() then
-    Exit;
-
- // Boxes := Self.GetButtons().ToBoxes();
-
-  Slots := ItemFinder.Find(Item, Boxes, 1);
-  if Length(Slots) > 0 then
-  begin
-    Bounds := Boxes[Slots[0]];
-
-    Result := True;
-  end;
-end;
-
-//for use without having to pass extra parameters
-function TRSEquipment.FindItem(Item: TRSItem): Boolean; overload;
-var
-  B: TBox;
-begin
-  Result := Self.FindItem(Item, B);
-end;
-
-function TRSEquipment.HoverItem(Item: TRSItem): Boolean;
-var
-  B: TBox;
-begin
-  if Self.FindItem(Item, B) then
-  begin
-    Mouse.Move(B);
-    Result := True;
-  end;
-end;
-
-function TRSEquipment.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
-begin
-  if Self.HoverItem(Item) then
-  begin
-    if Option <> '' then
-      Result := ChooseOption.Select(Option)
-    else
-    begin
-      Result := True;
-
-      Mouse.Click(MOUSE_LEFT);
-    end;
-  end;
-end;
-
-//to count arrows, darts, etc.
-function TRSEquipment.CountItemStack(Item: TRSItem): Int32;
-var
-  B: TBox;
-begin
-  if Self.FindItem(Item, B) then
-    Result := SRL.GetItemAmount(B);
-end;
-
 function TRSEquipment.GetSlotBox(Slot: ERSEquipmentSlot): TBox;
-var
-  Elements: TRSInterfaceElementArray;
-begin
-  Elements := [
+const
+  Elements: TRSInterfaceElementArray := [
     Self.ELEMENT_SLOT_HELM, Self.ELEMENT_SLOT_CAPE, Self.ELEMENT_SLOT_AMULET,
     Self.ELEMENT_SLOT_AMMO, Self.ELEMENT_SLOT_WEAPON, Self.ELEMENT_SLOT_BODY,
     Self.ELEMENT_SLOT_SHIELD, Self.ELEMENT_SLOT_LEGS, Self.ELEMENT_SLOT_GLOVES,
     Self.ELEMENT_SLOT_FEET, Self.ELEMENT_SLOT_RING
   ];
-
+begin
   Result := Self.ElementFinder.Bounds(Elements[Slot]);
+end;
+
+function TRSEquipment.GetSlotBoxes: TBoxArray;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(ERSEquipmentSlot));
+  for I := 0 to High(Result) do
+    Result[I] := Self.GetSlotBox(ERSEquipmentSlot(I));
 end;
 
 function TRSEquipment.ClickSlot(Slot: ERSEquipmentSlot): Boolean;
@@ -157,10 +102,31 @@ begin
       Result := Result + 1;
 end;
 
+function TRSEquipment.Contains(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Contains(Item);
+end;
+
+function TRSEquipment.CountItemStack(Item: TRSItem): Integer;
+begin
+  Result := Self.ItemFinder.CountStack(Item);
+end;
+
+function TRSEquipment.ClickItem(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Click(Item);
+end;
+
+function TRSEquipment.InteractItem(Item: TRSItem; Option: String): Boolean;
+begin
+  Result := Self.ItemFinder.Interact(Item, Option);
+end;
+
 procedure TRSEquipment.Setup(Name: String); override;
 begin
   inherited;
 
+  Self.ItemFinder.GetSearchBoxesFunction := @Self.GetSlotBoxes;
   // Self.ID := ERSGameTab.EQUIPMENT;
 end;
 

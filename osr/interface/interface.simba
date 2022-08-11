@@ -4,6 +4,7 @@
 {$ENDIF}
 
 {$I interface_boundsfinder.simba}
+{$I interface_itemfinder.simba}
 {$I interface_element.simba}
 
 type
@@ -12,6 +13,7 @@ type
 
     BoundsFinder: TRSInterfaceBoundsFinder;
     ElementFinder: TRSInterfaceElementFinder;
+    ItemFinder: TRSInterfaceItemFinder;
 
     ButtonColors: array of TCTS1Color;
     ButtonEnabledColors: array of TCTS1Color;
@@ -25,8 +27,10 @@ begin
   RSInterfaces += @Self;
 
   Self.Name := Name;
+  Self.BoundsFinder.Name := Name + '.BoundsFinder';
   Self.ElementFinder.Name := Name + '.ElementFinder';
   Self.ElementFinder.GetBoundsFunction := @Self.BoundsFinder.Find;
+  Self.ItemFinder.Name := Name + '.ItemFinder';
 end;
 
 function TRSInterface.Bounds: TBox;

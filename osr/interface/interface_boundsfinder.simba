@@ -11,7 +11,7 @@ type
     end;
   end;
 
-  TRSInterfaceBoundsFinder = record
+  TRSInterfaceBoundsFinder = record(TSRLBaseRecord)
     Cache: record
       Bounds: TBox;
       ClientMode: ERSClientMode;
@@ -32,7 +32,7 @@ var
     Left, Right, Width, Center: Single;
   begin
     if (@Alignment.Left.Method = nil) then
-      raise 'No left anchor';
+      Self.Fatal('No left anchor');
 
     if (Alignment.Center.MaxWidth > 0) then
     begin
@@ -55,7 +55,7 @@ var
     Left, Right, Width, Center: Single;
   begin
     if (@Alignment.Right.Method = nil) then
-      raise 'No right anchor';
+      Self.Fatal('No right anchor');
 
     if (Alignment.Center.MaxWidth > 0) then
     begin
@@ -78,7 +78,7 @@ var
     Top, Bottom, Height, Center: Single;
   begin
     if (@Alignment.Top.Method = nil) then
-      raise 'No top anchor';
+      Self.Fatal('No top anchor');
 
     if (Alignment.Center.MaxHeight > 0) then
     begin
@@ -101,7 +101,7 @@ var
     Top, Bottom, Height, Center: Single;
   begin
     if (@Alignment.Bottom.Method = nil) then
-      raise 'No bottom anchor';
+      Self.Fatal('No bottom anchor');
 
     if (Alignment.Center.MaxHeight > 0) then
     begin

@@ -16,6 +16,36 @@ type
     ELEMENT_DEPOSIT_LOOT:      TRSInterfaceElement = [399, 233, 30, 30];
   end;
 
+function TRSDepositBox.FindItem(Item: TRSItem; out Box: TBox): Boolean;
+begin
+  Result := Self.ItemFinder.Find([Item], Box);
+end;
+
+function TRSDepositBox.ClickItem(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Click(Item);
+end;
+
+function TRSDepositBox.InteractItem(Item: TRSItem; Option: String): Boolean;
+begin
+  Result := Self.ItemFinder.Interact(Item, Option);
+end;
+
+function TRSDepositBox.ContainsItem(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Contains(Item);
+end;
+
+function TRSDepositBox.ContainsAnyItem(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.ContainsAny(Items);
+end;
+
+function TRSDepositBox.CountItemStack(Item: TRSItem): Integer;
+begin
+  Result := Self.ItemFinder.CountStack(Item);
+end;
+
 function TRSDepositBox.GetSlotBoxes: TBoxArray; 
 begin
   Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
@@ -52,6 +82,9 @@ end;
 procedure TRSDepositBox.Setup(Name: String); override;
 begin
   inherited;
+
+  Self.ItemFinder.Name := Name + '.ItemFinder';
+  Self.ItemFinder.GetSearchBoxesFunction := @Self.GetSlotBoxes;
 
   with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
   begin
