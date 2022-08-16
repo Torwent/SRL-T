@@ -87,7 +87,7 @@ begin
         Result.Y1 := RootInterface.Y2 - 334;
         Result.Y2 := RootInterface.Y2;
 
-        Boxes := Grid(7, 2, 30, 33, [3, 265], [Result.X1 + 6, Result.Y1 + 1]);
+        Boxes := TBoxArray.Create([Result.X1 + 6, Result.Y1 + 1], 7, 2, 30, 33, [3, 265]);
       end;
 
     ERSClientMode.RESIZABLE_CLASSIC:
@@ -97,7 +97,7 @@ begin
         Result.Y1 := RootInterface.Y2 - 334;
         Result.Y2 := RootInterface.Y2;
 
-        Boxes := Grid(7, 2, 30, 33, [3, 265], [Result.X1 + 6, Result.Y1 + 1]);
+        Boxes := TBoxArray.Create([Result.X1 + 6, Result.Y1 + 1], 7, 2, 30, 33, [3, 265]);
       end;
 
     ERSClientMode.RESIZABLE_MODERN:
@@ -113,11 +113,11 @@ begin
           Result.X1 -= 198;
           Result.Y1 += 36;
 
-          Boxes := Grid(14, 1, 30, 33, [3, 0], [Result.X1, Result.Y2 - 35]);
+          Boxes := TBoxArray.Create([Result.X1, Result.Y2 - 35], 14, 1, 30, 33, [3, 0]);
           for I := Ord(ERSGameTab.MUSIC) downto Ord(ERSGameTab.CLAN) do
             Boxes[I] := Boxes[I - 1];
         end else
-          Boxes := Grid(7, 2, 30, 33, [3, 3], [Result.X1, Result.Y2 - 70]);
+          Boxes := TBoxArray.Create([Result.X1, Result.Y2 - 70], 7, 2, 30, 33, [3, 3]);
 
         // rearrange to match ERSGameTab layout
         Sort(Boxes, [0,1,2,3,4,5,6,10,8,9,7,11,12,13], True);

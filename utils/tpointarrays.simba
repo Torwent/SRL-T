@@ -9,6 +9,7 @@ TPointArray
 TPointArray related methods
 *)
 
+{
 function TPointArray.Combine(Other: TPointArray): TPointArray; 
 begin
   Result.SetLength(Self.Length() + Other.Length());
@@ -25,6 +26,7 @@ begin
   if (Self.Length() = 0) then Exit(True);
   Result := CompareMem(Self[0], Other[0], self.Length()*SizeOf(self[0]));
 end;
+}
 
 //--| Type helpers (extended) |------------------------------------------------>
 //----------------------------------------------------------------------------->
@@ -495,10 +497,10 @@ begin
   for i:=0 to self.High()-1 do
   begin
     line := TPAFromLine(self[i].x, self[i].y, self[i+1].x, self[i+1].y);
-    Result := Result.Combine(line);
+    Result += line;
   end;
   line := TPAFromLine(self[self.High()].x, self[self.High()].y, self[0].x, self[0].y);
-  Result := Result.Combine(line);
+  Result += line;
 end;
 
 
@@ -938,18 +940,6 @@ begin
     MemMove(self[0], result[0], self.Length()*SizeOf(self[0]));
   if Other.Length() > 0 then
     MemMove(Other[0], result[Self.Length()], Other.Length()*SizeOf(Other[0]));
-end;
-
-function T2DPointArray.Equals(Other:T2DPointArray): Boolean;
-var i:Int32;
-begin
-  if (Self.Length() <> Other.Length()) then Exit(False);
-  if (Self.Length() = 0) then Exit(True);
-
-  for i:=0 to self.High() do
-    if not self[i].Equals(Other[i]) then
-      Exit(False);
-  Result := True;
 end;
 
 function T2DPointArray.Merge(): TPointArray; 

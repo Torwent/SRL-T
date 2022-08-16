@@ -48,8 +48,8 @@ var
 begin
   scale := Self.ScaleMin + Self.ZOOM * (Self.ScaleMax - Self.ScaleMin);
   p := Vector3.TransformCoordinate(coord, matrix);
-  Result.x := (+p.X * 513 * scale) + Self.MainScreen.Middle.X;                // fixed mainscreen width
-  Result.y := (-p.Y * 335 * scale) + Self.MainScreen.Middle.Y + (Self.zoom * 24);  // fixed mainscreen height, y shift
+  Result.x := (+p.X * 513 * scale) + Self.MainScreen.Center.X;                // fixed mainscreen width
+  Result.y := (-p.Y * 335 * scale) + Self.MainScreen.Center.Y + (Self.zoom * 24);  // fixed mainscreen height, y shift
 end;
 
 function TMM2MSProjector.Run(Coords: Vector3Array; Rotation: Vector3): TPointArray; overload;

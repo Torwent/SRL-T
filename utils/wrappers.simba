@@ -425,10 +425,3 @@ var
 begin
   Result := TPAFromText(Text, Font, W, H);
 end;
-
-procedure TerminateScript(Reason: String); overload;
-begin
-  WriteLn('Terminating: ' + Reason);
-
-  TerminateScript();
-end;

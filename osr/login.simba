@@ -309,13 +309,15 @@ begin
   while Self.IsOpen() and (Attempts < 10) do
   begin
     Self.DebugLn('Attempt ' + ToString(Attempts + 1));
-    
+
+   {
     if (Player.Worlds <> []) and (not (Self.GetCurrentWorld() in Player.Worlds)) then
     begin
       World := Player.Worlds[Random(Length(Player.Worlds))];
       if (not Self.SwitchToWorld(World)) then
         Exit;
     end;
+    }
     
     if not Self.HandleDialogs() then
     begin

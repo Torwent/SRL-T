@@ -48,7 +48,7 @@ end;
 
 function TRSDepositBox.GetSlotBoxes: TBoxArray; 
 begin
-  Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
+  Result := TBoxArray.Create([Self.X1 + 38, Self.Y1 + 42], 7, 4, 31, 31, [25, 17]);
 end;
 
 function TRSDepositBox.IsOpen: Boolean; overload;

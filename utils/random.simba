@@ -290,7 +290,7 @@ begin
   if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
 
   Boxes := Copy(Boxes);
-  Boxes.SortFromMidPoint(P);
+  Boxes.SortFrom(P);
 
   Result := Boxes[SRL.TruncatedGauss(0, High(Boxes), CUTOFF)];
 end;

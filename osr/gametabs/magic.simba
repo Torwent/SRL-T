@@ -375,17 +375,17 @@ begin
 
   if Self.FilteringEnabled() then
     case Spellbook of
-      ERSSpellBook.STANDARD: Result := Grid(7, 10, 23, 23, [3, 1],   [Self.X1 + 5, Self.Y1 + 1]);
-      ERSSpellBook.ARCEUUS:  Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 3, Self.Y1 + 1]);
-      ERSSpellBook.LUNAR:    Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 3, Self.Y1 + 1]);
-      ERSSpellBook.ANCIENT:  Result := Grid(4, 7,  23, 23, [25, 13], [Self.X1 + 11, Self.Y1 + 1]);
+      ERSSpellBook.STANDARD: Result := TBoxArray.Create([Self.X1 + 5, Self.Y1 + 1], 7, 10, 23, 23, [3, 1]);
+      ERSSpellBook.ARCEUUS:  Result := TBoxArray.Create([Self.X1 + 3, Self.Y1 + 1], 5, 9,  23, 23, [17, 4]);
+      ERSSpellBook.LUNAR:    Result := TBoxArray.Create([Self.X1 + 3, Self.Y1 + 1], 5, 9,  23, 23, [17, 4]);
+      ERSSpellBook.ANCIENT:  Result := TBoxArray.Create([Self.X1 + 11, Self.Y1 + 1], 4, 7,  23, 23, [25, 13]);
     end
   else
     case Spellbook of
-      ERSSpellBook.STANDARD: Result := Grid(7, 10, 23, 23, [1, 1],   [Self.X1 + 12, Self.Y1 + 16]);
-      ERSSpellBook.ARCEUUS:  Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 3, Self.Y1 + 1]);
-      ERSSpellBook.LUNAR:    Result := Grid(6, 8,  23, 23, [7, 6],  [Self.X1 + 8, Self.Y1 + 9]);
-      ERSSpellBook.ANCIENT:  Result := Grid(4, 7,  23, 23, [21, 5],  [Self.X1 + 19, Self.Y1 + 9]);
+      ERSSpellBook.STANDARD: Result := TBoxArray.Create([Self.X1 + 12, Self.Y1 + 16], 7, 10, 23, 23, [1, 1]);
+      ERSSpellBook.ARCEUUS:  Result := TBoxArray.Create([Self.X1 + 3, Self.Y1 + 1], 5, 9,  23, 23, [17, 4]);
+      ERSSpellBook.LUNAR:    Result := TBoxArray.Create([Self.X1 + 8, Self.Y1 + 9], 6, 8,  23, 23, [7, 6]);
+      ERSSpellBook.ANCIENT:  Result := TBoxArray.Create([Self.X1 + 19, Self.Y1 + 9], 4, 7,  23, 23, [21, 5]);
     end
 end;
 

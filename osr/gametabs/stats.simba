@@ -72,7 +72,7 @@ type
 
 function TRSStats.GetSkillBoxes: TBoxArray;
 begin
-  Result := Grid(3, 8, 53, 23, [10, 9], [Self.X1 + 5, Self.Y1 + 6]);
+  Result := TBoxArray.Create([Self.X1 + 5, Self.Y1 + 6], 3, 8, 53, 23, [10, 9]);
 end;
 
 function TRSStats.GetSkillBox(Skill: ERSSkill): TBox;

@@ -51,7 +51,7 @@ begin
     Self.ItemBoxCache := [
       ClientW, ClientH,
       RSClient.ClientMode(),
-      Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 16, Self.Y1 + 9])
+      TBoxArray.Create([Self.X1 + 16, Self.Y1 + 9], 4, 7, 31, 31, [11, 5])
     ];
   end;
 
@@ -484,7 +484,7 @@ begin
   if (Length(Slots) = 0) then
     Self.Fatal('RandomSlotNearby: No slots to choose from');
 
-  Result := SRL.RandomBoxNearby(Self.GetSlotBox(Slot).Middle, Self.GetSlotBoxes(Slots));
+  Result := SRL.RandomBoxNearby(Self.GetSlotBox(Slot).Center, Self.GetSlotBoxes(Slots));
 end;
 
 function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
@@ -538,7 +538,7 @@ begin
   Result := Self.ItemFinder.Contains(Item);
 end;
 
-function TRSInventory.ContainsAnyItem(Items: TRSItemArray): Boolean; overload;
+function TRSInventory.ContainsItem(Items: TRSItemArray): Boolean; overload;
 begin
   if not Self.Open() then
     Exit;
@@ -546,7 +546,7 @@ begin
   Result := Self.ItemFinder.ContainsAny(Items);
 end;
 
-function TRSInventory.ContainsItems(Items: TRSItemArray): Boolean;
+function TRSInventory.ContainsAllItems(Items: TRSItemArray): Boolean;
 begin
   if not Self.Open() then
     Exit;

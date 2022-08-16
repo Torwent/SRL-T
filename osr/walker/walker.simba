@@ -491,7 +491,7 @@ begin
     if (GetTimeRunning() < Self.MouseAheadTimer) or (not Minimap.FindFlag(Flag)) then
       Exit();
 
-  dist := Trunc(flag.DistanceTo(Minimap.Bounds.Middle()));
+  dist := Trunc(flag.DistanceTo(Minimap.Bounds.Center()));
   if InRange(dist, Random(5,10), Random(60,70)) then
     MouseToNextPoint(Position);
 
@@ -651,7 +651,7 @@ begin
     True:
       begin
         B := Minimap.PointToMSRect(MinimapPoint, Angle).Bounds;
-        if MainScreen.IsVisible(B.Middle) then
+        if MainScreen.IsVisible(B.Center) then
           Result := CountColor($000000, B.Expand(0, MainScreen.Bounds())) = 0; // Client doesn't always render everything when zoomed out
       end;
 

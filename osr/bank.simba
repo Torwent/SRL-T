@@ -22,25 +22,6 @@ type
     GRAND_EXCHANGE,
     FALADOR_EAST
   );
-  
-  // In order FindButtons returns
-  ERSBankButton = (
-    WORN,
-    MENU,
-    SWAP,
-    INSERT,
-    ITEM,
-    NOTE,
-    QUANTITY_1,
-    QUANTITY_5,
-    QUANTITY_10,
-    QUANTITY_CUSTOM,
-    QUANTITY_ALL,
-    PLACEHOLDERS,
-    SEARCH,
-    DEPOSIT_INVENTORY,
-    DEPOSIT_WORN   
-  ); 
 
   TRSBankWithdrawItem = record
     Item: TRSItem;
@@ -99,6 +80,11 @@ begin
   Result := Self.ItemFinder.Find([Item], Box);
 end;
 
+function TRSBank.MouseItem(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Mouse(Item);
+end;
+
 function TRSBank.ClickItem(Item: TRSItem): Boolean;
 begin
   Result := Self.ItemFinder.Click(Item);
@@ -109,14 +95,19 @@ begin
   Result := Self.ItemFinder.Interact(Item, Option);
 end;
 
-function TRSBank.ContainsItem(Item: TRSItem): Boolean;
+function TRSBank.ContainsItem(Item: TRSItem): Boolean; overload;
 begin
   Result := Self.ItemFinder.Contains(Item);
 end;
 
-function TRSBank.ContainsAnyItem(Items: TRSItemArray): Boolean;
+function TRSBank.ContainsItem(Items: TRSItemArray): Boolean; overload;
 begin
   Result := Self.ItemFinder.ContainsAny(Items);
+end;
+
+function TRSBank.ContainsAllItems(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.ContainsAll(Items);
 end;
 
 function TRSBank.CountItemStack(Item: TRSItem): Integer;
@@ -136,7 +127,7 @@ end;
 function TRSBank.GetSlotBoxes: TBoxArray;
 begin
   with Self.GetItemArea() do
-    Result := Grid(8, Height() div 35, 31, 31, [17, 5], [X1, Y1]);
+    Result := TBoxArray.Create([X1, Y1], 8, Height() div 35, 31, 31, [17, 5]);
 end;
 
 (*
@@ -300,7 +291,7 @@ begin
       if B.Height() <= 5 then
         Continue;
         
-      Result += Grid(8, 1, 32, B.Height(), [16], [Area.X1, B.Y1 - 1]);
+      Result += TBoxArray.Create([Area.X1, B.Y1 - 1], 8, 1, 32, B.Height(), [16]);
     end;
   end;
 end;
@@ -607,7 +598,6 @@ begin
   end;
 end;
 
-
 function TRSBank.IsCustomQuantity(Quantity: Int32): Boolean;
 begin
   Result := not (Quantity in [1,5,10,BANK_DEPOSIT_ALL]);
@@ -615,41 +605,32 @@ end;
 
 function TRSBank.DepositHelper(B: TBox; Amount: Int32; UseQuantityButtons: Boolean): Boolean;
 begin
-{
   if UseQuantityButtons then
   begin
     if Self.IsCustomQuantity(Amount) then
     begin
-      Button := Self.GetButton(ERSBankButton.QUANTITY_CUSTOM);
-      
-      if Button.Enable() then
-      begin
-        Mouse.Move(B);
-      
-        if MainScreen.IsUpText('Deposit-' + ToString(Amount)) then
-        begin
-          Mouse.Click(MOUSE_LEFT);
-          
-          Result := True;
-        end else
-          Result := ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
-      end;
+      if not Self.ElementFinder.Toggle(Self.ELEMENT_QUANTITY_X, RSColors.BUTTON_RED, 5) then
+        Exit;
+
+      Mouse.Move(B);
+
+      if Result := MainScreen.IsUpText('Deposit-' + ToString(Amount)) then
+        Mouse.Click(MOUSE_LEFT)
+      else
+        Result := (ChooseOption.Select('Deposit-' + ToString(Amount), MOUSE_LEFT, True, False)) or
+                  (ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000)));
     end else
     begin
       case Amount of
-        1:  Button := Self.GetButton(ERSBankButton.QUANTITY_1);  
-        5:  Button := Self.GetButton(ERSBankButton.QUANTITY_5);  
-        10: Button := Self.GetButton(ERSBankButton.QUANTITY_10);  
-        else 
-            Button := Self.GetButton(ERSBankButton.QUANTITY_ALL)
+        1:  Result := Self.ElementFinder.Toggle(Self.ELEMENT_QUANTITY_1, RSColors.BUTTON_RED, 5);
+        5:  Result := Self.ElementFinder.Toggle(Self.ELEMENT_QUANTITY_5, RSColors.BUTTON_RED, 5);
+        10: Result := Self.ElementFinder.Toggle(Self.ELEMENT_QUANTITY_10, RSColors.BUTTON_RED, 5);
+        else
+            Result := Self.ElementFinder.Toggle(Self.ELEMENT_QUANTITY_ALL, RSColors.BUTTON_RED, 5);
       end;
 
-      if Button.Enable() then
-      begin
-        Result := True; 
-        
+      if Result then
         Mouse.Click(B, MOUSE_LEFT);
-      end;
     end;
   end else
   begin
@@ -661,9 +642,8 @@ begin
       Result := ChooseOption.Select('Deposit-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) or
                 ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500));
   end;
-  }
-end;  
-  
+end;
+
 function TRSBank.WithdrawHelper(B: TBox; Amount: Int32; Noted: Boolean; UseQuantityButtons: Boolean): Boolean;
 begin
   case Noted of
@@ -680,9 +660,11 @@ begin
 
       Mouse.Move(B);
 
-      Result := (MainScreen.IsUpText('Withdraw-' + ToString(Amount))) or
-                (ChooseOption.Select('Withdraw-' + ToString(Amount), MOUSE_LEFT, True, False)) or
-                (ChooseOption.Select('Withdraw-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000)));
+      if Result := MainScreen.IsUpText('Withdraw-' + ToString(Amount)) then
+        Mouse.Click(MOUSE_LEFT)
+      else
+        Result := (ChooseOption.Select('Withdraw-' + ToString(Amount), MOUSE_LEFT, True, False)) or
+                  (ChooseOption.Select('Withdraw-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000)));
     end else
     begin
       case Amount of
@@ -712,10 +694,9 @@ begin
   end;
 end;
 
-
 (*
 Bank.CountTabs
-~~~~~~~~~~~
+~~~~~~~~~~~~~~
 .. pascal:: function TRSBank.CountTabs: Int32;
 
 Counts the existing bank tabs.

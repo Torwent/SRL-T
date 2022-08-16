@@ -116,7 +116,7 @@ begin
     Exit(True);
 
   Space := Self.Bounds.Expand(100);
-  Space.LimitTo(GetClientBounds());
+  Space.Clip(GetClientBounds());
 
   Boxes := Self.Bounds.Expand(50).Invert(Space);
   if Length(Boxes) = 0 then

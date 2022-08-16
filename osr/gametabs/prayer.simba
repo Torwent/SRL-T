@@ -72,7 +72,7 @@ begin
   begin
     Text := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$1F98FF]), RS_FONT_PLAIN_12);
     
-    Result := Text.Before('/').ExtractNumber();
+    Result := Text.Before('/').ExtractInteger();
   end;
 end;
 
@@ -86,7 +86,7 @@ Internal function to get the bounds of all or the specified prayers.
 *)
 function TRSPrayer.GetPrayerBoxes: TBoxArray;
 begin
-  Result := Grid(5, 6, 33, 33, [4, 4], [Self.X1 + 4, Self.Y1 + 10])
+  Result := TBoxArray.Create([Self.X1 + 4, Self.Y1 + 10], 5, 6, 33, 33, [4, 4])
 end;
 
 (*

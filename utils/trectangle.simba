@@ -278,7 +278,7 @@ begin
   count := 0;
   for i := 0 to High(TestSet) do
   begin
-    if TestSet[i].InRect(Self) then
+    //if TestSet[i].InRect(Self) then
     begin
       Result[count] := TestSet[i];
       Inc(count);

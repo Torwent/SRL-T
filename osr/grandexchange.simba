@@ -188,7 +188,7 @@ end;
 
 function TRSGrandExchange.GetCurrentSearch: String;
 begin
-  Result := OCR.Recognize(Chat.Bounds, TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12).StripR('*');
+  Result := OCR.Recognize(Chat.Bounds, TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12).TrimRight(['*']);
 end;
 
 function TRSGrandExchange.ClearSearch: Boolean;
@@ -247,7 +247,7 @@ type
   
 function TRSGrandExchange.GetOfferSlots: TBoxArray;
 begin
-  Result := Grid(4, 2, 114, 109, [3, 11], [Self.X1 + 9, Self.Y1 + 64]);
+  //Result := Grid(4, 2, 114, 109, [3, 11], [Self.X1 + 9, Self.Y1 + 64]);
 end;
   
 function TRSGrandExchange.GetProgress(B: TBox; BarSize: Int32): Int32;
@@ -275,7 +275,7 @@ begin
   
   if (Result.OfferType <> ERSGEOfferType.EMPTY) then
   begin
-    Result.Item := OCR.RecognizeLines(Slots[Slot], TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11).Merge(' ');
+    Result.Item := ''.Join(OCR.RecognizeLines(Slots[Slot], TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11));
     Result.PricePerItem := OCR.RecognizeNumber(Slots[Slot], TOCRColorFilter.Create([2070783]), RS_FONT_PLAIN_11);
     Result.Quantity := SRL.GetItemAmount(Slots[Slot]);
     Result.TotalPrice := Result.Quantity * Result.PricePerItem;
@@ -307,7 +307,7 @@ begin
   SRL.FindColors(RowLight, BG_LIGHT, Self.Bounds);
   
   Rows := RowDark.Cluster(1).ToTBA() + RowLight.Cluster(1).ToTBA();
-  Rows.SortByY();
+  Rows.SortByX(True);
 
   for Row in Rows do
   begin

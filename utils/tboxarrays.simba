@@ -9,6 +9,7 @@ TBoxArray
 TBoxArray related methods
 *)
 
+{
 function TBoxArray.Combine(Other: TBoxArray): TBoxArray; 
 begin
   Result.SetLength(Self.Length() + Other.Length());
@@ -154,6 +155,7 @@ begin
   for I := 0 to Self.High() do
     Result[I] := Self[I].Middle();
 end;
+}
 
 function Grid(Columns, Rows, Width, Height: Int32; Spacing, Start: TPoint): TBoxArray;
 var

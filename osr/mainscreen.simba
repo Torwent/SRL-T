@@ -144,7 +144,7 @@ type
 
   TRSMainScreen = record(TRSInterface)
     UpTextArea: array[ERSClientMode] of TBox;
-    //UpTextFilter: TOCRFilter;
+    UpTextFilter: TOCRFilter;
   end;
 
 (*
@@ -162,7 +162,7 @@ Example
 *)
 function TRSMainScreen.GetUpText: String;
 begin
-  //Result := OCR.RecognizeStatic(Self.UpTextArea[RSClient.ClientMode], Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
+  Result := OCR.RecognizeUpText(Self.UpTextArea[RSClient.ClientMode], Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
   Self.DebugLn('UpText: ' + Result);
@@ -355,7 +355,7 @@ begin
   if Finder = [] then
     Self.Fatal('Empty TRSObjectFinder passed');
 
-  Area.LimitTo(Self.Bounds());
+  Area.Clip(Self.Bounds());
 
   // Translate distances
   Finder.ClusterDistance := Self.ConvertDistance(Finder.ClusterDistance);
@@ -529,7 +529,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
       begin
         Hit := OCR.RecognizeNumber(B.Expand(5, Area), TOCRColorFilter.Create([$FFFFFF]), RS_FONT_PLAIN_11);
         
-        Result += [B.Middle(), Hit, Red];
+        Result += [B.Center(), Hit, Red];
       end;
   end;
 
@@ -676,7 +676,7 @@ var
   TPA: TPointArray;
   Bitmap, Sub: TMufasaBitmap;
 begin
-  Area.LimitTo(Self.Bounds);
+  Area.Clip(Self.Bounds);
   if (Area.Width < BAR_WIDTH) or (Area.Height < BAR_HEIGHT) then
     Exit;
 
@@ -693,7 +693,7 @@ begin
 
     Matrix.SetSize(B.Width + 2, B.Height + 2);
     Matrix.Fill(0);
-    Matrix.SetValues(TPA, 255);
+    Matrix.SetValue(TPA, 255);
 
     Sub := Bitmap.Copy(B.X1, B.Y1, B.X2, B.Y2);
     TPA := FindColors(Sub, COLOR_SPLATS);
@@ -751,7 +751,7 @@ var
   T: UInt64;
 begin
   Area := Box(Mouse.Position(), 20, 20);
-  Area.LimitTo(Self.Bounds);
+  Area.Clip(Self.Bounds);
 
   if (Area.Width > 5) and (Area.Height > 5) then
   begin
@@ -796,7 +796,7 @@ var
   T: UInt64;
 begin
   Area := Box(Mouse.Position(), 20, 20);
-  Area.LimitTo(Self.Bounds);
+  Area.Clip(Self.Bounds);
 
   if (Area.Width > 5) and (Area.Height > 5) then
   begin
@@ -863,12 +863,12 @@ begin
     Bottom := [@RootInterface.Y2];
   end;
 
-  Self.UpTextArea[ERSClientMode.RESIZABLE_CLASSIC] := [3, 3, 500, 21];
-  Self.UpTextArea[ERSClientMode.RESIZABLE_MODERN]  := [3, 3, 500, 21];
-  Self.UpTextArea[ERSClientMode.FIXED] := [7, 7, 500, 25];
+  Self.UpTextArea[ERSClientMode.RESIZABLE_CLASSIC] := [3, 3, 500, 19];
+  Self.UpTextArea[ERSClientMode.RESIZABLE_MODERN]  := [3, 3, 500, 19];
+  Self.UpTextArea[ERSClientMode.FIXED] := [7, 7, 500, 23];
 
-  //Self.UpTextFilter := TOCRUpTextFilter.Create(85, 60);
-  //Self.UpTextFilter.MinCharacterMatch := '-';
+  Self.UpTextFilter := TOCRUpTextFilter.Create(85, 60);
+  Self.UpTextFilter.MinCharacterMatch := '-';
 end;
 
 var

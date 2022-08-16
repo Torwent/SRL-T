@@ -70,7 +70,7 @@ end;
 
 function TRSInterface.Center: TPoint;
 begin
-  Result := Self.Bounds.Middle;
+  Result := Self.Bounds.Center;
 end;
 
 type
@@ -87,7 +87,7 @@ begin
   Bitmap.SetFontAntialiasing(False);
   Bitmap.SetFontSize(20);
   with Bitmap.TextSize(ToString(Self.Position)) do
-    Bitmap.DrawText(ToString(Self.Position), [Self.SliderRegion.Middle.X - (X div 2), Self.Slider.Middle.Y - (Y div 3)], $00FF00);
+    Bitmap.DrawText(ToString(Self.Position), [Self.SliderRegion.Center.X - (X div 2), Self.Slider.Center.Y - (Y div 3)], $00FF00);
 end;
 
 function TRSScrollBar.IsVisible: Boolean;
@@ -221,7 +221,7 @@ begin
   B.Y1 += 10;
   B.X2 -= 70;
   B.Y2 := B.Y1 + 18;
-  B.LimitTo(Self.Bounds);
+  B.Clip(Self.Bounds);
 
   Result := OCR.LocateText(B, Text, RS_FONT_BOLD_12, TOCRInvertColorFilter.Create([3358536, 0], [5, 0]), B) > MinMatch;
 end;
