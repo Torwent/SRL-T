@@ -11,6 +11,8 @@ Walker
   {$I SRL/osr.simba}
 {$ENDIF}
 
+{$i walker_map.simba}
+
 {$I webgraph.simba}
 {$I world.graph}
 {$I zeah.graph}
@@ -26,9 +28,11 @@ type
   TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint) of object;
 
   TRSWalker = record(TSRLBaseRecord)
-    Cache: TMatchTemplateCache;
+    Region: TBox;
+    RegionIndex: Integer;
 
-    World: TMufasaBitmap;
+    Map: TRSWalkerMap;
+    Cache: TMatchTemplateCache;
 
     WebGraph: TWebGraph;
 
@@ -57,207 +61,69 @@ type
     OnWalkingEvent: TRSWalker_OnWalkEvent;
   end;
 
-function TRSWalker.FindMap(Map: String): String; static;
+procedure TRSWalker.InternalSetup;
 var
-  Mask: String = '.png;.bmp;';
-  Files: TStringArray;
-begin
-  if FileExists(Map) then
-    Exit(ExpandFileName(Map));
-
-  Mask := StringReplace(Mask, '.', Map + '.', [rfReplaceAll]);
-
-  Files := FindFile(ExtractFileDir(Map), Mask, False, False) +
-           FindFile({$MACRO CURRENT_DIRECTORY}, Mask, True, False);
-
-  if Length(Files) > 0 then
-    Result := Files[0];
-end;
-
-function TRSWalker.LoadMap(Path: String): TMufasaBitmap; static;
-const
-  MAPS = {$MACRO CURRENT_DIRECTORY} + DirectorySeparator + 'maps' + DirectorySeparator;
-var
-  Cache: String;
-begin
-  Result := TMufasaBitmap.Create();
-
-  if ExtractFileExt(Path) <> '.bmp' then
-  begin
-    Cache := MAPS + SHA1File(Path) + '.bmp';
-
-    // Save as bitmap for much faster loading
-    if not FileExists(Cache) then
-    begin
-      Result.LoadFromFile(Path);
-      Result.SaveToFile(Cache);
-    end;
-
-    if FileExists(Cache) then
-      Path := Cache;
-  end;
-
-  Result.LoadFromFile(Path);
-end;
-
-procedure TRSWalker.Free;
-begin
-  if Self.World <> nil then
-  begin
-    Self.World.Free();
-    Self.World := nil;
-  end;
-end;
-
-(*
-TRSWalker.Setup
-~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSWalker.Setup(Map: String; Manage: Boolean = True; Scaling: Int32 = 10);
-
-Setup a RSWalker variable.
-This only needs calling once per variable so it's suggested to use a global variable.
-This method is to be called before using the walking functionality.
-
-Other parameters that you can set up after are:
-* RSW.ScreenWalk := True;
-	If this is set to True, RSW will walk on the mainscreen.
-
-* RSW.AdaptiveWalk := True;
-	If this is set to True, RSW will try to mix minimap walking with mainscreen walking, so first and last clicks will usually happen on the mainscreen.
-
-* RSW.FancyMouse := True;
-	If this is set to True, RSW will attempt to make the mousemovement a little more human.
-
-* RSW.NearZoomMode := True;
-	Use this is you are zoomed in a lot, and still wanna do mainscreen walking. It will bypass some random meassures in order to walk with fewer errors.
-
-* RSW.ClickRandomness := 5;
-	This is by default 4, it's the radius of the area we click in the path to make the path more random.
-
-
-Parameters
-----------
-
-Map
-	File path to an image or a map name found in *SRL/osr/walker/maps*.
-
-Manage
-  Automatically free walker at the end of the script. Only works if the TRSWalker variable is global. (Default: True)
-
-Scaling
-	Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 9)
-
-Example
--------
-
-  var Walker: TRSWalker;
-
-  Walker.Setup('world'); // Setup using the world map found in the maps directory
-*)
-procedure TRSWalker.Setup(Map: String; Manage: Boolean = True; Scaling: Int32 = 9);
-var
-  Path: String;
-  Bitmap, Mask, Sample: TMufasaBitmap;
-  X, Y: Int32;
+  MinimapImage, MinimapSample: TMufasaBitmap;
 begin
   Self.Name := 'Walker';
 
-  Path := Self.FindMap(Map);
-  if (Path = '') then
-    Self.Fatal('Unable to find map: ' + Map);
+  MinimapImage := Self.GetCleanMinimap();
+  MinimapSample := Self.ScaleMinimap(MinimapImage, Self.Scaling);
 
+  Self.Cache := TMatchTemplateCache.Create(Self.Map.ScaledMap, MinimapSample, TM_CCOEFF_NORMED);
+  Self.Cache.FreeOnTerminate(True);
+
+  MinimapSample.Free();
+  MinimapImage.Free();
+end;
+
+procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 8); overload;
+begin
   Self.Scaling := Scaling;
-  Self.ClickRandomness := 4;
+  Self.Map.Load(Map, Scaling);
 
-  case Map.ToLower() of
-    'world': Self.WebGraph := WorldWeb;
-    'zeah':  Self.WebGraph := ZeahWeb;
-  end;
+  Self.InternalSetup();
+end;
 
-  Self.World := Self.LoadMap(Path);
-  if Manage then
-    AddOnTerminate(@Self.Free);
+procedure TRSWalker.Setup(Map: String; Regions: TBoxArray; Scaling: Integer = 8); overload;
+begin
+  Self.Scaling := Scaling;
+  Self.Map.Load(Map, Regions, Scaling);
 
-  //Self.HighlightFeatures(Self.World);
+  Self.InternalSetup();
+end;
 
-  // Fixed or resizable, doesn't matter.
-  Sample := TMufasaBitmap.Create();
-  Self.World.Downsample(Sample, Self.Scaling);
-  Bitmap := Self.GetCleanMinimap();
-  Mask := Self.ScaleMinimap(Bitmap, Self.Scaling);
+procedure TRSWalker.Setup(Regions: TBoxArray; Scaling: Integer = 8); overload;
+begin
+  Self.Scaling := Scaling;
+  Self.Map.Load({$MACRO CURRENT_DIRECTORY} + 'map.png', Regions, Scaling);
 
-  //for X := 0 to Mask.getWidth() - 1 do
-  //  for Y := 0 to Mask.getHeight() - 1 do
-  //    if (Mask.GetPixel(X, Y) <> 0) then
-  //      Mask.SetPixel(X, Y, $FFFFFF);
-
-  //Self.Cache := TMatchTemplateCache.Create(Sample.ToMatrix(), Mask.ToMatrix(), TM_CCOEFF_NORMED);
-
-  Self.Cache := TMatchTemplateCache.Create(Sample, Mask, TM_CCOEFF_NORMED);
-
-
-  Sample.Free();
-  Bitmap.Free();
-  Mask.Free();
+  Self.InternalSetup();
 end;
 
 procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap);
 
-  procedure Find(P: TPoint);
+  procedure ClearDots(Dots: TPointArray);
   var
-    Area: TBox;
-    Pixel: Int32;
-    X, Y: Int32;
+    TPA, DotTPA: TPointArray;
   begin
-    Area := [P.X - 5, P.Y - 5, P.X + 5, P.Y + 5];
+    if Bitmap.FindColorsTolerance(TPA, $FFFFFF, 30, 0.001, 0.001) then DotTPA += TPA;
+    if Bitmap.FindColorsTolerance(TPA, $00FFFF, 30, 0.05, 1)      then DotTPA += TPA;
+    if Bitmap.FindColorsTolerance(TPA, $0000FF, 30, 0.05, 1)      then DotTPA += TPA;
+    if Bitmap.FindColorsTolerance(TPA, $020102, 10, 16.67, 67.67) then DotTPA += TPA;
 
-    for Y := Area.Y1 to Area.Y2 do
-      for X := Area.X1 to Area.X2 do
-        if Bitmap.PointInBitmap(X, Y) then
-        begin
-          Pixel := Bitmap.GetPixel(X, Y);
-
-          SetToleranceSpeed2Modifiers(0.001, 0.001);
-          if SimilarColors($FFFFFF, Pixel, 30) then
-            Bitmap.SetPixel(X, Y, 0);
-
-          SetToleranceSpeed2Modifiers(0.05, 1);
-          if SimilarColors($00FFFF, Pixel, 30) then
-            Bitmap.SetPixel(X, Y, 0);
-
-          SetToleranceSpeed2Modifiers(0.05, 1);
-          if SimilarColors($0000FF, Pixel, 30) then
-            Bitmap.SetPixel(X, Y, 0);
-
-          SetToleranceSpeed2Modifiers(50, 100);
-          if SimilarColors($000000, Pixel, 1) then
-            Bitmap.SetPixel(X, Y, 0);
-        end;
+    Bitmap.DrawTPA(PointsInRangeOf(DotTPA, Dots, 0, 5.5), 0);
   end;
 
 var
-  Dots: TPointArray;
-  Dot: TPoint;
   TPA: TPointArray;
 begin
-  Dots := Minimap.GetDotsBitmap(Bitmap, [ERSMinimapDot.NPC, ERSMinimapDot.ITEM, ERSMinimapDot.PLAYER]);
+  TPA := Minimap.GetDotsBitmap(Bitmap, [ERSMinimapDot.NPC, ERSMinimapDot.ITEM, ERSMinimapDot.PLAYER]).Offset(2, 2);
+  TPA.Append(TPoint.Create(Bitmap.GetWidth() div 2, Bitmap.GetHeight() div 2)); // our player dot
 
-  SetColorToleranceSpeed(2);
+  ClearDots(TPA);
 
-  for Dot in Dots do
-    Find(Dot);
-  Find([Bitmap.GetWidth() div 2, Bitmap.GetHeight() div 2]); // our own player
-
-  SetColorToleranceSpeed(1);
-  SetToleranceSpeed2Modifiers(0.2, 0.2);
-
-  // TODO: account for tolerance
-  Bitmap.ReplaceColor(255,0);
-  Bitmap.ReplaceColor(284358,0);
-  Bitmap.ReplaceColor(1127261,0);
-  
   Bitmap.DrawPolygonInverted(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), 0);
-
   Bitmap.FindColors(TPA, 0);
   Bitmap.Blend(TPA.Sorted(Bitmap.GetCenter()), 5);
   Bitmap.Pad(10);
@@ -289,7 +155,7 @@ begin
   Temp := Bitmap.Copy();
 
   P := Temp.GetCenter();
-  if RSClient.Mode = ERSClientMode.FIXED then
+  if RSClient.ClientMode = ERSClientMode.FIXED then
     P := P.Offset(0, -8).Rotate(-Minimap.GetCompassAngle(False), P); // fixed
 
   Temp.DrawCircleInverted(P, RADIUS, 0);
@@ -315,7 +181,6 @@ begin
   Sample := Self.ScaleMinimap(Bitmap, Self.Scaling);
 
   Matrix := MatchTemplateMask(Self.Cache, Sample, TM_CCOEFF_NORMED);
-
   while Length(Result) < Samples do
     with Matrix.ArgMax() do
     begin
@@ -355,7 +220,6 @@ begin
     TemplScaled.Crop(X - TEMPL_SIZE, Y - TEMPL_SIZE, X + TEMPL_SIZE, Y + TEMPL_SIZE);
 
   Matrix := SliceScaled.MatchTemplate(TemplScaled, TM_CCOEFF_NORMED);
-
   with Matrix.ArgMax() do
   begin
     Match := Matrix[Y, X];
@@ -394,6 +258,8 @@ var
   Hit: TPoint;
   Match: Single;
 begin
+  Self.RegionIndex := -1;
+  Self.Region := [];
   Self.Similarity := 0;
 
   Bitmap := Self.GetCleanMinimap();
@@ -401,7 +267,7 @@ begin
   TPA := Self.ScaledSearch(Bitmap, SAMPLES);
   for I := 0 to High(TPA) do
   begin
-    Hit := Self.FullSearch(Bitmap, Self.World, TPA[I], Match);
+    Hit := Self.FullSearch(Bitmap, Self.Map.Map, TPA[I], Match);
 
     if Match > Self.Similarity then
     begin
@@ -409,6 +275,13 @@ begin
 
       Result := Hit;
     end;
+  end;
+
+  Self.RegionIndex := Self.Map.RegionIndexFromPoint(Result);
+  if Self.RegionIndex > -1 then
+  begin
+    Self.Region := Self.Map.Regions[Self.RegionIndex];
+    Result := Self.Map.GlobalToRegionPoint(Result);
   end;
 
   Bitmap.Free();
@@ -452,7 +325,6 @@ begin
   if (not wasEnabled) and (Self.ScreenWalk) and (Self.FancyMouse) and (Random() < 0.75) and (Minimap.IsPointOn(Mouse.Position)) then
     Self.DoMouseAhead(Position, True);
 end;
-
 
 procedure TRSWalker.DoMouseAhead(Position: TPoint; Forced: Boolean = False);
 var
@@ -873,6 +745,18 @@ begin
   Result := Self.WalkPath(Path, WaitUntilDistance);
 end;
 
+(*
+TRSWalker.DebugPosition
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.DebugPosition(EnsureVisible: Boolean = True);
+
+DESC
+
+Example
+-------
+
+  EXAMPLE
+*)
 procedure TRSWalker.DebugPosition(EnsureVisible: Boolean = True);
 var
   X1, Y1, X2, Y2, X, Y: Int32;
@@ -888,15 +772,18 @@ begin
   Position := Self.GetMyPos();
   Time := PerformanceTimer() - Time;
 
+  Position.X += Self.Region.X1;
+  Position.Y += Self.Region.Y1;
+
   X1 := Max(0, Position.X - 200);
   Y1 := Max(0, Position.Y - 200);
-  X2 := Min(X1 + 400, Self.World.GetWidth()  - 1);
-  Y2 := Min(Y1 + 400, Self.World.GetHeight() - 1);
+  X2 := Min(X1 + 400, Self.Map.Map.GetWidth()  - 1);
+  Y2 := Min(Y1 + 400, Self.Map.Map.GetHeight() - 1);
 
   X := Position.X - X1;
   Y := Position.Y - Y1;
 
-  WorldBitmap := Self.World.Copy(X1, Y1, X2, Y2);
+  WorldBitmap := Self.Map.Map.Copy(X1, Y1, X2, Y2);
   WorldBitmap.DrawLine(Point(0, Y), Point(X2 - X1, Y), $00FF00);
   WorldBitmap.DrawLine(Point(X, 0), Point(X, Y2 - Y1), $00FF00);
   WorldBitmap.DrawBox([X - 2, Y - 2, X + 2, Y + 2], $FFFFFF);
@@ -904,27 +791,26 @@ begin
   MinimapBitmap := Self.ScaleMinimap(Self.GetCleanMinimap(), 1);
 
   P := MinimapBitmap.GetCenter();
-  if RSClient.Mode = ERSClientMode.FIXED then
+  if RSClient.ClientMode = ERSClientMode.FIXED then
     P := P.Offset(0, 8).Rotate(-Minimap.GetCompassAngle(False), P);
 
   MinimapBitmap.DrawBoxFilled([P.X - 1, P.Y - 1, P.X + 1, P.Y + 1], $FFFFFF);
 
-  Bitmap := TMufasaBitmap.Create();
-  Bitmap.SetSize(400 + MinimapBitmap.GetWidth() + 30, 420);
-  Bitmap.Fill($403027);
-
   Lines := [
-    '('      + ToStr(Position.X, ', ', Position.Y) + ')',
-    'Acc: '  + ToStr(Round(Self.Similarity, 3)),
-    'Time: ' + ToStr(Round(Time)) + ' ms'
+    'Region: ' + ToStr(Self.RegionIndex),
+    'Acc: '    + ToStr(Round(Self.Similarity, 3)),
+    'Time: '   + ToStr(Round(Time)) + ' ms'
   ];
 
+  Bitmap := TMufasaBitmap.Create();
   Bitmap.SetFontName('Consolas');
   Bitmap.SetFontSize(18);
   Bitmap.SetFontAntialiasing(True);
-
-  Bitmap.DrawText(Lines[0], [420, 20 + MinimapBitmap.GetHeight()], $FFFFFF);
-  Bitmap.DrawText(Lines[1] + LineEnding + Lines[2], [420, 370], $FFFFFF);
+  Bitmap.SetTransparentColorActive(False);
+  Bitmap.SetSize(430 + MinimapBitmap.GetWidth(), 420);
+  Bitmap.Fill($403027);
+  Bitmap.DrawText('(%d, %d)'.Format([Position.X - Self.Region.X1, Position.Y - Self.Region.Y1]), [420, 20 + MinimapBitmap.GetHeight()], $FFFFFF);
+  Bitmap.DrawTextLines(Lines, [420, 400 - (Bitmap.TextHeight('TaylorSwift') * 3)], $FFFFFF);
 
   Bitmap.DrawBitmap(WorldBitmap, [10, 10]);
   WorldBitmap.Free();

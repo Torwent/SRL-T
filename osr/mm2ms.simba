@@ -97,7 +97,7 @@ begin
 
   // only set it up once.
   if (Self.Projector.Y_LOOK = 0) and (Self.Projector.ScaleMax = 0) and (Self.Projector.ScaleMin = 0) then
-    case RSClient.Mode of
+    case RSClient.ClientMode of
       ERSClientMode.FIXED:
         Self.Projector := MM2MS_PROJECTOR_FIXED;
 

@@ -1,0 +1,112 @@
+type
+  RSWalkerRegions = record
+  class const
+    WORLD:          TBox = [0,0, 7500, 5645];
+    ZEAH:           TBox = [0, 5600, 3170, 8630];
+    EDGEVILLE:      TBox = [4209, 1918, 4487, 2180];
+    GRAND_EXCHANGE: TBox = [4460, 1900, 4800, 2250];
+    LUNAR_ISLE:     TBox = [75, 75, 1000, 1000];
+    LUMBRIDGE:      TBox = [4693, 2990, 5031, 3302];
+    ISLE_OF_SOULS:  TBox = [180, 3910, 1500, 4990];
+  end;
+
+  TRSWalkerMap = record
+    Map: TMufasaBitmap;
+    ScaledMap: TMufasaBitmap;
+    Regions: TBoxArray;
+  end;
+
+function TRSWalkerMap.InternalLoadMap(FileName: String; Region: TBox = []): TMufasaBitmap;
+var
+  CacheFileName: String;
+begin
+  if ExtractFileExt(FileName) <> '.bmp' then
+  begin
+    CacheFileName := DataPath + 'map_' + SHA1File(FileName) + '.bmp';
+    if not FileExists(CacheFileName) then
+    begin
+      WriteLn('Caching ' + ExtractFileName(FileName) + ' this can take ~10 seconds.');
+
+      Result := TMufasaBitmap.CreateFromFile(FileName);
+      Result.SaveToFile(CacheFileName);
+      if (Region <> []) then
+        Result.Crop(Region.X1, Region.Y1, Region.X2, Region.Y2);
+
+      Exit;
+    end;
+
+    FileName := CacheFileName;
+  end;
+
+  if (Region <> []) then
+  begin
+    Result := TMufasaBitmap.Create();
+    Result.LoadFromFile(FileName, Region);
+  end else
+    Result := TMufasaBitmap.CreateFromFile(FileName);
+end;
+
+procedure TRSWalkerMap.Load(FileName: String; Scaling: Integer); overload;
+begin
+  Self.Map := Self.InternalLoadMap(FileName);
+  Self.Map.FreeOnTerminate(True);
+  Self.ScaledMap := TMufasaBitmap.Create();
+  Self.ScaledMap.FreeOnTerminate(True);
+  Self.Map.Downsample(Self.ScaledMap, Scaling);
+end;
+
+procedure TRSWalkerMap.Load(FileName: String; ARegions: TBoxArray; Scaling: Integer; Padding: Integer = 50); overload;
+var
+  Bitmaps: TMufasaBitmapArray;
+  I: Integer;
+begin
+  Self.Regions := ARegions;
+
+  SetLength(Bitmaps, Length(Self.Regions));
+  for I := 0 to High(Bitmaps) do
+  begin
+    Bitmaps[I] := Self.InternalLoadMap(FileName, Self.Regions[I]);
+    if (Self.Regions[I] <> RSWalkerRegions.WORLD) then
+      Bitmaps[I].Pad(Padding);
+
+    Self.Regions[I] := TBox.Create(0, 0, Bitmaps[I].GetWidth(), Bitmaps[I].GetHeight());
+  end;
+
+  Self.Regions := Self.Regions.Pack();
+  Self.Map := TMufasaBitmap.Create(Self.Regions.Merge.Width(),Self. Regions.Merge.Height());
+  for I := 0 to High(Self.Regions) do
+    Self.Map.DrawBitmap(Bitmaps[I], TPoint.Create(Self.Regions[I].X1, Self.Regions[I].Y1));
+
+  Self.ScaledMap := TMufasaBitmap.Create();
+  Self.Map.Downsample(Self.ScaledMap, Scaling);
+
+  for I := 0 to High(Bitmaps) do
+    Bitmaps[I].Free();
+end;
+
+function TRSWalkerMap.RegionIndexFromPoint(P: TPoint): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+
+  for I := 0 to High(Self.Regions) do
+    if P.InBox(Self.Regions[I]) then
+      Exit(I);
+end;
+
+function TRSWalkerMap.GlobalToRegionPoint(P: TPoint): TPoint;
+var
+  I: Integer;
+begin
+  Result := P;
+
+  for I := 0 to High(Self.Regions) do
+    if P.InBox(Self.Regions[I]) then
+    begin
+      Result.X := P.X - Self.Regions[I].X1;
+      Result.Y := P.Y - Self.Regions[I].Y1;
+
+      Exit;
+    end;
+end;

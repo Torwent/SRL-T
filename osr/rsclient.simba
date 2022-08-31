@@ -39,8 +39,7 @@ type
   );
 
   TRSClient = record(TSRLBaseRecord)
-    Mode: ERSClientMode;
-
+    Temp: Integer;
     {$IFNDEF SRL_DISABLE_REMOTEINPUT}
     RemoteInput: TRemoteInput;
     {$ENDIF}
