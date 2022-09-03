@@ -21,8 +21,8 @@ begin
   try
     if (Self.PID = 0) then
     begin
-      if (ShowDialog('SRL', 'Automatically try to find a RS client?', mtConfirmation, [mbYes, mbNo]) = mrNo) then
-        raise 'No RS clients found';
+      //if (ShowDialog('SRL', 'Automatically try to find a RS client?', mtConfirmation, [mbYes, mbNo]) = mrNo) then
+     //   raise 'No RS clients found';
       
       RIInject(RS_EXECUTABLE, Self.PID); 
     end else

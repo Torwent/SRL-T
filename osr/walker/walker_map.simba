@@ -46,6 +46,21 @@ begin
     Result := TMufasaBitmap.CreateFromFile(FileName);
 end;
 
+procedure TRSWalkerMap.Free;
+begin
+  if Assigned(Self.Map) then
+  begin
+    Self.Map.Free();
+    Self.Map := nil;
+  end;
+
+  if Assigned(Self.ScaledMap) then
+  begin
+    Self.ScaledMap.Free();
+    Self.ScaledMap := nil;
+  end;
+end;
+
 procedure TRSWalkerMap.Load(FileName: String; Scaling: Integer); overload;
 begin
   Self.Map := Self.InternalLoadMap(FileName);

@@ -77,6 +77,17 @@ begin
   MinimapImage.Free();
 end;
 
+procedure TRSWalker.Free;
+begin
+  if Assigned(Self.Cache) then
+  begin
+    Self.Cache.Free();
+    Self.Cache := nil;
+  end;
+
+  Self.Map.Free();
+end;
+
 procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 8); overload;
 begin
   Self.Scaling := Scaling;

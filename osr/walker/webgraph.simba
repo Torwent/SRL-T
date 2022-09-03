@@ -274,13 +274,13 @@ var
   Elements, Values: TStringArray;
   I: Int32;
 begin
-  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
+  Elements := DecompressString(Base64Decode(S)).BetweenAll('[', ']');
 
   SetLength(Self.Nodes, Length(Elements));
 
   for I := 0 to High(Elements) do
   begin
-    Values := Explode(' ', Elements[I]);
+    Values := Elements[I].Split(' ');
 
     Self.Nodes[I].X := StrToInt(Values[0]);
     Self.Nodes[I].Y := StrToInt(Values[1]);
@@ -315,7 +315,7 @@ var
   Elements, Values: TStringArray;
   I, J: Int32;
 begin
-  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
+  Elements := DecompressString(Base64Decode(S)).BetweenAll('[', ']');
 
   SetLength(Self.Paths, Length(Elements));
 
@@ -324,7 +324,7 @@ begin
     if Elements[I] = ' ' then
       Continue;
 
-    Values := Explode(' ', Elements[I]);
+    Values := Elements[I].Split(' ');
 
     SetLength(Self.Paths[I], Length(Values));
     for J := 0 to High(Values) do
@@ -350,7 +350,7 @@ var
   Elements: TStringArray;
   I: Int32;
 begin
-  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
+  Elements := DecompressString(Base64Decode(S)).BetweenAll('[', ']');
 
   SetLength(Self.Names, Length(Elements));
 
