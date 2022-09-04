@@ -372,7 +372,7 @@ begin
       if SRL.FindColors(TPA, CTS2(2503237, 40, 0.10, 0.14), ATPA[I].Bounds) > 5 then
       begin
         TPA := ATPA[I].MinAreaRect.Filter(TPA);
-        TPA := TPA.Erode(MainScreen.ConvertDistance(3));
+        TPA := TPA.Erode(MainScreen.NormalizeDistance(3));
         if Length(TPA) > 0 then
           ChestTPA += TPA;
       end;

@@ -341,3 +341,11 @@ begin
   Result := Round(Distance(Self.Btm, Self.Right)) *
             Round(Distance(Self.Btm, Self.Left));
 end;
+
+procedure TMufasaBitmap.DrawRect(R: TRectangle; Color: Integer; Grow: Integer = 0);
+begin
+  if Grow > 0 then
+    Self.DrawTPA(R.ToTPA.Connect().Grow(Grow), Color)
+  else
+    Self.DrawTPA(R.ToTPA.Connect(), Color);
+end;
