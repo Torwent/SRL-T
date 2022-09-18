@@ -11,6 +11,9 @@ Walker
   {$I SRL/osr.simba}
 {$ENDIF}
 
+const
+  SRL_WALKER_DIR = {$MACRO CURRENT_DIRECTORY};
+
 {$i walker_map.simba}
 
 {$I webgraph.simba}
@@ -292,7 +295,8 @@ begin
   if Self.RegionIndex > -1 then
   begin
     Self.Region := Self.Map.Regions[Self.RegionIndex];
-    Result := Self.Map.GlobalToRegionPoint(Result);
+
+    Result := Self.Map.RegionToGlobal(Result);
   end;
 
   Bitmap.Free();
@@ -783,8 +787,8 @@ begin
   Position := Self.GetMyPos();
   Time := PerformanceTimer() - Time;
 
-  Position.X += Self.Region.X1;
-  Position.Y += Self.Region.Y1;
+  if Self.RegionIndex > -1 then
+    Position := Self.Map.GlobalToRegion(Self.RegionIndex, Position);
 
   X1 := Max(0, Position.X - 200);
   Y1 := Max(0, Position.Y - 200);

@@ -1,0 +1,85 @@
+{$I SRL/OSR.simba}
+
+type
+  TRSWalkerRegionBuilder = record
+    Form: TForm;
+    ShapeBox: TSimbaShapeBox;
+  end;
+
+procedure TRSWalkerRegionBuilder.PrintRegions;
+var
+  I: Integer;
+  Padding: Integer;
+begin
+  for I := 0 to Self.ShapeBox.GetBoxCount() - 1 do
+    Padding := Max(Padding, Length(Self.ShapeBox.GetBoxName(I)));
+
+  WriteLn('type');
+  WriteLn('  RSWalkerRegions = record');
+  WriteLn('  class const');
+  for I := 0 to Self.ShapeBox.GetBoxCount() - 1 do
+    with Self.ShapeBox.GetBox(I) do
+    begin
+      Write('    ');
+      Write(Self.ShapeBox.GetBoxName(I) + ':');
+      Write(' ' * (Padding - Length(Self.ShapeBox.GetBoxName(I))));
+      Write(' TBox = [%d, %d, %d, %d];'.Format([X1, Y1, X2, Y2]));
+      WriteLn();
+    end;
+  WriteLn('  end;');
+  WriteLn('');
+end;
+
+procedure TRSWalkerRegionBuilder.PrintLocations;
+var
+  I: Integer;
+  Padding: Integer;
+begin
+  for I := 0 to Self.ShapeBox.GetBoxCount() - 1 do
+    Padding := Max(Padding, Length(Self.ShapeBox.GetBoxName(I)));
+
+  WriteLn('type');
+  WriteLn('  RSWalkerLocations = record');
+  WriteLn('  class const');
+  for I := 0 to Self.ShapeBox.GetPointCount() - 1 do
+    with Self.ShapeBox.GetPoint(I) do
+    begin
+      Write('    ');
+      Write(Self.ShapeBox.GetPointName(I) + ':');
+      Write(' ' * (Padding - Length(Self.ShapeBox.GetPointName(I))));
+      Write(' TPoint = [%d, %d];'.Format([X, Y]));
+      WriteLn();
+    end;
+  WriteLn('  end;');
+  WriteLn('');
+end;
+
+procedure TRSWalkerRegionBuilder.Run;
+begin
+  Self.Form.Init(nil);
+  Self.Form.SetPosition(poScreenCenter);
+  Self.Form.SetWidth(1000);
+  Self.Form.SetHeight(800);
+
+  Self.ShapeBox.Init(Self.Form);
+  Self.ShapeBox.SetParent(Self.Form);
+  Self.ShapeBox.SetAlign(alClient);
+  Self.ShapeBox.SetBackground('C:\Users\OllyC\Desktop\Code\Simba-RELEASE\Data\map_e89844ea74cc44efdd87514b6ab12dba0afb0ee0.bmp');
+  Self.ShapeBox.LoadFromFile(SRL_WALKER_DIR + 'shapes');
+  Self.Form.ShowModal();
+  Self.ShapeBox.SaveToFile(SRL_WALKER_DIR + 'shapes');
+
+  ClearDebug();
+
+  Self.PrintRegions();
+  Self.PrintLocations();
+
+  Self.Form.Free();
+end;
+
+var
+  WalkerRegionBuilder: TRSWalkerRegionBuilder;
+
+begin
+  Sync(@WalkerRegionBuilder.Run);
+end.

@@ -1,7 +1,7 @@
 type
   RSWalkerRegions = record
   class const
-    WORLD:          TBox = [0,0, 7500, 5645];
+    WORLD:          TBox = [0, 0, 7500, 5645];
     ZEAH:           TBox = [0, 5600, 3170, 8630];
     EDGEVILLE:      TBox = [4209, 1918, 4487, 2180];
     GRAND_EXCHANGE: TBox = [4460, 1900, 4800, 2250];
@@ -10,10 +10,17 @@ type
     ISLE_OF_SOULS:  TBox = [180, 3910, 1500, 4990];
   end;
 
+type
+  RSWalkerLocations = record
+  class const
+    GRAND_EXCHANGE: TPoint = [4626, 2061];
+  end;
+
   TRSWalkerMap = record
     Map: TMufasaBitmap;
     ScaledMap: TMufasaBitmap;
     Regions: TBoxArray;
+    RegionOffsets: TPointArray;
   end;
 
 function TRSWalkerMap.InternalLoadMap(FileName: String; Region: TBox = []): TMufasaBitmap;
@@ -75,20 +82,28 @@ var
   Bitmaps: TMufasaBitmapArray;
   I: Integer;
 begin
-  Self.Regions := ARegions;
+  SetLength(Self.Regions, Length(ARegions));
+  SetLength(Self.RegionOffsets, Length(ARegions));
 
   SetLength(Bitmaps, Length(Self.Regions));
   for I := 0 to High(Bitmaps) do
   begin
-    Bitmaps[I] := Self.InternalLoadMap(FileName, Self.Regions[I]);
-    if (Self.Regions[I] <> RSWalkerRegions.WORLD) then
+    Self.RegionOffsets[I] := TPoint.Create(ARegions[I].X1, ARegions[I].Y1);
+
+    Bitmaps[I] := Self.InternalLoadMap(FileName, ARegions[I]);
+    if (ARegions[I] <> RSWalkerRegions.WORLD) then
+    begin
+      Self.RegionOffsets[I].X -= Padding;
+      Self.RegionOffsets[I].Y -= Padding;
+
       Bitmaps[I].Pad(Padding);
+    end;
 
     Self.Regions[I] := TBox.Create(0, 0, Bitmaps[I].GetWidth(), Bitmaps[I].GetHeight());
   end;
 
   Self.Regions := Self.Regions.Pack();
-  Self.Map := TMufasaBitmap.Create(Self.Regions.Merge.Width(),Self. Regions.Merge.Height());
+  Self.Map := TMufasaBitmap.Create(Self.Regions.Merge.Width(), Self.Regions.Merge.Height());
   for I := 0 to High(Self.Regions) do
     Self.Map.DrawBitmap(Bitmaps[I], TPoint.Create(Self.Regions[I].X1, Self.Regions[I].Y1));
 
@@ -110,18 +125,19 @@ begin
       Exit(I);
 end;
 
-function TRSWalkerMap.GlobalToRegionPoint(P: TPoint): TPoint;
+function TRSWalkerMap.RegionToGlobal(P: TPoint): TPoint;
 var
   I: Integer;
 begin
   Result := P;
-
   for I := 0 to High(Self.Regions) do
     if P.InBox(Self.Regions[I]) then
-    begin
-      Result.X := P.X - Self.Regions[I].X1;
-      Result.Y := P.Y - Self.Regions[I].Y1;
+      Exit(Result + Self.RegionOffsets[I]);
+end;
 
-      Exit;
-    end;
+function TRSWalkerMap.GlobalToRegion(RegionIndex: Integer; P: TPoint): TPoint;
+begin
+  Result := P;
+  if (RegionIndex > -1) then
+    Result := Result - Self.RegionOffsets[RegionIndex];
 end;
