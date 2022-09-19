@@ -2,6 +2,8 @@ type
   RSBitmaps = record(TSRLBaseRecord)
   class var
     CloseInterfaceButton: TMufasaBitmap;
+    CloseScrollInterfaceButton: TMufasaBitmap;
+
     MinimapFlag: TMufasaBitmap;
     ChooseOption: TMufasaBitmap;
 
@@ -27,11 +29,13 @@ begin
   RSBitmaps.SpellBookArceuus := RSBitmaps.Load(24, 23, 'meJy90jEKwjAUBuCeQHS2IDhIRboXEURwEnRx0N2l4urgBbyDZ3F29gCexh9++AkJTV9b8fEIafL60eQ1Sf4Rn9f1/dzdH/lPkO2qv5hkzC5IPs3kNNLiCLM8rVGAMhTbEcw384KTkLIjXHERsEhQWDQeB49a348KIfxCO8KP166LXI6HWkQXoq0QuZ1LC0JHNxMiGHU0VXoIxvBiPQSjHJalaer+HnrLyypEDte5VeVEEMRsOFj2xtz1NPwebuKYVYgoCa6mprMXeIwgCtxzqIliQ2sRUaGmhhqRuNYUiWi46hYOA8dRv1ojopgdHUt8Afb8Ejs=');
   RSBitmaps.SpellBookAncient := RSBitmaps.Load(24, 23, 'meJy90rEKwjAUBdD+iYvoXhFENzfp4NBNZwfBwcnBzcWxmyA49CcEHe2/+CFeuHApL21MbTFcJKR5p8mrUfSPcXi+llmOdILM0/UuXjCdIE01P8Ik2yM2YCcSgqS9iZ+q7J57EjjKebYSgjkCCgm5DssNRSRLNm6v6pCyoImQ26MIRFiuRhnkWry/fh3/dYic8rv6g3KkP5pqZzlGNggmqJWDw9CppFTuQXQerOMpQg0lbgyC+5abjJMgWMdTo/EVCrbVIaL4LqNhXf9/3t2DaPDLGk0UfnlsPyLK1XjxcMSvNUXqtMs43g+GPzgcaAuElogofveWTsj4ABTWakg=');
 
-  RSBitmaps.CloseInterfaceButton := RSBitmaps.Load(21, 21, 'meJxjZGBgpAyRDaio3dwzmHhEI+0QEUz1aOL4taOZgCmIqd3SNxKC4IqxciEIj3ZkLVj1YtVuExSPjJD1okkBEUHtcBMwxYnRTqrtDuEpcITpd2RZIMKjHU0LVhMwtTvH5gARXDGEi0sQv3ZkvVjFcWknElFdOxmAKtopQQAaR5/Q');
-  RSBitmaps.MinimapFlag          := RSBitmaps.Load(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
-  RSBitmaps.ChooseOption         := RSBitmaps.Load(20, 18, 'meJxzD4l1pwAxkAsGj15Mv+DyGpogXBmyemL04lEzgHqxhgPxehkwwoEkN9NCLwMRcYRHL5rvSNVLPBhAvWQjAO6IcGE=');
+  RSBitmaps.CloseInterfaceButton       := RSBitmaps.Load(21, 21, 'meJxjZGBgpAyRDaio3dwzmHhEI+0QEUz1aOL4taOZgCmIqd3SNxKC4IqxciEIj3ZkLVj1YtVuExSPjJD1okkBEUHtcBMwxYnRTqrtDuEpcITpd2RZIMKjHU0LVhMwtTvH5gARXDGEi0sQv3ZkvVjFcWknElFdOxmAKtopQQAaR5/Q');
+  RSBitmaps.CloseScrollInterfaceButton := RSBitmaps.Load(24, 23, 'meJy1lEESgDAIA8u3fZnP8SkevFQNSepEhhOE7bQFaoy6u2OFfNuP2SUKllzBWcZRnf4dJygihimI4sou+0A5Mqkxz5IoEyJRPmQVJdvMQTm9KlEmJMWJ3CvyzpF/j/RhZC5Sc/rr3vi8x/wV3emhc4MlJ5Puqh8=');
 
-  RSBitmaps.XPBarSmall  := RSBitmaps.Load(119, 27, 'meJzt0DENgEAQAEG8vAFKDGCAEv9CviDBwW01k1Ww67yW5rufV3P9kw9mmBwwOWBywOSAyQGTAyYHTA6YHDA5YHLA5IDJAZMDJgdMDpgcMDlgcsDkgMkBkwMmB0wOfJM3PD/6EQ==');
-  RSBitmaps.XPBarMedium := RSBitmaps.Load(129, 27, 'meJzt0TENwCAAAEG8YICxBjDQsf6FMDTBwi1/eQc/1zNLt9+vVHfBiNACrgVcC7gWcC3gWsC1gGsB1wKuBVwLuBZwLeBawLWAawHXAq4FXAu4FnAt4FrAtYBrAfcvOLqHCPg=');
-  RSBitmaps.XPBarLarge  := RSBitmaps.Load(140, 27, 'meJzt0TENwCAAAEG8YICxBjDQsf6FMDRBww1/eQc/1zOLb79fsd1HI6Qe+Xrk65GvR74e+Xrk65GvR74e+Xrk65GvR74e+Xrk65GvR74e+Xrk65GvR74e+Xrk65GvR77/0QFuMBlM');
+  RSBitmaps.MinimapFlag   := RSBitmaps.Load(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
+  RSBitmaps.ChooseOption  := RSBitmaps.Load(20, 18, 'meJxzD4l1pwAxkAsGj15Mv+DyGpogXBmyemL04lEzgHqxhgPxehkwwoEkN9NCLwMRcYRHL5rvSNVLPBhAvWQjAO6IcGE=');
+
+  RSBitmaps.XPBarSmall    := RSBitmaps.Load(119, 27, 'meJzt0DENgEAQAEG8vAFKDGCAEv9CviDBwW01k1Ww67yW5rufV3P9kw9mmBwwOWBywOSAyQGTAyYHTA6YHDA5YHLA5IDJAZMDJgdMDpgcMDlgcsDkgMkBkwMmB0wOfJM3PD/6EQ==');
+  RSBitmaps.XPBarMedium   := RSBitmaps.Load(129, 27, 'meJzt0TENwCAAAEG8YICxBjDQsf6FMDTBwi1/eQc/1zNLt9+vVHfBiNACrgVcC7gWcC3gWsC1gGsB1wKuBVwLuBZwLeBawLWAawHXAq4FXAu4FnAt4FrAtYBrAfcvOLqHCPg=');
+  RSBitmaps.XPBarLarge    := RSBitmaps.Load(140, 27, 'meJzt0TENwCAAAEG8YICxBjDQsf6FMDRBww1/eQc/1zOLb79fsd1HI6Qe+Xrk65GvR74e+Xrk65GvR74e+Xrk65GvR74e+Xrk65GvR74e+Xrk65GvR74e+Xrk65GvR77/0QFuMBlM');
 end;
