@@ -1,0 +1,97 @@
+function TRSBank.OpenGE: Boolean;
+const
+  COLOR_BODY_GREY  := CTS2(7303288, 20, 0.17, 0.08);
+  COLOR_FEET_BROWN := CTS2(2966103, 10, 0.12, 0.20);
+const
+  WalkerContainer: TRSWalker = [];
+  Walker := PRSWalker(@WalkerContainer);
+var
+  GERect: TRectangle;
+  SearchBox: TBox;
+  SearchBoxes: TBoxArray;
+  TPA, TPAFeet, TPAGrey: TPointArray;
+  ATPA: T2DPointArray;
+  Dist20, Dist15, Dist8, Dist5: Integer;
+begin
+  if (Walker^ = []) then
+    Walker^.Setup([RSWalkerRegions.GRAND_EXCHANGE], 4);
+
+  Dist20 := MainScreen.NormalizeDistance(20);
+  Dist15 := MainScreen.NormalizeDistance(15);
+  Dist8 := MainScreen.NormalizeDistance(8);
+  Dist5 := MainScreen.NormalizeDistance(5);
+
+  GERect := Walker^.GetTileMS(RSWalkerLocations.GRAND_EXCHANGE, [5.5, 5.5]);
+
+  SearchBox := GERect.Bounds();
+  SearchBox.Clip(MainScreen.Bounds);
+
+  SRL.FindColors(TPAFeet, COLOR_FEET_BROWN, SearchBox);
+  for TPA in TPAFeet.Cluster(Dist5) do
+    with TPA.Bounds() do
+      SearchBoxes += TBox.Create(X1 - Dist8, Y1 - Dist20, X2 + Dist8, Y2 + Dist8);
+
+  TPA := [];
+  for SearchBox in SearchBoxes do
+  begin
+    SearchBox.Clip(MainScreen.Bounds);
+    if SRL.FindColors(TPAGrey, COLOR_BODY_GREY, SearchBox) then
+      TPA += TPAGrey;
+  end;
+
+  ATPA := TPA.Cluster(Dist5);
+  ATPA.SortByMiddle(GERect.Mean());
+  for TPA in ATPA do
+  begin
+   TPA := TPA.Grow(1).Erode(1);
+    if (TPA.Bounds.Width < Dist8) or (TPA.Bounds.Height < Dist15) then
+      Continue;
+
+    if Bank.Open(TPA.Mean()) then
+     Exit(True);
+  end;
+end;
+
+function TRSBank.OpenEdgeville: Boolean;
+const
+  BOOTH_BROWN := CTS2(1333104, 10, 0.09, 3.16);
+  BOOTH_GREY  := CTS2(4539722, 4, 0.01, 0.23);
+const
+  WalkerContainer: TRSWalker = [];
+  Walker := PRSWalker(@WalkerContainer);
+var
+  SearchRect: TRectangle;
+  SearchBox: TBox;
+  TPA, TPA1, TPA2: TPointArray;
+  ATPA: T2DPointArray;
+  Dist5, Dist50: Integer;
+begin
+  if (Walker^ = []) then
+    Walker^.Setup([RSWalkerRegions.EDGEVILLE], 4);
+
+  Dist5 := MainScreen.NormalizeDistance(5);
+  Dist50 := MainScreen.NormalizeDistance(50);
+
+  SearchRect := Walker^.GetTileMS(RSWalkerLocations.EDGE_BANKERS, [4.5, 2.5, 4]);
+
+  SearchBox := SearchRect.Bounds;
+  SearchBox.Clip(MainScreen.Bounds());
+
+  SRL.FindColors(TPA1, BOOTH_BROWN, SearchBox);
+  SRL.FindColors(TPA2, BOOTH_GREY, SearchBox);
+
+  TPA := TPA1.PointsInRangeOf(TPA2, 0, 5) +
+         TPA2.PointsInRangeOf(TPA1, 0, 5);
+
+  ATPA := TPA.Cluster(Dist5);
+  ATPA.FilterSize(Dist50, __GT__);
+  ATPA.SortByMiddle(SearchRect.Mean());
+  if (ATPA.Length > 2) then
+    ATPA.SetLength(2);
+
+  ATPA.SortByMiddle(MainScreen.Center());
+  for TPA in ATPA do
+    if Bank.Open(TPA.Mean()) then
+      Exit(True);
+end;
+

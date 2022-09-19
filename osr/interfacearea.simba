@@ -21,7 +21,7 @@ begin
   with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
   begin
     Left := [@MainScreen.X1];
-    Right := [@GameTabs.X1, -10];
+    Right := [@Minimap.X1, -93];
     Top := [@MainScreen.Y1];
     Bottom := [@Chat.Y1];
   end;
@@ -29,7 +29,7 @@ begin
   with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
   begin
     Left := [@MainScreen.X1];
-    Right := [@GameTabs.X1, 15];
+    Right := [@Minimap.X1, -57];
     Top := [@MainScreen.Y1];
     Bottom := [@Chat.Y1];
   end;

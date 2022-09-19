@@ -88,6 +88,8 @@ end;
 {$IFNDEF SRL_ANTIBAN_INCLUDED}         {$I osr/antiban.simba}
 {$IFNDEF SRL_KEYBINDINGS_INCLUDED}     {$I osr/keybindings.simba}
 
+{$I osr/finders/bankfinders.simba}
+
 {$SCOPEDENUMS OFF}
 
 {$ELSE}{$ENDIF}

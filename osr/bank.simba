@@ -71,8 +71,8 @@ type
     ELEMENT_DEPOSIT_INVENTORY: TRSInterfaceElement = [409, 6, 36, 36, ERSInterfaceElementAnchor.BOTTOM];
     ELEMENT_DEPOSIT_WORN:      TRSInterfaceElement = [446, 6, 36, 36, ERSInterfaceElementAnchor.BOTTOM];
 
-    FINDER_UPTEXT: TStringArray = [];
-    FINDER_OPTION: TStringArray = [];
+    FINDER_UPTEXT: TStringArray = ['to-Bank', 'Banker', 'Bank booth', 'Bank bank'];
+    FINDER_OPTION: TStringArray = ['Bank Banker', 'Bank Bank booth'];
   end;
 
 function TRSBank.FindItem(Item: TRSItem; out Box: TBox): Boolean;

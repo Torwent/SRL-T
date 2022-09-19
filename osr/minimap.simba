@@ -25,7 +25,7 @@ type
 function TRSMinimap.GetCompassCircle: TCircle;
 begin
   with Self.CompassCircleOffset[RSClient.ClientMode] do
-    Result := [Self.X1 + X, Self.Y1 + Y, 17];
+    Result := [Self.X1 + X, Self.Y1 + Y, 15];
 end;
 
 function TRSMinimap.GetXPCircle: TCircle;

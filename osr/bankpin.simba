@@ -172,6 +172,8 @@ begin
 
   if (not BankPin.Entering) and BankPin.IsOpen()then
   begin
+    Self.DebugLn('Entering bankpin...');
+
     Result := BankPin.Enter(Login.GetPlayerPin(), @Bank.IsOpen);
     if not Result then
       Self.Fatal('Failed to enter bank pin');

@@ -177,9 +177,9 @@ Initializes mouse variables.
 procedure TMouse.Setup;
 begin
   Self.Name := 'Mouse';
-  Self.Speed := 12;
+  Self.Speed := 9;
   Self.Gravity := 9;
-  Self.Wind := 5;
+  Self.Wind := 6;
   Self.MissChance := 15;
   Self.Distribution := MOUSE_DISTRIBUTION_ROWP;
   Self.CanIdle := True;
@@ -337,7 +337,7 @@ begin
 
     traveledDistance := Hypot(x - xs, y - ys);
     remainingDistance := Hypot(x - xe, y - ye);
-    if (remainingDistance <= 1) then
+    if (remainingDistance <= 2.5) then
       Break;
 
     wind := Min(wind, remainingDistance);
@@ -381,7 +381,8 @@ begin
 
     Self.Teleport(Round(x), Round(y));
 
-    Wait(Round(idle));
+    PreciseSleep(Round(idle));
+    //Wait(Round(idle));
   end;
 
   Self.Teleport(Round(xe), Round(ye));
@@ -468,8 +469,8 @@ begin
 
   Self.WindMouse(
     Start.X, Start.Y, Destination.X, Destination.Y,
-    Self.Gravity, Self.Wind,
-    5 / RandSpeed, 10 / RandSpeed, 20 * RandSpeed, 20 * RandSpeed
+    Self.Gravity + Random(), Self.Wind + Random(),
+    5 / RandSpeed, 10 / RandSpeed, 25 * RandSpeed, 30 * RandSpeed
   );
 end;
 

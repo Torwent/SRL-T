@@ -543,7 +543,7 @@ function TRSMainScreen.NormalizeDistance(Distance: Integer): Integer; override;
     while (Dist > Distance) do
     begin
       Value := Value - Inc;
-      Dist := CurrentMM2MS(Value);
+      Dist := FixedMM2MS(Value);
     end;
     Bottom := Value;
 
