@@ -544,6 +544,14 @@ begin
   Result := Self.ItemFinder.ContainsAll(Items);
 end;
 
+function TRSInventory.ContainsAnyItem(Items: TRSItemArray): Boolean;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Result := Self.ItemFinder.ContainsAny(Items);
+end;
+
 function TRSInventory.FindItems(Item: TRSItem): TIntegerArray; overload;
 begin
   if not Self.Open() then
@@ -566,6 +574,14 @@ begin
     Exit;
 
   Result := Self.ItemFinder.IndexOf([Item]);
+end;
+
+function TRSInventory.CountItem(Item: TRSItem): Integer;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Result := Self.ItemFinder.Count(Item);
 end;
 
 function TRSInventory.CountItemStack(Item: TRSItem): Integer;
