@@ -6,6 +6,50 @@ type
     ShapeBox: TSimbaShapeBox;
   end;
 
+procedure TRSWalkerRegionBuilder.LoadRegions;
+var
+  Vars: TStringArray;
+  I: Integer;
+  S: String;
+  Box: TBox;
+begin
+  Vars := RTTIClassFields(RSWalkerRegions);
+
+  for I := 0 to High(Vars) with 3 do
+  begin
+    if Vars[I+1] = 'TBox' then
+    begin
+      Box.X1 := Vars[I+2].Between('X1 = ', ',').ToInteger();
+      Box.Y1 := Vars[I+2].Between('Y1 = ', ',').ToInteger();
+      Box.X2 := Vars[I+2].Between('X2 = ', ',').ToInteger();
+      Box.Y2 := Vars[I+2].Between('Y2 = ', '}').ToInteger();
+
+      Self.ShapeBox.AddBox(Box, 'RSWalkerRegions.' + Vars[I]);
+    end;
+  end;
+end;
+
+procedure TRSWalkerRegionBuilder.LoadLocations;
+var
+  Vars: TStringArray;
+  I: Integer;
+  S: String;
+  Point: TPoint;
+begin
+  Vars := RTTIClassFields(RSWalkerLocations);
+
+  for I := 0 to High(Vars) with 3 do
+  begin
+    if Vars[I+1] = 'TPoint' then
+    begin
+      Point.X := Vars[I+2].Between('X = ', ',').ToInteger();
+      Point.Y := Vars[I+2].Between('Y = ', '}').ToInteger();
+
+      Self.ShapeBox.AddPoint(Point, 'RSWalkerLocations.' + Vars[I]);
+    end;
+  end;
+end;
+
 procedure TRSWalkerRegionBuilder.PrintRegions;
 var
   I: Integer;
@@ -57,17 +101,21 @@ end;
 procedure TRSWalkerRegionBuilder.Run;
 begin
   Self.Form.Init(nil);
+  Self.Form.SetCaption('Walker Region Builder');
   Self.Form.SetPosition(poScreenCenter);
-  Self.Form.SetWidth(1000);
-  Self.Form.SetHeight(800);
+  Self.Form.SetWidth(1200);
+  Self.Form.SetHeight(850);
 
   Self.ShapeBox.Init(Self.Form);
   Self.ShapeBox.SetParent(Self.Form);
   Self.ShapeBox.SetAlign(alClient);
-  Self.ShapeBox.SetBackground('C:\Users\OllyC\Desktop\Code\Simba-RELEASE\Data\map_e89844ea74cc44efdd87514b6ab12dba0afb0ee0.bmp');
-  Self.ShapeBox.LoadFromFile(SRL_WALKER_DIR + 'shapes');
+  Self.ShapeBox.LeftPanel.SetWidth(350);
+  Self.ShapeBox.SetBackground(TRSWalkerMap.InternalCacheMap(SRL_WALKER_MAP));
+
+  Self.LoadRegions();
+  Self.LoadLocations();
+
   Self.Form.ShowModal();
-  Self.ShapeBox.SaveToFile(SRL_WALKER_DIR + 'shapes');
 
   ClearDebug();
 

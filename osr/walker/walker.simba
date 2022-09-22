@@ -13,6 +13,7 @@ Walker
 
 const
   SRL_WALKER_DIR = {$MACRO CURRENT_DIRECTORY};
+  SRL_WALKER_MAP = {$MACRO CURRENT_DIRECTORY} + 'map.png';
 
 {$i walker_map.simba}
 
@@ -110,7 +111,7 @@ end;
 procedure TRSWalker.Setup(Regions: TBoxArray; Scaling: Integer = 8); overload;
 begin
   Self.Scaling := Scaling;
-  Self.Map.Load({$MACRO CURRENT_DIRECTORY} + 'map.png', Regions, Scaling);
+  Self.Map.Load(SRL_WALKER_MAP, Regions, Scaling);
 
   Self.InternalSetup();
 end;

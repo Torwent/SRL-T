@@ -24,7 +24,26 @@ type
     RegionOffsets: TPointArray;
   end;
 
-function TRSWalkerMap.InternalLoadMap(FileName: String; Region: TBox = []): TMufasaBitmap;
+function TRSWalkerMap.InternalCacheMap(FileName: String): String; static;
+var
+  Bitmap: TMufasaBitmap;
+begin
+  if ExtractFileExt(FileName) <> '.bmp' then
+  begin
+    Result := DataPath + 'map_' + SHA1File(FileName) + '.bmp';
+    if not FileExists(Result) then
+    begin
+      WriteLn('Caching ' + ExtractFileName(FileName) + ' this can take ~10 seconds.');
+
+      Bitmap := TMufasaBitmap.CreateFromFile(FileName);
+      Bitmap.SaveToFile(Result);
+      Bitmap.Free();
+    end;
+  end else
+    Result := FileName;
+end;
+
+function TRSWalkerMap.InternalLoadMap(FileName: String; Region: TBox = []): TMufasaBitmap; static;
 var
   CacheFileName: String;
 begin
