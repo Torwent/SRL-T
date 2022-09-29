@@ -288,10 +288,6 @@ begin
     Result := inherited(Tab);
 end;
 
-
-procedure TSRL.Setup; override;
 begin
-  inherited;
-
-  Keybindings.Setup;
+  Keybindings.Setup();
 end;

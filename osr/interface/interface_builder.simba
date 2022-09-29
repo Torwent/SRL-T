@@ -15,29 +15,60 @@ type
     end;
   end;
 
-var
-  InterfaceBuilder: TRSInterfaceBuilder;
-
-function TRSInterfaceBuilder.ButtonToBox(Button: TRSInterfaceElement): TBox;
+function TRSInterfaceBuilder.ElementToBox(Element: TRSInterfaceElement): TBox;
 begin
-  case Button.Anchor of
+  case Element.Anchor of
     ERSInterfaceElementAnchor.TOP:
       begin
-        Result.X1 := Button.X;
-        Result.Y1 := Button.Y;
+        Result.X1 := Element.X;
+        Result.Y1 := Element.Y;
 
-        Result.X2 := Result.X1 + Button.Width;
-        Result.Y2 := Result.Y1 + Button.Height;
+        Result.X2 := Result.X1 + Element.Width;
+        Result.Y2 := Result.Y1 + Element.Height;
       end;
 
     ERSInterfaceElementAnchor.BOTTOM:
       begin
-        Result.X1 := Button.X;
-        Result.Y2 := Self.Bounds.Height() - Button.Y;
+        Result.X1 := Element.X;
+        Result.Y2 := Self.Bounds.Height() - Element.Y;
 
-        Result.X2 := Result.X1 + Button.Width;
-        Result.Y1 := Result.Y2 - Button.Height;
+        Result.X2 := Result.X1 + Element.Width;
+        Result.Y1 := Result.Y2 - Element.Height;
       end;
+  end;
+end;
+
+function TRSInterfaceBuilder.BoxToElement(Box: TBox; Anchor: ERSInterfaceElementAnchor): TRSInterfaceElement;
+begin
+  case Anchor of
+    ERSInterfaceElementAnchor.TOP:
+      begin
+        Result.X := Box.X1;
+        Result.Y := Box.Y1;
+      end;
+    ERSInterfaceElementAnchor.BOTTOM:
+      begin
+        Result.X := Box.X1;
+        Result.Y := Self.Bounds.Height() - Box.Y2;
+      end;
+  end;
+
+  Result.Anchor := Anchor;
+  Result.Width := Box.Width - 1;
+  Result.Height := Box.Height - 1;
+end;
+
+procedure TRSInterfaceBuilder.DoAlignmentClick(Sender: TObject);
+var
+  Element: PRSInterfaceElement;
+begin
+  if (Self.ShapeBox.ShapeIndex = -1) then
+    Exit;
+  Element := Self.ShapeBox.GetShape(Self.ShapeBox.ShapeIndex).UserData;
+
+  case TButton(Sender).GetCaption() of
+    'Top Alignment':    Element^.Anchor := ERSInterfaceElementAnchor.TOP;
+    'Bottom Alignment': Element^.Anchor := ERSInterfaceElementAnchor.BOTTOM;
   end;
 end;
 
@@ -105,6 +136,9 @@ procedure TRSInterfaceBuilder.InterfaceMenuClick(Sender: TObject);
 
 begin
   case TMenuItem(Sender).GetCaption() of
+    'Furnace':
+      SetInterface('Furnace', Furnace.Bounds, RTTIClassFields(Furnace));
+
     'Bank':
       SetInterface('Bank', Bank.Bounds, RTTIClassFields(Bank));
 
@@ -167,7 +201,7 @@ begin
   begin
     Element := StringToElement(Self.Elements[I].Value);
 
-    Self.ShapeBox.ManualAddBox(Self.ButtonToBox(Element), Self.Name + '.' + Self.Elements[I].Name, Element);
+    Self.ShapeBox.ManualAddBox(Self.ElementToBox(Element), Self.Elements[I].Name, Element);
   end;
 end;
 
@@ -176,12 +210,16 @@ var
   I, MaxLen: Integer;
   Shape: TShapeBoxShape;
   Elements, ElementNames: TStringArray;
-  ElementName: String;
+  Padding: String;
 begin
   ElementNames.SetLength(Self.ShapeBox.ShapeCount());
   for I := 0 to Self.ShapeBox.ShapeCount - 1 do
   begin
-    ElementNames[I] := Self.ShapeBox.GetShape(I).Name.After('.');
+    ElementNames[I] := Self.ShapeBox.GetShape(I).Name;
+    ElementNames[I] := ElementNames[I].ToUpper().Replace(' ', '_');
+    if (not ElementNames[I].StartsWith('ELEMENT_')) then
+      ElementNames[I] := 'ELEMENT_' + ElementNames[I];
+
     if (ElementNames[I].Length() > MaxLen) then
       MaxLen := ElementNames[I].Length();
   end;
@@ -189,12 +227,13 @@ begin
   for I := 0 to Self.ShapeBox.ShapeCount - 1 do
   begin
     Shape := Self.ShapeBox.GetShape(I);
-    ElementName := Shape.Name.After('.');
-    with PRSInterfaceElement(Shape.UserData)^ do
-      if (Anchor <> ERSInterfaceElementAnchor.TOP) then
-        Elements += '%s: %sTRSInterfaceElement = [%d, %d, %d, %d, ERSInterfaceElementAnchor.BOTTOM];'.Format([ElementNames[I], ' ' * (MaxLen - ElementNames[I].Length()), X, Y, Width, Height])
+    Padding := ' ' * (MaxLen - ElementNames[I].Length());
+
+    with Self.BoxToElement(Shape.Box, PRSInterfaceElement(Shape.UserData)^.Anchor) do
+      if (Anchor = ERSInterfaceElementAnchor.BOTTOM) then
+        Elements += '%s: %sTRSInterfaceElement = [%d, %d, %d, %d, ERSInterfaceElementAnchor.BOTTOM];'.Format([ElementNames[I], Padding, X, Y, Width, Height])
       else
-        Elements += '%s: %sTRSInterfaceElement = [%d, %d, %d, %d];'.Format([ElementNames[I], ' ' * (MaxLen - ElementNames[I].Length()), X, Y, Width, Height]);
+        Elements += '%s: %sTRSInterfaceElement = [%d, %d, %d, %d];'.Format([ElementNames[I], Padding, X, Y, Width, Height]);
   end;
 
   ClearDebug();
@@ -242,6 +281,7 @@ begin
     Button.SetAlign(alTop);
     Button.SetCaption('Bottom Alignment');
     Button.GetBorderSpacing().SetAround(5);
+    Button.SetOnClick(@Self.DoAlignmentClick);
 
     Button.Init(Self.Form);
     Button.SetParent(Self.ShapeBox.Panel);
@@ -249,6 +289,7 @@ begin
     Button.SetAlign(alTop);
     Button.SetCaption('Top Alignment');
     Button.GetBorderSpacing().SetAround(5);
+    Button.SetOnClick(@Self.DoAlignmentClick);
 
     Self.LoadInterfaces();
 
@@ -259,6 +300,9 @@ begin
     Self.Form.Free();
   end;
 end;
+
+var
+  InterfaceBuilder: TRSInterfaceBuilder;
 
 begin
   Sync(@InterfaceBuilder.Run);

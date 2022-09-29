@@ -13,13 +13,6 @@ const
 
 {$I utils.simba}
 
-procedure TSRL.Setup;
-begin
-  { override me to setup things }
-  
-  Self.IsSetup := True;
-end;
-
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); overload;
 begin
   { override me to debug things }
@@ -41,10 +34,6 @@ begin
   finally
     Unfreeze();
   end;
-end;
-
-begin
-  SRL.Setup();
 end;
 
 {$SCOPEDENUMS ON}
@@ -87,6 +76,7 @@ end;
 {$IFNDEF SRL_WALKER_INCLUDED}          {$I osr/walker/walker.simba}
 {$IFNDEF SRL_ANTIBAN_INCLUDED}         {$I osr/antiban.simba}
 {$IFNDEF SRL_KEYBINDINGS_INCLUDED}     {$I osr/keybindings.simba}
+{$IFNDEF SRL_FURNACE_INCLUDED}         {$I osr/furnace.simba}
 
 {$I osr/finders/bankfinders.simba}
 
@@ -124,15 +114,8 @@ end;
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
 
 {$IFDEF SRL_HAD_HINTS}
   {$HINTS ON}
 {$ENDIF}
-
-procedure TSRL.Setup; override; // Called first. Don't setup multiple times.
-begin
-  if Self.IsSetup then
-    Exit;
-    
-  inherited;
-end;

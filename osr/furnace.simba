@@ -1,0 +1,107 @@
+{$DEFINE SRL_FURNACE_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSFurnace = record(TRSInterface)
+  class const
+    ELEMENT_QUANTITY_5:   TRSInterfaceElement = [445, 78, 36, 36];
+    ELEMENT_QUANTITY_1:   TRSInterfaceElement = [445, 38, 36, 36];
+    ELEMENT_QUANTITY_10:  TRSInterfaceElement = [445, 118, 36, 36];
+    ELEMENT_QUANTITY_X:   TRSInterfaceElement = [445, 158, 36, 36];
+    ELEMENT_QUANTITY_ALL: TRSInterfaceElement = [445, 198, 36, 36];
+    ELEMENT_RINGS:        TRSInterfaceElement = [31, 65, 404, 35];
+    ELEMENT_NECKLACES:    TRSInterfaceElement = [19, 124, 421, 40];
+    ELEMENT_AMULETS:      TRSInterfaceElement = [19, 184, 420, 36];
+    ELEMENT_BRACELETS:    TRSInterfaceElement = [19, 247, 419, 35];
+  end;
+
+function TRSFurnace.FindItem(Item: TRSItem; out B: TBox; Similarity: Single = 0.85): Boolean;
+var
+  ItemImages: TMufasaBitmapArray;
+  I: Integer;
+  Image: TMufasaBitmap;
+  Mat: TSingleMatrix;
+  Best: Single;
+  Element: TRSInterfaceElement;
+  SearchArea: TBox;
+begin
+  for Image in ItemFinder.GetItemImages(Item) do
+  begin
+    ItemImages += Image.Copy();
+    ItemImages.Last.ReplaceColor(0, 3358280);
+  end;
+
+  for Element in [Self.ELEMENT_RINGS, Self.ELEMENT_NECKLACES, Self.ELEMENT_AMULETS, Self.ELEMENT_BRACELETS] do
+  begin
+    SearchArea := Self.ElementFinder.Bounds(Element);
+    Image := TMufasaBitmap.CreateFromClient(SearchArea);
+
+    for I := 0 to High(ItemImages) do
+    begin
+      Mat := Image.MatchTemplate(ItemImages[I], TM_CCOEFF_NORMED);
+      with Mat.ArgMax() do
+        if (Mat[Y, X] > best) then
+        begin
+          best := Mat[Y,X];
+
+          B := TBox.Create(X+2,Y+2, X+28,Y+28);
+          B := B.Offset(SearchArea.X1, SearchArea.Y1);
+        end;
+    end;
+
+    Image.Free();
+  end;
+
+  for I := 0 to High(ItemImages) do
+    ItemImages[I].Free();
+
+  Result := (Best > Similarity);
+end;
+
+procedure TRSFurnace.Setup(Name: String); override;
+begin
+  inherited;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 492;
+    Center.MaxHeight := 300;
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 492;
+    Center.MaxHeight := 300;
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 492;
+    Center.MaxHeight := 300;
+  end;
+end;
+
+var
+  Furnace: TRSFurnace;
+
+begin
+  Furnace.Setup('Furnace');
+end;
