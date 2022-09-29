@@ -5,6 +5,7 @@
 type
   ERSInterfaceElementAnchor = enum(TOP, BOTTOM);
 
+  PRSInterfaceElement = ^TRSInterfaceElement;
   TRSInterfaceElement = record
     X, Y: Integer;
     Width, Height: Int32;

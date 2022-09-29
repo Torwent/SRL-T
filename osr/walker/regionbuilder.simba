@@ -24,7 +24,7 @@ begin
       Box.X2 := Vars[I+2].Between('X2 = ', ',').ToInteger();
       Box.Y2 := Vars[I+2].Between('Y2 = ', '}').ToInteger();
 
-      Self.ShapeBox.AddBox(Box, 'RSWalkerRegions.' + Vars[I]);
+      Self.ShapeBox.ManualAddBox(Box, 'RSWalkerRegions.' + Vars[I]);
     end;
   end;
 end;
@@ -45,7 +45,7 @@ begin
       Point.X := Vars[I+2].Between('X = ', ',').ToInteger();
       Point.Y := Vars[I+2].Between('Y = ', '}').ToInteger();
 
-      Self.ShapeBox.AddPoint(Point, 'RSWalkerLocations.' + Vars[I]);
+      Self.ShapeBox.ManualAddPoint(Point, 'RSWalkerLocations.' + Vars[I]);
     end;
   end;
 end;
@@ -55,19 +55,24 @@ var
   I: Integer;
   Padding: Integer;
 begin
-  for I := 0 to Self.ShapeBox.GetBoxCount() - 1 do
-    Padding := Max(Padding, Length(Self.ShapeBox.GetBoxName(I)));
+  for I := 0 to Self.ShapeBox.ShapeCount() - 1 do
+    with Self.ShapeBox.GetShape(I) do
+      if IsBox then
+        Padding := Max(Padding, Length(Name));
 
   WriteLn('type');
   WriteLn('  RSWalkerRegions = record');
   WriteLn('  class const');
-  for I := 0 to Self.ShapeBox.GetBoxCount() - 1 do
-    with Self.ShapeBox.GetBox(I) do
+  for I := 0 to Self.ShapeBox.ShapeCount() - 1 do
+    with Self.ShapeBox.GetShape(I) do
     begin
+      if not IsBox then
+        Continue;
+
       Write('    ');
-      Write(Self.ShapeBox.GetBoxName(I) + ':');
-      Write(' ' * (Padding - Length(Self.ShapeBox.GetBoxName(I))));
-      Write(' TBox = [%d, %d, %d, %d];'.Format([X1, Y1, X2, Y2]));
+      Write(Name + ':');
+      Write(' ' * (Padding - Length(Name)));
+      Write(' TBox = [%d, %d, %d, %d];'.Format([Box.X1, Box.Y1, Box.X2, Box.Y2]));
       WriteLn();
     end;
   WriteLn('  end;');
@@ -79,19 +84,24 @@ var
   I: Integer;
   Padding: Integer;
 begin
-  for I := 0 to Self.ShapeBox.GetBoxCount() - 1 do
-    Padding := Max(Padding, Length(Self.ShapeBox.GetBoxName(I)));
+  for I := 0 to Self.ShapeBox.ShapeCount() - 1 do
+    with Self.ShapeBox.GetShape(I) do
+      if IsPoint then
+        Padding := Max(Padding, Length(Name));
 
   WriteLn('type');
   WriteLn('  RSWalkerLocations = record');
   WriteLn('  class const');
-  for I := 0 to Self.ShapeBox.GetPointCount() - 1 do
-    with Self.ShapeBox.GetPoint(I) do
+  for I := 0 to Self.ShapeBox.ShapeCount() - 1 do
+    with Self.ShapeBox.GetShape(I) do
     begin
+      if not IsPoint then
+        Continue;
+
       Write('    ');
-      Write(Self.ShapeBox.GetPointName(I) + ':');
-      Write(' ' * (Padding - Length(Self.ShapeBox.GetPointName(I))));
-      Write(' TPoint = [%d, %d];'.Format([X, Y]));
+      Write(Name + ':');
+      Write(' ' * (Padding - Length(Name)));
+      Write(' TPoint = [%d, %d];'.Format([Point.X, Point.Y]));
       WriteLn();
     end;
   WriteLn('  end;');
@@ -109,7 +119,7 @@ begin
   Self.ShapeBox.Init(Self.Form);
   Self.ShapeBox.SetParent(Self.Form);
   Self.ShapeBox.SetAlign(alClient);
-  Self.ShapeBox.LeftPanel.SetWidth(350);
+  Self.ShapeBox.Panel.SetWidth(350);
   Self.ShapeBox.SetBackground(TRSWalkerMap.InternalCacheMap(SRL_WALKER_MAP));
 
   Self.LoadRegions();
