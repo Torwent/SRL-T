@@ -16,13 +16,6 @@ const
   BANK_WITHDRAW_ALL_BUT_ONE = -2;
   
 type
-  ERSBankLocation = (
-    CASTLE_WARS,
-    FEROX,
-    GRAND_EXCHANGE,
-    FALADOR_EAST
-  );
-
   TRSBankWithdrawItem = record
     Item: TRSItem;
     Quantity: Int32;
@@ -340,80 +333,6 @@ begin
   end;
 end;
 
-function TRSBank._FindFaladorEast: T2DPointArray;
-var
-  Finder: TRSObjectFinder;
-begin
-  Finder.Colors += CTS2(4086642, 5, 0.08, 0.55);
-  Finder.ClusterDistance := 15;
-  Finder.Erode := 2;
-  Finder.Grow := 3;
-
-  Result := MainScreen.FindObject(Finder);
-  if Length(Result) = 0 then
-    Exit;
-
-  Result.SortByLongSide();
-  Result := Result[0].Cluster(5);
-  Result.SortByMiddle(Result.Merge.Mean());
-end;
-
-function TRSBank._FindCastleWars: T2DPointArray;
-var
-  TPA, ChestTPA: TPointArray;
-  ATPA: T2DPointArray;
-  I: Int32;
-begin
-  if SRL.FindColors(TPA, CTS2(5526875, 35, 0.19, 0.06), MainScreen.Bounds) > 0 then
-  begin
-    ATPA := TPA.Cluster(1);
-
-    for I := 0 to High(ATPA) do
-      if SRL.FindColors(TPA, CTS2(2503237, 40, 0.10, 0.14), ATPA[I].Bounds) > 5 then
-      begin
-        TPA := ATPA[I].MinAreaRect.Filter(TPA);
-        TPA := TPA.Erode(MainScreen.NormalizeDistance(3));
-        if Length(TPA) > 0 then
-          ChestTPA += TPA;
-      end;
-
-    Result := ChestTPA.Cluster(2);
-  end;
-end;
-
-function TRSBank._FindFerox: T2DPointArray;
-var
-  Finder: TRSObjectFinder;
-begin
-  Finder.Colors += CTS2(931652, 12, 0.07, 0.89);
-  Finder.ClusterDistance := 1;
-  Finder.Erode := 1;
-
-  Result := MainScreen.FindObject(Finder);
-end;
-
-function TRSBank._FindWintertodt: T2DPointArray;
-var
-  Finder: TRSObjectFinder;
-begin
-  Finder.ColorClusters += [
-    CTS2(3289384, 4, 0.51, 0.37),  //Dark hole
-    CTS2(13025214, 17, 0.13, 0.11), //Snow color
-    10
-  ];
-
-  Finder.ClusterDistance := 2;
-  Finder.Grow := 3;
-  Finder.Erode := 2;
-
-  Result := MainScreen.FindObject(Finder);
-  if Length(Result) = 0 then
-    Exit;
-  Result.SortByLongSide();
-  Result := Result[0].Cluster(3);
-  Result.SortByMiddle(Result.Merge.Mean());
-end;
-
 (*
 Bank._SimplifyItemName
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -487,72 +406,6 @@ begin
     end;
 
   Result := 0;
-end;
-
-function TRSBank.Open(Location: ERSBankLocation): Boolean; overload;
-var
-  ATPA: T2DPointArray;
-  TPA: TPointArray;
-  P: TPoint;
-begin
-  if Self.IsOpen() or Self.Open(Mouse.Position()) then
-    Exit(True);
-    
-  case Location of
-    ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
-    ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
-    ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
-  end;
-
-  ATPA.SortBySize();
-  if Length(ATPA) > 3 then
-    SetLength(ATPA, 3);
-
-  for TPA in ATPA do
-  begin
-    P := TPA[Random(Length(TPA))];
-    P.X += Random(-2, 2);
-    P.Y += Random(-2, 2);
-
-    if Self.Open(P) then
-      Exit(True);
-  end;
-end;
-
-function TRSBank.Hover(Location: ERSBankLocation; HoverOption: Boolean): Boolean;
-var
-  ATPA: T2DPointArray;
-  TPA: TPointArray;
-  P: TPoint;
-begin
-  if ChooseOption.IsOpen() or MainScreen.IsUpText(Self.FINDER_UPTEXT) then
-    Exit(True);
-
-  case Location of
-    ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
-    ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
-    ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
-  end;
-
-  ATPA.SortBySize();
-  if Length(ATPA) > 3 then
-    SetLength(ATPA, 3);
-
-  for TPA in ATPA do
-  begin
-    P := TPA[Random(Length(TPA))];
-    P.X += Random(-2, 2);
-    P.Y += Random(-2, 2);
-
-    Mouse.Move(P);
-    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
-    begin
-      if HoverOption then
-        ChooseOption.Hover(['Use Bank', 'Bank Bank']);
-
-      Exit(True);
-    end;
-  end;
 end;
 
 function TRSBank.IsCustomQuantity(Quantity: Int32): Boolean;

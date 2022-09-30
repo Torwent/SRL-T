@@ -1,10 +1,7 @@
-// The package name to install under. 
-name=SRL
-// The path to install into, from the working directory.
-directory=Includes
-// flat extraction into directory
+// https://github.com/Villavu/Simba/blob/simba1500/PACKAGES.md
+
+path=Includes/SRL
 flat=false
-// files not to install
-ignore=.git,.gitignore,.simbapackage,.gitattributes
-// path to script templates in this repo.
-templates=templates
+
+script=osr/interface/interface_builder.simba
+script=osr/walker/walker_builder.simba

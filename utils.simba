@@ -20,9 +20,7 @@ var
 {$IFNDEF SRL_MOUSE_INCLUDED}         {$I utils/mouse.simba}
 {$IFNDEF SRL_KEYBOARD_INCLUDED}      {$I utils/keyboard.simba}
 {$IFNDEF SRL_COLOR_INCLUDED}         {$I utils/color.simba}
-{$IFNDEF SRL_DRAWING_INCLUDED}       {$I utils/drawing.simba}
 
-{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}

@@ -46,67 +46,6 @@ type
     FINDER_BANKER: TRSObjectFinder;
   end;
 
-function TRSGrandExchange.FindNPC(Finder: TRSObjectFinder): T2DPointArray;
-var
-  TPA: TPointArray;
-  P: TPoint;
-  B: TBox;
-  I: Int32;
-  Weights: TIntegerArray;
-  Size: Int32;
-begin
-  // Find center G.E using yellow dots
-  TPA := Minimap.GetDots(ERSMinimapDot.NPC);
-  TPA.Offset([2, 2]);
-  TPA := TPA.Cluster(15).Biggest();
-  with TPA.MeanEx() do
-    P := Minimap.VecToMS([X, Y]);
-
-  // Size of GE center at fixed client & default(50) zoom.
-  Size := MainScreen.NormalizeDistance(110);
-  
-  // Center G.E on the mainscreen
-  B := [P.X, P.Y, P.X, P.Y];
-  B := B.Expand(Size);
-
-  Result := MainScreen.FindObject(Finder, B);
-
-  if (Length(Result) > 0) then
-  begin
-    // Weigh from center AND towards the player
-    SetLength(Weights, Length(Result));
-    for I := 0 to High(Result) do
-      if Length(Result[I]) > 0 then
-        Weights[I] := Distance(Result[I].Mean, P) + Min(Distance(Result[I].Mean, MainScreen.Center), Size);
-
-    Result.Sort(Weights, True);
-  end;
-end;
-
-function TRSGrandExchange.OpenBank: Boolean;
-var
-  ATPA: T2DPointArray;
-  TPA: TPointArray;
-  P: TPoint;
-begin
-  if Bank.IsOpen() or Bank.Open(Mouse.Position()) then
-    Exit(True);
-
-  ATPA := Self.FindNPC(Self.FINDER_BANKER);
-  if Length(ATPA) > 3 then
-    SetLength(ATPA, 3);
-  
-  for TPA in ATPA do
-  begin
-    P := TPA[Random(Length(TPA))];
-    P.X += Random(-2, 2);
-    P.Y += Random(-2, 2);
-    
-    if Bank.Open(P) then
-      Exit(True);
-  end;
-end;
-
 function TRSGrandExchange.GetCurrentInterface: ERSGEInterface;
 begin
   if Self.IsTitle('Set up offer') then
@@ -371,19 +310,4 @@ var
 
 begin
   GrandExchange.Setup('GrandExchange');
-end;
-
-(*
-BankScreen.Open
-~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
-
-Overrides **BankScreen.Open** to support opening the grand exchange.
-*)
-function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
-begin
-  if (Location = ERSBankLocation.GRAND_EXCHANGE) then
-    Result := GrandExchange.OpenBank()
-  else
-    Result := inherited();
 end;
