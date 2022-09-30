@@ -575,82 +575,9 @@ Example:
 
     WriteLn('The four box corners are: ', TPA.MinAreaRect());
 *)
-function TPointArray.MinAreaRect(): TRectangle; 
-var
-  TPA: TPointArray;
-  l,i,ii,j,c: Int32;
-  x,y,cosA,cosAP,cosAM: Double;
-  xl,yl,xh,yh,angle: Double;
-  angles, best: Array of Double;
-  added: Boolean;
-  
-  function Modulo(X,Y:Double): Double;
-  begin
-    Result := X - Floor(X / Y) * Y;
-  end;
-const
-  HALF_PI := PI / 2;
+function TPointArray.MinAreaRect: TQuad;
 begin
-  if Self.Length() <= 1 then Exit;
-  TPA := Self.ConvexHull();
-  L := TPA.High();
-  angles.SetLength(L);
-  
-  j := 0;
-  for i:=0 to (L-1) do
-  begin
-    angles[j] := System.High(Int32);
-    added := False;
-    angle := Abs(Modulo(ArcTan2(TPA[i+1].y-TPA[i].y, TPA[i+1].x-TPA[i].x), HALF_PI));
-    for c:=0 to j do
-      if (angles[c] = angle) then
-        added := True;
-    
-    if not(added) then
-      angles[Inc(j)-1] := angle;
-  end;
-
-  best.SetLength(2);
-  best[1] := System.High(Int32);
-  for i:=0 to j-1 do
-  begin
-    CosA  := Cos(Angles[i]);
-    CosAP := Cos(Angles[i] + HALF_PI);
-    CosAM := Cos(Angles[i] - HALF_PI);
-    xl := (CosA*TPA[0].x) + (CosAM*TPA[0].y);
-    yl := (CosAP*TPA[0].x) + (CosA*TPA[0].y);
-    xh := xl;
-    yh := yl;
-
-    for ii:=0 to L do
-    begin
-      x := (CosA * TPA[ii].x) + (CosAM * TPA[ii].y);
-      y := (CosAP * TPA[ii].x) + (CosA * TPA[ii].y);
-      if (x > xh) then xh := x
-      else if (x < xl) then xl := x;
-      if (y > yh) then yh := y
-      else if (y < yl) then yl := y;
-    end;
-
-    if (xh-xl)*(yh-yl) < best[1] then
-    begin
-      best[0] := angles[i];       //angle
-      best[1] := (xh-xl)*(yh-yl); //area
-      Result.Top   := Point(Round((cosAP*yl) + (cosA*xl)), Round((cosA*yl) + (cosAM*xl)));
-      Result.Right := Point(Round((cosAP*yl) + (cosA*xh)), Round((cosA*yl) + (cosAM*xh)));
-      Result.Btm   := Point(Round((cosAP*yh) + (cosA*xh)), Round((cosA*yh) + (cosAM*xh)));
-      Result.Left  := Point(Round((cosAP*yh) + (cosA*xl)), Round((cosA*yh) + (cosAM*xl)));
-    end;
-  end;
-end;
-
-function TPointArray.MinAreaRectEx(out LongSideLen, ShortSideLen: Int32): TRectangle; 
-begin
-  Result := Self.MinAreaRect();
-  LongSideLen  := Round(Distance(Result.Btm, Result.Right));
-  ShortSideLen := Round(Distance(Result.Btm, Result.Left));
-  if (LongSideLen < ShortSideLen) then
-    Swap(LongSideLen, ShortSideLen);
+  Result := TQuad.CreateFromPoints(Self);
 end;
 
 
@@ -866,16 +793,6 @@ end;
 // -------------------------------------------------------------------------------------
 // Legacy methods (should be removed at some point, don't use them)
 
-function MinAreaRect(TPA: TPointArray): TPointArray;
-begin
-  Result := TPA.MinAreaRect().ToTPA();
-end;
-
-function MinAreaRectEx(TPA: TPointArray; out LongSideLen, ShortSideLen: Int32): TPointArray;
-begin
-  Result := TPA.MinAreaRectEx(LongSideLen, ShortSideLen).ToTPA();
-end;
-
 procedure TPointArray.Fill;
 begin
   FillEllipse(Self);
@@ -1037,8 +954,7 @@ begin
   begin
     if Self[i].Length() = 0 then
       Continue;
-    Self[i].MinAreaRectEx(Long, Short);
-    weights[i] := Long;
+    weights[i] := Self[i].MinAreaRect().LongSideLen;
   end;
   Self.Sort(weights, LowToHi);
 end;

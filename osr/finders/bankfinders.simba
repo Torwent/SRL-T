@@ -6,7 +6,7 @@ const
   WalkerContainer: TRSWalker = [];
   Walker := PRSWalker(@WalkerContainer);
 var
-  GERect: TRectangle;
+  GERect: TQuad;
   SearchBox: TBox;
   SearchBoxes: TBoxArray;
   TPA, TPAFeet, TPAGrey: TPointArray;
@@ -60,7 +60,7 @@ const
   WalkerContainer: TRSWalker = [];
   Walker := PRSWalker(@WalkerContainer);
 var
-  SearchRect: TRectangle;
+  SearchRect: TQuad;
   SearchBox: TBox;
   TPA, TPA1, TPA2: TPointArray;
   ATPA: T2DPointArray;

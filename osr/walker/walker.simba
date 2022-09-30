@@ -843,7 +843,7 @@ end;
 (*
 TRSWalker.GetTileMSEx
 ~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
+.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TQuad;
 
 Used to convert a coordinate in our map to a tile on the mainscreen relative to the position passed in to **Me**.
 This can be used to predict location of things before hand by passing in our future position or the current location by passing in TRSWalker.GetMyPos().
@@ -862,7 +862,7 @@ Example
   MyTile := [100, 100];
   Debug(Walker.GetTileMSEx(Walker.GetMyPos(), MyTile));
 *)
-function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
+function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TQuad;
 var
   Angle: Double;
 begin
@@ -875,7 +875,7 @@ end;
 (*
 TRSWalker.GetTileMS
 ~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TQuad;
 
 Method to convert a coordinate in our map to a tile on the mainscreen without the need to pass in our position.
 This calls TRSWalker.GetTileMSEx internally with TRSWalker.GetMyPos() passed in.
@@ -892,7 +892,7 @@ Example
   MyTile := [100, 100];
   Debug(Walker.GetTileMS(MyTile));
 *)
-function TRSWalker.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
+function TRSWalker.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TQuad;
 begin
   Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, TileVector, Offset);
 end;

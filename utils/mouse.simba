@@ -595,7 +595,7 @@ Example
 
   Mouse.Move(R);
 *)
-procedure TMouse.Move(Rect: TRectangle; ForcedMove: Boolean = False); overload;
+procedure TMouse.Move(Rect: TQuad; ForcedMove: Boolean = False); overload;
 begin
   if Rect.Contains(Self.Position()) and (not ForcedMove) then
     Exit;
@@ -797,7 +797,7 @@ Example
 
   Mouse.Click(R, MOUSE_LEFT);
 *)
-procedure TMouse.Click(Rect: TRectangle; Button: Int32; ForcedMove: Boolean = False); overload;
+procedure TMouse.Click(Rect: TQuad; Button: Int32; ForcedMove: Boolean = False); overload;
 begin
   Self.Move(Rect, ForcedMove);
   Self.Click(Button);

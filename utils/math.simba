@@ -10,42 +10,11 @@ Math related methods
 *)
 
 type
-  TRectangle = record
-    Top, Right, Btm, Left: TPoint;
-  end;
-  TRectArray = array of TRectangle;
-
   TCircle = record
     X,Y:Int32;
     Radius: Int32;
   end;
   TCircleArray = array of TCircle;
-
-(*
-srl.Modulo
-~~~~~~~~~~
-.. pascal:: 
-    function TSRL.Modulo(X, Y: Double): Double; static;
-    function TSRL.Modulo(X, Y: Int32): Int32; static; overload;
- 
-This function returns the remainder from the division of the first argument by the second.
-It will always returns a result with the same sign as its second operand (or zero).
-
-Example:
-
-.. code-block:: pascal
-
-    Writeln(srl.Modulo(a, b));
-*)
-function TSRL.Modulo(X, Y: Double): Double; static; overload;
-begin
-  Result := X - Floor(X / Y) * Y;
-end;
-
-function TSRL.Modulo(X, Y: Int32): Int32; static; overload;
-begin
-  Result := X - Floor(X / Y) * Y;
-end;
 
 
 (*
@@ -171,34 +140,6 @@ begin
 end;
 
 (*
-srl.PointInRect
-~~~~~~~~~~~~~~~
-.. pascal::
-    function TSRL.PointInRect(const Pt: TPoint; const A, B, C, D: TPoint): Boolean; static;
-
-Returns true if the TPoint 'Pt' is in a rect (defined by four points).
-
-Example:
-
-.. pascal::
-    Writeln(srl.PointInRect(Point(100, 100), [0,0], [200,1], [201,201], [0,225]));
-*)
-function TSRL.PointInRect(M: TPoint; A,B,C,D: TPoint): Boolean; static;
-//function Dot(U,V: TPoint): Int64; begin Result := U.x*V.x + U.y*V.y; end;
-//var
-//  AB,AM,AD: TPoint;
-begin
-  //AB := B-A;
-  //AM := M-A;
-  //AD := D-A;
-  //Result := (InRange(Dot(AM,AB), 0, Dot(AB,AB)) and
-  //           InRange(Dot(AM,AD), 0, Dot(AD,AD)));
-  if srl.PointInTriangle(M, A,C,B) then Exit(True);
-  if srl.PointInTriangle(M, A,D,C) then Exit(True);
-end;
-
-
-(*
 srl.PointInCircle
 ~~~~~~~~~~~~~~~~~
 .. pascal::
@@ -271,6 +212,7 @@ srl.PointInCuboid
 
 Check if a point is within a cuboid defined by top and bottom rectangle.
 *)
+{
 function TSRL.PointInCuboid(pt: TPoint; Top, Btm: TRectangle): Boolean; static;
 
   function InRect(P: TPoint; Rect: TRectangle): Boolean;
@@ -287,4 +229,5 @@ begin
   if InRect(pt, [Top.Top, Btm.Top, Btm.Left, Top.Left])   then Exit(True);
   if InRect(pt, [Top.Right, Btm.Right, Btm.Btm, Top.Btm]) then Exit(True);
 end;
+}
 

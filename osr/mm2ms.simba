@@ -44,7 +44,7 @@ var
   Arr: Vector3Array;
   I, C: Integer;
   MinimapCenter: TPoint;
-  Tiles: TRectArray;
+  Tiles: array of TQuad;
 
   Dots: record
     NPC: TPointArray;
@@ -82,22 +82,22 @@ begin
 
   if DrawTiles then
     for I := 0 to High(Tiles) do
-      Image.DrawRect(Tiles[I], $00FF00);
+      Image.DrawQuad(Tiles[I], $00FF00);
 
   if DrawDots then
     for I := 0 to High(Tiles) do
     begin
       for Dot in Dots.NPC do
         if Tiles[I].Contains(Dot) then
-          Image.DrawRect(Tiles[I], $00FFFF, 1);
+          Image.DrawQuad(Tiles[I], $00FFFF);
 
       for Dot in Dots.Item do
         if Tiles[I].Contains(Dot) then
-          Image.DrawRect(Tiles[I], $0000FF, 1);
+          Image.DrawQuad(Tiles[I], $0000FF);
 
       for Dot in Dots.Player do
         if Tiles[I].Contains(Dot) then
-          Image.DrawRect(Tiles[I], $FFFFFF, 1);
+          Image.DrawQuad(Tiles[I], $FFFFFF);
     end;
 
   Image.Show();
@@ -235,7 +235,7 @@ end;
 (*
 Minimap.VecToMsRect
 ~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;
+.. pascal:: function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TQuad;
 
 Takes a single coordinate as a Vector3 on the minimap, and converts it to a rectangle / tile on the mainscreen.
 
@@ -247,7 +247,7 @@ If you wanted to get the tiles of a runecrafting altar for example which is 3 by
 
 *ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
 *)
-function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;
+function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TQuad;
 var
   Arr: TPointArray;
 begin
@@ -273,7 +273,7 @@ end;
 (*
 Minimap.PointToMsRect
 ~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMinimap.PointToMsRect(PT: TPoint; Roll:Single=$FFFF): TRectangle;
+.. pascal:: function TRSMinimap.PointToMsRect(PT: TPoint; Roll:Single=$FFFF): TQuad;
 
 Takes a single coordinate as a TPoint on the minimap, and converts it to a rectangle / tile on the mainscreen.
 
@@ -285,7 +285,7 @@ If you wanted to get the tiles of a runecrafting altar for example which is 3 by
 
 *ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
 *)
-function TRSMinimap.PointToMsRect(PT: TPoint; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;
+function TRSMinimap.PointToMsRect(PT: TPoint; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TQuad;
 var
   Arr: TPointArray;
 begin
@@ -311,7 +311,7 @@ end;
 (*
 Minimap.GetTileMS
 ~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TRectangle;
+.. pascal:: function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TQuad;
 
 This is a more general usage version of the previous 2 functions. This one can take height into account throught the **TileVector**.
 
@@ -322,7 +322,7 @@ TileVector is used to specify the size and height of the tile:
 
 *ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
 *)
-function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TRectangle;
+function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TQuad;
 begin
   if not Self.IsPointOn(Loc) then
     Exit;
@@ -343,7 +343,7 @@ end;
 (*
 Minimap.StaticToMsRect
 ~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; Height:Int32=0): TRectangle;
+.. pascal:: function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; Height:Int32=0): TQuad;
 
 Takes static minimap coordinate, rotates it to compass angle, and returns a rectangle on the mainscreen
 The static point is therefor gathered at north, and it will rotate it as expected.
@@ -351,7 +351,7 @@ The static point is therefor gathered at north, and it will rotate it as expecte
 *WESize* is the size of the rectangle we want to get from west-to-east measured in RS tiles.
 *NSSize* is the size of the rectangle we want to get from north-to-south measured in RS tiles.
 *)
-function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; WESize, NSSize: Double = 1; Height: Double = 0): TRectangle;
+function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; WESize, NSSize: Double = 1; Height: Double = 0): TQuad;
 var
   Angle: Double;
 begin
@@ -379,7 +379,7 @@ end;
 (*
 Minimap.GetZoomRectangle
 ~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMinimap.GetZoomRectangle(): TRectangle;
+.. pascal:: function TRSMinimap.GetZoomRectangle(): TQuad;
 
 This function returns an accurate rectangle of what's visible on the MainScreen on the Minimap.
 This can be used to know if it's possible to make something visible by adjusting the zoom level or rotating the camera.
@@ -389,7 +389,7 @@ Example
 
   Debug(Minimap.GetZoomRectangle());
 *)
-function TRSMinimap.GetZoomRectangle(): TRectangle;
+function TRSMinimap.GetZoomRectangle(): TQuad;
 begin
   if MM2MS.ZoomLevel = -1 then
     MM2MS.ZoomLevel := Options.GetZoomLevel();
@@ -401,7 +401,7 @@ begin
     MainScreen.PointToMM([MainScreen.Bounds.X1, MainScreen.Bounds.Y2]).ToPoint()
   ];
 
-  Result := Result.FixOrder;
+  Result.Normalize();
 end;
 
 (*

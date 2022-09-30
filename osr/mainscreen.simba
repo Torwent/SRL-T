@@ -350,7 +350,7 @@ var
   TPA, Primary, Secondary: TPointArray;
   ATPA: T2DPointArray;
   I: Int32;
-  L, S: Int32;
+  Quad: TQuad;
 begin
   if Finder = [] then
     Self.Fatal('Empty TRSObjectFinder passed');
@@ -410,11 +410,11 @@ begin
       begin
         for I := 0 to High(ATPA) do
         begin
-          ATPA[I].Edges().MinAreaRectEx(L, S);
+          Quad := ATPA[I].Edges().MinAreaRect();
 
-          if ((Finder.MinShortSide > 0) or (Finder.MaxShortSide > 0)) and (not InRange(S, Finder.MinShortSide, Finder.MaxShortSide)) then
+          if ((Finder.MinShortSide > 0) or (Finder.MaxShortSide > 0)) and (not InRange(Quad.ShortSideLen, Finder.MinShortSide, Finder.MaxShortSide)) then
             Continue;
-          if ((Finder.MinLongSide > 0) or (Finder.MaxLongSide > 0)) and (not InRange(L, Finder.MinLongSide, Finder.MaxLongSide)) then
+          if ((Finder.MinLongSide > 0) or (Finder.MaxLongSide > 0)) and (not InRange(Quad.LongSideLen, Finder.MinLongSide, Finder.MaxLongSide)) then
             Continue;
 
           Result += ATPA[I];
