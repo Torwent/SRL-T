@@ -253,15 +253,18 @@ begin
       CustomFilter := @Self.ClearSparkles;
 
   for I := 0 to High(Slots) do
-    for J := 0 to High(Images) do
+    if Slots[I] <> [] then
     begin
-      Templ.FromClient(Slots[I]);
-      if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
-        Result := Result + I;
-      Templ.Free();
+      for J := 0 to High(Images) do
+      begin
+        Templ.FromClient(Slots[I]);
+        if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
+          Result := Result + I;
+        Templ.Free();
 
-      if (MaxToFind > 0) and (Length(Result) = MaxToFind) then
-        Exit;
+        if (MaxToFind > 0) and (Length(Result) = MaxToFind) then
+          Exit;
+      end;
     end;
 end;
 
