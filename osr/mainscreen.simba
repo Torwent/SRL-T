@@ -199,7 +199,7 @@ var
   T: UInt64;
 begin
   if (Timeout = -1) then
-    T := GetTickCount() + Round(SRL.SkewedRand(100, 85, 250))
+    T := GetTickCount() + RandomMode(100, 85, 250)
   else
     T := GetTickCount() + Timeout;
 
@@ -386,7 +386,7 @@ begin
     if (SRL.FindColors(Primary, Finder.ColorClusters[I].Primary, Area) > 0) and
        (SRL.FindColors(Secondary, Finder.ColorClusters[I].Secondary, Area) > 0) then
     begin
-      TPA := Primary.PointsInRangeOf(Secondary, 0, Finder.ColorClusters[I].Distance);
+      TPA := Primary.PointsNearby(Secondary, 0, Finder.ColorClusters[I].Distance);
 
       if TPA <> [] then
         ATPA += TPA;
@@ -423,7 +423,7 @@ begin
         Result := ATPA;
     end;
 
-    Result.SortBySize();
+    Result.SortBySize(False);
   end;
 end;
 
@@ -524,7 +524,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
     if SRL.FindColors(TPA, CTS0(Color), Area) = 0 then
       Exit;
 
-    for B in TPA.Cluster(3).ToTBA() do
+    for B in TPA.Cluster(3).BoundsArray() do
       if (B.Width >= 10) and (B.Height >= 10) then
       begin
         Hit := OCR.RecognizeNumber(B.Expand(5, Area), TOCRColorFilter.Create([$FFFFFF]), RS_FONT_PLAIN_11);
@@ -687,7 +687,7 @@ begin
 
   for TPA in TPA.Cluster(15) do
   begin
-    B := GetTPABounds(TPA);
+    B := TPA.Bounds();
 
     TPA := TPA.Offset(-B.X1 + 1, -B.Y1 + 1);
 
@@ -757,7 +757,7 @@ begin
   begin
     Bitmap.Init();
 
-    T := GetTickCount() + SRL.TruncatedGauss(WaitTime, WaitTime * 2);
+    T := GetTickCount() + RandomLeft(WaitTime, WaitTime * 2);
     while (T > GetTickCount()) and (not Result) do
     begin
       Bitmap.LoadFromClient(Area);
@@ -802,7 +802,7 @@ begin
   begin
     Bitmap.Init();
 
-    T := GetTickCount() + SRL.TruncatedGauss(WaitTime, WaitTime * 2);
+    T := GetTickCount() + RandomLeft(WaitTime, WaitTime * 2);
     while (T > GetTickCount()) do
     begin
       Bitmap.LoadFromClient(Area);

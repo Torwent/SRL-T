@@ -40,7 +40,7 @@ begin
   end;
 
   ATPA := TPA.Cluster(Dist5);
-  ATPA.SortByMiddle(GERect.Mean());
+  ATPA := ATPA.SortFrom(GERect.Mean());
   for TPA in ATPA do
   begin
    TPA := TPA.Grow(1).Erode(1);
@@ -80,16 +80,16 @@ begin
   SRL.FindColors(TPA1, BOOTH_BROWN, SearchBox);
   SRL.FindColors(TPA2, BOOTH_GREY, SearchBox);
 
-  TPA := TPA1.PointsInRangeOf(TPA2, 0, 5) +
-         TPA2.PointsInRangeOf(TPA1, 0, 5);
+  TPA := TPA1.PointsNearby(TPA2, 0, 5) +
+         TPA2.PointsNearby(TPA1, 0, 5);
 
   ATPA := TPA.Cluster(Dist5);
-  ATPA.FilterSize(Dist50, __GT__);
-  ATPA.SortByMiddle(SearchRect.Mean());
-  if (ATPA.Length > 2) then
+  ATPA := ATPA.ExcludeSize(Dist50, __GT__);
+  ATPA := ATPA.SortFrom(SearchRect.Mean());
+  if (ATPA.Length() > 2) then
     ATPA.SetLength(2);
 
-  ATPA.SortByMiddle(MainScreen.Center());
+  ATPA := ATPA.SortFrom(MainScreen.Center());
   for TPA in ATPA do
     if Bank.Open(TPA.Mean()) then
       Exit(True);

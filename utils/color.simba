@@ -89,7 +89,7 @@ var
 begin
   TPA := [];
   for Color in Colors do
-    if FindColorsTolerance(Points, Color, Area, 0) then
+    if FindColors(Points, Color, Area) then
       TPA += Points;
       
   Result := Length(TPA);
@@ -97,7 +97,7 @@ end;
 
 function TSRL.FindColors(out TPA: TPointArray; Color: Int32; Area: TBox): Int32;  overload;
 begin
-  if FindColorsTolerance(TPA, Color, Area, 0) then
+  if FindColors(TPA, Color, Area) then
     Result := Length(TPA);
 end;
 

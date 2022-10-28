@@ -24,7 +24,7 @@ begin
 
   Self.ElementFinder.Click(Self.ELEMENT_BUTTON_WS_CLOSE);
 
-  Result := WaitUntil(not Self.IsWorldSwitcherOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(not Self.IsWorldSwitcherOpen(), RandomLeft(50, 1500), 3000);
 end;
 
 function TRSLogout.ClickLogout(Attempts: Int32 = 5; TryTime: Int32 = 20000): Boolean;

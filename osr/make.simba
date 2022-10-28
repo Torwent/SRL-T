@@ -28,7 +28,7 @@ end;
 function TRSMake.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
   if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
+    Interval := RandomLeft(50, 1500);
 
   Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
@@ -83,9 +83,9 @@ begin
   if SRL.FindColors(TPA, CTS2(6982560, 10, 0.02, 0.61), Self.ElementFinder.Bounds(Self.ELEMENT_BUTTON_AREA)) then
   begin
     ATPA := TPA.Cluster(3);
-    ATPA.FilterDimensions(25, 50);
+    ATPA := ATPA.ExcludeDimensionsEx(25, 50);
 
-    Result := ATPA.ToTBA();
+    Result := ATPA.BoundsArray();
   end;
 end;
 
@@ -97,9 +97,9 @@ begin
   if SRL.FindColors(TPA, CTS2(6982560, 10, 0.02, 0.61), Self.ElementFinder.Bounds(Self.ELEMENT_QUANTITY_AREA)) then
   begin
     ATPA := TPA.Cluster(3);
-    ATPA.FilterDimensions(15, 15);
+    ATPA := ATPA.ExcludeDimensionsEx(15, 15);
 
-    Result := ATPA.ToTBA();
+    Result := ATPA.BoundsArray();
   end;
 end;
 
@@ -162,7 +162,7 @@ function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = Tr
   var
     TPA: TPointArray;
   begin
-    if WaitUntil(FindColors(TPA, RSColors.HINT_BACKGROUND, Self.Bounds()), SRL.TruncatedGauss(100, 1000), 5000) then
+    if WaitUntil(FindColors(TPA, RSColors.HINT_BACKGROUND, Self.Bounds()), RandomLeft(100, 1000), 5000) then
       Result := OCR.Recognize(TPA.Bounds(), TOCRColorFilter.Create([RSColors.TEXT_BLACK]), RS_FONT_PLAIN_12);
   end;
 

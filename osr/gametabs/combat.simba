@@ -320,7 +320,7 @@ begin
   begin
     Mouse.Click(Self.GetSpecAttackCircle, MOUSE_LEFT);
 
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    T := GetTickCount() + RandomLeft(1000, 2000);
     while (T > GetTickCount()) do
     begin
       if Self.IsSpecEnabled() then
@@ -353,7 +353,7 @@ begin
   begin
     Mouse.Click(Self.GetSpecAttackCircle, MOUSE_LEFT);
 
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    T := GetTickCount() + RandomLeft(1000, 2000);
     while (T > GetTickCount()) do
     begin
       if not Self.IsSpecEnabled() then

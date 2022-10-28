@@ -35,7 +35,7 @@ begin
     if FindColors(TPA, 0, P.X, P.Y, B.X2, B.Y2) then
     begin
       ATPA := TPA.Cluster(1, 1);
-      ATPA.SortByIndex(P, 0);
+      ATPA.SortFrom(P);
 
       Self.Bounds := ATPA[0].Bounds().Expand(-1);
 
@@ -52,7 +52,7 @@ end;
 function TRSChooseOption.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
   if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
+    Interval := RandomLeft(50, 1500);
 
   Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;

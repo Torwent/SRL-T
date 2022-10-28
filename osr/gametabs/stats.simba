@@ -131,7 +131,7 @@ begin
   if not Self.MouseOver(Skill) then
     Exit;
 
-  WaitUntil(FindColors(TPA, RSColors.HINT_BACKGROUND, Self.Bounds) and ReadHint(TPA.Bounds(), Result), SRL.TruncatedGauss(100, 200), WaitTime);
+  WaitUntil(FindColors(TPA, RSColors.HINT_BACKGROUND, Self.Bounds) and ReadHint(TPA.Bounds(), Result), RandomLeft(100, 200), WaitTime);
 end;
 
 function TRSStats.GetCurrentLevel(Skill: ERSSkill): Int32;

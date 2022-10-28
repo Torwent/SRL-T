@@ -44,7 +44,7 @@ begin
        Exit(ERSGameTab.LOGOUT);
 
   for I := 0 to High(Self.Cache.TabBoxes) do
-    if CountColorTolerance(1778534, Self.Cache.TabBoxes[I], 22) > 50 then
+    if CountColorTolerance(1778534, 22, Self.Cache.TabBoxes[I]) > 50 then
       Exit(ERSGameTab(I));
 
   Exit(ERSGameTab.UNKNOWN);
@@ -65,7 +65,7 @@ begin
   for 1 to 3 do
   begin
     Mouse.Click(Self.GetTabBox(Tab), MOUSE_LEFT, SRL.Dice(50));
-    if WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(100, 1000), 2500) then
+    if WaitUntil(Self.GetCurrentTab() = Tab, RandomLeft(100, 1000), 2500) then
       Exit(True);
   end;
 end;

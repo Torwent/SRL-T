@@ -115,7 +115,7 @@ begin
     MOUSE_LEFT
   );
 
-  Result := WaitUntil(Self.GetZoomLevel() = Level, SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(Self.GetZoomLevel() = Level, RandomLeft(50, 1500), 3000);
 end;
 
 (*
@@ -189,7 +189,7 @@ begin
   begin
     Self.ElementFinder.Click(Self.ELEMENT_BUTTON_HOUSE);
 
-    Result := WaitUntil(Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+    Result := WaitUntil(Self.IsHouseOptionsOpen(), RandomLeft(50, 1500), 3000);
   end;
 end;
 
@@ -207,7 +207,7 @@ begin
 
   Self.ElementFinder.Click(Self.ELEMENT_HOUSE_CLOSE);
 
-  Result := WaitUntil(not Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(not Self.IsHouseOptionsOpen(), RandomLeft(50, 1500), 3000);
 end;
 
 (*
@@ -257,7 +257,7 @@ begin
     ERSOptionsTab.AUDIO:    Self.ElementFinder.Click(Self.ELEMENT_TAB_AUDIO);
   end;
 
-  Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(Self.GetCurrentTab() = Tab, RandomLeft(50, 1500), 3000);
 end;
 
 procedure TRSOptions.Setup(Name: String); override;

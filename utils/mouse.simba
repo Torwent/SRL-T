@@ -401,7 +401,7 @@ When **IdleInterval** is reached this is called. Override to change behavior.
 *)
 procedure TMouse.Idle;
 var
-  T: UInt64 := SRL.TruncatedGauss(1000, 20000);
+  T: UInt64 := RandomLeft(1000, 20000);
 begin
   Self.DebugLn('Idle: ' + ToString(T) + ' ms');
 
@@ -463,7 +463,7 @@ begin
   // Further the distance the faster we move.
   Exponential := Power(Hypot(Start.X - Destination.X, Start.Y - Destination.Y), 0.33) / 10;
 
-  RandSpeed := SRL.TruncatedGauss(Self.Speed, Self.Speed * 1.5);
+  RandSpeed := RandomLeft(Self.Speed, Self.Speed * 1.5);
   RandSpeed *= Exponential;
   RandSpeed /= 10;
 
@@ -628,7 +628,7 @@ var w,h: Int32; p: TPoint;
 {$ENDIF}
 begin
   Self.Hold(Button);
-  Wait(SRL.TruncatedGauss(30, 300));
+  Wait(RandomLeft(30, 300));
   Self.Release(Button);
 
   {$IFDEF SRL_DEBUG_MOUSE}
@@ -823,13 +823,13 @@ begin
 
   try
     Range := Trunc(Power(Self.Position().DistanceTo(P), 0.80)); // how much possible range to miss
-    Miss := SRL.SkewedRand(0.9, 0.1, 1.5); // Where miss will happen. 1 = destination (P).
+    Miss := RandomMode(0.9, 0.1, 1.5); // Where miss will happen. 1 = destination (P).
 
     Result.X := Trunc((1-Miss)*Self.Position().X + Miss*P.X);
     Result.Y := Trunc((1-Miss)*Self.Position().Y + Miss*P.Y);
 
-    Result.X += SRL.NormalRange(-Range, Range);
-    Result.Y += SRL.NormalRange(-Range, Range);
+    Result.X += RandomMean(-Range, Range);
+    Result.Y += RandomMean(-Range, Range);
 
     Self.Move(Result);
 

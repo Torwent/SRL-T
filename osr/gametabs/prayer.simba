@@ -276,7 +276,7 @@ begin
 
   Mouse.Click(Self.GetPrayerBox(Prayer), MOUSE_LEFT);
 
-  Result := WaitUntil(Self.IsPrayerActive(Prayer), 50, SRL.TruncatedGauss(1000, 2000));
+  Result := WaitUntil(Self.IsPrayerActive(Prayer), 50, RandomLeft(1000, 2000));
 end;
 
 (*
@@ -356,7 +356,7 @@ begin
 
   Mouse.Move(Minimap.GetPrayerCircle);
   if ChooseOption.Select('Setup') then
-    Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(100, 1000), 2000);
+    Result := WaitUntil(Self.IsOpen(), RandomLeft(100, 1000), 2000);
 end;
 
 (*
@@ -390,7 +390,7 @@ begin
 
   Mouse.Click(Self.GetButton, MOUSE_LEFT);
 
-  Result := WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(0, 1500), Random(1500, 3000));
+  Result := WaitUntil(not Self.IsOpen(), RandomLeft(0, 1500), Random(1500, 3000));
 end;
 
 (*
@@ -463,7 +463,7 @@ begin
 
   Mouse.Click(Prayer.GetPrayerBox(QPrayer), MOUSE_LEFT);
 
-  Result := WaitUntil(Self.IsPrayerSelected(QPrayer), 50, SRL.TruncatedGauss(1000, 2000));
+  Result := WaitUntil(Self.IsPrayerSelected(QPrayer), 50, RandomLeft(1000, 2000));
 end;
 
 function TRSQuickPrayer.SelectPrayer(QPrayers: array of ERSPrayer): Boolean; overload;
@@ -557,7 +557,7 @@ begin
   begin
     Mouse.Click(Self.GetPrayerCircle(), MOUSE_LEFT);
 
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    T := GetTickCount() + RandomLeft(1000, 2000);
     while (T > GetTickCount()) do
     begin
       if Self.IsPrayerEnabled() then
@@ -588,7 +588,7 @@ begin
   begin
     Mouse.Click(Self.GetPrayerCircle(), MOUSE_LEFT);
 
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    T := GetTickCount() + RandomLeft(1000, 2000);
     while (T > GetTickCount()) do
     begin
       if not Self.IsPrayerEnabled() then

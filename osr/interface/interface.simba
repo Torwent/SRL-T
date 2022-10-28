@@ -108,7 +108,7 @@ begin
 
   if SRL.FindColors(TPA, COLOR_ARROW, Area) > 0 then
   begin
-    for B in TPA.Cluster(1).ToTBA() do
+    for B in TPA.Cluster(1).BoundsArray() do
       if (B.Width = 14) and (B.Height = 14) and (SRL.CountColor(COLOR_BORDER, B.Expand(1, Area)) = 62) then
         Arrows += B;
 
@@ -204,7 +204,7 @@ begin
   B.X1 := B.X2 - 50;
   B.Y2 := B.Y1 + 50;
 
-  Result := FindBitmapToleranceIn(RSBitmaps.CloseInterfaceButton, X, Y, B, 45);
+  Result := FindBitmapTolerance(RSBitmaps.CloseInterfaceButton, X, Y, B, 45);
   if Result then
     case PressEscape of
       True:  Keyboard.PressKey(VK_ESCAPE);

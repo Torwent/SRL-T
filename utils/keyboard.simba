@@ -34,7 +34,7 @@ begin
   {$ENDIF}
 
   Self.KeyDown(Key);
-  Wait(Trunc(srl.SkewedRand(60,45,180)));
+  Wait(Trunc(RandomMode(60, 45, 180)));
   Self.KeyUp(Key);
 end;
 

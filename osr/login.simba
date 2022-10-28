@@ -203,7 +203,7 @@ begin
     Exit;
 
   // Move caret
-  while not WaitUntil(Self.ElementFinder.CountColor(Element, [RSColors.TEXT_YELLOW]) > 10, 100, SRL.TruncatedGauss(800, 1600)) do
+  while not WaitUntil(Self.ElementFinder.CountColor(Element, [RSColors.TEXT_YELLOW]) > 10, 100, RandomLeft(800, 1600)) do
   begin
     if not Self.IsOpen() then
       Exit(False);

@@ -90,7 +90,7 @@ function TRSMinimap.FindCompassDials: TRSCompassDials;
     B.Y2 := Center.Y + Radius;
 
     if SRL.FindColors(Result, Color, B) > 0 then
-      Result := Result.FilterDist(0, Radius, Center.X, Center.Y);
+      Result := Result.ExcludeDist(Center, 0, Radius);
   end;
 
 var
@@ -111,7 +111,7 @@ begin
     end;
 
     // remove center red arrow (always the biggest)
-    ATPA.SortBySize();
+    ATPA := ATPA.SortBySize(False);
     ATPA.Pop(0);
 
     // find north (brown) dial
@@ -124,7 +124,7 @@ begin
 
     // South dial is always furthest from north dial
     TPA := ATPA.Means();
-    TPA.Sort(North.Mean());
+    TPA := TPA.SortFrom(North.Mean());
 
     Result.N := North.Mean();
     Result.S := TPA.Pop();
@@ -207,7 +207,7 @@ begin
   Degrees := FixD(Degrees);
   Remaining := Round(Self.GetCompassAngle() - Degrees);
 
-  T := GetTickCount() + Round(SRL.TruncatedGauss(6000, 8000));
+  T := GetTickCount() + RandomLeft(6000, 8000);
 
   while (Abs(Remaining) > Accuracy) do
   begin
@@ -285,7 +285,7 @@ end;
 
 function TRSMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
 begin
-  Result := SRL.PointInPoly(P, ExpandPolygon(Self.GetPolygon(), Expand));
+  //Result := SRL.PointInPoly(P, ExpandPolygon(Self.GetPolygon(), Expand));
 end;
 
 function TRSMinimap.IsPoisoned: Boolean;
@@ -301,7 +301,7 @@ begin
   begin
     Mouse.Click(Self.GetHPCircle(), MOUSE_LEFT);
 
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    T := GetTickCount() + RandomLeft(1000, 2000);
     while (T > GetTickCount()) do
     begin
       if not Self.IsPoisoned() then
@@ -327,7 +327,7 @@ begin
   begin
     Mouse.Click(Self.GetRunCircle(), MOUSE_LEFT);
 
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    T := GetTickCount() + RandomLeft(1000, 2000);
     while (T > GetTickCount()) do
     begin
       if Self.IsRunEnabled() then
@@ -346,7 +346,7 @@ begin
   begin
     Mouse.Click(Self.GetRunCircle(), MOUSE_LEFT);
 
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    T := GetTickCount() + RandomLeft(1000, 2000);
     while (T > GetTickCount()) do
     begin
       if not Self.IsRunEnabled() then
@@ -359,7 +359,7 @@ end;
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
-  Result := FindBitmapToleranceIn(RSBitmaps.MinimapFlag, P.X, P.Y, Self.Bounds, 5);
+  Result := FindBitmapTolerance(RSBitmaps.MinimapFlag, P.X, P.Y, Self.Bounds, 5);
 end;
 
 function TRSMinimap.HasFlag: Boolean; overload;
@@ -391,7 +391,7 @@ var
   Previous: TPoint;
   Timeout: TCountDown;
 begin
-  Timeout.Init(Round(SRL.TruncatedGauss(4000, 6000)));
+  Timeout.Init(RandomLeft(4000, 6000));
 
   while Self.FindFlag(Current) and (not Timeout.IsFinished()) do
   begin
@@ -459,7 +459,7 @@ var
 begin
   try
     BMP.FindColors(Blacks, 65536);
-    Blacks := Blacks.FilterBox(Box(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1));
+    Blacks := Blacks.ExcludeBox(TBox.Create(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 4));
 
     if ERSMinimapDot.PLAYER in Dots then
     begin
@@ -531,7 +531,7 @@ var
 begin
   Circle := Self.GetHPCircle();
   if SRL.FindColors(TPA, CTS1(1250067, 20), Circle.Bounds) > 0 then
-    TPA := TPA.FilterDist(0, Circle.Radius, Circle.X, Circle.Y);
+    TPA := TPA.ExcludeDist(Circle.Mean(), 0, Circle.Radius);
 
   with TPA.Bounds() do
     Result := 100 - Ceil((Y2 - Y1) / (Circle.Bounds.Y2 - Circle.Bounds.Y1) * 100);

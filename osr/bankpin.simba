@@ -98,7 +98,7 @@ function TRSBankPin.Enter(Pin: String; IsNextInterfaceOpen: function: Boolean of
 
   function EnterDigit(Digit: Char): Boolean;
   begin
-    if WaitUntil(ClickDigit(Digit), 100, SRL.TruncatedGauss(1000, 2000)) then
+    if WaitUntil(ClickDigit(Digit), 100, RandomLeft(1000, 2000)) then
       Exit(True);
 
     // Likely hovering the button but mouse away to make sure.

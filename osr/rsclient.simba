@@ -87,7 +87,7 @@ end;
 function TRSClient.IsLoggedIn(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
   if Interval = -1 then
-    Interval := SRL.TruncatedGauss(50, 1500);
+    Interval := RandomLeft(50, 1500);
 
   Result := WaitUntil(Self.IsLoggedIn(), Interval, WaitTime);
 end;

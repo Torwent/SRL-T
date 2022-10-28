@@ -22,9 +22,9 @@ Returns a full TPA of the circles circumference
 *)
 function TCircle.ToTPA(Fill: Boolean = False): TPointArray; 
 begin
-  Result := TPAFromCircle(Self.X, Self.Y, Self.Radius);
-  if Fill then
-    FillEllipse(Result);
+  //Result := TPAFromCircle(Self.X, Self.Y, Self.Radius);
+  //if Fill then
+  //  FillEllipse(Result);
 end;
 
 (*
@@ -66,7 +66,7 @@ Alias of `.ToTPA`
 *)
 function TCircle.CircumferenceTPA(): TPointArray; 
 begin
-  Result := TPAFromCircle(Self.X, Self.Y, Self.Radius);
+ // Result := TPAFromCircle(Self.X, Self.Y, Self.Radius);
 end;
 
 (*

@@ -460,7 +460,7 @@ begin
   CustomMouse := Mouse;
   CustomMouse.Speed += Random(1, 5);
 
-  for 1 to SRL.TruncatedGauss(1, 6) do
+  for 1 to RandomLeft(1, 6) do
   begin
     if Random() < 0.30 then
       CustomMouse.Move(GetClientBounds().Expand(150), True, MOUSE_DISTRIBUTION_GAUSS)
@@ -477,8 +477,8 @@ begin
   Self.DebugLn('Random Rotate');
 
   case SRL.Dice(50) of
-    True:  Minimap.SetCompassAngle(Minimap.GetCompassAngle() - SRL.TruncatedGauss(30, 360, 3));
-    False: Minimap.SetCompassAngle(Minimap.GetCompassAngle() + SRL.TruncatedGauss(30, 360, 3));
+    True:  Minimap.SetCompassAngle(Minimap.GetCompassAngle() - RandomMode(30, 360, 3));
+    False: Minimap.SetCompassAngle(Minimap.GetCompassAngle() + RandomMode(30, 360, 3));
   end;
 end;
 
@@ -508,7 +508,7 @@ begin
     Exit;
   end;
 
-  Self.HoverSkill(Self.Skills[Random(Length(Self.Skills))], SRL.TruncatedGauss(1000, 10000), SRL.Dice(50));
+  Self.HoverSkill(Self.Skills[Random(Length(Self.Skills))], RandomLeft(1000, 10000), SRL.Dice(50));
 end;
 
 procedure TAntiban.LoseFocus;
@@ -531,7 +531,7 @@ begin
   begin
     if Random() < 0.50 then
     begin
-      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(ERSGameTab.COMBAT), Ord(ERSGameTab.MAGIC), 6.0)));
+      //GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(ERSGameTab.COMBAT), Ord(ERSGameTab.MAGIC), 6.0)));
 
       Wait(300, 3000, wdLeft);
     end;
@@ -541,7 +541,7 @@ begin
   begin
     if Random() < 0.50 then
     begin
-      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(ERSGameTab.CLAN), Ord(ERSGameTab.MUSIC), 6.0)));
+      //GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(ERSGameTab.CLAN), Ord(ERSGameTab.MUSIC), 6.0)));
 
       Wait(0, 2500, wdLeft);
     end;
@@ -584,7 +584,7 @@ begin
     if Attempts > 100 then
       Exit;
 
-    NewZoom := SRL.SkewedRand(Zoom, Self.MinZoom - 10, Self.MaxZoom + 10);
+    NewZoom := RandomMode(Zoom, Self.MinZoom - 10, Self.MaxZoom + 10);
   until (NewZoom >= Self.MinZoom) and (NewZoom <= Self.MaxZoom) and (Abs(Zoom - NewZoom) > 15);
 
   Self.DebugLn('Adjust zoom: ' + ToString(NewZoom));
@@ -622,7 +622,7 @@ begin
   end;
 end;
 
-function TAntiban.GenerateSwivelPoints(A: TPoint; invCircularity:Double; curls: Int32; baseRad:Int32; direction:Boolean): TPointArray;
+function TAntiban.GenerateSwivelPoints(A: TPoint; invRandomLeftularity:Double; curls: Int32; baseRad:Int32; direction:Boolean): TPointArray;
 var
   t,o,rr: Double;
   i,j,k,rad: Int32;
@@ -638,18 +638,18 @@ begin
     rad := baseRad;
     c := Point(a.x+rad, a.y+rad).Rotate(180-o, A);
 
-    pts := TPAFromCircle(c.x, c.y, rad);
-    SortTPACircular(pts, c, Round(o), Direction);
+    pts := TPointArray.CreateFromCircle(c, rad, False);
+    pts := pts.SortCircular(c, Round(o), direction);
     pts := pts.Offset(a.x-pts[0].x, a.y-pts[0].y);
 
-    rr := Round(rad*invCircularity);
+    rr := Round(rad*invRandomLeftularity);
 
     v += [pts[0].x, pts[0].y];
     for i:=1 to High(pts) with 35 do
       v += [pts[i].x+Random(-rr, rr), pts[i].y+Random(-rr, rr)];
     v += [pts[High(pts)].x+Random(-rr, rr), pts[High(pts)].y+Random(-rr, rr)];
 
-    rad := Round(rad * Round(srl.SkewedRand(1.2,0.9,1.7)));
+    rad := Round(rad * RandomMode(1.2,0.9,1.7));
 
     t := 0;
     prev := v[0];
@@ -664,7 +664,7 @@ begin
         end;
       vec := tmp[0];
 
-      Result += TPAFromLine(Round(prev.x),Round(prev.y), Round(vec.x),Round(vec.y));
+      Result += TPointArray.CreateFromLine(TPoint.Create(Round(prev.x),Round(prev.y)), TPoint.Create(Round(vec.x),Round(vec.y)));
       prev := vec;
       t += 0.01;
     end;
@@ -673,7 +673,7 @@ begin
   end;
 end;
 
-procedure TAntiban.SwivelNear(start: TPoint; invCircularity: Double; curls, radius: Int32; dir:Boolean; maxSpeed: Double=22; minSpeed: Double=9; baseSpeed: Double=14);
+procedure TAntiban.SwivelNear(start: TPoint; invRandomLeftularity: Double; curls, radius: Int32; dir:Boolean; maxSpeed: Double=22; minSpeed: Double=9; baseSpeed: Double=14);
 var
   p,q: TPoint;
   i: Int32;
@@ -686,7 +686,7 @@ begin
   fastMouse.CanIdle := False;
 
   q := Point(-1,-1);
-  swivel := Self.GenerateSwivelPoints([start.x, start.y], invCircularity, curls, radius, dir);
+  swivel := Self.GenerateSwivelPoints([start.x, start.y], invRandomLeftularity, curls, radius, dir);
   speed := baseSpeed;
   for i:=0 to High(swivel) do
   begin
@@ -715,16 +715,16 @@ procedure TAntiban.SwivelNear(start: TBox; radius: Int32; Iterations: Int32=1); 
 begin
   for 1 to Iterations do
   begin
-    Self.SwivelNear(srl.RandomPoint(start), 1/2, Round(srl.TruncatedGauss(1,4)), radius, srl.TruncatedGauss(0.0,1.25) > 0.5, Random(12,22), 9, 14);
+    Self.SwivelNear(srl.RandomPoint(start), 1/2, Round(RandomLeft(1,4)), radius, RandomLeft(0.0,1.25) > 0.5, Random(12,22), 9, 14);
     if Random() < 0.5 then Wait(0, 300, wdLeft);
   end;
 end;
 
 procedure TAntiban.Swivel(); overload;
 begin
-  for 1 to Round(srl.TruncatedGauss(1,4)) do
+  for 1 to Round(RandomLeft(1,4)) do
   begin
-    Self.SwivelNear(mouse.Position, 1/2, Round(srl.TruncatedGauss(1,4)), Random(25,40), srl.TruncatedGauss(0.0,1.25) > 0.5, Random(12,22), 9, 14);
+    Self.SwivelNear(mouse.Position, 1/2, Round(RandomLeft(1,4)), Random(25,40), RandomLeft(0.0,1.25) > 0.5, Random(12,22), 9, 14);
     if Random() < 0.5 then Wait(0, 300, wdLeft);
   end;
 end;

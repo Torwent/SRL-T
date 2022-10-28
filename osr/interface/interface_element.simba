@@ -91,7 +91,7 @@ var
 begin
   B := Self.Bounds(Element);
   for I := 0 to High(Colors) do
-    if FindColorTolerance(X, Y, Colors[I], B, Tolerances[I]) then
+    if FindColorTolerance(X, Y, Colors[I], Tolerances[I], B) then
       Exit(True);
 end;
 
@@ -112,7 +112,7 @@ var
 begin
   B := Self.Bounds(Element);
   for I := 0 to High(Colors) do
-    Result := Result + CountColorTolerance(Colors[I], B, Tolerances[I]);
+    Result := Result + CountColorTolerance(Colors[I], Tolerances[I], B);
 end;
 
 function TRSInterfaceElementFinder.Toggle(Element: TRSInterfaceElement; Color, Tolerance: Integer): Boolean;
@@ -122,7 +122,7 @@ begin
 
   Self.Click(Element);
 
-  Result := WaitUntil(Self.HasColor(Element, [Color], [Tolerance]), 100, SRL.TruncatedGauss(1500, 3000));
+  Result := WaitUntil(Self.HasColor(Element, [Color], [Tolerance]), 100, RandomLeft(1500, 3000));
 end;
 
 procedure TRSInterfaceElementFinder.Click(Element: TRSInterfaceElement);

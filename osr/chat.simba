@@ -81,7 +81,7 @@ var
   Tab: ERSChatTab;
 begin
   for Tab in [ERSChatTab.ALL_CHAT..ERSChatTab.TRADE_CHAT] do
-    if CountColorTolerance(1452342, Self.GetTabBox(Tab), 10) > 100 then
+    if CountColorTolerance(1452342, 10, Self.GetTabBox(Tab)) > 100 then
       Exit(Tab);
 end;
 
@@ -252,7 +252,7 @@ Example
 function TRSChat.FindQuery(Query: String; WaitTime: Int32 = 600; Interval: Int32 = -1): Boolean;
 begin
   if Interval = -1 then
-    Interval := SRL.TruncatedGauss(50, 200);
+    Interval := RandomLeft(50, 200);
 
   Result := WaitUntil(Query in Self.GetQuery(), Interval, WaitTime);
 end;
@@ -399,8 +399,8 @@ function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
 begin
   if Self.ClickOption('Click here to continue', UseKeyboard, [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]) then
   begin
-    Result := WaitUntil(Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]), SRL.TruncatedGauss(50, 1500), 3000) and
-              WaitUntil(not Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]), SRL.TruncatedGauss(50, 1500), 3000);
+    Result := WaitUntil(Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]), RandomLeft(50, 1500), 3000) and
+              WaitUntil(not Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]), RandomLeft(50, 1500), 3000);
   end;
 end;
 

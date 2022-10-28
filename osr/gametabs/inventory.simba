@@ -269,7 +269,7 @@ begin
 
   Mouse.Click(Self.GetSlotBox(Index), MOUSE_LEFT);
 
-  Result := WaitUntil(Self.GetSelected() = -1, 100, SRL.TruncatedGauss(1000, 2000));
+  Result := WaitUntil(Self.GetSelected() = -1, 100, RandomLeft(1000, 2000));
 end;
 
 (*
@@ -296,7 +296,7 @@ begin
 
   Mouse.Click(Self.GetSlotBox(Index), MOUSE_LEFT);
 
-  Result := WaitUntil(Self.GetSelected() = Index, 100, SRL.TruncatedGauss(1000, 2000));
+  Result := WaitUntil(Self.GetSelected() = Index, 100, RandomLeft(1000, 2000));
 end;
 
 
@@ -409,7 +409,7 @@ begin
           Mouse.Click(Self.GetSlotBox(Slots[I]), MOUSE_LEFT);
 
           // Spam click a little
-          for 1 to SRL.TruncatedGauss(0, 3) do
+          for 1 to RandomLeft(0, 3) do
           begin
             Circle.X := Mouse.Position().X;
             Circle.Y := Mouse.Position().Y;
@@ -457,7 +457,7 @@ end;
 function TRSInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
+    Interval := RandomLeft(50, 1500);
 
   Result := WaitUntil(Self.Count() = Count, Interval, WaitTime);
 end;

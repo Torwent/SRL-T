@@ -127,7 +127,7 @@ procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap);
     if Bitmap.FindColorsTolerance(TPA, $0000FF, 30, 0.05, 1)      then DotTPA += TPA;
     if Bitmap.FindColorsTolerance(TPA, $020102, 10, 16.67, 67.67) then DotTPA += TPA;
 
-    Bitmap.DrawTPA(PointsInRangeOf(DotTPA, Dots, 0, 5.5), 0);
+    Bitmap.DrawTPA(DotTPA.PointsNearby(Dots, 0, 5.5), 0);
   end;
 
 var
@@ -140,7 +140,7 @@ begin
 
   Bitmap.DrawPolygonInverted(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), 0);
   Bitmap.FindColors(TPA, 0);
-  Bitmap.Blend(TPA.Sorted(Bitmap.GetCenter()), 5);
+  Bitmap.Blend(TPA.SortFrom(Bitmap.GetCenter()), 5);
   Bitmap.Pad(10);
 end;
 
@@ -179,7 +179,7 @@ begin
 
   Temp.Crop(P.X - RADIUS, P.Y - RADIUS, P.X + RADIUS, P.Y + RADIUS);
   Temp.FindColors(TPA, 0);
-  Temp.Blend(TPA.Sorted(Temp.GetCenter()), 3);
+  Temp.Blend(TPA.SortFrom(Temp.GetCenter()), 3);
   Temp.DrawCircleInverted(Temp.GetCenter, RADIUS, 0);
 
   Result := Temp.Copy();
@@ -319,7 +319,7 @@ begin
   if Minimap.IsRunEnabled() or (Minimap.GetRunEnergy() < Self.EnableRunAtEnergy) then
     Exit;
 
-  Self.EnableRunAtEnergy := SRL.SkewedRand(40, 10, 100);
+  Self.EnableRunAtEnergy := RandomMode(40, 10, 100);
 
   Minimap.EnableRun();
 end;
@@ -362,7 +362,7 @@ var
     if (Idx = High(Self.Path)) and (Random(10) > 2) then Exit();
 
     mmPos := Self.Path[idx] - myPos + minimap.Center;
-    mmPos := RotatePoint(mmPos, angle, Minimap.Center.X, Minimap.Center.Y);
+    mmPos := mmPos.Rotate(angle, Minimap.Center);
 
     if Self.ScreenWalk then
       mmPos := Minimap.PointToMsRect(mmPos).Mean();
@@ -383,9 +383,9 @@ begin
   if InRange(dist, Random(5,10), Random(60,70)) then
     MouseToNextPoint(Position);
 
-  Self.MouseAheadTimer := GetTimeRunning() + srl.SkewedRand(0,50,500);
+  Self.MouseAheadTimer := GetTimeRunning() + RandomMode(0,50,500);
   if Self.ScreenWalk then
-    Self.MouseAheadTimer += srl.SkewedRand(0,50,500);
+    Self.MouseAheadTimer += RandomMode(0,50,500);
 end;
 
 
@@ -397,12 +397,12 @@ var
   end;
   awct: Int64; 
 begin
-  Timeout.Init(Round(SRL.TruncatedGauss(20000, 25000)));
+  Timeout.Init(Round(RandomLeft(20000, 25000)));
 
-  Countdown.Init(Round(SRL.TruncatedGauss(500, 1500)));
+  Countdown.Init(Round(RandomLeft(500, 1500)));
   
   // initial timeout needs to be longer, as we might not have started walking yet.
-  Countdown.Timeout := GetTickCount() + Round(SRL.TruncatedGauss(2500, 3500));
+  Countdown.Timeout := GetTickCount() + Round(RandomLeft(2500, 3500));
 
   Position.Previous := Self.GetMyPos();
   Position.Current := Position.Previous;
@@ -522,7 +522,7 @@ begin
     if (Random() < 0.15) then // 15% chance of randomness else mean
       WaitUntilDistance := Random(Distance(Minimap.Center, MinimapPoint))
     else
-      WaitUntilDistance := SRL.NormalRange(0, Distance(Minimap.Center, MinimapPoint) + 10);
+      WaitUntilDistance := RandomMean(0, Distance(Minimap.Center, MinimapPoint) + 10);
 
     Self.WaitMoving(WorldPoint, WaitUntilDistance);
   end
@@ -584,7 +584,7 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
   begin
     for I := 1 to High(TPA) do
     begin
-      Line := TPAFromLine(TPA[I-1], TPA[I]);
+      Line := TPointArray.CreateFromLine(TPA[I-1], TPA[I]);
       
       J := 0;
       while J < High(Line) do
@@ -608,7 +608,7 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
     Previous: Int32 := Index;
     Nearest, Furthest: Int32;
   begin
-    Nearest := Self.Path.IndexOf(Self.Path.Sorted(PlayerPoint)[0]);
+    Nearest := Self.Path.IndexOf(Self.Path.SortFrom(PlayerPoint)[0]);
     Self.PathIndex := Nearest;
 
     while (Nearest < High(Self.Path)) and (not Self.IsWalkable(Self.Path[Nearest+1], PlayerPoint, Angle)) do
@@ -663,8 +663,8 @@ begin
           Self.ScreenWalk := False
         else if (Fails = 5) then
           case SRL.Dice(50) of
-            True:  Minimap.SetCompassAngle(Minimap.GetCompassAngle() - SRL.TruncatedGauss(30, 360, 3));
-            False: Minimap.SetCompassAngle(Minimap.GetCompassAngle() + SRL.TruncatedGauss(30, 360, 3));
+            True:  Minimap.SetCompassAngle(Minimap.GetCompassAngle() - RandomMode(30, 360, 3));
+            False: Minimap.SetCompassAngle(Minimap.GetCompassAngle() + RandomMode(30, 360, 3));
           end;
       end;
       

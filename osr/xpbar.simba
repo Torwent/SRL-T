@@ -27,7 +27,7 @@ begin
 
   Mouse.Click(Minimap.GetXPCircle(), MOUSE_LEFT);
 
-  Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(100, 1000), 3000);
+  Result := WaitUntil(Self.IsOpen(), RandomLeft(100, 1000), 3000);
 end;
 
 procedure TRSXPBar.Draw(Bitmap: TMufasaBitmap); override;
@@ -53,7 +53,7 @@ function TRSXPBar.CustomBoundsFinder(ClientMode: ERSClientMode): TBox;
   var
     X, Y: Integer;
   begin
-    Result := FindBitmapToleranceIn(Bitmap, X, Y, Area, 5);
+    Result := FindBitmapTolerance(Bitmap, X, Y, Area, 5);
 
     if Result then
     begin

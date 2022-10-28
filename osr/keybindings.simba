@@ -217,8 +217,8 @@ begin
   begin
     Keyboard.PressKey(Keybindings.KeyTabPairs[Idx].Key);
     Exit(WaitUntil(Self.GetCurrentTab = Tab,
-                   SRL.TruncatedGauss(50, 2000),
-                   SRL.TruncatedGauss(2000, 3000)));
+                   RandomLeft(50, 2000),
+                   RandomLeft(2000, 3000)));
   end;
 
   if Keybindings.UncheckedKeyArray = [] then
@@ -241,8 +241,8 @@ begin
   Keyboard.PressKey(Keybindings.KeyTabPairs[Idx].Key);
 
   TabSwitched := WaitUntil(CurrentTab <> (NewTab := Self.GetCurrentTab),
-                           SRL.TruncatedGauss(50, 2000),
-                           SRL.TruncatedGauss(2000, 3000));
+                           RandomLeft(50, 2000),
+                           RandomLeft(2000, 3000));
 
   if TabSwitched then //if tab switched we are sure of this key-gametab pair
   begin

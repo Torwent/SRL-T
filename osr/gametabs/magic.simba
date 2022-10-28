@@ -340,9 +340,9 @@ begin
   Result := ERSSpellBook.STANDARD;
   Box := GameTabs.GetTabBox(ERSGameTab.MAGIC);
 
-  if FindBitmapToleranceIn(RSBitmaps.SpellBookAncient, X,Y, Box, 80) then Result := ERSSpellBook.ANCIENT;
-  if FindBitmapToleranceIn(RSBitmaps.SpellBookLunar, X,Y, Box, 80)   then Result := ERSSpellBook.LUNAR;
-  if FindBitmapToleranceIn(RSBitmaps.SpellBookArceuus, X,Y, Box, 80) then Result := ERSSpellBook.ARCEUUS;
+  if FindBitmapTolerance(RSBitmaps.SpellBookAncient, X,Y, Box, 80) then Result := ERSSpellBook.ANCIENT;
+  if FindBitmapTolerance(RSBitmaps.SpellBookLunar, X,Y, Box, 80)   then Result := ERSSpellBook.LUNAR;
+  if FindBitmapTolerance(RSBitmaps.SpellBookArceuus, X,Y, Box, 80) then Result := ERSSpellBook.ARCEUUS;
 end;
 
 (*
@@ -562,11 +562,11 @@ begin
   if Spell in RS_INSTANT_THROW_SPELLS then
   begin
     Self.MouseSpell(Spell, MOUSE_LEFT);
-    WaitUntil(Self.IsOpen(), 100, SRL.TruncatedGauss(1000, 2000));
+    WaitUntil(Self.IsOpen(), 100, RandomLeft(1000, 2000));
     Exit(True);
   end;
 
-  Result := Self.MouseSpell(Spell, MOUSE_LEFT) and WaitUntil((Self.IsOpen() and (Self.GetSelectedSpell() = Spell)) or Inventory.IsOpen(), 100, SRL.TruncatedGauss(1000, 2000));
+  Result := Self.MouseSpell(Spell, MOUSE_LEFT) and WaitUntil((Self.IsOpen() and (Self.GetSelectedSpell() = Spell)) or Inventory.IsOpen(), 100, RandomLeft(1000, 2000));
 end;
 
 procedure TRSMagic.Draw(Bitmap: TMufasaBitmap); override;
