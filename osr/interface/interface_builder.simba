@@ -85,14 +85,14 @@ begin
     case PRSInterfaceElement(Shape.UserData)^.Anchor of
       ERSInterfaceElementAnchor.TOP:
         begin
-          Bitmap.DrawLineGap(TPoint.Create(Shape.Box.X1, Shape.Box.Y1), TPoint.Create(Rect.Left, Shape.Box.Y1), 5, clYellow);
-          Bitmap.DrawLineGap(TPoint.Create(Shape.Box.X1, Shape.Box.Y1), TPoint.Create(Shape.Box.X1, Rect.Top), 5, clYellow);
+          Bitmap.DrawLineGap(TPoint.Create(Shape.Box.X1, Shape.Box.Y1), TPoint.Create(Rect.Left, Shape.Box.Y1), 5, $00FFFF);
+          Bitmap.DrawLineGap(TPoint.Create(Shape.Box.X1, Shape.Box.Y1), TPoint.Create(Shape.Box.X1, Rect.Top), 5, $00FFFF);
         end;
 
        ERSInterfaceElementAnchor.BOTTOM:
         begin
-          Bitmap.DrawLineGap(TPoint.Create(Shape.Box.X1, Shape.Box.Y2), TPoint.Create(Rect.Left, Shape.Box.Y2), 5, clYellow);
-          Bitmap.DrawLineGap(TPoint.Create(Shape.Box.X1, Shape.Box.Y2), TPoint.Create(Shape.Box.X1, Rect.Bottom), 5, clYellow);
+          Bitmap.DrawLineGap(TPoint.Create(Shape.Box.X1, Shape.Box.Y2), TPoint.Create(Rect.Left, Shape.Box.Y2), 5, $00FFFF);
+          Bitmap.DrawLineGap(TPoint.Create(Shape.Box.X1, Shape.Box.Y2), TPoint.Create(Shape.Box.X1, Rect.Bottom), 5, $00FFFF);
         end;
     end;
   end;
@@ -136,27 +136,22 @@ procedure TRSInterfaceBuilder.InterfaceMenuClick(Sender: TObject);
 
 begin
   case TMenuItem(Sender).GetCaption() of
+    'Anvil':
+      SetInterface('Anvil', Anvil.Bounds, RTTIClassFields(Anvil));
     'Furnace':
       SetInterface('Furnace', Furnace.Bounds, RTTIClassFields(Furnace));
-
     'Bank':
       SetInterface('Bank', Bank.Bounds, RTTIClassFields(Bank));
-
     'BankPin':
       SetInterface('BankPin', BankPin.Bounds, RTTIClassFields(BankPin));
-
     'DepositBox':
       SetInterface('DepositBox', DepositBox.Bounds, RTTIClassFields(DepositBox));
-
     'GrandExchange':
       SetInterface('GrandExchange', GrandExchange.Bounds, RTTIClassFields(GrandExchange));
-
     'Login':
       SetInterface('Login', Login.Bounds, RTTIClassFields(Login));
-
     'Chat':
        SetInterface('Chat', Chat.Bounds, RTTIClassFields(Chat));
-
     'Equipment':
        SetInterface('Equipment', Equipment.Bounds, RTTIClassFields(Equipment));
     else

@@ -1,0 +1,90 @@
+{$DEFINE SRL_ANVIL_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+(*
+Anvil
+=====
+Anvil methods, used for smithing items.
+*)
+
+type
+  TRSAnvil = record(TRSInterface)
+  class const
+    ELEMENT_QUANTITY_1: TRSInterfaceElement = [453, 36, 36, 36];
+    ELEMENT_QUANTITY_2: TRSInterfaceElement = [453, 81, 36, 36];
+    ELEMENT_QUANTITY_3: TRSInterfaceElement = [453, 126, 36, 36];
+    ELEMENT_QUANTITY_4: TRSInterfaceElement = [453, 171, 36, 36];
+    ELEMENT_QUANTITY_5: TRSInterfaceElement = [453, 216, 36, 36];
+    ELEMENT_ITEM_AREA:  TRSInterfaceElement = [10, 36, 385, 275];
+  end;
+
+function TRSAnvil.FindItemBoundaries: TBoxArray;
+var
+  B: TBox;
+begin
+  B := Self.ElementFinder.Bounds(Self.ELEMENT_ITEM_AREA);
+
+  Result := B.Partition(5,5);
+end;
+
+(*
+Anvil.IsOpen
+~~~~~~~~~~~~
+.. pascal:: function TRSAnvil.IsOpen: Boolean;
+
+Returns true if the Anvil screen is open.
+*)
+function TRSAnvil.IsOpen: Boolean; overload;
+begin
+  Result := Self.IsTitle('would like to') or Self.IsTitle('make?');
+end;
+
+function TRSAnvil.IsOpen(WaitTime: Integer; Interval: Integer = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := RandomLeft(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+procedure TRSAnvil.Setup(Name: String); override;
+begin
+  inherited;
+
+  Self.ItemFinder.Name := Name + '.ItemFinder';
+  Self.ItemFinder.GetSearchBoxesFunction := @Self.FindItemBoundaries;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 500;
+    Center.MaxHeight := 320;
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2, -1];
+
+    Center.MaxWidth := 500;
+    Center.MaxHeight := 320;
+  end;
+
+  // Same as above
+  Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] := Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC];
+end;
+
+var
+  Anvil: TRSAnvil;
+
+begin
+  Anvil.Setup('Anvil');
+end;

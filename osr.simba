@@ -77,11 +77,13 @@ end;
 {$IFNDEF SRL_ANTIBAN_INCLUDED}         {$I osr/antiban.simba}
 {$IFNDEF SRL_KEYBINDINGS_INCLUDED}     {$I osr/keybindings.simba}
 {$IFNDEF SRL_FURNACE_INCLUDED}         {$I osr/furnace.simba}
+{$IFNDEF SRL_ANVIL_INCLUDED}           {$I osr/anvil.simba}
 
 {$I osr/finders/bankfinders.simba}
 
 {$SCOPEDENUMS OFF}
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
