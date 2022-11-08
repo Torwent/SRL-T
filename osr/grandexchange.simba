@@ -246,7 +246,7 @@ begin
   SRL.FindColors(RowLight, BG_LIGHT, Self.Bounds);
   
   Rows := RowDark.Cluster(1).BoundsArray() + RowLight.Cluster(1).BoundsArray();
-  Rows.SortByX(True);
+  Rows := Rows.SortByX(True);
 
   for Row in Rows do
   begin

@@ -24,22 +24,18 @@ var
   TPA: TPointArray;
   ATPA: T2DPointArray;
   P: TPoint;
-  B: TBox;
 begin
-  B := GetClientBounds();
-
   if FindBitmap(Self.Bitmap, P.X, P.Y) then
   begin
     P.Y += Self.BitmapHeight;
 
-    if FindColors(TPA, 0, P.X, P.Y, B.X2, B.Y2) then
+    Result := FindColors(TPA, $000000, P.X, P.Y, GetClientWidth() - 1, GetClientHeight() - 1);
+    if Result then
     begin
-      ATPA := TPA.Cluster(1, 1);
-      ATPA.SortFrom(P);
+      ATPA := TPA.Cluster(1, 1).SortFrom(P);
+      TPA := ATPA[0];
 
-      Self.Bounds := ATPA[0].Bounds().Expand(-1);
-
-      Exit(True);
+      Self.Bounds := TPA.Bounds().Expand(-1);
     end;
   end;
 end;
@@ -116,7 +112,7 @@ begin
     Exit(True);
 
   Space := Self.Bounds.Expand(100);
-  Space.Clip(GetClientBounds());
+  Space.Clip(TBox.Create(0, 0, GetClientWidth(), GetClientHeight));
 
   Boxes := Self.Bounds.Expand(50).Invert(Space);
   if Length(Boxes) = 0 then

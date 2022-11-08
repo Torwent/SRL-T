@@ -112,7 +112,7 @@ begin
       if (B.Width = 14) and (B.Height = 14) and (SRL.CountColor(COLOR_BORDER, B.Expand(1, Area)) = 62) then
         Arrows += B;
 
-    Arrows.SortByX(False);
+    Arrows := Arrows.SortByX(False);
 
     if (Length(Arrows) >= 2) and (Arrows[0].X1 = Arrows[1].X1) and (Arrows[1].X2 = Arrows[1].X2) then
     begin

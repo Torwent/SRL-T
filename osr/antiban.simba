@@ -74,7 +74,7 @@ begin
     Res += 1;
 
   Result := GetTimeRunning() + Trunc(Res * SecsPerDay * MSecsPerSec);
-  Result += Trunc(SRL.GaussRand(0, StrToTime(ToStr(Randomness * 10)) * SecsPerDay * MSecsPerSec));
+  Result += Trunc(GaussRand(0, StrToTime(ToStr(Randomness * 10)) * SecsPerDay * MSecsPerSec));
   Result := Max(0, Result);
 end;
 
@@ -149,7 +149,7 @@ begin
   Task.Length := Length;
   Task.StdVar := Randomness;
   Task.LogoutChance := LogoutChance;
-  Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
+  Task.NextAtTime := GetTimeRunning() + Abs(GaussRand(Task.Interval, Task.Interval * Task.StdVar));
 
   Self.Breaks += Task;
 end;
@@ -164,7 +164,7 @@ begin
   for I := 0 to High(ActiveTasks) do
     ActiveTasks[I]^.Countdown.Pause();
 
-  Countdown.Init(Abs(Round(SRL.GaussRand(Task.Length, Task.Length * Task.StdVar))));
+  Countdown.Init(Abs(Round(GaussRand(Task.Length, Task.Length * Task.StdVar))));
 
   Self.DebugLn('Sleeping for ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
 
@@ -183,7 +183,7 @@ begin
 
   while not Countdown.IsFinished() do
   begin
-    Self.DebugLn('Sleep time remaining: ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+    Self.DebugLn('Sleep time remaining: ' +SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
 
     Wait(Min(Countdown.TimeRemaining(), 60000 * 5));
   end;
@@ -218,7 +218,7 @@ begin
   for I := 0 to High(ActiveTasks) do
     ActiveTasks[I]^.Countdown.Pause();
 
-  Countdown.Init(Abs(Round(SRL.GaussRand(Task.Length, Task.Length * Task.StdVar))));
+  Countdown.Init(Abs(Round(GaussRand(Task.Length, Task.Length * Task.StdVar))));
 
   Self.DebugLn('Taking a break for ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
 
@@ -263,7 +263,7 @@ begin
     ActiveTasks[I]^.Countdown.Resume();
 
   // Setup next time this break happens
-  Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
+  Task.NextAtTime := GetTimeRunning() + Abs(GaussRand(Task.Interval, Task.Interval * Task.StdVar));
 end;
 
 (*
@@ -293,7 +293,7 @@ begin
   Task.Method := @Method;
   Task.StdVar := Randomness;
   // Use Random() so the antiban "starts at an random sequence upon script start"
-  Task.Countdown.Init(Random(Trunc(Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar)))));
+  Task.Countdown.Init(Random(Trunc(Abs(GaussRand(Task.Interval, Task.Interval * Task.StdVar)))));
 
   Self.Tasks += Task;
 end;
@@ -390,7 +390,7 @@ begin
           Self.OnStartTask(Task);
 
         Task^.Method();
-        Task^.Countdown.Init(Trunc(Abs(SRL.GaussRand(Task^.Interval, Task^.Interval * Task^.StdVar))));
+        Task^.Countdown.Init(Trunc(Abs(GaussRand(Task^.Interval, Task^.Interval * Task^.StdVar))));
         Task^.Countdown.Pause();
         if (@Self.OnFinishTask <> nil) then
           Self.OnFinishTask(Task);
@@ -454,8 +454,11 @@ end;
 procedure TAntiban.RandomMouse;
 var
   CustomMouse: TMouse;
+  Space: TBox;
 begin
   Self.DebugLn('Random Mouse');
+
+  Space := TBox.Create(0, 0, GetClientWidth(), GetClientHeight);
 
   CustomMouse := Mouse;
   CustomMouse.Speed += Random(1, 5);
@@ -463,9 +466,9 @@ begin
   for 1 to RandomLeft(1, 6) do
   begin
     if Random() < 0.30 then
-      CustomMouse.Move(GetClientBounds().Expand(150), True, MOUSE_DISTRIBUTION_GAUSS)
+      CustomMouse.Move(Space, True, MOUSE_DISTRIBUTION_GAUSS)
     else
-      CustomMouse.Move(GetClientBounds().Expand(150), True, MOUSE_DISTRIBUTION_RANDOM);
+      CustomMouse.Move(Space, True, MOUSE_DISTRIBUTION_RANDOM);
 
     if Random() < 0.50 then
       Wait(0, 1000, wdLeft);
@@ -556,7 +559,7 @@ procedure TAntiban.RandomRightClick;
 begin
   Self.DebugLn('Random Right Click');
 
-  Mouse.Move(GetClientBounds(), True, MOUSE_DISTRIBUTION_RANDOM);
+  Mouse.Move(TBox.Create(0,0,GetClientWidth(),GetClientHeight()), True, MOUSE_DISTRIBUTION_RANDOM);
 
   if ChooseOption.Open() then
   begin
@@ -698,7 +701,7 @@ begin
     q := p;
     d1 := swivel[i].AngleBetween(swivel[Min(High(swivel), i+20)]);
     d2 := swivel[i].AngleBetween(swivel[Min(High(swivel), i+40)]);
-    asc := abs(srl.DeltaAngle(d1, d2));
+    asc := Abs(DeltaAngle(d1, d2));
 
     if High(swivel)-i < Speed then speed -= 1;
 
@@ -754,7 +757,7 @@ begin
       if Self.Breaks[I].NextAtTime < Task^.NextAtTime then
         Task := @Self.Breaks[I];
 
-    Len := Abs(SRL.GaussRand(Task^.Length, Task^.Length * Task^.StdVar));
+    Len := Abs(GaussRand(Task^.Length, Task^.Length * Task^.StdVar));
     Active += Task^.NextAtTime - Prev;
     Inactive += Len;
 
@@ -763,7 +766,7 @@ begin
 
     Prev := Task^.NextAtTime;
 
-    Task^.NextAtTime += Abs(SRL.GaussRand(Task^.Interval, Task^.Interval * Task^.StdVar));
+    Task^.NextAtTime += Abs(GaussRand(Task^.Interval, Task^.Interval * Task^.StdVar));
   end;
 
   Inactive /= TEST_DAYS;

@@ -440,7 +440,7 @@ begin
     if (W > 0) and (H > 0) then
     begin
       if Self.IdleProgress = 0 then
-        Self.IdleGoal := SRL.GaussRand(Self.IdleInterval, Self.IdleInterval * 0.20)
+        Self.IdleGoal := GaussRand(Self.IdleInterval, Self.IdleInterval * 0.20)
       else
       if Self.IdleProgress > Self.IdleGoal then
       begin
@@ -448,9 +448,9 @@ begin
         Self.IdleProgress := 0;
 
         if SRL.Dice(10) then // rarely throw a short interval in
-          Self.IdleGoal := SRL.GaussRand(Self.IdleInterval / 2, Self.IdleInterval / 2 * 0.20)
+          Self.IdleGoal := GaussRand(Self.IdleInterval / 2, Self.IdleInterval / 2 * 0.20)
         else
-          Self.IdleGoal := SRL.GaussRand(Self.IdleInterval, Self.IdleInterval * 0.20);
+          Self.IdleGoal := GaussRand(Self.IdleInterval, Self.IdleInterval * 0.20);
       end;
 
       Self.IdleProgress += Hypot(Start.X - Destination.X, Start.Y - Destination.Y) / Hypot(W, H);
@@ -507,7 +507,7 @@ Example
 *)
 procedure TMouse.Move(Center: TPoint; Radius: Int32; ForcedMove: Boolean = False); overload;
 begin
-  if SRL.PointInCircle(Self.Position(), Center, Radius) and (not ForcedMove) then
+  if Self.Position().InCircle(Center, Radius) and (not ForcedMove) then
     Exit;
 
   Self.Move(SRL.RandomPoint(Center, Radius));
@@ -904,7 +904,7 @@ var
   P: TPoint;
 begin
   P := Self.Position();
-  step := Round(SRL.GaussRand(6.0,0.6));
+  step := Round(GaussRand(6.0,0.6));
   for i := 1 to Amount do
   begin
     if Down then
@@ -914,7 +914,7 @@ begin
 
     if k mod step = 0 then
     begin
-      step := Round(SRL.GaussRand(6.0,0.6));
+      step := Round(GaussRand(6.0,0.6));
       Wait(215, 410);
       k := 0;
     end else

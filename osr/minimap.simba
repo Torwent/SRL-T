@@ -203,7 +203,7 @@ begin
   CustomMouse.MissChance := 0;
   CustomMouse.IdleInterval := 0;
 
-  Available := GetClientBounds().Expand(-10);
+  Available := TBox.Create(0, 0, GetClientWidth(), GetClientHeight()).Expand(-10);
   Degrees := FixD(Degrees);
   Remaining := Round(Self.GetCompassAngle() - Degrees);
 
@@ -217,7 +217,7 @@ begin
       Exit;
     end;
 
-    Pixels := Round(Abs(SRL.DeltaAngle(Self.GetCompassAngle(), Degrees)) * DEG_PER_PIXEL);
+    Pixels := Round(Abs(DeltaAngle(Self.GetCompassAngle(), Degrees)) * DEG_PER_PIXEL);
     LeftToRight := ((Remaining > 0) and (Abs(Remaining) <= 180)) or ((Remaining < 0) and (Abs(Remaining) > 180));
 
     MousePosition := CustomMouse.Position();
@@ -280,12 +280,12 @@ end;
 
 function TRSMinimap.IsPointOn(P: TPoint): Boolean; overload;
 begin
-  Result := SRL.PointInPoly(P, Self.GetPolygon());
+  Result := PointInPolygon(P, Self.GetPolygon());
 end;
 
 function TRSMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
 begin
-  //Result := SRL.PointInPoly(P, ExpandPolygon(Self.GetPolygon(), Expand));
+  //Result := SRL.PointInPolygon(P, ExpandPolygon(Self.GetPolygon(), Expand));
 end;
 
 function TRSMinimap.IsPoisoned: Boolean;

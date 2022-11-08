@@ -12,30 +12,6 @@ Random related methods.
 type
   EWaitDir = (wdLeft, wdMean, wdRight);
 
-//none-zero random
-function nzRandom(): Extended;
-begin
-  if SizeOf(Extended) = 10 then
-    Result := Max(Random(), 1.0e-4900) //10^-4900 seems to be our safe limit
-  else
-    Result := Max(Random(), 1.0e-320);
-end;
-
-(*
-SRL.GaussRand
-~~~~~~~~~~~~~
-.. pascal:: function TSRL.GaussRand(Mean, Dev: Double): Double;
-
-Generates a random gaussian/normal number.
-*)
-function TSRL.GaussRand(Mean, Dev: Double): Double; static;
-var 
-  len: Double;
-begin
-  len := Dev * Sqrt(-2 * Ln(nzRandom()));
-  Result := Mean + len * Cos(2 * PI * Random());
-end;
-
 (*
 SRL.RandomPoint
 ~~~~~~~~~~~~~~~
@@ -148,10 +124,10 @@ var
     best,dist: Double;
     x: TPoint;
   begin
-    best := SRL.DistToLineEx(p, Rect.Top,  Rect.Left, Result);
-    if (dist := SRL.DistToLineEx(p, Rect.Left, Rect.Bottom,  x)) < best then begin Result := x; Best := dist; end;
-    if (dist := SRL.DistToLineEx(p, Rect.Bottom,  Rect.Right,x)) < best then begin Result := x; Best := dist; end;
-    if (dist := SRL.DistToLineEx(p, Rect.Right,Rect.Top,  x)) < best then begin Result := x; Best := dist; end;
+    best := DistToLine(p, Rect.Top,  Rect.Left, Result);
+    if (dist := DistToLine(p, Rect.Left, Rect.Bottom,  x)) < best then begin Result := x; Best := dist; end;
+    if (dist := DistToLine(p, Rect.Bottom,  Rect.Right,x)) < best then begin Result := x; Best := dist; end;
+    if (dist := DistToLine(p, Rect.Right,Rect.Top,  x)) < best then begin Result := x; Best := dist; end;
   end;
 
 begin
@@ -220,5 +196,5 @@ Waits ... Regular gauss random
 *)
 procedure WaitEx(Mean, Dev: Double);
 begin
-  Wait(Abs(Trunc(SRL.GaussRand(Mean, Dev))));
+  Wait(Abs(Trunc(GaussRand(Mean, Dev))));
 end;

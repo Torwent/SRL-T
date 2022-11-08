@@ -423,7 +423,7 @@ begin
         Result := ATPA;
     end;
 
-    Result.SortBySize(False);
+    Result := Result.SortBySize(False);
   end;
 end;
 
@@ -613,7 +613,7 @@ var
   var
     I: Integer;
   begin
-    TPA.SortByX();
+    TPA := TPA.SortByX();
 
     for I := 0 to High(TPA) do
       with TPA[I] do

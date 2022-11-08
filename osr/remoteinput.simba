@@ -50,7 +50,7 @@ begin
     Self.Image.Init();
     Self.Image.SetPersistentMemory(
        PtrUInt(EIOS_GetDebugImageBuffer(Self.EIOS)),
-       GetClientBounds().Width(), GetClientBounds().Height()
+       GetClientWidth(), GetClientHeight()
     );
     
     Self.Image.Clear();
@@ -62,8 +62,10 @@ end;
 procedure TRemoteInput.LoseFocus;
 var
   Space: TBoxArray;
+  B: TBox;
 begin
-  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
+  B := TBox.Create(0,0,GetClientWidth(),GetClientHeight());
+  Space := B.Expand(50).Invert(B.Expand(1000));
 
   if (Length(Space) > 0) then
   begin
