@@ -177,20 +177,6 @@ begin
   Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(), RandomLeft(50, 1500), Random(1500, 2000));
 end;
 
-procedure TRSBank.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited;
-
-  {
-  Bitmap.DrawButtons(Self.GetButtons());
-  Bitmap.DrawBoxArray(Self.GetTabBoxes(), False, $00FFFF);
-  Bitmap.DrawBoxArray(Self.GetSlotBoxes(), False, $00FFFF);
-  }
-end;
-
 function TRSBank.IsSearching: Boolean;
 begin
   Result := Self.IsTitle('Showing items');
@@ -726,3 +712,15 @@ begin
 
   Result := inherited();
 end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if Bank.IsOpen() then
+  begin
+    Bitmap.DrawBox(Bank.Bounds, $00FFFF);
+    Bitmap.DrawBoxArray(Bank.GetSlotBoxes(), False, $00FFFF);
+  end;
+
+  inherited();
+end;
+

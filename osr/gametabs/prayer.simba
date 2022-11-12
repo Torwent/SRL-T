@@ -301,18 +301,6 @@ begin
   Result := Prayers = Self.GetActivePrayers;
 end;
 
-procedure TRSPrayer.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited();
-
-  Bitmap.DrawBoxArray(Self.GetPrayerBoxes, False, $00FFFF);
-  Bitmap.DrawBoxArray(Self.GetPrayerBoxes(Self.GetAvailablePrayers), False, $00FF22);
-  Bitmap.DrawBoxArray(Self.GetPrayerBoxes(Self.GetActivePrayers), False, $FFFFFF);
-end;
-
 procedure TRSPrayer.Setup(Name: String); override;
 begin
   inherited;
@@ -476,19 +464,6 @@ begin
   Result := QPrayers = Self.GetSelectedPrayers;
 end;
 
-procedure TRSQuickPrayer.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited();
-
-  Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(), False, $00FFFF);
-  Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers), False, $00ff22);
-  Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers), False, $FFFFFF);
-  Bitmap.DrawBox(Self.GetButton, $00FFFF);
-end;
-
 (*
 var QuickPrayer
 ~~~~~~~~~~~~~~~
@@ -646,6 +621,33 @@ begin
   for Prayer := Low(ERSPrayer) to High(ERSPrayer) do
     if Self.CanActivate(ERSPrayer(Prayer)) then
       Result += Prayer;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+var
+  Spellbook: ERSSpellBook;
+begin
+  if Prayer.IsOpen() then
+  begin
+    Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(), False, $00FFFF);
+    Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers()), False, $00FF22);
+    Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(Prayer.GetActivePrayers()), False, $FFFFFF);
+  end;
+
+  inherited();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if QuickPrayer.IsOpen() then
+  begin
+    Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(), False, $00FFFF);
+    Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers()), False, $00FF22);
+    Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(QuickPrayer.GetSelectedPrayers()), False, $FFFFFF);
+    Bitmap.DrawBox(QuickPrayer.GetButton(), $00FFFF);
+  end;
+
+  inherited();
 end;
 
 

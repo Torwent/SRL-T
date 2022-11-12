@@ -183,17 +183,6 @@ begin
   end;
 end;
 
-procedure TRSInterface.Draw(Bitmap: TMufasaBitmap);
-var
-  ScrollBar: TRSScrollBar;
-begin
-  Bitmap.DrawBox(Self.Bounds(), $00FFFF);
-
-  ScrollBar := Self.GetScrollBar();
-  if ScrollBar.IsVisible() then
-    ScrollBar.Draw(Bitmap);
-end;
-
 function TRSInterface.ClickCloseButton(PressEscape: Boolean): Boolean;
 var
   B: TBox;

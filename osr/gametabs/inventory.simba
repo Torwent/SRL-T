@@ -435,16 +435,6 @@ begin
   Result := Attempts <= 5;
 end;
 
-procedure TRSInventory.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited();
-
-  Bitmap.DrawBoxArray(Self.GetSlotBoxes(), False, $00FFFF);
-end;
-
 function TRSInventory.Count: Int32; 
 var
   I: Int32;
@@ -624,3 +614,15 @@ var
 begin
   Inventory.Setup('Inventory');
 end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if Inventory.IsOpen() then
+  begin
+    Bitmap.DrawBox(Inventory.Bounds, $FF);
+    Bitmap.DrawBoxArray(Inventory.GetSlotBoxes(), False, $00FFFF);
+  end;
+
+  inherited;
+end;
+

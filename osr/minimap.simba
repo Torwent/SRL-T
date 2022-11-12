@@ -256,28 +256,6 @@ begin
   end;
 end;
 
-procedure TRSMinimap.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  with Self.GetCompassCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.GetXPCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.GetHPCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.GetPrayerCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.GetRunCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.GetSpecAttackCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-
-  Bitmap.DrawPolygon(Self.GetPolygon(), $0000FF);
-  Bitmap.DrawTPA(Self.GetPolygon(), $00FF00);
-  Bitmap.SetPixel(Self.Center.X, Self.Center.Y, $0000FF);
-end;
-
 function TRSMinimap.IsPointOn(P: TPoint): Boolean; overload;
 begin
   Result := PointInPolygon(P, Self.GetPolygon());
@@ -285,7 +263,7 @@ end;
 
 function TRSMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
 begin
-  //Result := SRL.PointInPolygon(P, ExpandPolygon(Self.GetPolygon(), Expand));
+  Result := PointInPolygon(P, ExpandPolygon(Self.GetPolygon(), Expand));
 end;
 
 function TRSMinimap.IsPoisoned: Boolean;
@@ -311,8 +289,6 @@ begin
     end;
   end;
 end;
-
-
 
 function TRSMinimap.IsRunEnabled: Boolean;
 begin
@@ -566,11 +542,11 @@ begin
   end;
 
   Self.CompassCircleOffset[ERSClientMode.FIXED]    := [-5, 12];
-  Self.XPCircleOffset[ERSClientMode.FIXED]         := [-50, 26];
-  Self.HitpointsCircleOffset[ERSClientMode.FIXED]  := [-13, 49];
-  Self.PrayerCircleOffset[ERSClientMode.FIXED]     := [-13, 84];
-  Self.RunCircleOffset[ERSClientMode.FIXED]        := [-3, 116];
-  Self.SpecAttackCircleOffset[ERSClientMode.FIXED] := [19, 142];
+  Self.XPCircleOffset[ERSClientMode.FIXED]         := [-47, 26];
+  Self.HitpointsCircleOffset[ERSClientMode.FIXED]  := [-11, 49];
+  Self.PrayerCircleOffset[ERSClientMode.FIXED]     := [-11, 84];
+  Self.RunCircleOffset[ERSClientMode.FIXED]        := [-1, 116];
+  Self.SpecAttackCircleOffset[ERSClientMode.FIXED] := [22, 140];
   Self.PolygonOffset[ERSClientMode.FIXED]          := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
 
   Self.CompassCircleOffset[ERSClientMode.RESIZABLE_MODERN]    := [-2, 14];
@@ -596,4 +572,29 @@ var
 
 begin
   Minimap.Setup('Minimap');
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if RSClient.IsLoggedIn() then
+  begin
+    with Minimap.GetCompassCircle() do
+      Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
+    with Minimap.GetXPCircle() do
+      Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
+    with Minimap.GetHPCircle() do
+      Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
+    with Minimap.GetPrayerCircle() do
+      Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
+    with Minimap.GetRunCircle() do
+      Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
+    with Minimap.GetSpecAttackCircle() do
+      Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
+
+    Bitmap.DrawPolygon(Minimap.GetPolygon(), $0000FF);
+    Bitmap.DrawTPA(Minimap.GetPolygon(), $00FF00);
+    Bitmap.SetPixel(Minimap.Center.X, Minimap.Center.Y, $0000FF);
+  end;
+
+  inherited;
 end;

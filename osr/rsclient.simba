@@ -142,11 +142,24 @@ Setup method.
 .. note:: This is automatically called on the **RSClient** variable.
 *)
 procedure TRSClient.Setup;
+var
+  ChildWindow: TWindowHandle;
 begin
   Self.Name := 'RSClient';
 
   {$IFDEF SRL_USE_REMOTEINPUT}
   Self.RemoteInput.Setup();
+  {$ELSE}
+  // If root window is target find the actual applet window
+  if (GetTargetWindow().GetTitle() = 'Old School RuneScape') then
+    for ChildWindow in GetTargetWindow().GetChildren(True) do
+    begin
+      if (ChildWindow.GetClassName() = 'SunAwtCanvas') and (ChildWindow.GetChildren().Length() = 0) then
+      begin
+        SetTargetWindow(ChildWindow);
+        Exit;
+      end;
+    end;
   {$ENDIF}
 end;
 

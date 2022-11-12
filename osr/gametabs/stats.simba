@@ -147,16 +147,6 @@ begin
   Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([RSColors.TEXT_YELLOW]), RS_FONT_PLAIN_11);
 end;
 
-procedure TRSStats.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited();
-
-  Bitmap.DrawBoxArray(Self.GetSkillBoxes(), False, $00FFFF);
-end;
-
 procedure TRSStats.Setup(Name: String); override;
 begin
   inherited;
@@ -169,5 +159,13 @@ var
 
 begin
   Stats.Setup('Stats');
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if Stats.IsOpen() then
+    Bitmap.DrawBoxArray(Stats.GetSkillBoxes(), False, $00FFFF);
+
+  inherited();
 end;
 

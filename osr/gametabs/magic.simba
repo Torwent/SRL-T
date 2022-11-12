@@ -569,18 +569,6 @@ begin
   Result := Self.MouseSpell(Spell, MOUSE_LEFT) and WaitUntil((Self.IsOpen() and (Self.GetSelectedSpell() = Spell)) or Inventory.IsOpen(), 100, RandomLeft(1000, 2000));
 end;
 
-procedure TRSMagic.Draw(Bitmap: TMufasaBitmap); override;
-var
-  Spellbook: ERSSpellBook;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited();
-
-  Bitmap.DrawBoxArray(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
-end;
-
 procedure TRSMagic.Setup(Name: String); override;
 begin
   inherited;
@@ -598,4 +586,17 @@ var
 
 begin
   Magic.Setup('Magic');
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+var
+  Spellbook: ERSSpellBook;
+begin
+  if Magic.IsOpen() then
+  begin
+    Bitmap.DrawBox(Magic.Bounds, $FF);
+    Bitmap.DrawBoxArray(Magic.GetSpellBoxes(SpellBook), False, $00FFFF);
+  end;
+
+  inherited;
 end;

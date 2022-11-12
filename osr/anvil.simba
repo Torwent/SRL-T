@@ -18,6 +18,8 @@ type
     ELEMENT_QUANTITY_4: TRSInterfaceElement = [453, 171, 36, 36];
     ELEMENT_QUANTITY_5: TRSInterfaceElement = [453, 216, 36, 36];
     ELEMENT_ITEM_AREA:  TRSInterfaceElement = [10, 36, 385, 275];
+
+    QUANTITY_ALL: Integer = -1;
   end;
 
 function TRSAnvil.FindItemBoundaries: TBoxArray;
@@ -27,6 +29,38 @@ begin
   B := Self.ElementFinder.Bounds(Self.ELEMENT_ITEM_AREA);
 
   Result := B.Partition(5,5);
+end;
+
+function TRSAnvil.SetQuantity(Amount: Integer): Boolean;
+var
+  Text: String;
+  Element: TRSInterfaceElement;
+begin
+  // Already selected?
+  for Element in [Self.ELEMENT_QUANTITY_1, Self.ELEMENT_QUANTITY_2, Self.ELEMENT_QUANTITY_3, Self.ELEMENT_QUANTITY_4, Self.ELEMENT_QUANTITY_5] do
+  begin
+    Text := Self.ElementFinder.ReadText(Element, [RSColors.TEXT_WHITE], RS_FONT_PLAIN_11);
+    if (Text = ToStr(Amount)) or ((Amount = Self.QUANTITY_ALL) and (Text in ['AII', 'All'])) then
+      Exit(True);
+  end;
+
+  // Select
+  for Element in [Self.ELEMENT_QUANTITY_1, Self.ELEMENT_QUANTITY_2, Self.ELEMENT_QUANTITY_3, Self.ELEMENT_QUANTITY_4, Self.ELEMENT_QUANTITY_5] do
+  begin
+    Text := Self.ElementFinder.ReadText(Element, [RSColors.TEXT_ORANGE], RS_FONT_PLAIN_11);
+    if (Text = ToStr(Amount)) or ((Amount = Self.QUANTITY_ALL) and (Text in ['AII', 'All'])) then
+      Self.ElementFinder.Click(Element);
+  end;
+
+  // Must be custom
+  for Element in [Self.ELEMENT_QUANTITY_1, Self.ELEMENT_QUANTITY_2, Self.ELEMENT_QUANTITY_3, Self.ELEMENT_QUANTITY_4, Self.ELEMENT_QUANTITY_5] do
+    if Self.ElementFinder.HasText(Element, [RSColors.TEXT_ORANGE], 'X', RS_FONT_PLAIN_11) then
+    begin
+      Self.ElementFinder.Click(Element);
+
+      Result := Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2500, 3500));
+      Exit;
+    end;
 end;
 
 (*

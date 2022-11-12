@@ -130,13 +130,6 @@ begin
   Self.Cache := [ClientWidth, ClientHeight, ClientMode, Result, Boxes];
 end;
 
-procedure TRSGameTabs.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  //Bitmap.DrawBoxArray(Self.GetTabBoxes(), False, $00FFFF);
-end;
-
 procedure TRSGameTabs.Setup(Name: String); override;
 begin
   inherited;
@@ -149,5 +142,16 @@ var
 
 begin
   GameTabs.Setup('GameTabs');
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if RSClient.IsLoggedIn() then
+  begin
+    Bitmap.DrawBox(GameTabs.Bounds, $FF);
+    Bitmap.DrawBoxArray(GameTabs.Cache.TabBoxes, False, $FF);
+  end;
+
+  inherited;
 end;
 

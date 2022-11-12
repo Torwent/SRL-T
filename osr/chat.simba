@@ -48,15 +48,6 @@ type
 
   TRSChat = record(TRSInterface)
   class const
-    ELEMENT_LINE_INPUT:  TRSInterfaceElement = [10, 122, 484, 14];
-    ELEMENT_LINE_7:      TRSInterfaceElement = [10, 106, 484, 14];
-    ELEMENT_LINE_6:      TRSInterfaceElement = [10, 92, 484, 14];
-    ELEMENT_LINE_5:      TRSInterfaceElement = [10, 78, 484, 14];
-    ELEMENT_LINE_4:      TRSInterfaceElement = [10, 64, 484, 14];
-    ELEMENT_LINE_3:      TRSInterfaceElement = [10, 50, 484, 14];
-    ELEMENT_LINE_2:      TRSInterfaceElement = [10, 36, 484, 14];
-    ELEMENT_LINE_1:      TRSInterfaceElement = [10, 22, 484, 14];
-    ELEMENT_LINE_0:      TRSInterfaceElement = [10, 8, 484, 14];
     ELEMENT_TAB_ALL:     TRSInterfaceElement = [7, 142, 48, 22];
     ELEMENT_TAB_GAME:    TRSInterfaceElement = [69, 142, 48, 22];
     ELEMENT_TAB_PUBLIC:  TRSInterfaceElement = [132, 142, 47, 22];
@@ -64,6 +55,12 @@ type
     ELEMENT_TAB_CHANNEL: TRSInterfaceElement = [255, 142, 48, 22];
     ELEMENT_TAB_CLAN:    TRSInterfaceElement = [317, 142, 48, 22];
     ELEMENT_TAB_TRADE:   TRSInterfaceElement = [379, 142, 48, 22];
+  var
+    LineCache: record
+      ClientWidth, ClientHeight: Integer;
+      ClientMode: ERSClientMode;
+      Boxes: TBoxArray;
+    end;
   end;
 
 function TRSChat.GetTabBox(Tab: ERSChatTab): TBox;
@@ -88,6 +85,8 @@ end;
 function TRSChat.OpenTab(Tab: ERSChatTab): Boolean;
 begin
   Mouse.Click(Self.GetTabBox(Tab), MOUSE_LEFT);
+
+  Result := WaitUntil(Self.GetCurrentTab() = Tab, 100, 1000);
 end;
 
 function TRSChat.GetTabState(Tab: ERSChatTab): String;
@@ -108,14 +107,36 @@ begin
   Result := ChooseOption.Select(State);
 end;
 
-function TRSChat.GetLineBox(Index: Integer): TBox;
-const
-  Elements: TRSInterfaceElementArray := [
-    Self.ELEMENT_LINE_0, Self.ELEMENT_LINE_1, Self.ELEMENT_LINE_2, Self.ELEMENT_LINE_3,
-    Self.ELEMENT_LINE_4, Self.ELEMENT_LINE_5, Self.ELEMENT_LINE_6, Self.ELEMENT_LINE_7
-  ];
+function TRSChat.GetLineBoxes: TBoxArray;
+var
+  ClientW, ClientH: Integer;
 begin
-  Result := Self.ElementFinder.Bounds(Elements[Index]);
+  GetClientDimensions(ClientW, ClientH);
+
+  // Update cache if changes
+  if (Self.LineCache.ClientMode <> RSClient.ClientMode()) or
+     (Self.LineCache.ClientWidth <> ClientW) or (Self.LineCache.ClientHeight <> ClientH) then
+  begin
+    Self.LineCache := [
+      ClientW, ClientH,
+      RSClient.ClientMode(),
+      TBoxArray.Create([Self.X1 + 10, Self.Y1 + 8], 1, 9, Self.Width - 35, 13, [0, 1])
+    ];
+
+    Self.LineCache.Boxes[Self.LineCache.Boxes.High] := Self.LineCache.Boxes[Self.LineCache.Boxes.High].Offset(0, 2);
+  end;
+
+  Result := Self.LineCache.Boxes;
+end;
+
+function TRSChat.GetLineBox(Index: Integer): TBox;
+begin
+  Result := Self.GetLineBoxes[Index];
+end;
+
+function TRSChat.GetInputLineBox: TBox;
+begin
+  Result := Self.GetLineBoxes.Last;
 end;
 
 (*
@@ -135,7 +156,7 @@ function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]; o
 var
   TPA: TPointArray;
 begin
-  Result := Self.ElementFinder.Bounds(Self.ELEMENT_LINE_INPUT);
+  Result := Self.GetInputLineBox();
   for Color in Colors do
     if SRL.FindColors(TPA, Color, Result) then
       Exit(TPA.Bounds());
@@ -491,11 +512,11 @@ Example
 *)
 function TRSChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
 var
-  I: Int32;
+  Str: String;
 begin
-  //for I := 0 to CHAT_INPUT_LINE - 1 do
-  //  if Message in Self.GetMessage(I, Colors) then
-  //    Exit(True);    
+  for Str in Self.GetMessages(Colors) do
+    if (Message in Str) then
+      Exit(True);
 end;
 
 (*
@@ -599,4 +620,16 @@ var
 
 begin
   Chat.Setup('Chat');
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if Chat.IsOpen() then
+  begin
+    Bitmap.DrawBoxArray(Chat.GetLineBoxes(), False, $FF);
+    if Chat.GetScrollBar().IsVisible() then
+      Chat.GetScrollBar().Draw(Bitmap);
+  end;
+
+  inherited;
 end;

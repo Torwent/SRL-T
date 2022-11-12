@@ -409,15 +409,6 @@ begin
   Result := Self.Players[Self.PlayerIndex].BioHash;
 end;
 
-
-procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited;
-end;
-
 procedure TRSLogin.Setup(Name: String); override;
 begin
   inherited;
@@ -441,4 +432,12 @@ var
 
 begin
   Login.Setup('Login');
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if Login.IsOpen() then
+    Bitmap.DrawBox(Login.Bounds, $FF);
+
+  inherited;
 end;

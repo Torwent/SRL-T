@@ -518,7 +518,6 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
   var
     TPA: TPointArray;
     B: TBox;
-    Text: String;
     Hit: Int32;
   begin
     if SRL.FindColors(TPA, CTS0(Color), Area) = 0 then
@@ -821,19 +820,6 @@ begin
   end;
 end;
 
-procedure TRSMainScreen.Draw(Bitmap: TMufasaBitmap); override;
-var
-  Splat: TRSHitsplat;
-  Bar: TRSHPBar;
-begin
-  inherited;
-
-  for Splat in Self.FindHitsplats() do
-    Bitmap.DrawCircle(Splat.Position, 10, $00FF00);
-  for Bar in Self.FindHPBars() do
-    Bitmap.DrawBox(Bar.Bounds, $00FFFF);
-end;
-
 procedure TRSMainScreen.Setup(Name: String); override;
 begin
   inherited;
@@ -878,3 +864,18 @@ begin
   MainScreen.Setup('MainScreen');
 end;
 
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+var
+  Splat: TRSHitsplat;
+  Bar: TRSHPBar;
+begin
+  if RSClient.IsLoggedIn() then
+  begin
+    for Splat in MainScreen.FindHitsplats() do
+      Bitmap.DrawCircle(Splat.Position, 10, $00FF00);
+    for Bar in MainScreen.FindHPBars() do
+      Bitmap.DrawBox(Bar.Bounds, $00FFFF);
+  end;
+
+  inherited();
+end;

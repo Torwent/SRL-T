@@ -30,14 +30,6 @@ begin
   Result := WaitUntil(Self.IsOpen(), RandomLeft(100, 1000), 3000);
 end;
 
-procedure TRSXPBar.Draw(Bitmap: TMufasaBitmap); override;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  inherited;
-end;
-
 function TRSXPBar.Size: ERSXPBarSize;
 begin
   case Self.Bounds.Width of
@@ -109,4 +101,12 @@ var
 
 begin
   XPBar.Setup('XPBar');
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if XPBar.IsOpen() then
+    Bitmap.DrawBox(XPBar.Bounds(), $00FFFF);
+
+  inherited();
 end;
