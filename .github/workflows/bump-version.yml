@@ -1,0 +1,49 @@
+name: Bump version
+on:   
+  workflow_run:
+    workflows: ["Compile Test"]
+    branches: [master]
+    types:
+      - completed
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.2.0
+                    
+    - name: Generate Conventional Changelog
+      id: changelog
+      uses: TriPSs/conventional-changelog-action@v3.8.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        git-message: 'chore(release): {version}'
+        preset: 'angular'
+        tag-prefix: 'v'
+        output-file: 'CHANGELOG.md'
+        skip-version-file: 'true'
+        skip-on-empty: 'true'
+        skip-commit: 'false'
+    
+    - name: Make a new version.txt file
+      if: ${{ steps.changelog.outputs.skipped == 'false' }}
+      shell: bash
+      run: echo ${{ steps.changelog.outputs.tag }} > version.txt
+      
+    - name: Rewrite version.txt file with the new one
+      uses: test-room-7/action-update-file@v1
+      if: ${{ steps.changelog.outputs.skipped == 'false' }}
+      with:
+        file-path: version.txt
+        commit-msg: Bump version.txt and CHANGELOG.md
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Create a release from the recent changes
+      uses: actions/create-release@v1
+      if: ${{ steps.changelog.outputs.skipped == 'false' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.changelog.outputs.tag }}
+        release_name: ${{ steps.changelog.outputs.tag }}
+        body: ${{ steps.changelog.outputs.clean_changelog }}
