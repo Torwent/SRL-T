@@ -224,11 +224,11 @@ Example
 *)
 function TRSOptions.GetCurrentTab(): ERSOptionsTab;
 begin
-  if Self.ElementFinder.HasColor(Self.ELEMENT_TAB_AUDIO, [2700606]) then
+  if Self.ElementFinder.CountColor(Self.ELEMENT_TAB_AUDIO, [2700606]) > 1000 then
     Exit(ERSOptionsTab.AUDIO);
-  if Self.ElementFinder.HasColor(Self.ELEMENT_TAB_CONTROL, [2700606]) then
+  if Self.ElementFinder.CountColor(Self.ELEMENT_TAB_CONTROL, [2700606]) > 1000 then
     Exit(ERSOptionsTab.CONTROLS);
-  if Self.ElementFinder.HasColor(Self.ELEMENT_TAB_DISPLAY, [2700606]) then
+  if Self.ElementFinder.CountColor(Self.ELEMENT_TAB_DISPLAY, [2700606]) > 1000 then
     Exit(ERSOptionsTab.DISPLAY);
 end;
 
