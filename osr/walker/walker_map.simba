@@ -61,7 +61,7 @@ var
 begin
   if ExtractFileExt(FileName) <> '.bmp' then
   begin
-    Result := DATAPATH + 'map_' + SHA1File(FileName) + '.bmp';
+    Result := DATAPATH + 'RSWalker' + DirectorySeparator + 'map_' + SHA1File(FileName) + '.bmp';
     if not FileExists(Result) then
     begin
       WriteLn('Caching ' + ExtractFileName(FileName) + ' this can take ~10 seconds.');
@@ -284,7 +284,6 @@ begin
   for i := 0 to High(Self.Regions) do
     if p.InBox(Self.Regions[i]) then
     begin
-      WriteLn('Result: ', Result, ' Offset: ',Self.RegionOffsets[i], ' Box:', Self.Regions[i]);
       Result += Self.RegionOffsets[i] - [Self.Regions[I].X1, Self.Regions[I].Y1];
       Exit(Result);
     end;
