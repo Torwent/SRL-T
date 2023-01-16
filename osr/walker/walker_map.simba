@@ -270,20 +270,24 @@ end;
 (*
 TRSWalkerMap.RegionToGlobal
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSWalkerMap.RegionToGlobal(P: TPoint): TPoint;
+.. pascal:: function TRSWalkerMap.RegionToGlobal(p: TPoint): TPoint;
 
 Internal TRSWalkerMap function used to convert a region point **p** to a global point.
 This is responsible for converting WalkerMap region point to the coordinates of that same point in the original map file the regions were cropped from.
 You probably don't need to ever call this but can be useful for debugging.
 *)
-function TRSWalkerMap.RegionToGlobal(P: TPoint): TPoint;
+function TRSWalkerMap.RegionToGlobal(p: TPoint): TPoint;
 var
-  I: Integer;
+  i: Integer;
 begin
-  Result := P;
-  for I := 0 to High(Self.Regions) do
-    if P.InBox(Self.Regions[I]) then
-      Exit(Result + Self.RegionOffsets[I]);
+  Result := p;
+  for i := 0 to High(Self.Regions) do
+    if p.InBox(Self.Regions[i]) then
+    begin
+      WriteLn('Result: ', Result, ' Offset: ',Self.RegionOffsets[i], ' Box:', Self.Regions[i]);
+      Result += Self.RegionOffsets[i] - [Self.Regions[I].X1, Self.Regions[I].Y1];
+      Exit(Result);
+    end;
 end;
 
 (*
