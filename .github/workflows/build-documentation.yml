@@ -17,7 +17,7 @@ jobs:
           python3 docgen.py ../../
 
       - name: Deploy Documentation
-        uses: JamesIves/github-pages-deploy-action@4.4.1
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
           BRANCH: documentation
           FOLDER: docs/docgen/build/
