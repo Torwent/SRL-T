@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/Torwent/SRL-T/compare/v1.0.0...v1.0.1) (2023-01-16)
+
+
+### Bug Fixes
+
+* **walker:** fixed a nasty bad that slip my hands. ([09f36f9](https://github.com/Torwent/SRL-T/commit/09f36f9f548bb56f5aef1ba412e91a8de121df32))
+
+
+
 # [1.0.0](https://github.com/Torwent/SRL-T/compare/v0.1.0...v1.0.0) (2023-01-16)
 
 
