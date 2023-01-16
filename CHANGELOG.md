@@ -1,3 +1,12 @@
+## [1.0.2](https://github.com/Torwent/SRL-T/compare/v1.0.1...v1.0.2) (2023-01-16)
+
+
+### Bug Fixes
+
+* added a delay to mouse drag ([44c521b](https://github.com/Torwent/SRL-T/commit/44c521b616061a7b12acd41df3d3b2141a00c230))
+
+
+
 ## [1.0.1](https://github.com/Torwent/SRL-T/compare/v1.0.0...v1.0.1) (2023-01-16)
 
 
