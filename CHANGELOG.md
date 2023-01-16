@@ -1,4 +1,18 @@
-# 0.1.0 (2022-11-22)
+# [1.0.0](https://github.com/Torwent/SRL-T/compare/v0.1.0...v1.0.0) (2023-01-16)
+
+
+### Features
+
+* simba1500 walker backport ([1d2765e](https://github.com/Torwent/SRL-T/commit/1d2765e041e1c468f7c660f4131c4f90f29779df))
+
+
+### BREAKING CHANGES
+
+* This update breaks compatibility with everything! If you update to this version, you will need to update WaspLib as well and the scripts that use them.
+
+
+
+# [0.1.0](https://github.com/Torwent/SRL-T/compare/f65bc17a9d9cfb93a5b76ffa3ff072c44e92c3cf...v0.1.0) (2022-11-22)
 
 
 ### Bug Fixes
