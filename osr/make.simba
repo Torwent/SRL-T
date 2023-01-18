@@ -165,7 +165,7 @@ Make.GetFreeSpace
 ~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSMake.GetFreeSpace(): TPointArray;
 
-Get a random point in the chatbox that does not belong to one of the make item buttons.
+Get a TPointArray of the chatbox that does not have a single point in any of the make item buttons.
 
 Example
 -------
