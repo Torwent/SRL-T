@@ -355,7 +355,6 @@ begin
       while Self.IsOpen() do
       begin
         message := Self.GetLoginMessage();
-        WriteLn message;
         if (message <> LOGIN_MESSAGE_CONNECTING) and
            (message <> LOGIN_MESSAGE_NONE) then
           Break;
