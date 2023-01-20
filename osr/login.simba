@@ -53,6 +53,7 @@ const
   LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED = 'Login limit exceeded';
   LOGIN_MESSAGE_WORLD_FULL = 'This world is full';
   LOGIN_MESSAGE_ACCOUNT_DISABLED = 'Your account has been disabled';
+  LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER = 'Your account has been involved';
   LOGIN_MESSAGE_MEMBERS = 'You need a members account';
   LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
   LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
@@ -70,6 +71,7 @@ const
     LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED,
     LOGIN_MESSAGE_WORLD_FULL,
     LOGIN_MESSAGE_ACCOUNT_DISABLED,
+    LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER,
     LOGIN_MESSAGE_MEMBERS,
     LOGIN_MESSAGE_IN_MEMBERS_AREA
   ];
@@ -264,6 +266,7 @@ begin
     LOGIN_MESSAGE_IN_MEMBERS_AREA,
     LOGIN_MESSAGE_NEED_SKILL_TOTAL,
     LOGIN_MESSAGE_ACCOUNT_DISABLED,
+    LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER,
     LOGIN_MESSAGE_AUTHENTICATOR:
       Result := False;
 
@@ -320,21 +323,21 @@ end;
 
 function TRSLogin.LoginPlayer: Boolean;
 var
-  Message: String;
-  Attempts, World: Int32;
-  Player: TRSLoginPlayer;
+  message: String;
+  attempts, World: Int32;
+  player: TRSLoginPlayer;
 begin
   Self.DebugLn('Logging in player');
 
-  Player := Self.GetPlayer();
-  if (Player.User = '') or (Player.Password = '') then
+  player := Self.GetPlayer();
+  if (player.User = '') or (player.Password = '') then
     Self.Fatal('Player has no username or password');
 
-  while Self.IsOpen() and (Attempts < 10) do
+  while Self.IsOpen() and (attempts < 10) do
   begin
-    Self.DebugLn('Attempt ' + ToString(Attempts + 1));
+    Self.DebugLn('Attempt ' + ToString(attempts + 1));
     
-    if (Player.Worlds <> []) and (not (Self.GetCurrentWorld() in Player.Worlds)) then
+    if (player.Worlds <> []) and (not (Self.GetCurrentWorld() in player.Worlds)) then
     begin
       World := Player.Worlds[Random(Length(Player.Worlds))];
       if (not Self.SwitchToWorld(World)) then
@@ -344,23 +347,30 @@ begin
     if Self.HandleDialogs() then
       Wait(500);
 
-    if Self.EnterField('Login:', Player.User) and
-       Self.EnterField('Password:', Player.Password) then
+    if Self.EnterField('Login:', player.User) and
+       Self.EnterField('Password:', player.Password) then
     begin
       Keyboard.PressKey(VK_ENTER);
   
-      while Self.IsOpen() and (Self.GetLoginMessage() in [LOGIN_MESSAGE_CONNECTING, LOGIN_MESSAGE_NONE]) do
+      while Self.IsOpen() do
+      begin
+        message := Self.GetLoginMessage();
+        WriteLn message;
+        if (message <> LOGIN_MESSAGE_CONNECTING) and
+           (message <> LOGIN_MESSAGE_NONE) then
+          Break;
+
         Wait(500);
-  
+      end;
+
       if Self.IsOpen() then
       begin
-        Message := Self.GetLoginMessage();
-        if not Self.HandleMessage(Message) then
+        if not Self.HandleMessage(message) then
           Exit(False);
       end;
     end;
     
-    Inc(Attempts);
+    Inc(attempts);
   end;
 
   Result := Self.EnterGame();
