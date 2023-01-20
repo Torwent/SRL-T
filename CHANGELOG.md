@@ -1,4 +1,13 @@
-## 1.0.3 (2023-01-18)
+## [1.0.4](https://github.com/Torwent/SRL-T/compare/v1.0.3...v1.0.4) (2023-01-20)
+
+
+### Bug Fixes
+
+* added missing login message ([1e33c88](https://github.com/Torwent/SRL-T/commit/1e33c88f83b070a4471f88df0a1ca7786b9dded2))
+
+
+
+## [1.0.3](https://github.com/Torwent/SRL-T/compare/f65bc17a9d9cfb93a5b76ffa3ff072c44e92c3cf...v1.0.3) (2023-01-18)
 
 
 ### Bug Fixes
