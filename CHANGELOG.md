@@ -1,3 +1,12 @@
+## [1.0.5](https://github.com/Torwent/SRL-T/compare/v1.0.4...v1.0.5) (2023-01-20)
+
+
+### Bug Fixes
+
+* remove left over debugging ([06e1230](https://github.com/Torwent/SRL-T/commit/06e1230cbbe00b2761e317df2d0cfed43c5aa6e1))
+
+
+
 ## [1.0.4](https://github.com/Torwent/SRL-T/compare/v1.0.3...v1.0.4) (2023-01-20)
 
 
