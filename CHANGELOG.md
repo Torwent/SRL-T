@@ -1,3 +1,12 @@
+## [1.0.6](https://github.com/Torwent/SRL-T/compare/v1.0.5...v1.0.6) (2023-01-21)
+
+
+### Bug Fixes
+
+* typo in Antiban.OnSleeping ([7ad51e8](https://github.com/Torwent/SRL-T/commit/7ad51e8a5642624cc606c548e59efe21e7262bd4))
+
+
+
 ## [1.0.5](https://github.com/Torwent/SRL-T/compare/v1.0.4...v1.0.5) (2023-01-20)
 
 
