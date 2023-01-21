@@ -1,3 +1,8 @@
+(*
+GrandExchange
+=============
+Methods to interact with the grand exchange.
+*)
 {$DEFINE SRL_GRANDEXCHANGE_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -474,11 +479,11 @@ var
   GrandExchange: TRSGrandExchange;
 
 (*
-BankScreen.Open
-~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
+Bank.Open
+~~~~~~~~~
+.. pascal:: function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
 
-Overrides **BankScreen.Open** to support opening the grand exchange.
+Overrides **Bank.Open** to support opening the grand exchange.
 *)
 function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
 begin
