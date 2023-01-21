@@ -1,3 +1,12 @@
+## [1.0.7](https://github.com/Torwent/SRL-T/compare/v1.0.6...v1.0.7) (2023-01-21)
+
+
+### Bug Fixes
+
+* TRSLogin tweaks and documentation ([a87e92d](https://github.com/Torwent/SRL-T/commit/a87e92dfbc6114ecc0d9d744f144a5c194c1500a))
+
+
+
 ## [1.0.6](https://github.com/Torwent/SRL-T/compare/v1.0.5...v1.0.6) (2023-01-21)
 
 
