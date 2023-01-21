@@ -55,7 +55,7 @@ type
     MinZoom, MaxZoom: Int32;
 
     OnStartSleep: procedure(Task: PSleepTask);
-    OnSleeping: procedure(Task: PBreakTask; var Countdown: TCountdown);
+    OnSleeping: procedure(Task: PSleepTask; var Countdown: TCountdown);
     OnFinishSleep: procedure(Task: PSleepTask);
 
     OnStartBreak: procedure(Task: PBreakTask);
