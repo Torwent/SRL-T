@@ -1,0 +1,250 @@
+
+Minimap to Mainscreen
+=====================
+The core for our minimap to mainscreen projection.
+Supports rotation, and zoom, and resizable client.
+
+MM2MS extends the Minimap interface as well as the mainscreen interface with
+functionality to convert coordinates to & from the minimap to the mainscreen.
+
+
+------------
+
+type TMM2MS
+~~~~~~~~~~~
+
+  type
+    TMM2MS = record
+      BASE_W, BASE_H: Int32;        // the size of the area we project to (mainscreen size)
+      MainScreen.Middle.X, MainScreen.Middle.Y: Int32;            // the center of the area we project to (mainscreen center)
+      MMCX, MMCY: Int32;            // the center of the area we project from (minimap center)
+      SCALE_MIN, SCALE_MAX: Double; // direct zoom (relates to BASE)
+      ZOOM: Double;                 // current zoom
+      YSHIFT: Double;               // zooming may cause mid-Y to shift
+    end;
+
+The comments explains it. This is the datastructure MM2MS uses.
+
+
+------------
+
+var MM2MS
+~~~~~~~~~
+
+  var MM2MS: TMM2MS;
+
+The global variable which you would refer to.
+
+
+------------
+
+Minimap
+------------------------------------------------------
+Extend the minimap-functionality with MM2MS functions
+
+
+------------
+
+Minimap.ArrToMs
+~~~~~~~~~~~~~~~
+
+  function TRSMinimap.ArrToMs(Arr: Vector3Array; Roll:Single=$FFFF): TPointArray; overload;
+  function TRSMinimap.ArrToMs(Arr: TPointArray; Roll:Single=$FFFF): TPointArray; overload;
+
+Takes array of points on the minimap, returns mainscreen projected array of points.
+The first method takes a vector3 array as input, so we can pass height as well, and more detailed coordinates to scale.
+
+
+------------
+
+Minimap.VecToMs
+~~~~~~~~~~~~~~~
+function TRSMinimap.VecToMs(Vec: Vector3; Roll:Single=$FFFF): TPoint;
+
+Takes a single coordinate as a Vector3 on the minimap, and converts it to a point on the mainscreen.
+
+*ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
+
+
+------------
+
+Minimap.PointToMs
+~~~~~~~~~~~~~~~~~
+function TRSMinimap.PointToMs(PT: TPoint; Roll:Single=$FFFF): TPoint;
+
+Takes a single coordinate as a TPoint on the minimap, and converts it to a point on the mainscreen.
+
+*ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
+
+
+------------
+
+Minimap.VecToMsRect
+~~~~~~~~~~~~~~~~~~~
+function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;
+
+Takes a single coordinate as a Vector3 on the minimap, and converts it to a rectangle / tile on the mainscreen.
+
+*WESize* is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+*NSSize* is the size of the rectangle we want to get from north-to-south measured in RS tiles.
+
+By default this values are 1 which will return you one single tile.
+If you wanted to get the tiles of a runecrafting altar for example which is 3 by 3 tiles you would set both to 3.
+
+*ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
+
+
+------------
+
+Minimap.PointToMsRect
+~~~~~~~~~~~~~~~~~~~~~
+function TRSMinimap.PointToMsRect(PT: TPoint; Roll:Single=$FFFF): TRectangle;
+
+Takes a single coordinate as a TPoint on the minimap, and converts it to a rectangle / tile on the mainscreen.
+
+*WESize* is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+*NSSize* is the size of the rectangle we want to get from north-to-south measured in RS tiles.
+
+By default this values are 1 which will return you one single tile.
+If you wanted to get the tiles of a runecrafting altar for example which is 3 by 3 tiles you would set both to 3.
+
+*ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
+
+
+------------
+
+Minimap.GetTileMS
+~~~~~~~~~~~~~~~~~
+function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TRectangle;
+
+This is a more general usage version of the previous 2 functions. This one can take height into account throught the **TileVector**.
+
+TileVector is used to specify the size and height of the tile:
+**TileVector.X** is the size of the rectangle from west to east in game.
+**TileVector.Y** is the size of the rectangle from north to south in game.
+**TileVector.Z** is the height of the rectangle in game. There's no way to accurately measure it but for a rough idea, a player's height is about 6 or 7.
+
+*ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
+
+
+------------
+
+Minimap.StaticToMsRect
+~~~~~~~~~~~~~~~~~~~~~~
+function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; Height:Int32=0): TRectangle;
+
+Takes static minimap coordinate, rotates it to compass angle, and returns a rectangle on the mainscreen
+The static point is therefor gathered at north, and it will rotate it as expected.
+
+*WESize* is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+*NSSize* is the size of the rectangle we want to get from north-to-south measured in RS tiles.
+
+
+------------
+
+Minimap.StaticToMs
+~~~~~~~~~~~~~~~~~~
+function TRSMinimap.StaticToMs(StaticMMPoint: TPoint; Height:Int32=0): TPoint;
+
+This is the same as the above, only that it returns a single point on the mainscreen.
+
+
+------------
+
+Minimap.GetZoomRectangle
+~~~~~~~~~~~~~~~~~~~~~~~~
+function TRSMinimap.GetZoomRectangle(): TRectangle;
+
+This function returns an accurate rectangle of what's visible on the MainScreen on the Minimap.
+This can be used to know if it's possible to make something visible by adjusting the zoom level or rotating the camera.
+
+Example::
+
+  Debug(Minimap.GetZoomRectangle());
+
+
+------------
+
+Minimap.PointInZoomRectangle()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function Minimap.PointInZoomRectangle(P: TPoint): Boolean;
+
+Check if a given point is within our zoom rectangle, in other words, in visible in the Mainscreen.
+
+Example::
+
+  P := Minimap.GetDots(ERSMinimapDot.ITEM)[0]; //find an item dot and returns it's coodinates.
+  WriteLn Minimap.PointInZoomRadius(P);
+
+
+------------
+
+Mainscreen
+----------
+Extend the mainscreen-functionality with MS2MM function
+
+
+------------
+
+Mainscreen.PointToMM
+~~~~~~~~~~~~~~~~~~~~
+function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3;
+
+Takes a mainscreen point and converts it to a point on the minimap.
+
+Returns a Vector3 which includes input height. Conversion to a TPoint if that's what you need is simply
+done by calling `.ToPoint` on the result.
+
+Example::
+
+  WriteLn Mainscreen.PointToMM(Point(250,140), 2);
+  WriteLn Mainscreen.PointToMM(Point(250,140), 2).ToPoint(); // as a TPoint (lost accuracy)
+
+
+------------
+
+MainScreen.NormalizeDistance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.NormalizeDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
+
+Converts a distance acquired from the **fixed client* and **default zoom** to the
+current mainscreen.
+
+Example
+-------
+.. code-block:: pascal  
+
+  // 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom & client size.
+  WriteLn(MainScreen.TranslateDistance(20));
+
+
+------------
+
+MainScreen.GetPlayerBox
+~~~~~~~~~~~~~~~~~~~~~~~
+function TRSMainScreen.GetPlayerBox: TBox;
+
+Returns a box surrounding our player. Works at any zoom level.
+
+
+------------
+
+MainScreen.FacePoint
+~~~~~~~~~~~~~~~~~~~~
+function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+
+Rotates the camera to face point `P`.
+
+
+------------
+
+Options.SetZoomLevel
+~~~~~~~~~~~~~~~~~~~~
+function TRSOptions.SetZoomLevel(Level: Int32): Boolean; override;
+
+Override to automatically update MM2MS.ZoomLevel.
+
+
+------------

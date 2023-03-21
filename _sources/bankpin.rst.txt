@@ -1,0 +1,135 @@
+
+BankPin
+=======
+Methods to interact with the bank pin interface.
+
+
+------------
+
+type TRSBankPin
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ TRSBankPin = type TRSTitledInteface;
+
+Record responsible for the bank pin methods.
+
+
+------------
+
+BankPin.Setup
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSBankPin.Setup(); override;
+
+Internal method called automatically by SRL.Setup().
+
+
+------------
+
+BankPin.SetupAlignment
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSBankPin.SetupAlignment(Mode: ERSClientMode); override;
+
+Internal method called automatically TRSClient.ClientModeChanged().
+
+
+------------
+
+BankPin.GetButtons
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBankPin.GetButtons(): TRSButtonArray;
+
+Internal method used to retrieve the buttons of the bank pin interface.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(BankPin.GetButtons());
+
+
+------------
+
+BankPin.ClickDigit
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBankPin.ClickDigit(digit: Char): Boolean;
+
+Method used to click the button with **digit**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  BankPin.ClickDigit('5');
+
+
+------------
+
+BankPin.Enter
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBankPin.Enter(pin: String): Boolean;
+
+Method used to enter a full bank pin number.
+
+Example
+-------
+.. code-block:: pascal  
+
+  BankPin.Enter('0123');
+
+
+------------
+
+BankPin.IsOpen
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TRSBankPin.IsOpen(): Boolean;
+  function TRSBankPin.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
+
+Returns true or false if the bank pin is open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn BankPin.IsOpen();
+
+
+------------
+
+BankPin.Draw
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSBankPin.Draw(Bitmap: TMufasaBitmap); override;
+
+Draws the interface elements of the bank pin interface in a bitmap. Only used for debugging.
+Automatically called with **SRL.Debug()** if the bank pin is open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  SRL.Debug();
+
+
+------------
+
+var BankPin
+~~~~~~~~~~~
+Global BankPin variable.
+
+
+------------

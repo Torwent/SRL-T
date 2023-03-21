@@ -1,0 +1,97 @@
+
+RSClient
+========
+Methods relating to targeting the RS client and detecting client states.
+
+if `SRL_DISABLE_REMOTEINPUT` is defined. RemoteInput plugin will not be loaded.
+if `SRL_USE_REMOTEINPUT` is defined. RemoteInput will be automatically setup.
+if `SRL_USE_REMOTEINPUT_DEBUG` is defined. Debug() calls will drawn on the RS client.
+
+
+------------
+
+type ERSClientMode
+~~~~~~~~~~~~~~~~~~
+The modes of the client.
+
+.. code-block:: pascal
+
+
+
+  ERSClientMode.UNKNOWN            // Unable to detect mode (likely not logged in yet)
+  ERSClientMode.FIXED              // Fixed mode
+  ERSClientMode.RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
+  ERSClientMode.RESIZABLE_MODERN   // Resizable with gametabs being grouped together at the bottom
+
+
+------------
+
+RSClient.DetectClientMode
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSClient.DetectClientMode(Update: Boolean): ERSClientMode;
+
+Detects the client mode. If **Update** is True ClientModeChanged will be called.
+Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
+Are there any other cases where music tab won't be visible?
+
+
+------------
+
+RSClient.ClientModeChanged
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.ClientModeChanged;
+
+Anything that needs an alert when the client mode changes should override this.
+
+
+------------
+
+RSClient.LoseFocus
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.LoseFocus;
+
+Loses focus if available. Maybe useful for antiban.
+
+
+------------
+
+RSClient.LoseFocus
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.LoseFocus(Delay: Int32);
+
+Waits `Delay` before losing focus.
+
+
+------------
+
+RSClient.Setup
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.Setup;
+
+Setup method.
+
+.. note:: This is automatically called on the **RSClient** variable.
+
+
+------------
+
+Debug
+~~~~~
+.. code-block:: pascal
+
+ procedure Debug(ATPA: T2DPointArray); override;
+
+If `SRL_USE_REMOTEINPUT_DEBUG` is defined graphical debug methods happen on the RS client.
+
+
+------------

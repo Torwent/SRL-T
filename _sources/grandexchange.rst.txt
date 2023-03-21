@@ -1,0 +1,18 @@
+
+GrandExchange
+=============
+Methods to interact with the grand exchange.
+
+
+------------
+
+Bank.Open
+~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
+
+Overrides **Bank.Open** to support opening the grand exchange.
+
+
+------------
