@@ -6,8 +6,22 @@ This file contains internal methods used by walker.
 
 ------------
 
-RSWalkerRegions
-~~~~~~~~~~~~~~~
+TRSWalkerRegions
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  TRSWalkerRegions = record
+    WORLD:          TBox;
+    ZEAH:           TBox;
+    EDGEVILLE:      TBox;
+    VARROCK:        TBox;
+    GRAND_EXCHANGE: TBox;
+    LUNAR_ISLE:     TBox;
+    LUMBRIDGE:      TBox;
+    ISLE_OF_SOULS:  TBox;
+  end;
+
 Collection of pre-made boxes that can be used in TRSWalker.Setup();
 
 
