@@ -190,7 +190,7 @@ Bank.GetCurrentTab
 ~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.GetCurrentTab: Int32;
+ function TRSBank.GetCurrentTab(): Int32;
 
 Get the current active bank tab.
 
