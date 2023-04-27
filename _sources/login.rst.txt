@@ -102,6 +102,22 @@ You probably will never to use this directly.
 
 ------------
 
+Login.UsingLauncher
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.UsingLauncher(): Boolean;
+
+Checks if the client was launched by a launcher (Steam/Jagex Launcher) or was manually ran by the user.
+
+Example
+-------
+.. code-block:: pascal  
+  WriteLn Login.UsingLauncher();
+
+
+------------
+
 Login.ClickText
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -333,6 +349,28 @@ Example
 .. code-block:: pascal  
 
     WriteLn Login.GetPlayer().Username;
+
+
+------------
+
+Login.DoLogin
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.DoLogin(player: TRSLoginPlayer; launcher: Boolean = False): Boolean;
+
+Performs a login in the loginscreen with the specified player.
+
+
+------------
+
+Login.WaitLoginMessage
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.WaitLoginMessage(): Boolean;
+
+Waits for a login message after a login was performed, returns true if we successfully enter the game lobby.
 
 
 ------------
