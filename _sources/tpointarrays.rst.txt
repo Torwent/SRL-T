@@ -29,7 +29,7 @@ Middle as a Vector.
 ------------
 
 TPointArray.Sort
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
     procedure TPointArray.Sort(From:TPoint=[0,0]);
@@ -40,7 +40,7 @@ Wraps Simba's `SortTPAFrom`
 ------------
 
 TPointArray.Sorted
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
     function TPointArray.Sorted(From:TPoint=[0,0]): TPointArray;

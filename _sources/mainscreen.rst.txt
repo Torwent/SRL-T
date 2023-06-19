@@ -475,7 +475,7 @@ Mainscreen.DidRedClick
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSMainScreen.DidRedClick: Boolean;
+ function TRSMainScreen.DidRedClick(time: UInt32 = 250): Boolean;
 
 Returns true if a red click happened at the current mouse position.
 
@@ -495,7 +495,7 @@ Mainscreen.DidYellowClick
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSMainScreen.DidYellowClick: Boolean;
+function TRSMainScreen.DidYellowClick(time: UInt32 = 250): Boolean;
 
 Returns true if a yellow click happened at the current mouse position.
 
