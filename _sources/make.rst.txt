@@ -9,10 +9,45 @@ TRSMake is the record SRL has to handle it.
 
 const MAKE_QUANTITY_ALL
 ~~~~~~~~~~~~~~~~~~~~~~~
+
+DEPRECATED use MAKE_QUANTITY_ALL
+
 -1 is the value we reserve for the "All" quantity.
 This constant simply exists so we have a human readable version that makes sense.
 
 When using TRSMake methods you can use either -1 or MAKE_QUANTITY_ALL for the "All" quantity.
+
+
+------------
+
+type TRSMakeItem
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  TRSMakeItem = record
+    Item: String;
+    Index: Int32;
+    Quantity: Int32;
+  end;
+
+Internal helper type. You probably never have to touch this. This is used to cache the make buttons. after the we know their index.
+
+
+------------
+
+type TRSMake
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  TRSMake = record(TRSInterface)
+    Items: array of TRSMakeItem;
+  class const
+    QUANTITY_ALL = -1;
+  end;
+
+Type responsible to handle the Make menu.
 
 
 ------------
@@ -146,7 +181,7 @@ Example
 -------
 .. code-block:: pascal  
 
-  WriteLn Make.SetQuantity(MAKE_QUANTITY_ALL);
+  WriteLn Make.SetQuantity(TRSMake.QUANTITY_ALL);
 
 
 ------------
@@ -181,7 +216,7 @@ Example
 -------
 .. code-block:: pascal  
 
-  WriteLn Make.Select('Maple longbow', MAKE_QUANTITY_ALL, True);
+  WriteLn Make.Select('Maple longbow', TRSMake.QUANTITY_ALL, True);
 
 
 ------------

@@ -70,6 +70,8 @@
 <li class="toctree-l1"><a class="reference internal" href="combat.html#minimap">Minimap</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Make</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#const-make-quantity-all">const MAKE_QUANTITY_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#type-trsmakeitem">type TRSMakeItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#type-trsmake">type TRSMake</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#make-setup">Make.Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#make-setupalignment">Make.SetupAlignment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#make-getitembuttons">Make.GetItemButtons</a></li>
@@ -141,9 +143,34 @@ TRSMake is the record SRL has to handle it.</p>
 <hr class="docutils" />
 <section id="const-make-quantity-all">
 <h2>const MAKE_QUANTITY_ALL<a class="headerlink" href="#const-make-quantity-all" title="Permalink to this heading"></a></h2>
+<p>DEPRECATED use MAKE_QUANTITY_ALL</p>
 <p>-1 is the value we reserve for the “All” quantity.
 This constant simply exists so we have a human readable version that makes sense.</p>
 <p>When using TRSMake methods you can use either -1 or MAKE_QUANTITY_ALL for the “All” quantity.</p>
+</section>
+<hr class="docutils" />
+<section id="type-trsmakeitem">
+<h2>type TRSMakeItem<a class="headerlink" href="#type-trsmakeitem" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">TRSMakeItem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">record</span>
+<span class="w">  </span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
+<span class="w">  </span><span class="kp">Index</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+<span class="w">  </span><span class="n">Quantity</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal helper type. You probably never have to touch this. This is used to cache the make buttons. after the we know their index.</p>
+</section>
+<hr class="docutils" />
+<section id="type-trsmake">
+<h2>type TRSMake<a class="headerlink" href="#type-trsmake" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">TRSMake</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">record</span><span class="p">(</span><span class="n">TRSInterface</span><span class="p">)</span>
+<span class="w">  </span><span class="n">Items</span><span class="o">:</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">TRSMakeItem</span><span class="o">;</span>
+<span class="k">class</span><span class="w"> </span><span class="k">const</span>
+<span class="w">  </span><span class="n">QUANTITY_ALL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Type responsible to handle the Make menu.</p>
 </section>
 <hr class="docutils" />
 <section id="make-setup">
@@ -250,7 +277,7 @@ You can optionally specify a <strong>WaitTime</strong> to wait for it to open.</
 <p>Attempts to set a quantity.</p>
 <section id="id5">
 <h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Make</span><span class="o">.</span><span class="n">SetQuantity</span><span class="p">(</span><span class="n">MAKE_QUANTITY_ALL</span><span class="p">)</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Make</span><span class="o">.</span><span class="n">SetQuantity</span><span class="p">(</span><span class="n">TRSMake</span><span class="o">.</span><span class="n">QUANTITY_ALL</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>
@@ -279,7 +306,7 @@ You probably will never need to use this directly.</p>
 <p>Select a <strong>Index</strong> of the available buttons or the button with <strong>Item</strong> text on it when hovered.</p>
 <section id="id6">
 <h3>Example<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Make</span><span class="o">.</span><span class="n">Select</span><span class="p">(</span><span class="s">&#39;Maple longbow&#39;</span><span class="o">,</span><span class="w"> </span><span class="n">MAKE_QUANTITY_ALL</span><span class="o">,</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Make</span><span class="o">.</span><span class="n">Select</span><span class="p">(</span><span class="s">&#39;Maple longbow&#39;</span><span class="o">,</span><span class="w"> </span><span class="n">TRSMake</span><span class="o">.</span><span class="n">QUANTITY_ALL</span><span class="o">,</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>

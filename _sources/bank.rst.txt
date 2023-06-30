@@ -378,7 +378,7 @@ Example
 -------
 .. code-block:: pascal  
 
-  WriteLn BankDepositItem(['Coins', Bank.QUANTITY_ALL]);
+  WriteLn BankDepositItem(['Coins', TRSBank.QUANTITY_ALL]);
 
 
 ------------
