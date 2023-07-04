@@ -27,11 +27,22 @@ Given some XP, it returns what level that is.
 
 ------------
 
+SRL.GetItemAmountBox
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.GetItemAmountBox(constref area: TBox): TBox;
+
+Returns the correct text box of an item's amount text based on the item box.
+
+
+------------
+
 SRL.GetItemAmount
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TSRL.GetItemAmount(constref Area: TBox): Int32;
+ function TSRL.GetItemAmount(area: TBox): Int32;
 
 For use with items in like bankscreen, inventory, shops and so on to
 get the number of stacked items there are.
