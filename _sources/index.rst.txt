@@ -33,24 +33,12 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR
 
-   magic
    keybindings
-   combat
-   chat
-   xpbar
-   prayer
-   make
    rsclient
-   inventory
-   grandexchange
-   depositbox
-   bank
+   depositbox(osr)
    mm2ms
-   login
    misc
-   mainscreen
    antiban
-   bankpin
 
 -----------
 
@@ -63,6 +51,42 @@ Welcome to SRL-T documentation!
    walker_map
    walker
    webber
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> GAMETABS
+
+   magic
+   combat
+   prayer
+   inventory
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES
+
+   chat
+   xpbar
+   make
+   login
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> MAINSCREEN
+
+   grandexchange
+   depositbox
+   bank
+   mainscreen
 
 -----------
 

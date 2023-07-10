@@ -38,6 +38,25 @@ Example
 
 ------------
 
+Bank.FindItemBoundaries
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.FindItemBoundaries(): TBoxArray;
+
+Finds item boundaries. This is an internal function used to retrieve the boxes we
+search for items in.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Boxes := Self.FindItemBoundaries();
+  WriteLn ItemFinder.Find(Item, Boxes);
+
+
+------------
+
 Bank.Setup
 ~~~~~~~~~~
 .. code-block:: pascal
@@ -83,25 +102,6 @@ Example
   Bank.Search('logs'); // Search for logs
   Wait(1000);
   Bank.CloseSearch();
-
-
-------------
-
-Bank.FindItemBoundaries
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- function TRSBank.FindItemBoundaries(): TBoxArray;
-
-Finds item boundaries. This is an internal function used to retrieve the boxes we
-search for items in.
-
-Example
--------
-.. code-block:: pascal  
-  
-  Boxes := Self.FindItemBoundaries();
-  WriteLn ItemFinder.Find(Item, Boxes);
 
 
 ------------
@@ -224,7 +224,7 @@ Bank.FindItem
 ~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
+ function TRSBank.FindItem(Item: TRSItem; out box: TBox): Boolean;
 
 Finds and returns the bounds of an item in the bank
 
@@ -329,7 +329,7 @@ Bank.WithdrawItem
 .. code-block:: pascal
 
 
-  function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean; deprecated 'User the TRSBankItem version instead';
+  function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; useQuantityButtons: Boolean): Boolean; deprecated 'User the TRSBankItem version instead';
   function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
 
 Finds and withdraws an item.
@@ -341,7 +341,7 @@ Item
 	TRSBankWithdrawItem or TRSBankItem variable to withdraw.
   TRSBankItem caches the bank tab and scroll position the item is at for next uses.
 
-UseQuantityButtons  
+useQuantityButtons  
   Determines if to use the 1,5,10,X,ALL `Quantity` buttons.
 
 Example
@@ -369,7 +369,7 @@ Bank.DepositItem
 .. code-block:: pascal
 
 
-  function TRSBank.DepositItem(Item: TRSBankDepositItem; UseQuantityButtons: Boolean): Boolean; deprecated 'Use the TRSBankItem version instead';
+  function TRSBank.DepositItem(Item: TRSBankDepositItem; useQuantityButtons: Boolean): Boolean; deprecated 'Use the TRSBankItem version instead';
   function TRSBank.DepositItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload
 
 Deposits the specified **item** into the bank.

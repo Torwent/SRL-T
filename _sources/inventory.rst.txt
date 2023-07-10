@@ -6,6 +6,24 @@ Methods to interact with the inventory.
 
 ------------
 
+Inventory.GetSlotBoxes
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.GetSlotBoxes(): TBoxArray;
+
+Mainly used internally by TRSInventory methods.
+This function is used to return a TBoxArray of the inventory slots.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(Inventory.GetSlotBoxes());
+
+
+------------
+
 Inventory.IsOpen
 ~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -40,42 +58,6 @@ Example
 
 ------------
 
-Inventory.GetSlotBoxes
-~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- function TRSInventory.GetSlotBoxes(): TBoxArray;
-
-Mainly used internally by TRSInventory methods.
-This function is used to return a TBoxArray of the inventory slots.
-
-Example
--------
-.. code-block:: pascal  
-
-  Debug(Inventory.GetSlotBoxes());
-
-
-------------
-
-Inventory.GetSlotBox
-~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- function TRSInventory.GetSlotBox(): TBox;
-
-Mainly used internally by TRSInventory methods.
-This function is used to return a TBox of the specified inventory slot.
-
-Example
--------
-.. code-block:: pascal  
-
-  Debug(Inventory.GetSlotBox(5));
-
-
-------------
-
 Inventory.PointToSlot
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -100,11 +82,11 @@ Example
 
 ------------
 
-Inventory.HoverSlot
+Inventory.MouseSlot
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSInventory.HoverSlot(Slot: Int32): Boolean;
+ function TRSInventory.MouseSlot(slot: Int32): Boolean;
 
 Moves the mouse over the slot. Slot is an Integer between 0 and 27.
 
@@ -122,7 +104,7 @@ Inventory.ClickSlot
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSInventory.ClickSlot(Slot: Int32; Option: String = ''): Boolean;
+ function TRSInventory.ClickSlot(slot: Int32; option: String = ''): Boolean;
 
 Moves the mouse and clicks on the slot. Slot is an Integer between 0 and 27.
 
@@ -476,11 +458,11 @@ Example
 
 ------------
 
-Inventory.HoverItem
+Inventory.MouseItem
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSInventory.HoverItem(Item: TRSItem): Boolean;
+ function TRSInventory.MouseItem(Item: TRSItem): Boolean;
 
 Hover **Item** in the inventory.
 
@@ -488,7 +470,7 @@ Example
 -------
 .. code-block:: pascal  
 
-  if Inventory.HoverItem('Bronze arrows') then
+  if Inventory.MouseItem('Bronze arrows') then
     ChooseOption.Select('Drop');
 
 
