@@ -4,7 +4,7 @@ Login
 
 Handles logging in players.
 
-Summary: 
+Summary:
 
 - Add players with `Login.AddPlayer`
 - Login the current player with `Login.LoginPlayer`
@@ -98,6 +98,38 @@ Login.FindText
 
 Internal TRSLogin method used to find a message on the TRSLogin interface.
 You probably will never to use this directly.
+
+
+------------
+
+Login.IsReady
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.IsReady(): Boolean;
+
+Checks if the login screen is ready to login. In other words, has no dialogs up.
+
+Example
+-------
+.. code-block:: pascal  
+  WriteLn Login.IsReady();
+
+
+------------
+
+Login.UsingLauncher
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.UsingLauncher(): Boolean;
+
+Checks if the client was launched by a launcher (Steam/Jagex Launcher) or was manually ran by the user.
+
+Example
+-------
+.. code-block:: pascal  
+  WriteLn Login.UsingLauncher();
 
 
 ------------
@@ -337,6 +369,28 @@ Example
 
 ------------
 
+Login.DoLogin
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.DoLogin(player: TRSLoginPlayer; launcher: Boolean = False): Boolean;
+
+Performs a login in the loginscreen with the specified player.
+
+
+------------
+
+Login.WaitLoginMessage
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.WaitLoginMessage(): Boolean;
+
+Waits for a login message after a login was performed, returns true if we successfully enter the game lobby.
+
+
+------------
+
 Login.LoginPlayer
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -360,7 +414,7 @@ Login.AddPlayer
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- procedure TRSLogin.AddPlayer(User, Pass: String; Pin: String = ''; Worlds: TIntegerArray = []);
+ procedure TRSLogin.AddPlayer(user, pass: String; pin: String = ''; worlds: TIntegerArray = []);
 
 Adds a TRSLoginPlayer to the TRSLogin.Players array.
 
