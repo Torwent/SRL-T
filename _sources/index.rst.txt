@@ -87,6 +87,7 @@ Welcome to SRL-T documentation!
    depositbox
    bank
    mainscreen
+   bankpin
 
 -----------
 
