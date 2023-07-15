@@ -52,7 +52,7 @@ Example
 .. code-block:: pascal  
 
   Boxes := Self.FindItemBoundaries();
-  WriteLn ItemFinder.Find(Item, Boxes);
+  WriteLn ItemInterface.Find(Item, Boxes);
 
 
 ------------
