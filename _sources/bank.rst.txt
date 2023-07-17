@@ -224,9 +224,12 @@ Bank.FindItem
 ~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.FindItem(Item: TRSItem; out box: TBox): Boolean;
+
+  function TRSBank.FindItem(Item: TRSItem; out box: TBox): Boolean;
+  function TRSBank.FindItem(out item: TRSBankItem; out box: TBox; attempts: Int32 = 0): Boolean; overload;
 
 Finds and returns the bounds of an item in the bank
+The TRSBankItem version of the method will actually search the bank for the item while the TRSItem will not.
 
 Example
 -------
@@ -242,15 +245,29 @@ Bank.ContainsItem
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.ContainsItem(Item: TRSItem): Boolean;
 
-Returns true/false wether a item is found in the bank or not.
+  function TRSBank.ContainsItem(Item: TRSItem): Boolean;
+  function TRSBank.ContainsItem(out item: TRSBankItem): Boolean; overload;
+
+Returns true/false whether a item is found in the bank or not.
+The TRSBankItem version of the method will actually search the bank for the item while the TRSItem will not.
 
 Example
 -------
 .. code-block:: pascal  
 
   WriteLn Bank.ContainsItem('Coins');
+
+
+------------
+
+Bank.ContainsItem
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.ContainsAny(items: TRSItemArray): Boolean;
+
+Returns true/false whether any item in **items** is visible in the bank.
 
 
 ------------
@@ -329,8 +346,9 @@ Bank.WithdrawItem
 .. code-block:: pascal
 
 
-  function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; useQuantityButtons: Boolean): Boolean; deprecated 'User the TRSBankItem version instead';
+  function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
   function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
+  function TRSBank.WithdrawItem(item: TRSItem; useQuantityButtons: Boolean): Boolean; overload;
 
 Finds and withdraws an item.
 
