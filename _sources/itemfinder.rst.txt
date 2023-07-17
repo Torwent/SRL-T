@@ -4,3 +4,25 @@ Item Finder
 
 
 ------------
+
+ItemArray.Find
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSItemArray.Find(const value: TRSItem): Int32; constref;
+
+Find a TRSItem in a TRSItemArray and return it's index.
+
+
+------------
+
+ItemArray.Contains
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSItemArray.Contains(const value: TRSItem): Boolean; constref;
+
+Find a TRSItem in a TRSItemArray and return true or false.
+
+
+------------
