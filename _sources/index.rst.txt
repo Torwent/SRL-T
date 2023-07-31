@@ -63,6 +63,7 @@ Welcome to SRL-T documentation!
    combat
    prayer
    inventory
+   stats
 
 -----------
 

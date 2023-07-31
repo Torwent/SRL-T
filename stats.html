@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stats.Setup &mdash; SRL-T  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Chat" href="chat.html" />
+    <link rel="prev" title="Inventory" href="inventory.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SRL-T
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="matrix.html">Mouse.Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="keybindings.html">Keybindings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsclient.html">RSClient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="depositbox%28osr%29.html">DepositBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="antiban.html">Antiban</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walker_map.html">WalkerMap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="magic.html">Magic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combat.html">Combat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combat.html#minimap">Minimap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Stats.Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-setupalignment">Stats.SetupAlignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-getskillboxes">Stats.GetSkillBoxes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-getskillbox">Stats.GetSkillBox</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-isopen">Stats.IsOpen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-open">Stats.Open</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-mouseover">Stats.MouseOver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-getskillinfo">Stats.GetSkillInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id5">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-getcurrentlevel">Stats.GetCurrentLevel</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id6">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-getlevel">Stats.GetLevel</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id7">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-cacheall">Stats.CacheAll</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#stats-incrementcachedlevel">Stats.IncrementCachedLevel</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id8">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#chat-leveledup">Chat.LeveledUp</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id9">Example</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="chat.html">Chat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpbar.html">XPBar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make.html">Make</a></li>
+<li class="toctree-l1"><a class="reference internal" href="login.html">Login</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="grandexchange.html">GrandExchange</a></li>
+<li class="toctree-l1"><a class="reference internal" href="depositbox.html">DepositBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bank.html">Bank</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bankpin.html">BankPin.IsOpen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bankpin.html#bankpin-clickdigit">BankPin.ClickDigit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bankpin.html#bankpin-enter">BankPin.Enter</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">Item Finder</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL-T</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Stats.Setup</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/stats.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="stats-setup">
+<h1>Stats.Setup<a class="headerlink" href="#stats-setup" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">Setup</span><span class="p">()</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method automatically called by SRL.Setup()</p>
+</section>
+<hr class="docutils" />
+<section id="stats-setupalignment">
+<h1>Stats.SetupAlignment<a class="headerlink" href="#stats-setupalignment" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">SetupAlignment</span><span class="p">(</span><span class="n">Mode</span><span class="o">:</span><span class="w"> </span><span class="n">ERSClientMode</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method automatically called by RSClient.ClientModeChanged()</p>
+</section>
+<hr class="docutils" />
+<section id="stats-getskillboxes">
+<h1>Stats.GetSkillBoxes<a class="headerlink" href="#stats-getskillboxes" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">GetSkillBoxes</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TBoxArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used to retrieve the skill boxes.</p>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Stats</span><span class="o">.</span><span class="n">GetSkillBoxes</span><span class="p">())</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stats-getskillbox">
+<h1>Stats.GetSkillBox<a class="headerlink" href="#stats-getskillbox" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">GetSkillBox</span><span class="p">(</span><span class="n">skill</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSkill</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TBox</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Method used to retrieve a skill box.</p>
+<section id="id1">
+<h2>Example<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Stats</span><span class="o">.</span><span class="n">GetSkillBox</span><span class="p">(</span><span class="n">ERSSkill</span><span class="o">.</span><span class="n">AGILITY</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stats-isopen">
+<h1>Stats.IsOpen<a class="headerlink" href="#stats-isopen" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">IsOpen</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true/false if the gametab is open or not.</p>
+<section id="id2">
+<h2>Example<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Stats</span><span class="o">.</span><span class="n">IsOpen</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stats-open">
+<h1>Stats.Open<a class="headerlink" href="#stats-open" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">Open</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Attempts to open the gametab.</p>
+<section id="id3">
+<h2>Example<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Stats</span><span class="o">.</span><span class="n">Open</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stats-mouseover">
+<h1>Stats.MouseOver<a class="headerlink" href="#stats-mouseover" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">MouseOver</span><span class="p">(</span><span class="n">skill</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSkill</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse over to a skill box.</p>
+<section id="id4">
+<h2>Example<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Stats</span><span class="o">.</span><span class="n">MouseOver</span><span class="p">(</span><span class="n">ERSSkill</span><span class="o">.</span><span class="n">CONSTRUCTION</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stats-getskillinfo">
+<h1>Stats.GetSkillInfo<a class="headerlink" href="#stats-getskillinfo" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">GetSkillInfo</span><span class="p">(</span><span class="n">skill</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSkill</span><span class="o">;</span><span class="w"> </span><span class="n">waitTime</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TRSSkillInfo</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Get the skill information about a skill when you hover it.</p>
+<section id="id5">
+<h2>Example<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Stats</span><span class="o">.</span><span class="n">GetSkillInfo</span><span class="p">(</span><span class="n">ERSSkill</span><span class="o">.</span><span class="n">CONSTRUCTION</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stats-getcurrentlevel">
+<h1>Stats.GetCurrentLevel<a class="headerlink" href="#stats-getcurrentlevel" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">GetCurrentLevel</span><span class="p">(</span><span class="n">skill</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSkill</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">deprecated</span><span class="w"> </span><span class="s">&#39;Use Stats.GetLevel() instead.&#39;</span>
+</pre></div>
+</div>
+<p>Get the level of the specified <strong>skill</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is deprecated. Use Stats.GetLevel() instead.</p>
+</div>
+<section id="id6">
+<h2>Example<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Stats</span><span class="o">.</span><span class="n">GetCurrentLevel</span><span class="p">(</span><span class="n">ERSSkill</span><span class="o">.</span><span class="n">HITPOINTS</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stats-getlevel">
+<h1>Stats.GetLevel<a class="headerlink" href="#stats-getlevel" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">GetLevel</span><span class="p">(</span><span class="n">skill</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSkill</span><span class="o">;</span><span class="w"> </span><span class="n">useCache</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Get the level of the specified <strong>skill</strong>. By default uses the levels cached in the Stats.Levels array.
+When using the cached methods, it can be used to retrieve the level of a skill while the gametab is open assuming the level is already cached.</p>
+<section id="id7">
+<h2>Example<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Stats</span><span class="o">.</span><span class="n">GetLevel</span><span class="p">(</span><span class="n">ERSSkill</span><span class="o">.</span><span class="n">HITPOINTS</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="stats-cacheall">
+<h1>Stats.CacheAll<a class="headerlink" href="#stats-cacheall" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">CacheAll</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Method to update all cached levels.</p>
+</section>
+<hr class="docutils" />
+<section id="stats-incrementcachedlevel">
+<h1>Stats.IncrementCachedLevel<a class="headerlink" href="#stats-incrementcachedlevel" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSStats</span><span class="o">.</span><span class="nf">IncrementCachedLevel</span><span class="p">(</span><span class="n">skill</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSkill</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method to update cached levels. This is automatically called by Chat.LeveledUp().</p>
+<section id="id8">
+<h2>Example<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Stats</span><span class="o">.</span><span class="n">GetCurrentLevel</span><span class="p">(</span><span class="n">ERSSkill</span><span class="o">.</span><span class="n">PRAYER</span><span class="p">)</span><span class="o">;</span>
+<span class="n">Stats</span><span class="o">.</span><span class="n">IncrementLevel</span><span class="p">(</span><span class="n">ERSSkill</span><span class="o">.</span><span class="n">PRAYER</span><span class="p">)</span><span class="o">;</span>
+<span class="nb">WriteLn</span><span class="w"> </span><span class="n">Stats</span><span class="o">.</span><span class="n">GetCurrentLevel</span><span class="p">(</span><span class="n">ERSSkill</span><span class="o">.</span><span class="n">PRAYER</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="chat-leveledup">
+<h1>Chat.LeveledUp<a class="headerlink" href="#chat-leveledup" title="Permalink to this heading"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSChat</span><span class="o">.</span><span class="nf">LeveledUp</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if we have the level up message on the chat box and attempts
+to update Stats.Levels</p>
+<section id="id9">
+<h2>Example<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="n">Chat</span><span class="o">.</span><span class="n">LeveledUp</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="n">Chat</span><span class="o">.</span><span class="n">ClickContinue</span><span class="p">(</span><span class="k">True</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="inventory.html" class="btn btn-neutral float-left" title="Inventory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="chat.html" class="btn btn-neutral float-right" title="Chat" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, SRL Group.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>

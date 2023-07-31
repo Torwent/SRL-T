@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="XPBar" href="xpbar.html" />
-    <link rel="prev" title="Inventory" href="inventory.html" /> 
+    <link rel="prev" title="Stats.Setup" href="stats.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -84,6 +84,19 @@
 <li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html">Stats.Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-setupalignment">Stats.SetupAlignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-getskillboxes">Stats.GetSkillBoxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-getskillbox">Stats.GetSkillBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-isopen">Stats.IsOpen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-open">Stats.Open</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-mouseover">Stats.MouseOver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-getskillinfo">Stats.GetSkillInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-getcurrentlevel">Stats.GetCurrentLevel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-getlevel">Stats.GetLevel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-cacheall">Stats.CacheAll</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#stats-incrementcachedlevel">Stats.IncrementCachedLevel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stats.html#chat-leveledup">Chat.LeveledUp</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Chat</a><ul>
@@ -420,10 +433,11 @@ function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): 
 <hr class="docutils" />
 <section id="chat-leveledup">
 <h2>Chat.LeveledUp<a class="headerlink" href="#chat-leveledup" title="Permalink to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSChat</span><span class="o">.</span><span class="nf">LeveledUp</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSChat</span><span class="o">.</span><span class="nf">LeveledUp</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="kp">forward</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Returns true if we have the level up message on the chat box.</p>
+<p>Returns true if we have the level up message on the chat box.
+Forwarded here and declared in stats.simba</p>
 <section id="id15">
 <h3>Example<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="n">Chat</span><span class="o">.</span><span class="n">LeveledUp</span><span class="w"> </span><span class="k">then</span>
@@ -446,7 +460,7 @@ function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="inventory.html" class="btn btn-neutral float-left" title="Inventory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stats.html" class="btn btn-neutral float-left" title="Stats.Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="xpbar.html" class="btn btn-neutral float-right" title="XPBar" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

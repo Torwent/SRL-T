@@ -328,9 +328,10 @@ Chat.LeveledUp
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSChat.LeveledUp: Boolean;
+ function TRSChat.LeveledUp(): Boolean; forward;
 
 Returns true if we have the level up message on the chat box.
+Forwarded here and declared in stats.simba
 
 Example
 -------
