@@ -127,13 +127,11 @@ Walker.Setup
 ~~~~~~~~~~~~
 .. code-block:: pascal
 
- procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 8);
-.. code-block:: pascal
 
- procedure TRSWalker.Setup(Map: String; Regions: TBoxArray; Scaling: Integer = 8); overload;
-.. code-block:: pascal
-
- procedure TRSWalker.Setup(Regions: TBoxArray; Scaling: Integer = 8); overload;
+  procedure TRSWalker.Setup(Scaling: Integer = 8);
+  procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 8);
+  procedure TRSWalker.Setup(Map: String; Regions: TBoxArray; Scaling: Integer = 8); overload;
+  procedure TRSWalker.Setup(Regions: TBoxArray; Scaling: Integer = 8); overload;
 
 Setup method to be called in scripts.
 There's 4 versions of the method you can call depending on the parameters you pass in.
