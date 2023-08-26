@@ -117,7 +117,7 @@ Combat.GetAutoRetaliate
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSCombat.GetAutoRetaliate: Boolean;
+ function TRSCombat.GetAutoRetaliate(): Boolean;
 
 Get the current state of auto retaliate.
 
@@ -135,7 +135,7 @@ Combat.SetAutoRetaliate
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
+ function TRSCombat.SetAutoRetaliate(value: Boolean): Boolean;
 
 Set the state of auto retaliate on or off.
 
