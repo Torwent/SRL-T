@@ -4,14 +4,64 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
+	:caption: OSR -> INTERFACES
+
+   make
+   chat
+   xpbar
+   login
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> GAMETABS
+
+   stats
+   combat
+   inventory
+   magic
+   prayer
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> MAINSCREEN
+
+   bank
+   grandexchange
+   mainscreen
+   depositbox
+   bankpin
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
 	:caption: OSR
 
    keybindings
-   antiban
-   depositbox
+   depositbox(osr)
    mm2ms
-   misc
    rsclient
+   antiban
+   misc
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> WALKER
+
+   webgraph
+   walker_map
+   webber
+   walker
 
 -----------
 
@@ -27,77 +77,27 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> INTERFACES -> GAMETABS
-
-   inventory
-   combat
-   prayer
-   magic
-   stats
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES
-
-   chat
-   make
-   xpbar
-   login
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES -> MAINSCREEN
-
-   grandexchange
-   depositbox(osr_interfaces_mainscreen)
-   mainscreen
-   bank
-   bankpin
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> WALKER
-
-   webgraph
-   webber
-   walker_map
-   walker
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
 	:caption: UTILS
 
    tpoint
-   random
    tpointarrays
-   integerarrays
-   tboxarrays
-   extendedarrays
    string
+   extendedarrays
    wrappers
+   integerarrays
+   pixelshift
+   tboxarrays
+   mouse
+   keyboard
+   matrix
+   trectangle
+   math
+   time
+   random
+   color
    drawing
    tcircle
-   time
    tbox
-   keyboard
-   math
-   trectangle
-   matrix
-   color
-   pixelshift
-   mouse
 
 -----------
 

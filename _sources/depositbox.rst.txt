@@ -6,6 +6,17 @@ Methods to interact with the deposit box interface.
 
 ------------
 
+DepositBox.DepositAll
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSDepositBox.DepositAll(): Boolean;
+
+Depositis your inventory by clicking the deposit inventory button
+
+
+------------
+
 GameTabs.GetCurrentTab
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
