@@ -96,9 +96,9 @@ If you wanted to get the tiles of a runecrafting altar for example which is 3 by
 
 ------------
 
-Minimap.PointToMsRect
+Minimap.PointToMSRect
 ~~~~~~~~~~~~~~~~~~~~~
-function TRSMinimap.PointToMsRect(PT: TPoint; Roll:Single=$FFFF): TRectangle;
+function TRSMinimap.PointToMSRect(PT: TPoint; Roll:Single=$FFFF): TRectangle;
 
 Takes a single coordinate as a TPoint on the minimap, and converts it to a rectangle / tile on the mainscreen.
 
