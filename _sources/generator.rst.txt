@@ -1,0 +1,7 @@
+
+Make sure you have runes for every single spell on your spell book and run this
+in resizable modern.
+Change spellbook and rerun it again to complete every book.
+
+
+------------

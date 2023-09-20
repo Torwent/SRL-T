@@ -45,11 +45,29 @@ Welcome to SRL-T documentation!
 	:caption: OSR
 
    keybindings
-   depositbox(osr)
    mm2ms
    rsclient
    antiban
    misc
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> FINDERS -> SPELLFINDER
+
+   generator
+   spellfinder
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> FINDERS -> ITEMFINDER
+
+   itemfinder
 
 -----------
 
@@ -62,15 +80,6 @@ Welcome to SRL-T documentation!
    walker_map
    webber
    walker
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> ITEMFINDER
-
-   itemfinder
 
 -----------
 
