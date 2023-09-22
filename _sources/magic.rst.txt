@@ -100,6 +100,52 @@ Example
 
 ------------
 
+Magic.InfoIsOpen
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.InfoIsOpen(): Boolean;
+
+Returns true if the info black box about a spell is open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Magic.IsSpellBook(ERSSpellBook.LUNAR);
+
+
+------------
+
+Magic._CloseInfoMouseCallback
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMagic._CloseInfoMouseCallback(sender: PMouse; var x, y: Double; var done: Boolean);
+
+Mouse movement callback to stop mouse movement when the spell info box closes.
+Do not touch this if you don't understand it.
+
+
+------------
+
+Magic.CloseInfo
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.CloseInfo(): Boolean;
+
+Returns true if the info black box about a spell is open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Magic.CloseInfo();
+
+
+------------
+
 Magic.GetSpellBoxes
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -111,6 +157,17 @@ Internal function to get the bounds of the spells of the current spell book.
 
 ------------
 
+Magic.FindSpell
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.FindSpell(spell: ERSSpell; out box: TBox): Boolean;
+
+Return true or false wether we found a spell or not and return it's bounds if found.
+
+
+------------
+
 Magic.GetSpellBox
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -118,6 +175,51 @@ Magic.GetSpellBox
  function TRSMagic.GetSpellBox(spell: ERSSpell; out box: TBox): Boolean;
 
 Internal function to get the specified spell bounds.
+
+
+------------
+
+Magic.ContainsSpell
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.ContainsSpell(spell: ERSSpell): Boolean;
+
+Return true or false wether we found a spell or not.
+
+
+------------
+
+Magic.MouseSpell
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.MouseSpell(spell: ERSSpell): Boolean;
+
+Used to move the mouse to the specified spell.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.MouseSpell(ERSSpell.HIGH_LEVEL_ALCHEMY);
+
+
+------------
+
+Magic.ClickSpell
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.ClickSpell(spell: ERSSpell; option: String = ''): Boolean;
+
+Used to interact with the specified spell.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.ClickSpell(ERSSpell.HIGH_LEVEL_ALCHEMY);
 
 
 ------------
@@ -139,36 +241,37 @@ Example
 
 ------------
 
-Magic.CanActivate
-~~~~~~~~~~~~~~~~~
+Magic.FindSelected
+~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSMagic.CanActivate(spell: ERSSpell): Boolean;
+ function TRSMagic.FindSelected(out tpa: TPointArray): Boolean;
 
-Returns true if we can activate the spell (we have runes, level and the spell unlocked).
+Returns the true if we have a selected spell and returns it's tpa.
 
 Example
 -------
 .. code-block:: pascal  
 
-  Magic.CanActivate(ERSSpell.HIGH_LEVEL_ALCHEMY);
+  if Magic.FindSelected(tpa) then
+    Debug(tpa);
 
 
 ------------
 
-Magic.IsSpellSelected
-~~~~~~~~~~~~~~~~~~~~~
+Magic.ContainsSelected
+~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSMagic.IsSpellSelected(spell: ERSSpell): Boolean;
+ function TRSMagic.ContainsSelected(): Boolean;
 
-Returns true if the specified spell is currently active (with white outline).
+Returns the true if we have a selected spell.
 
 Example
 -------
 .. code-block:: pascal  
 
-  Magic.IsSpellSelected(ERSSpell.ICE_BARRAGE);
+  WriteLn Magic.ContainsSelected();
 
 
 ------------
@@ -186,6 +289,59 @@ Example
 .. code-block:: pascal  
 
   WriteLn Magic.GetSelectedSpell;
+
+
+------------
+
+Magic.IsSpellSelected
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TRSMagic.IsSpellSelected(spell: ERSSpell): Boolean;
+  function TRSMagic.IsSpellSelected(spell: ERSSpell; selected: TPointArray): Boolean; overload;
+
+Returns true if the specified spell is currently active (with white outline).
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.IsSpellSelected(ERSSpell.ICE_BARRAGE);
+
+
+------------
+
+Magic.CanActivate
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.CanActivate(spell: ERSSpell): Boolean;
+
+Returns true if we can activate the spell (we have runes, level and the spell unlocked).
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.CanActivate(ERSSpell.HIGH_LEVEL_ALCHEMY);
+
+
+------------
+
+Magic.SpellWasCast
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.SpellWasCast(spell: ERSSpell): Boolean;
+
+Returns true if we are in a state that casting a spell would leave you.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.SpellWasCast(ERSSpell.ICE_BARRAGE);
 
 
 ------------

@@ -72,12 +72,22 @@
 <li class="toctree-l2"><a class="reference internal" href="#magic-open">Magic.Open</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-getspellbook">Magic.GetSpellBook</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-isspellbook">Magic.IsSpellBook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-infoisopen">Magic.InfoIsOpen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-closeinfomousecallback">Magic._CloseInfoMouseCallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-closeinfo">Magic.CloseInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-getspellboxes">Magic.GetSpellBoxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-findspell">Magic.FindSpell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-getspellbox">Magic.GetSpellBox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-containsspell">Magic.ContainsSpell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-mousespell">Magic.MouseSpell</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#magic-canactivate">Magic.CanActivate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#magic-isspellselected">Magic.IsSpellSelected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-clickspell">Magic.ClickSpell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">Magic.MouseSpell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-findselected">Magic.FindSelected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-containsselected">Magic.ContainsSelected</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-getselectedspell">Magic.GetSelectedSpell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-isspellselected">Magic.IsSpellSelected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-canactivate">Magic.CanActivate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-spellwascast">Magic.SpellWasCast</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-castspell">Magic.CastSpell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#var-magic">var Magic</a></li>
 </ul>
@@ -243,12 +253,57 @@
 </section>
 </section>
 <hr class="docutils" />
+<section id="magic-infoisopen">
+<h2>Magic.InfoIsOpen<a class="headerlink" href="#magic-infoisopen" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">InfoIsOpen</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if the info black box about a spell is open.</p>
+<section id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Magic</span><span class="o">.</span><span class="n">IsSpellBook</span><span class="p">(</span><span class="n">ERSSpellBook</span><span class="o">.</span><span class="n">LUNAR</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="magic-closeinfomousecallback">
+<h2>Magic._CloseInfoMouseCallback<a class="headerlink" href="#magic-closeinfomousecallback" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">_CloseInfoMouseCallback</span><span class="p">(</span><span class="n">sender</span><span class="o">:</span><span class="w"> </span><span class="n">PMouse</span><span class="o">;</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">x</span><span class="o">,</span><span class="w"> </span><span class="n">y</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span><span class="w"> </span><span class="k">var</span><span class="w"> </span><span class="n">done</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Mouse movement callback to stop mouse movement when the spell info box closes.
+Do not touch this if you don’t understand it.</p>
+</section>
+<hr class="docutils" />
+<section id="magic-closeinfo">
+<h2>Magic.CloseInfo<a class="headerlink" href="#magic-closeinfo" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">CloseInfo</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if the info black box about a spell is open.</p>
+<section id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Magic</span><span class="o">.</span><span class="n">CloseInfo</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
 <section id="magic-getspellboxes">
 <h2>Magic.GetSpellBoxes<a class="headerlink" href="#magic-getspellboxes" title="Link to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">GetSpellBoxes</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="n">book</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpellBook</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TBoxArray</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Internal function to get the bounds of the spells of the current spell book.</p>
+</section>
+<hr class="docutils" />
+<section id="magic-findspell">
+<h2>Magic.FindSpell<a class="headerlink" href="#magic-findspell" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">FindSpell</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="o">;</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">box</span><span class="o">:</span><span class="w"> </span><span class="n">TBox</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Return true or false wether we found a spell or not and return it’s bounds if found.</p>
 </section>
 <hr class="docutils" />
 <section id="magic-getspellbox">
@@ -259,43 +314,80 @@
 <p>Internal function to get the specified spell bounds.</p>
 </section>
 <hr class="docutils" />
+<section id="magic-containsspell">
+<h2>Magic.ContainsSpell<a class="headerlink" href="#magic-containsspell" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">ContainsSpell</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Return true or false wether we found a spell or not.</p>
+</section>
+<hr class="docutils" />
 <section id="magic-mousespell">
 <h2>Magic.MouseSpell<a class="headerlink" href="#magic-mousespell" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">MouseSpell</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Used to move the mouse to the specified spell.</p>
+<section id="id6">
+<h3>Example<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">MouseSpell</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">HIGH_LEVEL_ALCHEMY</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="magic-clickspell">
+<h2>Magic.ClickSpell<a class="headerlink" href="#magic-clickspell" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">ClickSpell</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="o">;</span><span class="w"> </span><span class="n">option</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Used to interact with the specified spell.</p>
+<section id="id7">
+<h3>Example<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">ClickSpell</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">HIGH_LEVEL_ALCHEMY</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id8">
+<h2>Magic.MouseSpell<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">MouseSpell</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="o">;</span><span class="w"> </span><span class="n">button</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MOUSE_MOVE</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Used to interact with the specified spell.</p>
-<section id="id4">
-<h3>Example<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id9">
+<h3>Example<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">MouseSpell</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">HIGH_LEVEL_ALCHEMY</span><span class="o">,</span><span class="w"> </span><span class="n">MOUSE_LEFT</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>
 </section>
 <hr class="docutils" />
-<section id="magic-canactivate">
-<h2>Magic.CanActivate<a class="headerlink" href="#magic-canactivate" title="Link to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">CanActivate</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<section id="magic-findselected">
+<h2>Magic.FindSelected<a class="headerlink" href="#magic-findselected" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">FindSelected</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="n">tpa</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Returns true if we can activate the spell (we have runes, level and the spell unlocked).</p>
-<section id="id5">
-<h3>Example<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">CanActivate</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">HIGH_LEVEL_ALCHEMY</span><span class="p">)</span><span class="o">;</span>
+<p>Returns the true if we have a selected spell and returns it’s tpa.</p>
+<section id="id10">
+<h3>Example<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="n">Magic</span><span class="o">.</span><span class="n">FindSelected</span><span class="p">(</span><span class="n">tpa</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="n">Debug</span><span class="p">(</span><span class="n">tpa</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>
 </section>
 <hr class="docutils" />
-<section id="magic-isspellselected">
-<h2>Magic.IsSpellSelected<a class="headerlink" href="#magic-isspellselected" title="Link to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSpellSelected</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<section id="magic-containsselected">
+<h2>Magic.ContainsSelected<a class="headerlink" href="#magic-containsselected" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">ContainsSelected</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Returns true if the specified spell is currently active (with white outline).</p>
-<section id="id6">
-<h3>Example<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">IsSpellSelected</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">ICE_BARRAGE</span><span class="p">)</span><span class="o">;</span>
+<p>Returns the true if we have a selected spell.</p>
+<section id="id11">
+<h3>Example<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Magic</span><span class="o">.</span><span class="n">ContainsSelected</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>
@@ -307,9 +399,52 @@
 </pre></div>
 </div>
 <p>Returns the currently selected spell.</p>
-<section id="id7">
-<h3>Example<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id12">
+<h3>Example<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Magic</span><span class="o">.</span><span class="n">GetSelectedSpell</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="magic-isspellselected">
+<h2>Magic.IsSpellSelected<a class="headerlink" href="#magic-isspellselected" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSpellSelected</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSpellSelected</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="o">;</span><span class="w"> </span><span class="n">selected</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if the specified spell is currently active (with white outline).</p>
+<section id="id13">
+<h3>Example<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">IsSpellSelected</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">ICE_BARRAGE</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="magic-canactivate">
+<h2>Magic.CanActivate<a class="headerlink" href="#magic-canactivate" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">CanActivate</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if we can activate the spell (we have runes, level and the spell unlocked).</p>
+<section id="id14">
+<h3>Example<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">CanActivate</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">HIGH_LEVEL_ALCHEMY</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="magic-spellwascast">
+<h2>Magic.SpellWasCast<a class="headerlink" href="#magic-spellwascast" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">SpellWasCast</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if we are in a state that casting a spell would leave you.</p>
+<section id="id15">
+<h3>Example<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">SpellWasCast</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">ICE_BARRAGE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>
@@ -321,8 +456,8 @@
 </pre></div>
 </div>
 <p>Attempts to cast the specified spell.</p>
-<section id="id8">
-<h3>Example<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<section id="id16">
+<h3>Example<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">CastSpell</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">LOW_LEVEL_ALCHEMY</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
