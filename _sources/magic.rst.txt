@@ -133,7 +133,9 @@ Magic.CloseInfo
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSMagic.CloseInfo(): Boolean;
+
+  function TRSMagic.CloseInfo(): Boolean;
+  function TRSMagic.CloseInfo(spell: ERSSpell): Boolean; overload;
 
 Returns true if the info black box about a spell is open.
 
@@ -293,13 +295,13 @@ Example
 
 ------------
 
-Magic.IsSpellSelected
-~~~~~~~~~~~~~~~~~~~~~
+Magic.IsSelected
+~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
 
-  function TRSMagic.IsSpellSelected(spell: ERSSpell): Boolean;
-  function TRSMagic.IsSpellSelected(spell: ERSSpell; selected: TPointArray): Boolean; overload;
+  function TRSMagic.IsSelected(spell: ERSSpell): Boolean;
+  function TRSMagic.IsSelected(spell: ERSSpell; selected: TPointArray): Boolean; overload;
 
 Returns true if the specified spell is currently active (with white outline).
 

@@ -85,7 +85,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#magic-findselected">Magic.FindSelected</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-containsselected">Magic.ContainsSelected</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-getselectedspell">Magic.GetSelectedSpell</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#magic-isspellselected">Magic.IsSpellSelected</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#magic-isselected">Magic.IsSelected</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-canactivate">Magic.CanActivate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-spellwascast">Magic.SpellWasCast</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#magic-castspell">Magic.CastSpell</a></li>
@@ -279,6 +279,7 @@ Do not touch this if you don’t understand it.</p>
 <section id="magic-closeinfo">
 <h2>Magic.CloseInfo<a class="headerlink" href="#magic-closeinfo" title="Link to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">CloseInfo</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">CloseInfo</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if the info black box about a spell is open.</p>
@@ -407,10 +408,10 @@ Do not touch this if you don’t understand it.</p>
 </section>
 </section>
 <hr class="docutils" />
-<section id="magic-isspellselected">
-<h2>Magic.IsSpellSelected<a class="headerlink" href="#magic-isspellselected" title="Link to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSpellSelected</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
-<span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSpellSelected</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="o">;</span><span class="w"> </span><span class="n">selected</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+<section id="magic-isselected">
+<h2>Magic.IsSelected<a class="headerlink" href="#magic-isselected" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSelected</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<span class="k">function</span><span class="w"> </span><span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSelected</span><span class="p">(</span><span class="n">spell</span><span class="o">:</span><span class="w"> </span><span class="n">ERSSpell</span><span class="o">;</span><span class="w"> </span><span class="n">selected</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if the specified spell is currently active (with white outline).</p>
