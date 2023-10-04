@@ -1,0 +1,650 @@
+
+Minimap
+=======
+Methods to interact with the minimap.
+
+
+------------
+
+type TRSMinimap
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  TRSMinimap = record(TRSInterface)
+    CompassCircleOffset: TPoint;
+    XPCircleOffset: TPoint;
+    HitpointsCircleOffset: TPoint;
+    PrayerCircleOffset: TPoint;
+    RunCircleOffset: TPoint;
+    SpecAttackCircleOffset: TPoint;
+    PolygonOffset: TPointArray;
+    FlagBitmap: Int32;
+  end;
+
+TRSMinimap type used to interact with the minimap
+
+
+------------
+
+Minimap.GetCompassCircle
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetCompassCircle(): TCircle;
+
+Returns the compass circle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  circle := Minimap.GetCompassCircle();
+  Debug(circle.ToTPA());
+
+
+------------
+
+Minimap.GetXPCircle
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetXPCircle(): TCircle;
+
+Returns the xp bar circle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  circle := Minimap.GetXPCircle();
+  Debug(circle.ToTPA());
+
+
+------------
+
+Minimap.GetHPCircle
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetHPCircle(): TCircle;
+
+Returns the hp circle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  circle := Minimap.GetHPCircle();
+  Debug(circle.ToTPA());
+
+
+------------
+
+Minimap.GetPrayerCircle
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetPrayerCircle(): TCircle;
+
+Returns the prayer circle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  circle := Minimap.GetPrayerCircle();
+  Debug(circle.ToTPA());
+
+
+------------
+
+Minimap.GetRunCircle
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetRunCircle(): TCircle;
+
+Returns the run energy circle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  circle := Minimap.GetRunCircle();
+  Debug(circle.ToTPA());
+
+
+------------
+
+Minimap.GetSpecAttackCircle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetSpecAttackCircle(): TCircle;
+
+Returns the special attack circle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  circle := Minimap.GetSpecAttackCircle();
+  Debug(circle.ToTPA());
+
+
+------------
+
+Minimap.GetOrbLevel
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
+
+Returns the level of the specified orb.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.GetOrbLevel(Minimap.GetSpecAttackCircle());
+
+
+------------
+
+Minimap.GetRunEnergy
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetRunEnergy(): Int32;
+
+Returns the run energy level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.GetRunEnergy();
+
+
+------------
+
+Minimap.GetHPLevel
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetHPLevel(): Int32;
+
+Returns the current hp level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.GetHPLevel();
+
+
+------------
+
+Minimap.GetHPPercent
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetHPPercent(): Int32;
+
+Returns the current hp percentage level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.GetHPPercent();
+
+
+------------
+
+Minimap.GetPrayerLevel
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetPrayerLevel(): Int32;
+
+Returns the current prayer level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.GetPrayerLevel();
+
+
+------------
+
+Minimap.GetSpecLevel
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetSpecLevel(): Int32;
+
+Returns the current special attack level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.GetSpecLevel();
+
+
+------------
+
+Minimap.GetPolygon
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetPolygon(): TPointArray;
+
+Returns the minimap polygon which is not a perfect circle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(Minimap.GetPolygon().Connect());
+
+
+------------
+
+Minimap.GetCompassAngle
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetCompassAngle(asDegrees: Boolean = True): Double;
+
+Returns the current compass angle as degrees or radians.
+
+.. note:: Credits to Slacky
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.GetCompassAngle();
+
+
+------------
+
+Minimap.SetCompassAngle
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMinimap.SetCompassAngle(Degrees: Double; Accuracy: Double = 5);
+
+Sets the current compass angle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Minimap.SetCompassAngle(180);
+
+
+------------
+
+Minimap.IsPointOn
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TRSMinimap.IsPointOn(P: TPoint): Boolean;
+  function TRSMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
+
+Checks if a point is on the minimap.
+
+
+------------
+
+Minimap.IsPoisoned
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsPoisoned(): Boolean;
+
+Returns whether the player is poisoned or not.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.IsPoisoned();
+
+
+------------
+
+Minimap.IsEnvenomed
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsEnvenomed();
+
+Returns true if we are envenomed.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.IsEnvenomed();
+
+
+------------
+
+Minimap.IsRunEnabled
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsRunEnabled(): Boolean;
+
+Returns whether the player has run enabled or not.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.IsRunEnabled();
+
+
+------------
+
+Minimap.IsPrayerEnabled
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsPrayerEnabled(): Boolean;
+
+Returns whether the player has quick prayers enabled or not.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.IsPrayerEnabled();
+
+
+------------
+
+Minimap.HasStamina
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.HasStamina();
+
+Returns true if we are stamina boosted.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.HasStamina();
+
+
+------------
+
+Minimap.IsSpecEnabled
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsSpecEnabled(): Boolean;
+
+Returns whether the special attack is enabled or not.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.IsPrayerEnabled();
+
+
+------------
+
+Minimap.IsSpecWeapon
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsSpecWeapon();
+
+Returns true if the current weapon has a special attack.
+Returns false if the special attack level is at 0 or if the weapon doesn't have a special attack.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.IsSpecWeapon();
+
+
+------------
+
+Minimap.CurePoison
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.CurePoison(): Boolean;
+
+Attempts to cure poison by clicking the HP orb.
+This only works if you have a source of anti-poison.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.CurePoison();
+
+
+------------
+
+Minimap.EnableRun
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.EnableRun(): Boolean;
+
+Attempts to enable the run energy by clicking the run orb.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.EnableRun();
+
+
+------------
+
+Minimap.DisableRun
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.DisableRun(): Boolean;
+
+Attempts to disable the run energy by clicking the run orb.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.DisableRun();
+
+
+------------
+
+Minimap.EnablePrayer
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.EnablePrayer(): Boolean;
+
+Attempts to enable quick prayers by clicking the prayer orb.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.EnablePrayer();
+
+
+------------
+
+Minimap.DisablePrayer
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.DisablePrayer(): Boolean;
+
+Attempts to disable quick prayers by clicking the prayer orb.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.DisablePrayer();
+
+
+------------
+
+Minimap.EnableSpec
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.EnableSpec(minSpec: Int32): Boolean;
+
+Attempts to enable the special attack if we have at leas **minSpec** special attack level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.EnableSpec(25);
+
+
+------------
+
+Minimap.DisableSpec
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.DisableSpec();
+
+Attempts to disable the special attack.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.DisableSpec();
+
+
+------------
+
+Minimap.FindFlag
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.FindFlag(out p: TPoint): Boolean;
+
+Find the red flag when you are walking somewhere on the minimap.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if Minimap.FindFlag(p) then
+    Debug(Box(p, 3, 3));
+
+
+------------
+
+Minimap.HasFlag
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TRSMinimap.HasFlag(): Boolean;
+  function TRSMinimap.HasFlag(waitTime: Int32): Boolean; overload;
+
+Returns whether the minimap has a red flag or not.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.HasFlag();
+
+
+------------
+
+Minimap.WaitFlag
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMinimap.WaitFlag(UntilDistance: Int32 = 0);
+
+Waits until we reach the red flag on the minimap when we are walking.
+
+
+------------
+
+Minimap.GetDotsBitmap
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
+
+Returns the ERSMinimapDots found in a bitmap of the minimap.
+
+
+------------
+
+Minimap.GetDots
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TRSMinimap.GetDots(Dots: ERSMinimapDots): TPointArray;
+  function TRSMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
+
+Returns a TPointArray with the coordinates of the ERSMinimapDots found on the minimap.
+
+
+------------
+
+Minimap.IsPlayerMoving
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsPlayerMoving(MinShift: Integer = 500): Boolean;
+
+Returns whether the player is moving or not according to the specified minimum pixel shift.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.IsPlayerMoving();
+
+
+------------
+
+Minimap.WaitPlayerMoving
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMinimap.WaitPlayerMoving(MinShift: Integer = 500; Timeout: Int32 = 20000);
+
+Waits for the player to stop moving.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Minimap.WaitPlayerMoving();
+
+
+------------

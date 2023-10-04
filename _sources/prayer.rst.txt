@@ -36,7 +36,7 @@ Prayer.GetPrayerLevel
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSPrayer.GetPrayerLevel: Int32;
+ function TRSPrayer.GetPrayerLevel(): Int32;
 
 **Prayer.GetPrayerLevel** is used to retrieve the prayer level from the prayer tab.
 
@@ -44,7 +44,7 @@ Example
 -------
 .. code-block:: pascal  
 
-  Writeln Prayer.GetPrayerLevel;
+  Writeln Prayer.GetPrayerLevel();
 
 
 ------------
@@ -53,7 +53,7 @@ Prayer.IsOpen
 ~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSPrayer.IsOpen: Boolean;
+ function TRSPrayer.IsOpen(): Boolean;
 
 Returns true if the Prayer tab is open.
 
@@ -64,7 +64,7 @@ Prayer.Open
 ~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSPrayer.Open: Boolean;
+ function TRSPrayer.Open(): Boolean;
 
 Attempts to open the prayer tab.
 
@@ -81,7 +81,7 @@ Prayer.GetPrayerBoxes
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSPrayer.GetPrayerBoxes: TBoxArray;
+ function TRSPrayer.GetPrayerBoxes(): TBoxArray;
 .. code-block:: pascal
 
  function TRSPrayer.GetPrayerBoxes(Prayers: array of ERSPrayer): TBoxArray; overload;
@@ -387,81 +387,6 @@ Example
 var QuickPrayer
 ~~~~~~~~~~~~~~~
   Global QuickPrayer variable.
-
-
-------------
-
-Minimap
-=======
-Methods to handle the minimap prayer orb.
-
-
-------------
-
-Minimap.GetPrayerLevel
-~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- function TRSMinimap.GetPrayerLevel: Int32;
-
-**Minimap.GetPrayerLevel** is used to retrieve the prayer level from the minimap orb.
-
-Example
--------
-.. code-block:: pascal  
-
-  Writeln Minimap.GetPrayerLevel;
-
-
-------------
-
-Minimap.IsPrayerEnabled
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- function TRSMinimap.IsPrayerEnabled: Boolean;
-
-**Minimap.IsPrayerEnabled** is used to retrieve the quick prayer state (enabled or disabled).
-
-Example
--------
-.. code-block:: pascal  
-
-  Writeln Minimap.IsPrayerEnabled;
-
-
-------------
-
-Minimap.EnablePrayer
-~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- function TRSMinimap.EnablePrayer: Boolean;
-
-**Minimap.EnablePrayer** is used to enable quick prayers.
-
-Example
--------
-.. code-block:: pascal  
-
-  Minimap.EnablePrayer;
-
-
-------------
-
-Minimap.DisablePrayer
-~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- function TRSMinimap.DisablePrayer: Boolean;
-
-**Minimap.DisablePrayer** is used to disable quick prayers.
-
-Example
--------
-.. code-block:: pascal  
-
-  Minimap.DisablePrayer;
 
 
 ------------
