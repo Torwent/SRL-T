@@ -410,7 +410,7 @@ type TRSHitsplat
   type
     TRSHPBar = record
       Bounds: TBox;       // Bounds of the bar
-      Percent: Extended;  // Green percent of the bar.
+      Percent: Double;  // Green percent of the bar.
     end;
 
 

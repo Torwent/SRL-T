@@ -512,7 +512,7 @@ TRSWalker.WebWalk
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalker.WebWalk(Destination: TPoint; WaitUntilDistance: Int32 = 0; PathRandomness: Extended = 0): Boolean;
+ function TRSWalker.WebWalk(Destination: TPoint; WaitUntilDistance: Int32 = 0; PathRandomness: Double = 0): Boolean;
 
 Web walks to the destination point on the loaded map. Does **not** handle any obstacles.
 Please run ``webber.simba`` to see how webgraphs are built.
