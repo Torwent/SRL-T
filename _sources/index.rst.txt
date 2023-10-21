@@ -4,27 +4,51 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: UTILS
+	:caption: OSR -> INTERFACES -> GAMETABS
 
-   random
-   pixelshift
-   time
-   mouse
-   keyboard
-   tpoint
-   drawing
-   wrappers
-   tboxarrays
-   tcircle
-   matrix
-   math
-   integerarrays
-   string
-   color
-   trectangle
-   extendedarrays
-   tbox
-   tpointarrays
+   prayer
+   magic
+   inventory
+   stats
+   combat
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES
+
+   chat
+   login
+   xpbar
+   minimap
+   make
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> MAINSCREEN
+
+   depositbox
+   grandexchange
+   bankpin
+   bank
+   mainscreen
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> WALKER
+
+   webber
+   walker
+   webgraph
+   walker_map
 
 -----------
 
@@ -33,21 +57,11 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR
 
-   rsclient
-   mm2ms
    keybindings
    misc
+   mm2ms
+   rsclient
    antiban
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> FINDERS -> SPELLFINDER
-
-   spellfinder
-   generator
 
 -----------
 
@@ -63,51 +77,37 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> WALKER
+	:caption: OSR -> FINDERS -> SPELLFINDER
 
-   walker_map
-   webgraph
-   webber
-   walker
+   generator
+   spellfinder
 
 -----------
 
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> INTERFACES -> GAMETABS
+	:caption: UTILS
 
-   prayer
-   combat
-   magic
-   stats
-   inventory
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES
-
-   minimap
-   login
-   chat
-   xpbar
-   make
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES -> MAINSCREEN
-
-   depositbox
-   bankpin
-   bank
-   mainscreen
-   grandexchange
+   tpointarrays
+   time
+   math
+   matrix
+   pixelshift
+   extendedarrays
+   integerarrays
+   wrappers
+   mouse
+   string
+   tcircle
+   drawing
+   random
+   trectangle
+   tboxarrays
+   color
+   tbox
+   keyboard
+   tpoint
 
 -----------
 
