@@ -4,6 +4,16 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
+	:caption: OSR -> FINDERS -> SPELLFINDER
+
+   spellfinder
+   generator
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
 	:caption: OSR -> FINDERS -> ITEMFINDER
 
    itemfinder
@@ -13,23 +23,13 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> FINDERS -> SPELLFINDER
-
-   generator
-   spellfinder
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
 	:caption: OSR
 
+   antiban
+   mm2ms
+   misc
    rsclient
    keybindings
-   mm2ms
-   antiban
-   misc
 
 -----------
 
@@ -38,9 +38,9 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR -> WALKER
 
-   walker_map
-   webber
    walker
+   webber
+   walker_map
    webgraph
 
 -----------
@@ -50,11 +50,11 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR -> INTERFACES
 
-   chat
-   xpbar
-   make
-   minimap
    login
+   chat
+   make
+   xpbar
+   minimap
 
 -----------
 
@@ -63,11 +63,11 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR -> INTERFACES -> MAINSCREEN
 
-   grandexchange
-   bankpin
-   depositbox
-   bank
    mainscreen
+   depositbox
+   bankpin
+   grandexchange
+   bank
 
 -----------
 
@@ -76,10 +76,10 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR -> INTERFACES -> GAMETABS
 
-   stats
    prayer
-   inventory
    combat
+   stats
+   inventory
    magic
 
 -----------
@@ -89,25 +89,25 @@ Welcome to SRL-T documentation!
 
 	:caption: UTILS
 
-   wrappers
-   math
-   random
+   extendedarrays
+   tboxarrays
    integerarrays
-   tpointarrays
-   string
-   trectangle
    pixelshift
+   random
+   math
+   trectangle
    tpoint
+   matrix
    tcircle
    drawing
-   tboxarrays
+   string
+   mouse
+   color
    tbox
    keyboard
-   extendedarrays
-   color
-   matrix
-   mouse
    time
+   tpointarrays
+   wrappers
 
 -----------
 
