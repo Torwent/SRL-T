@@ -4,10 +4,91 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> FINDERS -> SPELLFINDER
+	:caption: UTILS
 
-   spellfinder
-   generator
+   math
+   trectangle
+   pixelshift
+   extendedarrays
+   keyboard
+   time
+   matrix
+   random
+   integerarrays
+   string
+   mouse
+   wrappers
+   tcircle
+   color
+   drawing
+   tpointarrays
+   tpoint
+   tboxarrays
+   tbox
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR
+
+   keybindings
+   rsclient
+   misc
+   antiban
+   mm2ms
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES
+
+   login
+   chat
+   minimap
+   xpbar
+   make
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> MAINSCREEN
+
+   depositbox
+   grandexchange
+   mainscreen
+   bank
+   bankpin
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> GAMETABS
+
+   magic
+   prayer
+   stats
+   inventory
+   combat
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> WALKER
+
+   walker_map
+   webgraph
+   walker
+   webber
 
 -----------
 
@@ -23,91 +104,10 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR
+	:caption: OSR -> FINDERS -> SPELLFINDER
 
-   antiban
-   mm2ms
-   misc
-   rsclient
-   keybindings
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> WALKER
-
-   walker
-   webber
-   walker_map
-   webgraph
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES
-
-   login
-   chat
-   make
-   xpbar
-   minimap
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES -> MAINSCREEN
-
-   mainscreen
-   depositbox
-   bankpin
-   grandexchange
-   bank
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES -> GAMETABS
-
-   prayer
-   combat
-   stats
-   inventory
-   magic
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: UTILS
-
-   extendedarrays
-   tboxarrays
-   integerarrays
-   pixelshift
-   random
-   math
-   trectangle
-   tpoint
-   matrix
-   tcircle
-   drawing
-   string
-   mouse
-   color
-   tbox
-   keyboard
-   time
-   tpointarrays
-   wrappers
+   generator
+   spellfinder
 
 -----------
 
