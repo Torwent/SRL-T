@@ -4,66 +4,25 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: UTILS
-
-   math
-   trectangle
-   pixelshift
-   extendedarrays
-   keyboard
-   time
-   matrix
-   random
-   integerarrays
-   string
-   mouse
-   wrappers
-   tcircle
-   color
-   drawing
-   tpointarrays
-   tpoint
-   tboxarrays
-   tbox
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
 	:caption: OSR
 
-   keybindings
-   rsclient
-   misc
    antiban
    mm2ms
+   rsclient
+   keybindings
+   misc
 
 -----------
 
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> INTERFACES
+	:caption: OSR -> WALKER
 
-   login
-   chat
-   minimap
-   xpbar
-   make
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES -> MAINSCREEN
-
-   depositbox
-   grandexchange
-   mainscreen
-   bank
-   bankpin
+   walker
+   webber
+   webgraph
+   walker_map
 
 -----------
 
@@ -73,8 +32,8 @@ Welcome to SRL-T documentation!
 	:caption: OSR -> INTERFACES -> GAMETABS
 
    magic
-   prayer
    stats
+   prayer
    inventory
    combat
 
@@ -83,12 +42,36 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> WALKER
+	:caption: OSR -> INTERFACES -> MAINSCREEN
 
-   walker_map
-   webgraph
-   walker
-   webber
+   depositbox
+   bank
+   mainscreen
+   bankpin
+   grandexchange
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES
+
+   xpbar
+   chat
+   minimap
+   login
+   make
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> FINDERS -> SPELLFINDER
+
+   generator
+   spellfinder
 
 -----------
 
@@ -104,10 +87,27 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> FINDERS -> SPELLFINDER
+	:caption: UTILS
 
-   generator
-   spellfinder
+   random
+   pixelshift
+   math
+   tbox
+   trectangle
+   string
+   drawing
+   wrappers
+   extendedarrays
+   time
+   integerarrays
+   tpointarrays
+   tpoint
+   keyboard
+   tcircle
+   color
+   mouse
+   matrix
+   tboxarrays
 
 -----------
 

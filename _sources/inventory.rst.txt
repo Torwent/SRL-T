@@ -146,7 +146,7 @@ Inventory.GetSelectedSlot
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSInventory.GetSelectedSlot: Int32;
+ function TRSInventory.GetSelectedSlot(): Int32;
 
 Returns the index of the selected slot (white outline).
 **-1** is returned if no slot is selected.

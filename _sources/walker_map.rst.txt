@@ -65,7 +65,7 @@ TRSWalkerMap.InternalLoadMap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalkerMap.InternalLoadMap(FileName: String; Region: TBox = []): TMufasaBitmap; static;
+ function TRSWalkerMap.InternalLoadMap(fileName: String; Region: TBox = []): TMufasaBitmap; static;
 
 Internal function responsible for loading our map.
 If a "Region" is specified, that region is cropped from the the image file and returned, otherwise the whole file is returned as a TMufasaBitmap.
@@ -96,10 +96,10 @@ TRSWalkerMap.Load
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- procedure TRSWalkerMap.Load(fileName: String; scaling: Integer); overload;
+ procedure TRSWalkerMap.Load(fileName: String; scaling: Int32); overload;
 .. code-block:: pascal
 
- procedure TRSWalkerMap.Load(fileName: String; aRegions: TBoxArray; scaling: Integer; Padding: Integer = 50); overload;
+ procedure TRSWalkerMap.Load(fileName: String; aRegions: TBoxArray; scaling: Int32; Padding: Int32 = 50); overload;
 
 Internal function responsible for setting up TRSWalkerMap.
 This is where we load our bitmaps and store them in a TRSWalkerMap variable.
@@ -126,7 +126,7 @@ TRSWalkerMap.RegionIndexFromPoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalkerMap.RegionIndexFromPoint(P: TPoint): Integer;
+ function TRSWalkerMap.RegionIndexFromPoint(P: TPoint): Int32;
 
 Internal TRSWalkerMap function used to return the region **p** belongs to.
 You probably don't need to ever call this but can be useful for debugging.
@@ -151,7 +151,7 @@ TRSWalkerMap.GlobalToRegion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalkerMap.GlobalToRegion(RegionIndex: Integer; P: TPoint): TPoint;
+ function TRSWalkerMap.GlobalToRegion(RegionIndex: Int32; P: TPoint): TPoint;
 
 Internal TRSWalkerMap function used to convert a global point **p** to a region point.
 This is literally the inverse of TRSWalkerMap.RegionToGlobal().

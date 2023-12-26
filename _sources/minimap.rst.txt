@@ -591,6 +591,27 @@ Waits until we reach the red flag on the minimap when we are walking.
 
 ------------
 
+Minimap.FindDotShadows
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.FindDotShadows(bmp: TMufasaBitmap): T2DPointArray;
+
+Returns an ATPA of the found dot shadows in a bitmap of the minimap.
+
+Example
+-------
+.. code-block:: pascal  
+
+  bmp.FromClient(Minimap.Bounds());
+  atpa := Minimap.FindDotShadows(bmp);
+  bmp.DrawATPA(atpa);
+  bmp.Debug();
+  bmp.Free();
+
+
+------------
+
 Minimap.GetDotsBitmap
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal

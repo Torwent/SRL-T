@@ -128,13 +128,18 @@ Walker.Setup
 .. code-block:: pascal
 
 
-  procedure TRSWalker.Setup(Scaling: Integer = 8);
-  procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 8);
-  procedure TRSWalker.Setup(Map: String; Regions: TBoxArray; Scaling: Integer = 8); overload;
-  procedure TRSWalker.Setup(Regions: TBoxArray; Scaling: Integer = 8); overload;
+  procedure TRSWalker.Setup(map: String; Scaling: Int32 = 8);
+  procedure TRSWalker.Setup(scaling: Int32 = 8); overload;
+  procedure TRSWalker.SetupRegions(map: String; aRegions: TBoxArray; scaling: Int32 = 8);
+  procedure TRSWalker.SetupRegions(aRegions: TBoxArray; scaling: Int32 = 8); overload;
+  procedure TRSWalker.SetupRegion(map: String; aRegion: TBox; scaling: Int32 = 8);
+  procedure TRSWalker.SetupRegion(aRegion: TBox; scaling: Int32 = 8); overload;
+  procedure TRSWalker.SetupFromURL(url: String; map: String = ''; scaling: Int32 = 8; force: Boolean = False); overload;
+  procedure TRSWalker.Setup(map: String; aRegions: TBoxArray; scaling: Int32 = 8); overload; deprecated;
+  procedure TRSWalker.Setup(aRegions: TBoxArray; scaling: Int32 = 8); overload; deprecated;
 
 Setup method to be called in scripts.
-There's 4 versions of the method you can call depending on the parameters you pass in.
+There's several versions of the method you can call depending on the features you want to use.
 All of them have a scaling parameter in common that defaults to 8.
 This is used to adjust the downscaling of the map used, lower downscaling makes walker more accurate at the cost of speed.
 The speed difference is more or less porportional to the scaling, higher being faster. Unless you have issues with wrong positions you should probably not touch it.
@@ -158,8 +163,23 @@ Example
     rsw.Setup('world.png');
     rsw.Setup('world', 6);
     rsw.Setup();
-    rsw.Setup([[4460, 1900, 4800, 2250], [75, 75, 1000, 1000]]); //loads GE and lunar isle.
+    rsw.SetupRegions([[4460, 1900, 4800, 2250], [75, 75, 1000, 1000]]); //loads GE and lunar isle.
   end;
+
+
+------------
+
+Walker.AddRegion
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  procedure TRSWalker.AddRegion(map: String; start: TPoint);
+  procedure TRSWalker.AddRegion(map: String; aRegion: TBox); overload;
+  procedure TRSWalker.AddRegion(aRegion: TBox); overload;
+  procedure TRSWalker.AddRegionFromURL(url: String; start: TPoint; map: String = ''; force: Boolean = False); overload;
+
+Add a region to walker on the fly after it is already setup.
 
 
 ------------
@@ -252,7 +272,9 @@ You probably won't ever need to call this directly.
 
 Walker.GetMyPos
 ~~~~~~~~~~~~~~~
-function TRSWalker.GetMyPos: TPoint;
+.. code-block:: pascal
+
+ function TRSWalker.GetMyPos(): TPoint;
 
 Returns the players current position on the loaded map.
 
@@ -270,14 +292,15 @@ Walker.WorldToMM
 ~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint;
-.. code-block:: pascal
 
- function TRSWalker.WorldToMM(WorldPoint: TPoint): TPoint; overload;
+  function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint;
+  function TRSWalker.WorldToMM(WorldPoint: TPoint): TPoint; overload;
 
 Converts a walker coordinate to a point in the minimap.
 
-Example::
+Example
+-------
+.. code-block:: pascal  
 
   var
     rsw: TRSWalker;
