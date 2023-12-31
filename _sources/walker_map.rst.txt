@@ -96,10 +96,11 @@ TRSWalkerMap.Load
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- procedure TRSWalkerMap.Load(fileName: String; scaling: Int32); overload;
-.. code-block:: pascal
 
- procedure TRSWalkerMap.Load(fileName: String; aRegions: TBoxArray; scaling: Int32; Padding: Int32 = 50); overload;
+  procedure TRSWalkerMap.Load(fileName: String; scaling: Int32); overload;
+  procedure TRSWalkerMap.Load(fileName: String; aRegions: TBoxArray; scaling: Int32; Padding: Int32 = 50); overload;
+  procedure TRSWalkerMap.Load(fileName: String; aRegion: TBox; scaling: Int32; padding: Int32 = 50); overload;
+  procedure TRSWalkerMap.Load(fileName: String; start: TPoint; scaling: Int32; out aRegion: TBox; padding: Int32 = 50); overload;
 
 Internal function responsible for setting up TRSWalkerMap.
 This is where we load our bitmaps and store them in a TRSWalkerMap variable.
