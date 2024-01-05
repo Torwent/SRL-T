@@ -238,6 +238,40 @@ Example
 
 ------------
 
+Prayer.DisablePrayer
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSPrayer.DisablePrayer(Prayer: ERSPrayer): Boolean;
+
+Attempts to disable the specified prayer.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Prayer.DisablePrayer(ERSPrayer.PROTECT_FROM_MELEE);
+
+
+------------
+
+Prayer.DisablePrayer
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSPrayer.DisablePrayer(Prayers: array of ERSPrayer): Boolean; overload;
+
+Attempts to disable the several prayers.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Prayer.DisablePrayer([ERSPrayer.PROTECT_FROM_MELEE, ERSPrayer.PIETY]);
+
+
+------------
+
 var Prayer
 ~~~~~~~~~~
   Global Prayer variable.
