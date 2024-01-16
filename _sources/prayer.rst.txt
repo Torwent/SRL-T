@@ -418,6 +418,26 @@ Example
 
 ------------
 
+QuickPrayer.DeselectPrayer
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function QuickPrayer.DeselectPrayer(QPrayer: ERSPrayer): Boolean;
+.. code-block:: pascal
+
+ function QuickPrayer.DeselectPrayer(QPrayers: array of ERSPrayer): Boolean; overload;
+
+Attempts to Deselect the specified quick prayer/prayers.
+
+Example
+-------
+.. code-block:: pascal  
+
+  QuickPrayers.DeselectPrayer(ERSPrayer.PROTECT_ITEM);
+
+
+------------
+
 var QuickPrayer
 ~~~~~~~~~~~~~~~
   Global QuickPrayer variable.
