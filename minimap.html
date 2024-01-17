@@ -101,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#minimap-gethplevel">Minimap.GetHPLevel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-gethppercent">Minimap.GetHPPercent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-getprayerlevel">Minimap.GetPrayerLevel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimap-getprayerpercent">Minimap.GetPrayerPercent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-getspeclevel">Minimap.GetSpecLevel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-getpolygon">Minimap.GetPolygon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-getcompassangle">Minimap.GetCompassAngle</a></li>
@@ -366,14 +367,28 @@
 </section>
 </section>
 <hr class="docutils" />
+<section id="minimap-getprayerpercent">
+<h2>Minimap.GetPrayerPercent<a class="headerlink" href="#minimap-getprayerpercent" title="Link to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">GetPrayerPercent</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns the current Prayer percentage level.</p>
+<section id="id11">
+<h3>Example<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">GetPrayerPercent</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
 <section id="minimap-getspeclevel">
 <h2>Minimap.GetSpecLevel<a class="headerlink" href="#minimap-getspeclevel" title="Link to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">GetSpecLevel</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the current special attack level.</p>
-<section id="id11">
-<h3>Example<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<section id="id12">
+<h3>Example<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">GetSpecLevel</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -386,8 +401,8 @@
 </pre></div>
 </div>
 <p>Returns the minimap polygon which is not a perfect circle.</p>
-<section id="id12">
-<h3>Example<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<section id="id13">
+<h3>Example<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Minimap</span><span class="o">.</span><span class="n">GetPolygon</span><span class="p">()</span><span class="o">.</span><span class="n">Connect</span><span class="p">())</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -404,8 +419,8 @@
 <p class="admonition-title">Note</p>
 <p>Credits to Slacky</p>
 </div>
-<section id="id13">
-<h3>Example<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<section id="id14">
+<h3>Example<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">GetCompassAngle</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -418,8 +433,8 @@
 </pre></div>
 </div>
 <p>Sets the current compass angle.</p>
-<section id="id14">
-<h3>Example<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<section id="id15">
+<h3>Example<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Minimap</span><span class="o">.</span><span class="n">SetCompassAngle</span><span class="p">(</span><span class="mi">180</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -441,8 +456,8 @@
 </pre></div>
 </div>
 <p>Returns whether the player is poisoned or not.</p>
-<section id="id15">
-<h3>Example<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<section id="id16">
+<h3>Example<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsPoisoned</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -455,8 +470,8 @@
 </pre></div>
 </div>
 <p>Returns true if we are envenomed.</p>
-<section id="id16">
-<h3>Example<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<section id="id17">
+<h3>Example<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsEnvenomed</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -469,8 +484,8 @@
 </pre></div>
 </div>
 <p>Returns whether the player has run enabled or not.</p>
-<section id="id17">
-<h3>Example<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<section id="id18">
+<h3>Example<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsRunEnabled</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -483,8 +498,8 @@
 </pre></div>
 </div>
 <p>Returns whether the player has quick prayers enabled or not.</p>
-<section id="id18">
-<h3>Example<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<section id="id19">
+<h3>Example<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsPrayerEnabled</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -497,8 +512,8 @@
 </pre></div>
 </div>
 <p>Returns true if we are stamina boosted.</p>
-<section id="id19">
-<h3>Example<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<section id="id20">
+<h3>Example<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">HasStamina</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -511,8 +526,8 @@
 </pre></div>
 </div>
 <p>Returns whether the special attack is enabled or not.</p>
-<section id="id20">
-<h3>Example<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<section id="id21">
+<h3>Example<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsPrayerEnabled</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -526,8 +541,8 @@
 </div>
 <p>Returns true if the current weapon has a special attack.
 Returns false if the special attack level is at 0 or if the weapon doesn’t have a special attack.</p>
-<section id="id21">
-<h3>Example<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<section id="id22">
+<h3>Example<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsSpecWeapon</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -541,8 +556,8 @@ Returns false if the special attack level is at 0 or if the weapon doesn’t hav
 </div>
 <p>Attempts to cure poison by clicking the HP orb.
 This only works if you have a source of anti-poison.</p>
-<section id="id22">
-<h3>Example<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<section id="id23">
+<h3>Example<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">CurePoison</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -555,8 +570,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Attempts to enable the run energy by clicking the run orb.</p>
-<section id="id23">
-<h3>Example<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<section id="id24">
+<h3>Example<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">EnableRun</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -569,8 +584,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Attempts to disable the run energy by clicking the run orb.</p>
-<section id="id24">
-<h3>Example<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<section id="id25">
+<h3>Example<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">DisableRun</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -583,8 +598,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Attempts to enable quick prayers by clicking the prayer orb.</p>
-<section id="id25">
-<h3>Example<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<section id="id26">
+<h3>Example<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">EnablePrayer</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -597,8 +612,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Attempts to disable quick prayers by clicking the prayer orb.</p>
-<section id="id26">
-<h3>Example<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<section id="id27">
+<h3>Example<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">DisablePrayer</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -611,8 +626,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Attempts to enable the special attack if we have at leas <strong>minSpec</strong> special attack level.</p>
-<section id="id27">
-<h3>Example<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<section id="id28">
+<h3>Example<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">EnableSpec</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -625,8 +640,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Attempts to disable the special attack.</p>
-<section id="id28">
-<h3>Example<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<section id="id29">
+<h3>Example<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">DisableSpec</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -639,8 +654,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Find the red flag when you are walking somewhere on the minimap.</p>
-<section id="id29">
-<h3>Example<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<section id="id30">
+<h3>Example<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">FindFlag</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="w">  </span><span class="n">Debug</span><span class="p">(</span><span class="n">Box</span><span class="p">(</span><span class="n">p</span><span class="o">,</span><span class="w"> </span><span class="mi">3</span><span class="o">,</span><span class="w"> </span><span class="mi">3</span><span class="p">))</span><span class="o">;</span>
 </pre></div>
@@ -655,8 +670,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Returns whether the minimap has a red flag or not.</p>
-<section id="id30">
-<h3>Example<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<section id="id31">
+<h3>Example<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">HasFlag</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -677,8 +692,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Returns an ATPA of the found dot shadows in a bitmap of the minimap.</p>
-<section id="id31">
-<h3>Example<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<section id="id32">
+<h3>Example<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">bmp</span><span class="o">.</span><span class="n">FromClient</span><span class="p">(</span><span class="n">Minimap</span><span class="o">.</span><span class="n">Bounds</span><span class="p">())</span><span class="o">;</span>
 <span class="n">atpa</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">FindDotShadows</span><span class="p">(</span><span class="n">bmp</span><span class="p">)</span><span class="o">;</span>
 <span class="n">bmp</span><span class="o">.</span><span class="n">DrawATPA</span><span class="p">(</span><span class="n">atpa</span><span class="p">)</span><span class="o">;</span>
@@ -712,8 +727,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Returns whether the player is moving or not according to the specified minimum pixel shift.</p>
-<section id="id32">
-<h3>Example<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<section id="id33">
+<h3>Example<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsPlayerMoving</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -726,8 +741,8 @@ This only works if you have a source of anti-poison.</p>
 </pre></div>
 </div>
 <p>Waits for the player to stop moving.</p>
-<section id="id33">
-<h3>Example<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<section id="id34">
+<h3>Example<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Minimap</span><span class="o">.</span><span class="n">WaitPlayerMoving</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>

@@ -220,6 +220,23 @@ Example
 
 ------------
 
+Minimap.GetPrayerPercent
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.GetPrayerPercent(): Int32;
+
+Returns the current Prayer percentage level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Minimap.GetPrayerPercent();
+
+
+------------
+
 Minimap.GetSpecLevel
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
