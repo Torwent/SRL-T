@@ -293,8 +293,8 @@ Walker.WorldToMM
 .. code-block:: pascal
 
 
-  function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint;
-  function TRSWalker.WorldToMM(WorldPoint: TPoint): TPoint; overload;
+  function TRSWalker.WorldToMM(playerPoint, walkerPoint: TPoint; Radians: Double): TPoint;
+  function TRSWalker.WorldToMM(walkerPoint: TPoint): TPoint; overload;
 
 Converts a walker coordinate to a point in the minimap.
 
@@ -387,7 +387,7 @@ Walker.Click
 ~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalker.Click(MinimapPoint: TPoint; Randomness: Int32): Boolean;
+ function TRSWalker.Click(minimapPoint: TPoint; Randomness: Int32): Boolean;
 
 Internal method used by walker to handle clicking while walking.
 You will probably never need to call this directly.
@@ -399,7 +399,7 @@ Example
 -------
 .. code-block:: pascal  
 
-  function TRSWalker.Click(MinimapPoint: TPoint; Randomness: Int32): Boolean; override;
+  function TRSWalker.Click(minimapPoint: TPoint; Randomness: Int32): Boolean; override;
   var
     P: TPoint;
   begin
@@ -407,15 +407,15 @@ Example
 
     if Self.ScreenWalk then
     begin
-      Mouse.Move(Minimap.PointToMsRect(MinimapPoint).Mean());
+      Mouse.Move(Minimap.PointToMsRect(minimapPoint).Mean());
 
       if not MainScreen.IsUpText(['Walk here', 'Tree', 'tree']) then
         Exit(ChooseOption.Select('Walk here'));
     end else
     begin
-      P := MinimapPoint.Random(-Randomness, Randomness);
+      P := minimapPoint.Random(-Randomness, Randomness);
       while not Minimap.IsPointOn(P) do
-        P := MinimapPoint.Random(-Randomness, Randomness);
+        P := minimapPoint.Random(-Randomness, Randomness);
 
       Mouse.Move(P);
     end;
@@ -440,7 +440,7 @@ Walker.WalkFinalStep
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalker.WalkFinalStep(PlayerPoint, WorldPoint: TPoint; WaitUntilDistance: Int32): Boolean;
+ function TRSWalker.WalkFinalStep(playerPoint, walkerPoint: TPoint; WaitUntilDistance: Int32): Boolean;
 
 Internal method used by walker when finishing walking a path.
 You will probably never need to call this directly but it can be used to take a single step.
@@ -452,7 +452,7 @@ Walker.WalkStep
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint): Boolean;
+ function TRSWalker.WalkStep(playerPoint, walkerPoint: TPoint): Boolean;
 
 Internal method used by walker while walking a path.
 You will probably never need to call this directly.
@@ -464,7 +464,7 @@ Walker.IsWalkable
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalker.IsWalkable(WorldPoint: TPoint; PlayerPoint: TPoint; Angle: Double): Boolean;
+ function TRSWalker.IsWalkable(walkerPoint: TPoint; playerPoint: TPoint; Angle: Double): Boolean;
 
 Internal method used by walker to decide if the destination point is within 1 click reach.
 You will probably never need to call this directly.
