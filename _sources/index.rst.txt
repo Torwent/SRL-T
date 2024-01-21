@@ -58,9 +58,17 @@ Welcome to SRL-T documentation!
 	:caption: OSR -> INTERFACES
 
    xpbar
-   chat
    minimap
    login
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> CHAT
+
+   chat
    make
 
 -----------
