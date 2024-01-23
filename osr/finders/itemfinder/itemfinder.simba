@@ -12,38 +12,9 @@ type
   TRSItem = Variant;
   TRSItemArray = array of TRSItem;
 
-(*
-ItemArray.Find
-~~~~~~~~~~~~~~
-.. pascal:: function TRSItemArray.Find(const value: TRSItem): Int32; constref;
+  TRSItemFinderCustomFilter = procedure(constref image, templ: TImage) of object;
 
-Find a TRSItem in a TRSItemArray and return it's index.
-*)
-function TRSItemArray.Find(const value: TRSItem): Int32; constref;
-begin
-  for Result := 0 to High(Self) do
-    if (value = Self[Result]) then
-      Exit;
-
-  Result := -1;
-end;
-
-(*
-ItemArray.Contains
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSItemArray.Contains(const value: TRSItem): Boolean; constref;
-
-Find a TRSItem in a TRSItemArray and return true or false.
-*)
-function TRSItemArray.Contains(const value: TRSItem): Boolean; constref;
-begin
-  Result := Self.Find(value) > -1;
-end;
-
-type
-  TRSItemFinderCustomFilter = procedure(constref image, templ: TMufasaBitmap) of object;
-
-  TRSItemFinder = record(TSRLBaseRecord)
+  TRSItemFinder = record //(TSRLBaseRecord)
     IMAGES_ZIP: String;
     ITEM_NAMES: String;
     IMAGES_PATH: String;
@@ -56,7 +27,7 @@ type
 
     ItemImages: array of record
       Name: String;
-      Images: array of TMufasaBitmap;
+      Images: array of TImage;
     end;
 
     Similarity: Single;
@@ -144,11 +115,11 @@ begin
 end;
 
 
-function TRSItemFinder.GetItemImages(item: String): array of TMufasaBitmap;
+function TRSItemFinder.GetItemImages(item: String): array of TImage;
 type
-  TMufasaBitmap = TMufasaBitmap;
+  TImage = TImage;
 
-  function TMufasaBitmap.Equals(Other: TMufasaBitmap): Boolean;
+  function TImage.Equals(Other: TImage): Boolean;
   begin
     Result := (Self.GetWidth()  = Other.GetWidth()) and
               (Self.GetHeight() = Other.GetHeight()) and
@@ -157,7 +128,7 @@ type
 
 var
   fileName: String;
-  image: TMufasaBitmap;
+  image: TImage;
   itemID: Int32;
   i: Int32;
 begin
@@ -203,11 +174,11 @@ begin
   Self.ItemImages += [item, Result];
 end;
 
-function TRSItemFinder.CompareItems(constref image, template: TMufasaBitmap; constref CustomFilter: TRSItemFinderCustomFilter): Single;
+function TRSItemFinder.CompareItems(constref image, template: TImage; constref CustomFilter: TRSItemFinderCustomFilter): Single;
 var
   imageBorder, templateBorder: TPointArray;
   tpa, clearTPA: TPointArray;
-  alignedTemplate, alignedImage: TMufasaBitmap;
+  alignedTemplate, alignedImage: TImage;
   align: TPoint;
   clearColor: Int32;
   p: TPoint;
@@ -219,7 +190,7 @@ begin
       template.Crop(X1, Y1, X2, Y2);
       templateBorder := templateBorder.Offset(-X1,-Y1);
     end;
-    
+
     // Use highest Y point of both images for alignment
     // TPA is already sorted like this with how FindColors operates.
     align.X := Max(0, imageBorder[High(imageBorder)].X - templateBorder[High(templateBorder)].X);
@@ -234,14 +205,14 @@ begin
         if (not PointInTPA(p, imageBorder)) then // Borders don't match. No point going further.
           Exit;
       end;
-    
+
     alignedImage := image.Copy();
-  
+
     alignedTemplate.Init(Client.GetMBitmaps());
     alignedTemplate.SetSize(image.GetWidth(), image.GetHeight());
-    
+
     template.DrawTransparent(align.X, align.Y, alignedTemplate);
-    
+
     if (@CustomFilter <> nil) then
       CustomFilter(alignedImage, alignedTemplate);
 
@@ -260,9 +231,9 @@ begin
     alignedImage.DrawTPA(clearTPA, 0);
 
     Result := alignedImage.MatchTemplate(alignedTemplate, TM_CCORR_NORMED)[0][0]; // IDK why I used CCORR. But it works!
-  
+
     alignedImage.Free();
-    alignedTemplate.Free(); 
+    alignedTemplate.Free();
   end;
 end;
 
@@ -277,11 +248,11 @@ type
 function TRSItemFinder.FindAll(items: TRSItemArray; boxes: TBoxArray; maxToFind: Integer = 0): TRSItemFinderMatchArray;
 var
   i, j: Integer;
-  images: TMufasaBitmapArray;
-  template: TMufasaBitmap;
+  images: TImageArray;
+  template: TImage;
   filter: TRSItemFinderCustomFilter;
   itemsToSearchFor: array of record
-    Image: TMufasaBitmap;
+    Image: TImage;
     Name: TRSItem;
     Filter: TRSItemFinderCustomFilter;
   end;
@@ -337,7 +308,7 @@ begin
 end;
 
 
-procedure TRSItemFinderCustomFilter.ClearSparkles(constref Image, Templ: TMufasaBitmap); static;
+procedure TRSItemFinderCustomFilter.ClearSparkles(constref Image, Templ: TImage); static;
 var
   I: Int32;
   ImagePtr, TemplPtr: PRGB32;
@@ -357,7 +328,7 @@ begin
   end;
 end;
 
-procedure TRSItemFinderCustomFilter.FireCape(constref Image, Templ: TMufasaBitmap); static;
+procedure TRSItemFinderCustomFilter.FireCape(constref Image, Templ: TImage); static;
 var
   I: Int32;
   ImagePtr, TemplPtr: PRGB32;
@@ -376,7 +347,7 @@ begin
   end;
 end;
 
-procedure TRSItemFinderCustomFilter.LavaScales(constref Image, Templ: TMufasaBitmap); static;
+procedure TRSItemFinderCustomFilter.LavaScales(constref Image, Templ: TImage); static;
 var
   I: Int32;
   ImagePtr, TemplPtr: PRGB32;
@@ -395,7 +366,7 @@ begin
   end;
 end;
 
-procedure TRSItemFinderCustomFilter.DarkEss(constref Image, Templ: TMufasaBitmap); static;
+procedure TRSItemFinderCustomFilter.DarkEss(constref Image, Templ: TImage); static;
 var
   I: Int32;
   ImagePtr, TemplPtr: PRGB32;

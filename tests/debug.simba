@@ -1,6 +1,0 @@
-{.$DEFINE SRL_USE_REMOTEINPUT}
-{$I SRL-T/osr.simba}
-
-begin
-  SRL.Debug();
-end.

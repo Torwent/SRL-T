@@ -1,0 +1,34 @@
+(*
+OCR
+===
+*)
+{$DEFINE SRL_OCR_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL-T/osr.simba}
+{$ENDIF}
+
+{$loadlib ../../plugins/libsimpleocr/libsimpleocr}
+
+type
+  TRSFonts = record
+    PLAIN_11:       TFontSet;
+    PLAIN_12:       TFontSet;
+    BOLD_12:        TFontSet;
+    BOLD_12_SHADOW: TFontSet;
+    QUILL_8:        TFontSet;
+    QUILL:          TFontSet;
+    const PATH = {$macro DIR} + 'fonts' + PATH_SEP;
+  end;
+
+var
+  RSFonts: TRSFonts;
+  OCR: TSimpleOCR;
+
+begin
+  RSFonts.PLAIN_11.Load(RSFonts.PATH + 'Plain 11');
+  RSFonts.PLAIN_12.Load(RSFonts.PATH + 'Plain 12');
+  RSFonts.BOLD_12.Load(RSFonts.PATH + 'Bold 12');
+  RSFonts.BOLD_12_SHADOW.Load(RSFonts.PATH + 'Bold 12 Shadow');
+  RSFonts.QUILL_8.Load(RSFonts.PATH + 'Quill 8');
+  RSFonts.QUILL.Load(RSFonts.PATH + 'Quill');
+end;

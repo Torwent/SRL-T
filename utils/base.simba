@@ -4,20 +4,40 @@
 {$ENDIF}
 
 type
-  TSRLBaseRecord = record
-    Name: String;
-    DisableDebugging: Boolean;
-  end;
+  EErrorLevel = enum(SUCCESS, WARN, ERROR);
 
-procedure TSRLBaseRecord.DebugLn(text: String); constref;
+procedure DebugLn(text: String);
 begin
-  if not Self.DisableDebugging then
-    WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']: ' + text);
+  WriteLn(SRL.TimeStamp() + ': ' + text);
 end;
 
-procedure TSRLBaseRecord.Fatal(text: String); constref;
+procedure DebugLn(name, text: String); overload;
 begin
-  WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']:[Fatal]: ' + text);
+  WriteLn(SRL.TimeStamp() + ':[' + name + ']: ' + text);
+end;
 
-  TerminateScript();
+procedure DebugLn(text: String; level: EErrorLevel); overload;
+begin
+  case level of
+    EErrorLevel.SUCCESS: WriteLn(#0#0'000008' + SRL.TimeStamp() + ': ' + text);
+    EErrorLevel.WARN:    WriteLn(#0#0'000002' + SRL.TimeStamp() + ': ' + text);
+    EErrorLevel.ERROR:
+      begin
+        WriteLn(#0#0'000004' + SRL.TimeStamp() + ': ' + text);
+        TerminateScript(True);
+      end;
+  end;
+end;
+
+procedure DebugLn(name, text: String; level: EErrorLevel); overload;
+begin
+  case level of
+    EErrorLevel.SUCCESS: WriteLn(#0#0'000008' + SRL.TimeStamp() + ':[' + name + ']: ' + text);
+    EErrorLevel.WARN:    WriteLn(#0#0'000002' + SRL.TimeStamp() + ':[' + name + ']: ' + text);
+    EErrorLevel.ERROR:
+      begin
+        WriteLn(#0#0'000004' + SRL.TimeStamp() + ':[' + name + ']: ' + text);
+        TerminateScript(True);
+      end;
+  end;
 end;

@@ -8,13 +8,14 @@ Misc
   {$I SRL-T/osr.simba}
 {$ENDIF}
 
-const
-  RS_ITEM_SHADOW       = $202030;
-  RS_ITEM_BORDER       = $010000;
-
-  RS_ITEM_YELLOW_STACK = $00FFFF;
-  RS_ITEM_WHITE_STACK  = $FFFFFF;
-  RS_ITEM_GREEN_STACK  = $80FF00;
+type
+  RSColors = record
+    const ITEM_SHADOW = $202030;
+    const ITEM_BORDER = $010000;
+    const ITEM_YELLOW_STACK = $00FFFF;
+    const ITEM_WHITE_STACK  = $FFFFFF;
+    const ITEM_GREEN_STACK  = $80FF00;
+  end;
 
 (*
 SRL.GetXPAtLevel
@@ -23,7 +24,7 @@ SRL.GetXPAtLevel
 
 Given a level it returns the minimum XP needed for it.
 *)
-function TSRL.GetXPAtLevel(level: Int32): Int32; constref;
+function TSRL.GetXPAtLevel(level: Int32): Int32;
 var
   total:Double;
   i:Int32;
@@ -40,12 +41,12 @@ SRL.GetLevelAtXP
 
 Given some XP, it returns what level that is.
 *)
-function TSRL.GetLevelAtXP(XP: UInt32): Int32; constref;
-var 
+function TSRL.GetLevelAtXP(xp: UInt32): Int32;
+var
   total:Double;
 begin
-  while (total < XP*4+1) do
-  begin  
+  while (total < xp*4+1) do
+  begin
     Inc(Result);
     total += Floor(Result + 300 * 2 ** (Result / 7));
   end;
@@ -73,53 +74,20 @@ SRL.GetItemAmount
 For use with items in like bankscreen, inventory, shops and so on to
 get the number of stacked items there are.
 *)
-function TSRL.GetItemAmount(constref area: TBox): Int32; constref;
+function TSRL.GetItemAmount(area: TBox): Int32;
 begin
-  if SRL.CountColor(RS_ITEM_YELLOW_STACK, area) > 0 then
-    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([RS_ITEM_YELLOW_STACK]), RS_FONT_PLAIN_11)
-  else
-  if SRL.CountColor(RS_ITEM_WHITE_STACK, area) > 0 then
-    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([RS_ITEM_WHITE_STACK]), RS_FONT_PLAIN_11) * 1000
-  else
-  if SRL.CountColor(RS_ITEM_GREEN_STACK, area) > 0 then
-    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([RS_ITEM_GREEN_STACK]), RS_FONT_PLAIN_11) * 1000000;
+  area := SRL.GetItemAmountBox(area);
+  if Finder.CountColor(RSColors.ITEM_YELLOW_STACK, 0, area) then
+    Exit(OCR.RecognizeNumber(area, TOCRColorFilter.Create([RSColors.ITEM_YELLOW_STACK]), RSFonts.PLAIN_11));
+
+  if Finder.CountColor(RSColors.ITEM_WHITE_STACK, 0, area) then
+    Exit(OCR.RecognizeNumber(area, TOCRColorFilter.Create([RSColors.ITEM_WHITE_STACK]), RSFonts.PLAIN_11) * 1000);
+
+  if Finder.CountColor(RSColors.ITEM_GREEN_STACK, 0, area) then
+    Exit(OCR.RecognizeNumber(area, TOCRColorFilter.Create([RSColors.ITEM_GREEN_STACK]), RSFonts.PLAIN_11) * 1000000);
 end;
 
-(*
-SRL.AvgBrightness
-~~~~~~~~~~~~~~~~~
-.. pascal:: function TSRL.AvgBrightness(B: TBox): Int32;
-
-Returns the average brightness of a area on the screen. 
-Returns a value between ``0`` and ``100``, ``0`` being black.
-*)
-function TSRL.AvgBrightness(B: TBox): Int32; constref;
-var
-  BMP: TMufasaBitmap;
-begin
-  BMP.FromClient(B);
-  Result := BMP.AvgBrightness();
-  BMP.Free();
-end;
-
-(*
-SRL.PeakBrightness
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TSRL.PeakBrightness(B: TBox): Int32;
-
-Returns the peak brightness of a area on the screen. 
-Returns a value between ``0`` and ``100``, ``0`` being black.
-*)
-function TSRL.PeakBrightness(B: TBox): Int32; constref;
-var
-  BMP: TMufasaBitmap;
-begin
-  BMP.FromClient(B);
-  Result := BMP.PeakBrightness();
-  BMP.Free();
-end;
-
-function TSRL.FormatNumber(n: Double; dec:Byte = 3): String; constref;
+function TSRL.FormatNumber(n: Double; dec:Byte = 3): String;
 var
   i: Int32;
   f: Double := n;
@@ -130,8 +98,5 @@ begin
     f := f / 1000;
   end;
 
-  Result := FloatToStr(Round(f,dec)) + (['','K','M','B','T'])[i]
+  Result := FloatToStr(Round(f,dec)) + (['','K','M','B','T'])[i];
 end;
-
-
-

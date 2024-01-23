@@ -5,57 +5,9 @@ type
     IsSetup: Boolean;
   end;
 
-{$IFDEF SIMBA1400}
-const
-  SIMBA_DATA_DIR = AppPath + 'Data' + DirectorySeparator; //missing this const and walker1500 needs it.
-{$ENDIF}
-
 var
   SRL: TSRL;
 
-{$IFNDEF SRL_WRAPPERS_INCLUDED}      {$I utils/wrappers.simba}
-{$IFNDEF SRL_MATH_INCLUDED}          {$I utils/math.simba}
-{$IFNDEF SRL_TBOX_INCLUDED}          {$I utils/tbox.simba}
-{$IFNDEF SRL_TPOINT_INCLUDED}        {$I utils/tpoint.simba}
-{$IFNDEF SRL_TRECTANGLE_INCLUDED}    {$I utils/trectangle.simba}
-{$IFNDEF SRL_TBOXARRAY_INCLUDED}     {$I utils/tboxarrays.simba}
-{$IFNDEF SRL_TCIRCLE_INCLUDED}       {$I utils/tcircle.simba}
-{$IFNDEF SRL_STRING_INCLUDED}        {$I utils/string.simba}
-{$IFNDEF SRL_VECTOR_INCLUDED}        {$I utils/vector.simba}
-{$IFNDEF SRL_STRINGARRAY_INCLUDED}   {$I utils/stringarrays.simba}
-{$IFNDEF SRL_EXTENDEDARRAY_INCLUDED} {$I utils/extendedarrays.simba}
-{$IFNDEF SRL_INTEGERARRAY_INCLUDED}  {$I utils/integerarrays.simba}
-{$IFNDEF SRL_TPOINTARRAY_INCLUDED}   {$I utils/tpointarrays.simba}
-{$IFNDEF SRL_MATRIX_INCLUDED}        {$I utils/matrix.simba}
-{$IFNDEF SRL_RANDOM_INCLUDED}        {$I utils/random.simba}
-
-{$IFNDEF SRL_TIME_INCLUDED}          {$I utils/time.simba}
-{$IFNDEF SRL_BASE_INCLUDED}          {$I utils/base.simba}
-{$IFNDEF SRL_PIXELSHIFT_INCLUDED}    {$I utils/pixelshift.simba}
-{$IFNDEF SRL_MOUSE_INCLUDED}         {$I utils/mouse.simba}
-{$IFNDEF SRL_KEYBOARD_INCLUDED}      {$I utils/keyboard.simba}
-{$IFNDEF SRL_COLOR_INCLUDED}         {$I utils/color.simba}
-{$IFNDEF SRL_DRAWING_INCLUDED}       {$I utils/drawing.simba}
-
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
+{$IFNDEF SRL_WRAPPERS_INCLUDED} {$I utils/wrappers.simba} {$ENDIF}
+{$IFNDEF SRL_TIME_INCLUDED}     {$I utils/time.simba}     {$ENDIF}
+{$IFNDEF SRL_BASE_INCLUDED}     {$I utils/base.simba}     {$ENDIF}
