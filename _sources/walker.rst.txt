@@ -188,7 +188,7 @@ Walker.CleanMinimap
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap);
+ procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap); static;
 
 Internal walker method used to clear minimap dots from the minimap.
 You probably don't need to use this.
@@ -200,7 +200,7 @@ Walker.GetCleanMinimap
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSWalker.GetCleanMinimap(): TMufasaBitmap;
+ function TRSWalker.GetCleanMinimap(): TMufasaBitmap; static;
 
 Internal walker method used to "screenshot" the minimap and clean it with Walker.CleanMinimap().
 You probably don't need to use this directly but you can see what it does in the following example.
