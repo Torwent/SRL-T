@@ -4,13 +4,40 @@ Welcome to SRL-T documentation!
 .. toctree::
    :maxdepth: 2
 
+	:caption: UTILS
+
+   extendedarrays
+   color
+   keyboard
+   tpoint
+   math
+   matrix
+   tcircle
+   drawing
+   pixelshift
+   trectangle
+   random
+   string
+   wrappers
+   mouse
+   time
+   tboxarrays
+   tpointarrays
+   tbox
+   integerarrays
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
 	:caption: OSR
 
-   antiban
    keybindings
-   misc
-   rsclient
    mm2ms
+   antiban
+   rsclient
+   misc
 
 -----------
 
@@ -19,32 +46,9 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR -> INTERFACES
 
-   minimap
-   xpbar
    login
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES -> GAMETABS
-
-   inventory
-   magic
-   prayer
-   stats
-   combat
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> INTERFACES -> CHAT
-
-   make
-   chat
+   xpbar
+   minimap
 
 -----------
 
@@ -53,11 +57,34 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR -> INTERFACES -> MAINSCREEN
 
-   depositbox
    bankpin
-   grandexchange
+   depositbox
    bank
+   grandexchange
    mainscreen
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> GAMETABS
+
+   magic
+   combat
+   prayer
+   inventory
+   stats
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> INTERFACES -> CHAT
+
+   chat
+   make
 
 -----------
 
@@ -75,8 +102,8 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR -> FINDERS -> SPELLFINDER
 
-   spellfinder
    generator
+   spellfinder
 
 -----------
 
@@ -85,37 +112,10 @@ Welcome to SRL-T documentation!
 
 	:caption: OSR -> WALKER
 
-   webgraph
-   walker_map
    webber
+   walker_map
    walker
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: UTILS
-
-   mouse
-   time
-   math
-   matrix
-   tcircle
-   drawing
-   tpointarrays
-   integerarrays
-   tboxarrays
-   tbox
-   color
-   keyboard
-   string
-   wrappers
-   extendedarrays
-   pixelshift
-   random
-   trectangle
-   tpoint
+   webgraph
 
 -----------
 
