@@ -25,8 +25,6 @@ Example
 -------
 .. code-block:: pascal  
 
-.. code-block:: pascal
-
   Antiban.AddSleep('01:30:00', 8 * ONE_HOUR, 0.1, 0.8); //ONE_HOUR constant holds the value 3600000 which is one hour in milliseconds.
 
 
@@ -48,8 +46,6 @@ This break will only occur when **TAntiban.DoAntiban** is called.
 Example
 -------
 .. code-block:: pascal  
-
-.. code-block:: pascal
 
   Antiban.AddBreak(30 * ONE_MINUTE, 5 * ONE_MINUTE); //Every 30 minutes the script will take a 5 minute break, subject to variance from the Randomness variable.
 
@@ -73,8 +69,6 @@ Example
 -------
 .. code-block:: pascal  
 
-.. code-block:: pascal
-
   Antiban.AddTask(15 * ONE_MINUTE, @Antiban.HoverSkills); //Every 15 minutes the script will hover the skills.
 
 
@@ -92,8 +86,6 @@ When this is called, the setup sleep breaks, breaks and tasks will be checked, i
 Example
 -------
 .. code-block:: pascal  
-
-.. code-block:: pascal
 
   Antiban.AddTask(15 * ONE_MINUTE, @Antiban.HoverSkills);
 
@@ -126,8 +118,6 @@ SRL built in Antiban Tasks that can be added with **TAntiban.AddTask**.
 Example
 -------
 .. code-block:: pascal  
-
-.. code-block:: pascal
 
   Antiban.AddTask(15 * ONE_MINUTE, @Antiban.HoverSkills);
 

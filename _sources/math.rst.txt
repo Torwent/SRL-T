@@ -17,9 +17,10 @@ srl.Modulo
 This function returns the remainder from the division of the first argument by the second.
 It will always returns a result with the same sign as its second operand (or zero).
 
-Example:
+Example
+-------
+.. code-block:: pascal  
 
-.. code-block:: pascal
 
     Writeln(srl.Modulo(a, b));
 
@@ -95,10 +96,9 @@ srl.PointInRect
 
 Returns true if the TPoint 'Pt' is in a rect (defined by four points).
 
-Example:
-
-.. code-block:: pascal
-
+Example
+-------
+.. code-block:: pascal  
 
     Writeln(srl.PointInRect(Point(100, 100), [0,0], [200,1], [201,201], [0,225]));
 

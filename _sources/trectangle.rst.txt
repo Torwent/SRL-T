@@ -83,6 +83,8 @@ TRectangle.Rotate
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
+
+
     function TRectangle.Rotate(Angle: Double): TRectangle; constref;
     
 Returns a rotated copy of the rectangle
@@ -93,6 +95,8 @@ Returns a rotated copy of the rectangle
 TRectangle.Contains
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
+
+
 
     function TRectangle.Contains(Pt: TPoint): Boolean; constref;
   
@@ -105,6 +109,8 @@ Returns true if the point `Pt` is inside the rectangle.
 TRectangle.DirByLen
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
+
+
 
     function TRectangle.DirByLen(Longest: Boolean=True): ESplitDirection; constref;
   
@@ -119,6 +125,8 @@ TRectangle.Partition
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
+
+
     function TRectangle.Partition(m,n:Int32; dir:ESplitDirection=rpTopLeft): TRectArray; constref;
     
 Break the rectangle into smaller rectangles. Goes well along with `DirByLen`
@@ -132,6 +140,8 @@ TRectangle.Offset
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
+
+
     function TRectangle.Offset(pt: TPoint): TRectangle; constref;
 
 Offset the rectangle.
@@ -142,6 +152,8 @@ Offset the rectangle.
 TRectangle.Filter
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
+
+
 
     function TRectangle.Filter(TestSet: TPointArray): TPointArray; constref;
     
@@ -154,6 +166,8 @@ TRectangle.Expand
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
+
+
     function TRectangle.Expand(Inc: Int32): TRectangle; constref;
   
 Increase or decrease the dimensions of the rectangle.
@@ -164,6 +178,8 @@ Increase or decrease the dimensions of the rectangle.
 TRectangle.NearestEdge
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
+
+
 
     function TRectangle.NearestEdge(P: TPoint): TPoint; constref;
 

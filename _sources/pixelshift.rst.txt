@@ -44,10 +44,6 @@ the it will return ``True``. The check itself can be repeated several times ``It
 Example
 -------
 .. code-block:: pascal  
-
-.. code-block:: pascal
-
-
   if srl.IsAnimating(Box(10,10, 100,100), 350, 500, 3) then
     WriteLn('Shit changed');
 

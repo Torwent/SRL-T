@@ -91,7 +91,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#tpointarray-density">TPointArray.Density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#expandpolygon">ExpandPolygon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tpointarray-pointsinrangeof">TPointArray.PointsInRangeOf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">TPointArray.PointsInRangeOf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">TPointArray.PointsInRangeOf</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
@@ -371,10 +371,12 @@ Same output as <cite>SplitTPAEx(TPA,dist,0)</cite>, but generally faster.</p>
 <p class="admonition-title">Note</p>
 <p>by slacky</p>
 </div>
-<p>Example:</p>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">ATPA</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">TPA</span><span class="o">.</span><span class="n">SplitRows</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
+</section>
 </section>
 <hr class="docutils" />
 <section id="tpointarray-connect">
@@ -388,10 +390,12 @@ around a polygon</p>
 <p class="admonition-title">Note</p>
 <p>by slacky</p>
 </div>
-<p>Example:</p>
+<section id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">edges</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">TPA</span><span class="o">.</span><span class="n">ConvexHull</span><span class="p">()</span><span class="o">.</span><span class="n">Connect</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
+</section>
 </section>
 <hr class="docutils" />
 <section id="tpointarray-convexhull">
@@ -406,10 +410,12 @@ points, the points which strech the band are the points returned by this functio
 <p class="admonition-title">Note</p>
 <p>by slacky</p>
 </div>
-<p>Example:</p>
+<section id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Smart</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">DrawTPA</span><span class="p">(</span><span class="n">TPA</span><span class="o">.</span><span class="n">ConvexHull</span><span class="p">())</span><span class="o">;</span>
 </pre></div>
 </div>
+</section>
 </section>
 <hr class="docutils" />
 <section id="tpointarray-minarearect">
@@ -424,10 +430,12 @@ Four points (which are in order) are always returned.</p>
 <p class="admonition-title">Note</p>
 <p>by slacky</p>
 </div>
-<p>Example:</p>
+<section id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;The four box corners are: &#39;</span><span class="o">,</span><span class="w"> </span><span class="n">TPA</span><span class="o">.</span><span class="n">MinAreaRect</span><span class="p">())</span><span class="o">;</span>
 </pre></div>
 </div>
+</section>
 </section>
 <hr class="docutils" />
 <section id="tpointarray-minareacircle">
@@ -469,8 +477,8 @@ Four points (which are in order) are always returned.</p>
 The parameters <cite>mindist</cite> and <cite>maxdist</cite> determine what “within range” means.</p>
 </section>
 <hr class="docutils" />
-<section id="id2">
-<h2>TPointArray.PointsInRangeOf<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id5">
+<h2>TPointArray.PointsInRangeOf<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TPointArray</span><span class="o">.</span><span class="nf">PointsInRangeOf</span><span class="p">(</span><span class="n">constref</span><span class="w"> </span><span class="n">Other</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span><span class="w"> </span><span class="n">MinDistX</span><span class="o">,</span><span class="w"> </span><span class="n">MinDistY</span><span class="o">,</span><span class="w"> </span><span class="n">MaxDistX</span><span class="o">,</span><span class="w"> </span><span class="n">MaxDistY</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>

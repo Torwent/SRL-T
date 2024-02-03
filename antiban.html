@@ -171,9 +171,6 @@
 <p>This sleep break will only occur when <strong>TAntiban.DoAntiban</strong> is called.</p>
 <section id="example">
 <h3>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddSleep</span><span class="p">(</span><span class="s">&#39;01:30:00&#39;</span><span class="o">,</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ONE_HOUR</span><span class="o">,</span><span class="w"> </span><span class="mf">0.1</span><span class="o">,</span><span class="w"> </span><span class="mf">0.8</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="c1">//ONE_HOUR constant holds the value 3600000 which is one hour in milliseconds.</span>
 </pre></div>
 </div>
@@ -191,9 +188,6 @@ Length, Randomness and LogoutChance are the same as <strong>TAntiban.AddSleep</s
 <p>This break will only occur when <strong>TAntiban.DoAntiban</strong> is called.</p>
 <section id="id1">
 <h3>Example<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddBreak</span><span class="p">(</span><span class="mi">30</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ONE_MINUTE</span><span class="o">,</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ONE_MINUTE</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="c1">//Every 30 minutes the script will take a 5 minute break, subject to variance from the Randomness variable.</span>
 </pre></div>
 </div>
@@ -211,9 +205,6 @@ Length, Randomness and LogoutChance are the same as <strong>TAntiban.AddSleep</s
 <p>This task will only occur when <strong>TAntiban.DoAntiban</strong> is called.</p>
 <section id="id2">
 <h3>Example<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddTask</span><span class="p">(</span><span class="mi">15</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ONE_MINUTE</span><span class="o">,</span><span class="w"> </span><span class="o">@</span><span class="n">Antiban</span><span class="o">.</span><span class="n">HoverSkills</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="c1">//Every 15 minutes the script will hover the skills.</span>
 </pre></div>
 </div>
@@ -229,9 +220,6 @@ Length, Randomness and LogoutChance are the same as <strong>TAntiban.AddSleep</s
 When this is called, the setup sleep breaks, breaks and tasks will be checked, if enough time has passed to perform any of them (subject to the parameters you pass in too), they will be performed, otherwise, nothing will happen.</p>
 <section id="id3">
 <h3>Example<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddTask</span><span class="p">(</span><span class="mi">15</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ONE_MINUTE</span><span class="o">,</span><span class="w"> </span><span class="o">@</span><span class="n">Antiban</span><span class="o">.</span><span class="n">HoverSkills</span><span class="p">)</span><span class="o">;</span>
 
 <span class="k">while</span><span class="w"> </span><span class="k">True</span><span class="w"> </span><span class="k">do</span><span class="w">        </span><span class="c1">//Infinite loop</span>
@@ -260,9 +248,6 @@ When this is called, the setup sleep breaks, breaks and tasks will be checked, i
 <p>SRL built in Antiban Tasks that can be added with <strong>TAntiban.AddTask</strong>.</p>
 <section id="id4">
 <h3>Example<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddTask</span><span class="p">(</span><span class="mi">15</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ONE_MINUTE</span><span class="o">,</span><span class="w"> </span><span class="o">@</span><span class="n">Antiban</span><span class="o">.</span><span class="n">HoverSkills</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
