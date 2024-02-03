@@ -12,6 +12,8 @@ functionality to convert coordinates to & from the minimap to the mainscreen.
 
 type TMM2MS
 ~~~~~~~~~~~
+.. code-block:: pascal
+
 
   type
     TMM2MS = record
@@ -30,8 +32,7 @@ The comments explains it. This is the datastructure MM2MS uses.
 
 var MM2MS
 ~~~~~~~~~
-
-  var MM2MS: TMM2MS;
+var MM2MS: TMM2MS;
 
 The global variable which you would refer to.
 
@@ -39,7 +40,7 @@ The global variable which you would refer to.
 ------------
 
 Minimap
-------------------------------------------------------
+-------
 Extend the minimap-functionality with MM2MS functions
 
 

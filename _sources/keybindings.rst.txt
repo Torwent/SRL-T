@@ -77,10 +77,9 @@ Keybindings.GetKeyIndex
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSKeybindings.GetKeyIndex(Key: Int32): Int32;
-.. code-block:: pascal
 
- function TRSKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
+  function TRSKeybindings.GetKeyIndex(Key: Int32): Int32;
+  function TRSKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
 
 Internal function used to find the index of a **Key** or **Gametab** of an already setup **KeyTabPair** if it already exists otherwise we return **-1** to know the pair does not exist yet.
 
@@ -91,26 +90,6 @@ Internal function used to find the index of a **Key** or **Gametab** of an alrea
 var Keybindings
 ~~~~~~~~~~~~~~~
   Global Keybindings variable.
-
-
-
-------------
-
-GameTabs.FKeyOpen
-~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- function TRSGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
-
-Attempts to open the **Tab** gametab with FKeys.
-If the Gametab is already stored in **Keybindings.KeyTabPairs** the corresponding Fkey will simply be pressed.
-Otherwise we will fetch a random yet unchecked key from **Keybindings.UncheckedKeyArray** and press it.
-The following then happens:
-  - If a gametab opens we store it this pair in **Keybindings.KeyTabPairs** and then:
-    - If the gametab that was open was the one we wanted the result of the function will be true, otherwise false.
-  - If a gametab doesn't open:
-
-  TODO.....
 
 
 ------------
@@ -139,7 +118,7 @@ When called the following happens:
             - If it's not we don't do anything, we can't assume the FKey is a pair to the current tab without being 100% sure.
             - If it exists and is setup, then we set the FKey we pressed in **Keybindings.KeyTabPairs** as a pair to **ERSGameTab.UNKNOWN** so we know we check it again while also deleting it from **Keybindings.UncheckedKeyArray**.
 
-Note: {$DEFINE WL_KEYBINDINGS_DEBUG} can be used to debug already setup **Keybindings.KeyTabPairs**.
+.. note:: {$DEFINE WL_KEYBINDINGS_DEBUG} can be used to debug already setup **Keybindings.KeyTabPairs**.
 
 Example
 -------

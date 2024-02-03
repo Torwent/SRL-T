@@ -174,29 +174,23 @@ functionality to convert coordinates to &amp; from the minimap to the mainscreen
 <hr class="docutils" />
 <section id="type-tmm2ms">
 <h2>type TMM2MS<a class="headerlink" href="#type-tmm2ms" title="Link to this heading"></a></h2>
-<blockquote>
-<div><dl>
-<dt>type</dt><dd><dl class="simple">
-<dt>TMM2MS = record</dt><dd><p>BASE_W, BASE_H: Int32;        // the size of the area we project to (mainscreen size)
-MainScreen.Middle.X, MainScreen.Middle.Y: Int32;            // the center of the area we project to (mainscreen center)
-MMCX, MMCY: Int32;            // the center of the area we project from (minimap center)
-SCALE_MIN, SCALE_MAX: Double; // direct zoom (relates to BASE)
-ZOOM: Double;                 // current zoom
-YSHIFT: Double;               // zooming may cause mid-Y to shift</p>
-</dd>
-</dl>
-<p>end;</p>
-</dd>
-</dl>
-</div></blockquote>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">type</span>
+<span class="w">  </span><span class="n">TMM2MS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">record</span>
+<span class="w">    </span><span class="n">BASE_W</span><span class="o">,</span><span class="w"> </span><span class="n">BASE_H</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w">        </span><span class="c1">// the size of the area we project to (mainscreen size)</span>
+<span class="w">    </span><span class="n">MainScreen</span><span class="o">.</span><span class="n">Middle</span><span class="o">.</span><span class="n">X</span><span class="o">,</span><span class="w"> </span><span class="n">MainScreen</span><span class="o">.</span><span class="n">Middle</span><span class="o">.</span><span class="n">Y</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w">            </span><span class="c1">// the center of the area we project to (mainscreen center)</span>
+<span class="w">    </span><span class="n">MMCX</span><span class="o">,</span><span class="w"> </span><span class="n">MMCY</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w">            </span><span class="c1">// the center of the area we project from (minimap center)</span>
+<span class="w">    </span><span class="n">SCALE_MIN</span><span class="o">,</span><span class="w"> </span><span class="n">SCALE_MAX</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span><span class="w"> </span><span class="c1">// direct zoom (relates to BASE)</span>
+<span class="w">    </span><span class="n">ZOOM</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span><span class="w">                 </span><span class="c1">// current zoom</span>
+<span class="w">    </span><span class="n">YSHIFT</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span><span class="w">               </span><span class="c1">// zooming may cause mid-Y to shift</span>
+<span class="w">  </span><span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
 <p>The comments explains it. This is the datastructure MM2MS uses.</p>
 </section>
 <hr class="docutils" />
 <section id="var-mm2ms">
 <h2>var MM2MS<a class="headerlink" href="#var-mm2ms" title="Link to this heading"></a></h2>
-<blockquote>
-<div><p>var MM2MS: TMM2MS;</p>
-</div></blockquote>
+<p>var MM2MS: TMM2MS;</p>
 <p>The global variable which you would refer to.</p>
 <hr class="docutils" />
 <section id="minimap">

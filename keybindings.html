@@ -74,7 +74,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#keybindings-getkeyindex">Keybindings.GetKeyIndex</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#var-keybindings">var Keybindings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gametabs-fkeyopen">GameTabs.FKeyOpen</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">GameTabs.FKeyOpen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gametabs-open">GameTabs.Open</a></li>
 </ul>
 </li>
@@ -221,9 +220,7 @@ By default it’s called with <strong>SRL.Setup</strong> but can be called again
 <section id="keybindings-getkeyindex">
 <h2>Keybindings.GetKeyIndex<a class="headerlink" href="#keybindings-getkeyindex" title="Link to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSKeybindings</span><span class="o">.</span><span class="nf">GetKeyIndex</span><span class="p">(</span><span class="n">Key</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
-</pre></div>
-</div>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSKeybindings</span><span class="o">.</span><span class="nf">GetKeyIndex</span><span class="p">(</span><span class="n">Gametab</span><span class="o">:</span><span class="w"> </span><span class="n">ERSGameTab</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+<span class="k">function</span><span class="w"> </span><span class="nc">TRSKeybindings</span><span class="o">.</span><span class="nf">GetKeyIndex</span><span class="p">(</span><span class="n">Gametab</span><span class="o">:</span><span class="w"> </span><span class="n">ERSGameTab</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Internal function used to find the index of a <strong>Key</strong> or <strong>Gametab</strong> of an already setup <strong>KeyTabPair</strong> if it already exists otherwise we return <strong>-1</strong> to know the pair does not exist yet.</p>
@@ -238,25 +235,6 @@ By default it’s called with <strong>SRL.Setup</strong> but can be called again
 <hr class="docutils" />
 <section id="gametabs-fkeyopen">
 <h2>GameTabs.FKeyOpen<a class="headerlink" href="#gametabs-fkeyopen" title="Link to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSGameTabs</span><span class="o">.</span><span class="nf">FKeyOpen</span><span class="p">(</span><span class="n">Tab</span><span class="o">:</span><span class="w"> </span><span class="n">ERSGameTab</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Attempts to open the <strong>Tab</strong> gametab with FKeys.
-If the Gametab is already stored in <strong>Keybindings.KeyTabPairs</strong> the corresponding Fkey will simply be pressed.
-Otherwise we will fetch a random yet unchecked key from <strong>Keybindings.UncheckedKeyArray</strong> and press it.
-The following then happens:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>If a gametab opens we store it this pair in <strong>Keybindings.KeyTabPairs</strong> and then:
-- If the gametab that was open was the one we wanted the result of the function will be true, otherwise false.</p></li>
-<li><p>If a gametab doesn’t open:</p></li>
-</ul>
-<p>TODO…..</p>
-</div></blockquote>
-</section>
-<hr class="docutils" />
-<section id="id2">
-<h2>GameTabs.FKeyOpen<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSGameTabs</span><span class="o">.</span><span class="nf">FKeyOpen</span><span class="p">(</span><span class="n">Tab</span><span class="o">:</span><span class="w"> </span><span class="n">ERSGameTab</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -298,9 +276,12 @@ When called the following happens:</p>
 </li>
 </ul>
 </div></blockquote>
-<p>Note: {$DEFINE WL_KEYBINDINGS_DEBUG} can be used to debug already setup <strong>Keybindings.KeyTabPairs</strong>.</p>
-<section id="id3">
-<h3>Example<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>{$DEFINE WL_KEYBINDINGS_DEBUG} can be used to debug already setup <strong>Keybindings.KeyTabPairs</strong>.</p>
+</div>
+<section id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Gametabs</span><span class="o">.</span><span class="n">FKeyOpen</span><span class="p">(</span><span class="n">ERSGameTab</span><span class="o">.</span><span class="n">COMBAT</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -313,8 +294,8 @@ When called the following happens:</p>
 </pre></div>
 </div>
 <p>Override to open gametabs with <strong>GameTabs.FKeyOpen</strong> if <strong>Keybindings.UseKeybinds</strong> is true.</p>
-<section id="id4">
-<h3>Example<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Gametabs</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">ERSGameTab</span><span class="o">.</span><span class="n">COMBAT</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
