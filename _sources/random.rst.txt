@@ -141,7 +141,6 @@ SRL.rowp
 .. code-block:: pascal
 
 
-
   function TSRL.rowp(From: TPoint; Rect: TRectangle; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint;
   function TSRL.rowp(From: TPoint; Box: TBox; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint;
 

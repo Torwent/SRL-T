@@ -26,7 +26,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   .. code-block:: pascal
 
 
-
     Finder.Colors += CTS2(2503237, 20, 0.10, 0.14); // brown
     Finder.Colors += CTS2(5526875, 15, 0.19, 0.06); // grey
 
@@ -42,7 +41,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   When searched for only `primary` colors within `distance` of `secondary` colors are returned.
 
   .. code-block:: pascal
-
 
 
     Finder.ColorClusters += [
@@ -62,7 +60,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   .. code-block:: pascal
 
 
-
      Finder.Erode := 2;
 
   .. figure:: ../../images/erode.png
@@ -76,7 +73,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   .. code-block:: pascal
 
 
-
      Finder.Grow := 2;
 
   .. figure:: ../../images/grow.png
@@ -86,7 +82,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   Grow can also be paired with erode which is quite powerful.
 
   .. code-block:: pascal
-
 
 
    Finder.Grow := 3;
@@ -103,7 +98,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   .. code-block:: pascal
 
 
-
      Finder.ClusterDistance := 5;
 
   .. figure:: ../../images/cluster_5.png
@@ -111,7 +105,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
     Cluster distance **5** produces four individual chairs
 
   .. code-block:: pascal
-
 
 
      Finder.ClusterDistance := 20;
@@ -126,7 +119,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   The bounding rectangle is used which has a **long** and a **short** side measured in pixels.
 
   .. code-block:: pascal
-
 
 
     // Removes matches where the short side isn't within 10 and 20 pixels

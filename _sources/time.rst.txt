@@ -50,7 +50,6 @@ Example
 -------
 .. code-block:: pascal  
 
-
   myTimer.Init(3000); //3000ms
   while not myTimer.IsFinished() do
     {do something};

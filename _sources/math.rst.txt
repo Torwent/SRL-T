@@ -6,7 +6,7 @@ Math related methods
 
 ------------
 
-srl.Modulo
+SRL.Modulo
 ~~~~~~~~~~
 .. code-block:: pascal
 
@@ -21,13 +21,12 @@ Example
 -------
 .. code-block:: pascal  
 
-
-    Writeln(srl.Modulo(a, b));
+    Writeln(SRL.Modulo(a, b));
 
 
 ------------
 
-srl.CrossProduct
+SRL.CrossProduct
 ~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
@@ -40,19 +39,18 @@ Cross-product of rp and rq vectors.
 
 ------------
 
-srl.DeltaAngle
+SRL.DeltaAngle
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-    function TSRL.DeltaAngle(DegA, DegB: Double; R: Double = 360): Double; static;
+ function TSRL.DeltaAngle(DegA, DegB: Double; R: Double = 360): Double; static;
 
 Returns the shortest difference between two given angles.
 
 
 ------------
 
-srl.DistToLine
+SRL.DistToLine
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
 
@@ -65,34 +63,31 @@ Returns the distance to the nearest point on the line `sA`..`sB`
 
 ------------
 
-srl.LinesIntersect
+SRL.LinesIntersect
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-    function TSRL.LinesIntersect(p1,p2, q1,q2:TPoint; out i: TPoint): Boolean; static;
+ function TSRL.LinesIntersect(p1,p2, q1,q2:TPoint; out i: TPoint): Boolean; static;
 
 
 ------------
 
-srl.PointInTriangle
+SRL.PointInTriangle
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-    function TSRL.PointInTriangle(PT, p1,p2,p3: TPoint): Boolean; static;
+ function TSRL.PointInTriangle(PT, p1,p2,p3: TPoint): Boolean; static;
 
 Returns True if the TPoint 'Pt' is inside the triangle
 
 
 ------------
 
-srl.PointInRect
+SRL.PointInRect
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-    function TSRL.PointInRect(const Pt: TPoint; const A, B, C, D: TPoint): Boolean; static;
+ function TSRL.PointInRect(const Pt: TPoint; const A, B, C, D: TPoint): Boolean; static;
 
 Returns true if the TPoint 'Pt' is in a rect (defined by four points).
 
@@ -100,56 +95,52 @@ Example
 -------
 .. code-block:: pascal  
 
-    Writeln(srl.PointInRect(Point(100, 100), [0,0], [200,1], [201,201], [0,225]));
+    Writeln(SRL.PointInRect(Point(100, 100), [0,0], [200,1], [201,201], [0,225]));
 
 
 ------------
 
-srl.PointInCircle
+SRL.PointInCircle
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-    function TSRL.PointInCircle(PT, Center: TPoint; Radius: Double): Boolean; static;
+ function TSRL.PointInCircle(PT, Center: TPoint; Radius: Double): Boolean; static;
 
 Returns True if the TPoint 'Pt' is inside the circle
 
 
 ------------
 
-srl.PointInEllipse
+SRL.PointInEllipse
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-    function TSRL.PointInEllipse(PT, Center:TPoint; YRad, XRad: Double): Boolean; static;
+ function TSRL.PointInEllipse(PT, Center:TPoint; YRad, XRad: Double): Boolean; static;
     
 Returns True if the TPoint 'Pt' is inside the ellipse
 
 
 ------------
 
-srl.PointInPoly
+SRL.PointInPoly
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-    function TSRL.PointInPoly(pt: TPoint; Poly: TPointArray): Boolean; static;
+ function TSRL.PointInPoly(pt: TPoint; Poly: TPointArray): Boolean; static;
     
 Check if a point is within a polygon/shape by the given outline points (poly)
 The points must be in order, as if you would draw a line trough each point.
 
-Note: Uses winding number algorithm
+.. note:: Uses winding number algorithm
 
 
 ------------
 
-srl.PointInCuboid
+SRL.PointInCuboid
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-    function TSRL.PointInCuboid(pt: TPoint; Top, Btm: TRectangle): Boolean; static;
+ function TSRL.PointInCuboid(pt: TPoint; Top, Btm: TRectangle): Boolean; static;
 
 Check if a point is within a cuboid defined by top and bottom rectangle.
 

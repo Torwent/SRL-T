@@ -13,7 +13,6 @@ TCircle.ToTPA
 .. code-block:: pascal
 
 
-
     function TCircle.ToTPA(): TPointArray; constref;
 
 Returns a full TPA of the circles circumference
@@ -24,7 +23,6 @@ Returns a full TPA of the circles circumference
 TCircle.Bounds
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
-
 
 
     function TCircle.Bounds(): TBox; constref;
@@ -39,7 +37,6 @@ TCircle.Contains
 .. code-block:: pascal
 
 
-
     function TCircle.Contains(p: TPoint): Boolean; constref;
 
 Test if the point is within the circle
@@ -50,7 +47,6 @@ Test if the point is within the circle
 TCircle.CircumferenceTPA
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
-
 
 
     function TCircle.CircumferenceTPA(): TPointArray; constref;
@@ -65,7 +61,6 @@ TCircle.Mean
 .. code-block:: pascal
 
 
-
     function TCircle.Mean(): TPoint; constref;
 
 Middle of the circle, same as `Point(Circle.X, Circle.Y)`
@@ -76,7 +71,6 @@ Middle of the circle, same as `Point(Circle.X, Circle.Y)`
 TCircle.Circumference
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
-
 
 
     function TCircle.Circumference(): Double; constref;
@@ -91,7 +85,6 @@ TCircle.Area
 .. code-block:: pascal
 
 
-
     function TCircle.Area(): Double; constref;
 
 Returns the area the circle covers
@@ -104,7 +97,6 @@ TCircle.Filter
 .. code-block:: pascal
 
 
-
     function TCircle.Filter(TestSet: TPointArray): TPointArray; constref;
 
 Extract all the points from `TestSet` that fits within this circle.
@@ -115,7 +107,6 @@ Extract all the points from `TestSet` that fits within this circle.
 TCircle.Expand
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
-
 
 
     function TCircle.Expand(Inc: Int32): TCircle; constref;

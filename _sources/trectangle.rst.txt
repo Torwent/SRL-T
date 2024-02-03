@@ -83,9 +83,7 @@ TRectangle.Rotate
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    function TRectangle.Rotate(Angle: Double): TRectangle; constref;
+ function TRectangle.Rotate(Angle: Double): TRectangle; constref;
     
 Returns a rotated copy of the rectangle
 
@@ -96,9 +94,7 @@ TRectangle.Contains
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    function TRectangle.Contains(Pt: TPoint): Boolean; constref;
+ function TRectangle.Contains(Pt: TPoint): Boolean; constref;
   
 Returns true if the point `Pt` is inside the rectangle.
 .. note:: by slacky
@@ -110,9 +106,7 @@ TRectangle.DirByLen
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    function TRectangle.DirByLen(Longest: Boolean=True): ESplitDirection; constref;
+ function TRectangle.DirByLen(Longest: Boolean=True): ESplitDirection; constref;
   
 Returns the direction which is the longest or shortest.
 
@@ -125,9 +119,7 @@ TRectangle.Partition
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    function TRectangle.Partition(m,n:Int32; dir:ESplitDirection=rpTopLeft): TRectArray; constref;
+ function TRectangle.Partition(m,n:Int32; dir:ESplitDirection=rpTopLeft): TRectArray; constref;
     
 Break the rectangle into smaller rectangles. Goes well along with `DirByLen`
 
@@ -140,9 +132,7 @@ TRectangle.Offset
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    function TRectangle.Offset(pt: TPoint): TRectangle; constref;
+ function TRectangle.Offset(pt: TPoint): TRectangle; constref;
 
 Offset the rectangle.
 
@@ -153,9 +143,7 @@ TRectangle.Filter
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    function TRectangle.Filter(TestSet: TPointArray): TPointArray; constref;
+ function TRectangle.Filter(TestSet: TPointArray): TPointArray; constref;
     
 Extract all the points from `TestSet` that fits within this rectangle.
 
@@ -166,9 +154,7 @@ TRectangle.Expand
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    function TRectangle.Expand(Inc: Int32): TRectangle; constref;
+ function TRectangle.Expand(Inc: Int32): TRectangle; constref;
   
 Increase or decrease the dimensions of the rectangle.
 
@@ -179,9 +165,7 @@ TRectangle.NearestEdge
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    function TRectangle.NearestEdge(P: TPoint): TPoint; constref;
+ function TRectangle.NearestEdge(P: TPoint): TPoint; constref;
 
 Returns the closest edge point (think Rect.ToTPA.Connect) to the TPoint `P`.
 

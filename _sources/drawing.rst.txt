@@ -10,9 +10,7 @@ TMufasaBitmap.FromClient
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    procedure TMufasaBitmap.FromClient(Area: TBox);
+ procedure TMufasaBitmap.FromClient(Area: TBox);
 
 Copy client to bitmap.
 
@@ -23,9 +21,7 @@ TMufasaBitmap.ClearAllBut
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    procedure TMufasaBitmap.ClearAllBut(Area: TBox);
+ procedure TMufasaBitmap.ClearAllBut(Area: TBox);
 
 Will clear the image, except for the given area.
 
@@ -36,9 +32,7 @@ TMufasaBitmap.AvgBrightness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    procedure TMufasaBitmap.AvgBrightness(Area: TBox = [0,0,-1,-1]);
+ procedure TMufasaBitmap.AvgBrightness(Area: TBox = [0,0,-1,-1]);
 
 Returns a value between 0 and 100 that defines how bright the image is.
 
@@ -49,9 +43,7 @@ TMufasaBitmap.PeakBrightness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    procedure TMufasaBitmap.PeakBrightness(Area: TBox = [0,0,-1,-1]);
+ procedure TMufasaBitmap.PeakBrightness(Area: TBox = [0,0,-1,-1]);
 
 Returns the maximum brightness in the image in the range `0..100`.
 
@@ -62,9 +54,7 @@ TMufasaBitmap.DrawBox
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    procedure TMufasaBitmap.DrawBox(Center:TPoint; Radius:UInt32; Fill: Boolean; Color: Int32);
+ procedure TMufasaBitmap.DrawBox(Center:TPoint; Radius:UInt32; Fill: Boolean; Color: Int32);
 
 Draws a TBox onto the TMufasaBitmap
 
@@ -75,9 +65,7 @@ TMufasaBitmap.DrawRect
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    procedure TMufasaBitmap.DrawRect(Rect: TRectangle; Color: Int32);
+ procedure TMufasaBitmap.DrawRect(Rect: TRectangle; Color: Int32);
 
 Draws a TRectangle onto the TMufasaBitmap
 
@@ -88,9 +76,7 @@ TMufasaBitmap.DrawPoly
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-
-
-    procedure TMufasaBitmap.DrawPoly(Poly: TPointArray; Color: Int32);
+ procedure TMufasaBitmap.DrawPoly(Poly: TPointArray; Color: Int32);
 
 Draws a polygon onto the TMufasaBitmap
 
