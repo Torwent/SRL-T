@@ -75,7 +75,7 @@ end;
 
 function TStringArray.Find(const Value: String): Integer; constref;
 begin
-  if (self.Len() = 0) then
+  if (Length(self) = 0) then
     Exit(-1);
     
   Result := System.IndexOf(value, Self);
