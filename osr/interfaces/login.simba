@@ -610,9 +610,9 @@ Example:
 function TRSLogin.GetPlayer(): TRSLoginPlayer;
 begin
   if Self.Players = [] then
-    Self.Fatal('No players declared');
+    Self.Fatal('No account in saved credentials. Please run a free wasp script and add an account in the GUI.');
   if not InRange(Self.PlayerIndex, 0, High(Self.Players)) then
-    Self.Fatal('Player is out of range');
+    Self.Fatal('Account number selected in script does not exist in saved credentials. Please double check selected account index in your script.');
 
   Result := Self.Players[Self.PlayerIndex];
 end;
@@ -865,9 +865,9 @@ var
   k: String;
 begin
   if Self.Players = [] then
-    Self.Fatal('No players declared');
+    Self.Fatal('No account in saved credentials. Please run a free wasp script and add an account in the GUI.');
   if not InRange(Self.PlayerIndex, 0, High(Self.Players)) then
-    Self.Fatal('Player is out of range');
+    Self.Fatal('Account number selected in script does not exist in saved credentials. Please double check selected account index in your script.');
 
   if (Self.Players[Self.PlayerIndex].BioHash = 0) then
   begin
