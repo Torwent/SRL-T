@@ -533,12 +533,33 @@ end;
 
 
 function TRSObjectV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
+  function CorrectNormalize(p: TPoint; angles: Single; obj: TRSObjectV2): TPoint;
+  var
+    tilesWideX, tilesWideY: Int32;
+  begin
+  if angles in [0,180] then
+    begin
+      TilesWideX := Round(obj.Size.X/0.8);
+      TilesWideY := Round(obj.Size.Y/0.8);
+    end else
+    begin
+      TilesWideX := Round(obj.Size.Y/0.8);
+      TilesWideY := Round(obj.Size.X/0.8);
+    end;
+    p := p + [-1,-1];
+    p := RSTranslator.Normalize(p);
+    if (TilesWideX mod 2) = 0 then
+      p := p + [2,0];
+    if (TilesWideY mod 2) = 0 then
+      p := p + [0,2];
+    Result := p;
+  end;
 var
   Locations: TCoordsAngle;
   p: TPoint;
   vec: Vector3;
   h, diff: Single;
-  i: Int32;
+  i, TilesWideX, TilesWideY: Int32;
 begin
   if me = [0,0] then
     me := Self.Walker^.Position();
@@ -558,8 +579,9 @@ begin
 
   for i := 0 to High(Locations.Coordinates) do
   begin
-    p := Locations.Coordinates[i] + Self.Offset;
-    p := RSTranslator.Normalize(p);
+    p := Locations.Coordinates[i];
+    p := CorrectNormalize(p, Locations.Angles[i], Self);
+    p := p + Self.Offset;
     diff := -(h-Self.Walker^.Height(p));
     vec := Self.Walker^.PointToMMVec(me, p, angle);
     Result += Minimap.GetCuboidMS(vec + [Round(0.15*diff), Round(0.11*diff), 0], Self.Size, [0,0,diff], angle - radians(Locations.Angles[i]));
