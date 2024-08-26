@@ -1019,7 +1019,7 @@ begin
 
     for j := 0 to High(objs[i].Centers) do
     begin
-      p := Self.Loader.GetLocal(objs[i].Centers[j]);
+      p := Self.Loader.GetLocal(objs[i].Centers[j]) + [2,0];
       bmp.DrawTPA([p], color);
 
       if useCorner then
