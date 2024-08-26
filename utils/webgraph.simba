@@ -276,7 +276,7 @@ end;
 function TWebGraph.NearestWalkablePoint(p: TPoint): TPoint; constref;
 var
   pCircle: TCircle;
-  pArea, edge, tpa: TPointArray;
+  pArea, edge: TPointArray;
   pAreaClusters: T2DPointArray;
   i, bestIndex, bestLength, tempLength: Int32;
 begin
