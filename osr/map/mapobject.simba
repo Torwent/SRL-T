@@ -537,7 +537,7 @@ var
   p: TPoint;
   vec: Vector3;
   h, diff: Single;
-  i, TilesWideX, TilesWideY: Int32;
+  i: Int32;
 begin
   if me = [0,0] then
     me := Self.Walker^.Position();
