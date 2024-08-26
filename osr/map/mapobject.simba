@@ -557,7 +557,7 @@ begin
 
   for i := 0 to High(Locations.Coordinates) do
   begin
-    p := Locations.Coordinates[i];
+    p := Locations.Coordinates[i] - [0,2];
     p := p + Self.Offset;
     diff := -(h-Self.Walker^.Height(p));
     vec := Self.Walker^.PointToMMVec(me, p, angle);
