@@ -289,8 +289,8 @@ begin
   edge := [];
   for i := 0 to High(Self.ObjectEdges) do
   begin
-    tpa := Self.ObjectEdges[i].Grow(8).ConvexHull();
-    if SRL.PointInPoly(p, tpa) then
+    if not Self.ObjectEdges[i].Bounds().Contains(p) then Continue;
+    if SRL.PointInPoly(p, Self.ObjectEdges[i]) then
     begin
       edge := Self.ObjectEdges[i];
       {$IFDEF DEBUG_WALKERV2}
