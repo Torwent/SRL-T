@@ -158,7 +158,7 @@ begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = obj then
         Exit(TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
-    TerminateScript('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
+    RaiseException('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
   end;
 
   name := LowerCase(obj);
@@ -168,7 +168,7 @@ begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = obj then
         Exit(TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
-    TerminateScript('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
+    RaiseException('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
   end;
 
   for i := 0 to Self.Data.High() do
@@ -187,7 +187,7 @@ begin
   end;
 
   if Result.Name = '' then
-    TerminateScript('Object ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
+    RaiseException('Object ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
 end;
 
 function TRSObjectJSONParser.GetByAction(action: String): TRSObjectV2;
@@ -371,7 +371,7 @@ begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = npc then
         Exit(TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
-    TerminateScript('NPC with ID ' + ToStr(npc) + ' doesn''t exist on the loaded maps.');
+    RaiseException('NPC with ID ' + ToStr(npc) + ' doesn''t exist on the loaded maps.');
   end;
 
   name := LowerCase(npc);
@@ -381,7 +381,7 @@ begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = npc then
         Exit(TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
-    TerminateScript('NPC with ID ' + ToStr(npc) + ' doesn''t exist on the loaded maps.');
+    RaiseException('NPC with ID ' + ToStr(npc) + ' doesn''t exist on the loaded maps.');
   end;
 
   for i := 0 to Self.Data.High() do
@@ -400,7 +400,7 @@ begin
   end;
 
   if Result.Name = '' then
-    TerminateScript('NPC ' + name + ' doesn''t exist on the loaded maps.');
+    RaiseException('NPC ' + name + ' doesn''t exist on the loaded maps.');
 end;
 
 function TRSNPCJSONParser.GetByAction(action: String): TRSNPCV2;
@@ -413,7 +413,7 @@ begin
       if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) = action then
         Exit(TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
 
-  TerminateScript('NPCs with action ' + action + ' don''t exist on the loaded maps.');
+  RaiseException('NPCs with action ' + action + ' don''t exist on the loaded maps.');
 end;
 
 function TRSNPCJSONParser.GetAll(name: String): TRSNPCV2Array;
@@ -560,7 +560,7 @@ begin
   end;
 
   if Self.MapObjects = [] then
-    TerminateScript('No bank objects nor npcs available in the loaded TRSMap');
+    RaiseException('No bank objects nor npcs available in the loaded TRSMap');
 end;
 
 procedure TRSBanks._FilterLocation(polygon: TPointArray; inside: Boolean);

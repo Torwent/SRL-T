@@ -400,7 +400,7 @@ var
   i: Int32;
 begin
   if Length(Self.Coordinates) <> Length(Self.Angles) then
-    TerminateScript('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
+    RaiseException('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
 
   for i := High(Self.Coordinates) downto 0 do
     if Self.Coordinates[i].DistanceTo(circle.Mean()) > circle.Radius then
@@ -417,7 +417,7 @@ var
 begin
   len := Length(Self.Coordinates);
   if len <> Length(Self.Angles) then
-    TerminateScript('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
+    RaiseException('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
 
   SetLength(weights, len);
   for i := 0 to High(Self.Coordinates) do

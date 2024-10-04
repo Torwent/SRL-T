@@ -603,7 +603,7 @@ begin
 
         Number := Length(GetFiles('randoms/', 'png'));
         if Number > 1000 then
-          TerminateScript('Lots of randoms debugged');
+          RaiseException('Lots of randoms debugged');
 
         SaveScreenshot('randoms/' + IntToStr(Number) + '.png');
 

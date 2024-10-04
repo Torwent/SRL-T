@@ -251,7 +251,7 @@ begin
   WriteLn 'Downloading file: ' + url + '  >  ' + fileName;
   path := ExtractFileDir(fileName);
   if not ForceDirectories(path) then
-    TerminateScript('Failed to create path: ' + path);
+    RaiseException('Failed to create path: ' + path);
 
   try
     client := InitializeHTTPClient(False);
@@ -342,7 +342,7 @@ begin
   WriteLn 'Downloading file: ' + url + ' > ' + fileName;
   path := ExtractFileDir(fileName);
   if not ForceDirectories(path) then
-    TerminateScript('Failed to create path: ' + path);
+    RaiseException('Failed to create path: ' + path);
 
   client := InitializeHTTPClient(False);
   try

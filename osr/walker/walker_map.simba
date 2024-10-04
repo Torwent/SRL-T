@@ -128,7 +128,7 @@ begin
     if not FileExists(cacheName) then
     begin
       if not ForceDirectories(path) then
-        TerminateScript('Failed to create TRSWalker cache directories.');
+        RaiseException('Failed to create TRSWalker cache directories.');
 
       WriteLn('Caching ' + ExtractfileName(fileName) + ' this can take ~10 seconds.');
 

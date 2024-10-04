@@ -106,10 +106,10 @@ begin
 
   for i := 0 to RSTranslator.Planes do
     if not ForceDirectories(JSONS_PATH + ToStr(i)) then
-      TerminateScript('Failed to create: ' + JSONS_PATH + ToStr(i));
+      RaiseException('Failed to create: ' + JSONS_PATH + ToStr(i));
 
   if not ForceDirectories(HELPER_CACHE) then
-    TerminateScript('Failed to create: ' + HELPER_CACHE);
+    RaiseException('Failed to create: ' + HELPER_CACHE);
 
   WriteLn('Setting up cache.');
   files.SetupCache();

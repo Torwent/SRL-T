@@ -1282,7 +1282,7 @@ function TRSWalkerV2.WebWalkEx(me: TPoint; destination: TPoint; waitUntilDistanc
         bmp.Debug();
         bmp.Free();
       end;
-      TerminateScript(GetExceptionMessage());
+      RaiseException(GetExceptionMessage());
     end;
   end;
 

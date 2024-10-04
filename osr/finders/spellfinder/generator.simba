@@ -53,7 +53,7 @@ begin
   spellsATPA := spellsTPA.Cluster(3,3);
 
   if not ForceDirectories(GEN_PATH) then
-    TerminateScript('Couldn''t create the following path: ' + GEN_PATH);
+    RaiseException('Couldn''t create the following path: ' + GEN_PATH);
   for i := 0 to High(spellsATPA) do
   begin
     tpa := spellsATPA[i];

@@ -652,7 +652,7 @@ begin
     Result.LoadNamesFromString(json.getString('names'));
     Result.LoadDoorsFromString(json.getString('doors'));
   except
-    TerminateScript('Something went wrong loading the webraph: ' + GetExceptionMessage());
+    RaiseException('Something went wrong loading the webraph: ' + GetExceptionMessage());
   finally
     json.Free();
   end;

@@ -181,7 +181,7 @@ var
   p: TPoint;
 begin
   if Length(colors) < Length(data) then
-    TerminateScript('Not enough colors to draw your data');
+    RaiseException('Not enough colors to draw your data');
 
   bmp.Init();
   bmp.setFontAntialiasing(True);

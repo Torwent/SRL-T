@@ -383,7 +383,7 @@ var
   i: Int32;
 begin
   if Length(Self.Coordinates) <> Length(Self.Angles) then
-    TerminateScript('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
+    RaiseException('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
 
   for i := High(Self.Coordinates) downto 0 do
     if Self.Coordinates[i].DistanceTo(circle.Mean()) > circle.Radius then
@@ -400,7 +400,7 @@ var
 begin
   len := Length(Self.Coordinates);
   if len <> Length(Self.Angles) then
-    TerminateScript('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
+    RaiseException('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
 
   SetLength(w1, len);
   SetLength(w2, len);
@@ -580,7 +580,7 @@ begin
   if Self.Filter.Walker then
   begin
     if Self.Walker = nil then
-      TerminateScript(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
+      RaiseException(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
 
     cuboids := Self.GetCuboidArray();
     if cuboids = [] then
@@ -612,7 +612,7 @@ var
   h: Single;
 begin
   if Self.Walker = nil then
-    TerminateScript('Walker not set for ' + Self.Name + ' object.');
+    RaiseException('Walker not set for ' + Self.Name + ' object.');
 
   me := Self.Walker^.Position();
   angle := Minimap.GetCompassAngle(False);
@@ -772,7 +772,7 @@ var
   i: Int32;
 begin
   if Self.Filter.Walker and (Self.Walker = nil) then
-    TerminateScript(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
+    RaiseException(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
 
   if Self.Filter.Walker and (me = [0,0]) then
     me := Self.Walker^.Position();
@@ -1175,7 +1175,7 @@ begin
     begin
       path := Self.Walker^.WebGraph^.FindObjectPath(me, closest);
       if path = [] then
-        TerminateScript(SRL.TimeStamp() + ':[MapObject]:[Fatal]: Can''t path to object: ' + Self.Name);
+        RaiseException(SRL.TimeStamp() + ':[MapObject]:[Fatal]: Can''t path to object: ' + Self.Name);
       same := True;
     end;
 
@@ -1250,7 +1250,7 @@ begin
   if Self.Filter.Walker then
   begin
     if Self.Walker = nil then
-      TerminateScript(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
+      RaiseException(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
 
     if not Self.Walker^.MakePointVisible(Self.Coordinates) then Exit;
   end;
@@ -1289,7 +1289,7 @@ begin
   if not Self.Filter.Walker then Exit;
 
   if Self.Walker = nil then
-    TerminateScript(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: "' + Self.Name + '" has no walker pointer set.');
+    RaiseException(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: "' + Self.Name + '" has no walker pointer set.');
 
   if Self.Filter.UpText then Self.Walker^.TargetUpText := Copy(Self.UpText);
 
@@ -1302,7 +1302,7 @@ begin
   begin
     path := Self.Walker^.WebGraph^.FindObjectPath(me, p);
     if path = [] then
-      TerminateScript(SRL.TimeStamp() + ':[MapObject]:[Fatal]: Can''t path to "' + Self.Name + '" from ' + me.ToString() + ' to ' + p.ToString());
+      RaiseException(SRL.TimeStamp() + ':[MapObject]:[Fatal]: Can''t path to "' + Self.Name + '" from ' + me.ToString() + ' to ' + p.ToString());
     same := True;
   end;
 
@@ -1356,7 +1356,7 @@ begin
   if Self.Filter.Walker then
   begin
     if Self.Walker = nil then
-      TerminateScript(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
+      RaiseException(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
     Self.Walker^.ActionUpText := action;
   end;
 
@@ -1385,7 +1385,7 @@ begin
   if Self.Filter.Walker then
   begin
     if Self.Walker = nil then
-      TerminateScript(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
+      RaiseException(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
     Self.Walker^.TargetUpText := Copy(Self.UpText);
   end;
 
@@ -1413,7 +1413,7 @@ begin
   if Self.Filter.Walker then
   begin
     if Self.Walker = nil then
-      TerminateScript(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
+      RaiseException(SRL.TimeStamp() + ':[TRSMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
     Self.Walker^.TargetUpText := Copy(Self.UpText);
     Self.Walker^.ActionUpText := action;
   end;
