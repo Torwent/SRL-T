@@ -414,7 +414,7 @@ begin
       cluster := Self.WalkableClusters[i];
 
   if cluster = [] then
-    TerminateScript(SRL.TimeStamp() + ':[WebGraph]:[Fatal]: Can''t find player cluster containg: ' + me.ToString());
+    RaiseException(SRL.TimeStamp() + ':[WebGraph]:[Fatal]: Can''t find player cluster containg: ' + me.ToString());
 
   best := Self.FindNearestNodesEx(p, 12);
 
@@ -425,7 +425,7 @@ begin
       try
         Result := Self.PathBetweenEx(me, best[i], 0.2, 2);
       except
-        TerminateScript(SRL.TimeStamp() + ':[WebGraph]:[Fatal]: Can''t find a walkable path to ' + p.ToString() + ' object.');
+        RaiseException(SRL.TimeStamp() + ':[WebGraph]:[Fatal]: Can''t find a walkable path to ' + p.ToString() + ' object.');
       end;
 
       Break;
