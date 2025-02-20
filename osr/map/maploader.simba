@@ -615,15 +615,19 @@ This is an internal method. Don't use it if you don't know what you are doing.
 ```
 *)
 function TRSChunkLoader.GetGraph(name: String; plane: UInt32; map: TMufasaBitmap): TWebGraphV2;
+  function _FilesExist(const path: String): Boolean;
+  begin
+    Result := FileExists(path + '.nodes') and FileExists(path + '.paths') and
+              FileExists(path + '.names') and FileExists(path + '.doors');
+  end;
 var
   cacheroot, cachename: String;
-  json: TJSONObject;
   t: UInt64;
 begin
   cacheroot := Self.Cache + 'graphs' + DirectorySeparator;
   cachename := cacheroot + ToStr(plane) + DirectorySeparator + name + '-' + GENERATED_GRAPH.Hash();
 
-  if not FileExists(cachename + '.json') then
+  if not _FilesExist(cachename) then
   begin
     Self.DebugLn('Caching ' + name + ' webgraph, this will take a minute.');
 
@@ -633,37 +637,23 @@ begin
     t := GetTickCount();
     Result := Self.BuildGraph(name, map);
     Self.DebugLn('Took ' + ToStr((GetTickCount()-t) div 1000) + ' seconds to generate webgraph.');
-    try
-      json.Init();
 
-      json.Put('nodes', Result.NodesToString());
-      json.Put('paths', Result.PathsToString());
-      json.Put('names', Result.NamesToString());
-      json.Put('doors', Result.DoorsToString());
-
-      if not WriteFileContents(cachename + '.json', json.ToString(2), False) then
-        Self.Fatal('Failed to save ' + name + ' webgraph.');
-    except
-      Self.Fatal('Something went wrong saving ' + name + ' webraph: ' + GetExceptionMessage());
-    finally
-      json.Free();
-    end;
+    if not WriteFileContents(cachename + '.nodes', Result.NodesToString(), False) then
+      Self.Fatal('Failed to save ' + name + ' webgraph nodes.');
+    if not WriteFileContents(cachename + '.paths', Result.PathsToString(), False) then
+      Self.Fatal('Failed to save ' + name + ' webgraph paths.');
+    if not WriteFileContents(cachename + '.names', Result.NamesToString(), False) then
+      Self.Fatal('Failed to save ' + name + ' webgraph names.');
+    if not WriteFileContents(cachename + '.doors', Result.DoorsToString(), False) then
+      Self.Fatal('Failed to save ' + name + ' webgraph doors.');
 
     Exit;
   end;
 
-  try
-    json.Init(ReadFileContents(cachename + '.json'));
-
-    Result.LoadNodesFromString(json.getString('nodes'));
-    Result.LoadPathsFromString(json.getString('paths'));
-    Result.LoadNamesFromString(json.getString('names'));
-    Result.LoadDoorsFromString(json.getString('doors'));
-  except
-    TerminateScript('Something went wrong loading the webraph: ' + GetExceptionMessage());
-  finally
-    json.Free();
-  end;
+  Result.LoadNodesFromString(ReadFileContents(cachename + '.nodes'));
+  Result.LoadPathsFromString(ReadFileContents(cachename + '.paths'));
+  Result.LoadNamesFromString(ReadFileContents(cachename + '.names'));
+  Result.LoadDoorsFromString(ReadFileContents(cachename + '.doors'));
 end;
 
 

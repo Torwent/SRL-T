@@ -1060,7 +1060,6 @@ end;
 procedure TSRL.Setup(); override;
 begin
   inherited;
-
   MainScreen.Setup();
 end;
 

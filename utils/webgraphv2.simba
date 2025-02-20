@@ -600,151 +600,120 @@ begin
     end;
 end;
 
-
+{$R-}
 function TWebGraphV2.NodesToString(): String;
 var
-  I: Int32;
+  len: Int32;
 begin
-  for I := 0 to High(Self.Nodes) do
-    Result := Result + '[' + IntToStr(Self.Nodes[I].X) + ' ' + IntToStr(Self.Nodes[I].Y) + ']';
-  Result := Base64Encode(CompressString(Result));
+  len := Length(Self.Nodes) * SizeOf(TPoint);
+  SetLength(Result, len);
+  Move(Self.Nodes[0], Result[1], len);
+  Result := CompressString(Result);
 end;
 
-function TWebGraphV2.DoorsToString(): String;
+procedure TWebGraphV2.LoadNodesFromString(str: String);
 var
-  i: Int32;
+  len: Int32;
 begin
-  for i := 0 to High(Self.Doors) do
-  begin
-    Result := Result + '[' +
-              IntToStr(Self.Doors[i].Before.X) + ' ' + IntToStr(Self.Doors[i].Before.Y) + ' ' +
-              IntToStr(Self.Doors[i].After.X) + ' ' + IntToStr(Self.Doors[i].After.Y) + ' ' +
-              IntToStr(Self.Doors[i].Center.X) + ' ' + IntToStr(Self.Doors[i].Center.Y) + ' ' +
-              IntToStr(Self.Doors[i].Direction.X) + ' '+ IntToStr(Self.Doors[i].Direction.Y) + ' '+
-              IntToStr(Ord(Self.Doors[i].DoorType)) + ' ' +
-              IntToStr(Int32(self.doors[i].SEPARATING)) +
-              ']';
-  end;
-  Result := Base64Encode(CompressString(Result));
+  str := DecompressString(str);
+  len := Length(str);
+  SetLength(Self.Nodes, len div SizeOf(TPoint));
+  Move(str[1], Self.Nodes[0], len);
 end;
 
-procedure TWebGraphV2.LoadDoorsFromString(s: String);
-var
-  elements, values: TStringArray;
-  i: Int32;
-begin
-  elements := MultiBetween(DecompressString(Base64Decode(s)), '[', ']');
-
-  SetLength(Self.Doors, Length(elements));
-
-  for i := 0 to High(elements) do
-  begin
-    values := Explode(' ', elements[i]);
-
-    Self.Doors[i].Before.X := StrToInt(values[0]);
-    Self.Doors[i].Before.Y := StrToInt(values[1]);
-    Self.Doors[i].After.X := StrToInt(values[2]);
-    Self.Doors[i].After.Y := StrToInt(values[3]);
-    Self.Doors[i].Center.X := StrToInt(values[4]);
-    Self.Doors[i].Center.Y := StrToInt(values[5]);
-    Self.Doors[i].Direction.X := StrToInt(values[6]);
-    Self.Doors[i].Direction.Y := StrToInt(values[7]);
-
-    Self.Doors[i].DoorType := ERSDoorType(StrToInt(values[8]));
-    Self.Doors[i].SEPARATING := Boolean(StrToInt(values[9]));
-  end;
-end;
-
-procedure TWebGraphV2.LoadNodesFromString(S: String);
-var
-  Elements, Values: TStringArray;
-  I: Int32;
-begin
-  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
-
-  SetLength(Self.Nodes, Length(Elements));
-
-  for I := 0 to High(Elements) do
-  begin
-    Values := Explode(' ', Elements[I]);
-
-    Self.Nodes[I].X := StrToInt(Values[0]);
-    Self.Nodes[I].Y := StrToInt(Values[1]);
-  end;
-end;
 
 function TWebGraphV2.PathsToString(): String;
 var
-  I, J: Int32;
+  size, i, len, offset: Int32;
+  str: String;
 begin
-  for I := 0 to High(Self.Paths) do
-  begin
-    Result := Result + '[';
-    if Length(Self.Paths[I]) = 0 then
-      Result += ' ';
+  size := SizeOf(Int32);
+  len := size;
 
-    for J := 0 to High(Self.Paths[I]) do
+  for i := 0 to High(Self.Paths) do
+    Inc(len, size + Length(Self.Paths[i]) * size);
+
+  SetLength(str, len);
+  Move(Length(Self.Paths), str[1], size);
+  offset := 1 + size;
+
+  for i := 0 to High(Self.Paths) do
+  begin
+    len := Length(Self.Paths[i]);
+    Move(len, str[offset], size);
+    Inc(offset, size);
+
+    if len > 0 then
     begin
-      if (J > 0) then
-        Result += ' ';
-      Result += IntToStr(Self.Paths[I][J]);
+      len := len * size;
+      Move(Self.Paths[i,0], str[offset], len);
+      Inc(offset, len);
     end;
-
-    Result := Result + ']';
   end;
 
-  Result := Base64Encode(CompressString(Result));
+  Result := CompressString(str);
 end;
 
-procedure TWebGraphV2.LoadPathsFromString(S: String);
+procedure TWebGraphV2.LoadPathsFromString(str: String);
 var
-  Elements, Values: TStringArray;
-  I, J: Int32;
+  size, i, len, row, offset: Int32;
 begin
-  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
+  str := DecompressString(str);
+  size := SizeOf(Int32);
 
-  SetLength(Self.Paths, Length(Elements));
+  Move(str[1], len, size);
+  SetLength(Self.Paths, len);
+  offset := 1 + size;
 
-  for I := 0 to High(Elements) do
+  for i := 0 to High(Self.Paths) do
   begin
-    if Elements[I] = ' ' then
-      Continue;
+    Move(str[offset], row, size);
+    SetLength(Self.Paths[i], row);
+    offset += size;
 
-    Values := Explode(' ', Elements[I]);
-
-    SetLength(Self.Paths[I], Length(Values));
-    for J := 0 to High(Values) do
-      Self.Paths[I][J] := StrToInt(Values[J]);
+    if row > 0 then
+    begin
+      len := row * size;
+      Move(str[offset], Self.Paths[i,0], len);
+      offset += len;
+    end;
   end;
 end;
+
 
 function TWebGraphV2.NamesToString(): String;
-var
-  I: Int32;
 begin
-  for I := 0 to High(Self.Names) do
-    if Self.Names[I] = '' then
-      Result := Result + '[#0]'
-    else
-      Result := Result + '[' + Self.Names[I] + ']';
-
-  Result := Base64Encode(CompressString(Result));
+  Result := CompressString(Self.Names.Merge(#0));
 end;
 
-procedure TWebGraphV2.LoadNamesFromString(S: String);
-var
-  Elements: TStringArray;
-  I: Int32;
+procedure TWebGraphV2.LoadNamesFromString(str: String);
 begin
-  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
-
-  SetLength(Self.Names, Length(Elements));
-
-  for I := 0 to High(Elements) do
-    if (Elements[I] <> '#0') then
-      Self.Names[I] := Elements[I];
+  str := DecompressString(str);
+  Self.Names := str.Split(#0);
+  if str.EndsWith(#0) then Self.Names += '';
 end;
 
+
+function TWebGraphV2.DoorsToString(): String;
+var
+  len: Int32;
+begin
+  len := Length(Self.Doors) * SizeOf(TRSDoor);
+  SetLength(Result, len);
+  Move(Self.Doors[0], Result[1], len);
+  Result := CompressString(Result);
+end;
+
+procedure TWebGraphV2.LoadDoorsFromString(str: String);
+var
+  len: Int32;
+begin
+  str := DecompressString(str);
+  len := Length(str);
+  SetLength(Self.Doors, len div SizeOf(TRSDoor));
+  Move(str[1], Self.Doors[0], len);
+end;
+{$R+}
 
 procedure TWebGraphV2.Merge(graph: TWebGraphV2);
 var
