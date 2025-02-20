@@ -9,6 +9,7 @@ Most things in this file are for internal use only and you shouldn't use them di
 nor modify them if you don't quite understand them.
 ```
 *)
+{.$DEFINE MAPLOADER_KEEP_CACHE}
 
 {$DEFINE SRL_MAPLOADER_INCLUDED}
 {$IFNDEF SRL_OSR}
@@ -87,6 +88,9 @@ ChunkLoader record, this is what's responsible for loading a "chunks" map.
 *)
   TRSChunkLoader = record(TSRLBaseRecord)
     Cache: String;
+
+    ImageCache: array [ERSMap] of String;
+    JSONCache:  array [ERSMapJSON] of String;
   end;
 
 (*
@@ -100,16 +104,123 @@ This is an internal method. Don't use it if you don't know what you are doing.
 ```
 *)
 procedure TRSChunkLoader.Setup(name, cache: String);
+var
+  imap: ERSMap;
+  jmap: ERSMapJSON;
+  izips: array [ERSMap] of String;
+  jzips: array [ERSMapJSON] of String;
+  unzipping: Boolean;
 begin
   Self.Name := name;
   Self.Cache := cache;
+
+  Self.ImageCache[ERSMap.NORMAL]    := Self.Cache + 'map' + DirectorySeparator;
+  Self.ImageCache[ERSMap.HEIGHT]    := Self.Cache + 'heightmap' + DirectorySeparator;
+  Self.ImageCache[ERSMap.COLLISION] := Self.Cache + 'collision' + DirectorySeparator;
+
+  Self.JSONCache[ERSMapJSON.OBJECTS] := Self.Cache + 'objects' + DirectorySeparator;
+  Self.JSONCache[ERSMapJSON.NPCS]    := Self.Cache + 'npcs' + DirectorySeparator;
+
+  izips[ERSMap.NORMAL]    := RSMAP_PATH + 'files' + DirectorySeparator + 'map.zip';
+  izips[ERSMap.HEIGHT]    := RSMAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip';
+  izips[ERSMap.COLLISION] := RSMAP_PATH + 'files' + DirectorySeparator + 'collision.zip';
+
+  for imap := Low(ERSMap) to High(ERSMap) do
+    if Length(FindFiles(Self.ImageCache[imap], ['.png', '.bmp'], True)) < 100 then
+    begin
+      RunScript(RSMAP_PATH + 'concurrent-unzipper.simba', ['zip=' + izips[imap], 'cache=' + Self.ImageCache[imap]]);
+      unzipping := True;
+    end;
+
+  jzips[ERSMapJSON.OBJECTS] := RSMAP_PATH + 'files' + DirectorySeparator + 'objects.zip';
+  jzips[ERSMapJSON.NPCS]    := RSMAP_PATH + 'files' + DirectorySeparator + 'npcs.zip';
+
+  for jmap := Low(ERSMapJSON) to High(ERSMapJSON) do
+    if Length(FindFiles(Self.JSONCache[jmap], ['.json'], True)) < 100 then
+    begin
+      RunScript(RSMAP_PATH + 'concurrent-unzipper.simba', ['zip=' + jzips[jmap], 'cache=' + Self.JSONCache[jmap]]);
+      unzipping := True;
+    end;
+
+  if unzipping then
+    if not WaitUntil(
+      (Length(FindFiles(Self.ImageCache[ERSMap.NORMAL],     ['.png'], True))  > 100) and
+      (Length(FindFiles(Self.ImageCache[ERSMap.HEIGHT],     ['.png'], True))  > 100) and
+      (Length(FindFiles(Self.ImageCache[ERSMap.COLLISION],  ['.png'], True))  > 100) and
+      (Length(FindFiles(Self.JSONCache[ERSMapJSON.OBJECTS], ['.json'], True)) > 100) and
+      (Length(FindFiles(Self.JSONCache[ERSMapJSON.NPCS],    ['.json'], True)) > 100),
+      150, 20000
+    ) then
+        Self.Fatal('Unzipping failed.');
 end;
+
+
+procedure TRSChunkLoader.WaitFile(filename: String; timeout: UInt64 = 12000; interval: Int32 = 128);
+  function _FileAvailable(): Boolean;
+  var
+    f: Int32;
+  begin
+    try f := OpenFile(filename, False); except Exit; end;
+    try CloseFile(f); except Exit; end;
+    Result := True;
+  end;
+begin
+  timeout += GetTickCount();
+
+  while not _FileAvailable() do
+  begin
+    if GetTickCount() > timeout then  //potato pc??
+      Self.Fatal('Timed out waiting for file: ' + filename);
+    Wait(interval);
+  end;
+end;
+
+
+function TRSChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap;
+var
+  chunkStr, filename: String;
+  created: Boolean;
+begin
+  Result.Init();
+
+  chunkStr := ToStr(chunk.X) + '-' + ToStr(chunk.Y);
+
+  case map of
+    ERSMap.NORMAL:
+      filename := Self.ImageCache[map] + ToStr(plane) + DirectorySeparator + chunkStr;
+    ERSMap.HEIGHT:
+      filename := Self.ImageCache[map] + chunkStr;
+    ERSMap.COLLISION:
+      filename := Self.ImageCache[map] + ToStr(plane) + DirectorySeparator + chunkStr;
+  end;
+
+  Result.SetName(filename);
+
+  if not FileExists(filename + '.bmp') then
+  begin
+    if FileExists(filename + '.png') then
+      Self.WaitFile(filename + '.png')
+    else
+    begin
+      created := True;
+      Result.SetSize(RSTranslator.Map.ChunkSide, RSTranslator.Map.ChunkSide);
+    end;
+
+    if not created then
+      Result.LoadFromFile(filename + '.png');
+    Result.SaveToFile(filename + '.bmp');
+    DeleteFile(filename + '.png');
+    Exit;
+  end;
+
+  Result.LoadFromFile(filename + '.bmp');
+end;
+
 
 (*
 ## TRSChunkLoader.GetBitmap
 ```pascal
-function TRSChunkLoader.GetBitmap(chunk: String; plane: UInt32; map: ERSMap): TMufasaBitmap;
-function TRSChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap; overload;
+function TRSChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap;
 ```
 Returns a chunk bitmap.
 If possible, it will be loaded from a cached .bmp file.
@@ -119,81 +230,49 @@ The files are cached as .bmp because .bmp is a raw format and simba loads them m
 This are internal methods. Don't use them if you don't know what you are doing.
 ```
 *)
-function TRSChunkLoader.GetBitmap(chunk: String; plane: UInt32; map: ERSMap): TMufasaBitmap;
+function TRSChunkLoader.QueueBitmap(chunk: TPoint; plane: UInt32; map: ERSMap): String;
 var
-  cacheroot, cachename, zipFile, zipPath: String;
-  created: Boolean;
+  chunkStr, w, h: String;
 begin
-  Result.Init();
+  chunkStr := ToStr(chunk.X) + '-' + ToStr(chunk.Y);
 
   case map of
     ERSMap.NORMAL:
-    begin
-      cacheroot := Self.Cache + 'map' + DirectorySeparator;
-      cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
-      zipPath := RSMAP_PATH + 'files' + DirectorySeparator + 'map.zip';
-      zipFile := ToStr(plane) + '/' + chunk + '.png';
-    end;
-
+      Result := Self.ImageCache[map] + ToStr(plane) + DirectorySeparator + chunkStr;
     ERSMap.HEIGHT:
-    begin
-      cacheroot := Self.Cache + 'heightmap' + DirectorySeparator;
-      cachename := cacheroot + chunk;
-      zipPath := RSMAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip';
-      zipFile := chunk + '.png';
-    end;
-
+      Result := Self.ImageCache[map] + chunkStr;
     ERSMap.COLLISION:
-    begin
-      cacheroot := Self.Cache + 'collision' + DirectorySeparator;
-      cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
-      zipPath := RSMAP_PATH + 'files' + DirectorySeparator + 'collision.zip';
-      zipFile := ToStr(plane) + '/' + chunk + '.png';
-    end;
+      Result := Self.ImageCache[map] + ToStr(plane) + DirectorySeparator + chunkStr;
   end;
 
-  Result.SetName(cachename);
-
-  if not FileExists(cachename + '.bmp') then
+  if not FileExists(Result + '.bmp') then
   begin
-    Self.DebugLn('Caching ' + chunk + ' ' + ToStr(map) + ' this can take ~10 seconds.');
+    if FileExists(Result + '.png') then
+      Self.WaitFile(Result + '.png');
 
-    if not FileExists(cachename + '.png') then
-    begin
-      if not ForceDirectories(ExtractFilePath(cachename + '.png')) then
-      begin
-        Result.Free();
-        Self.Fatal('Failed to create TRSMapLoader cache directories.');
-      end;
-
-      if not UnZipOneFile(zipPath, zipFile, cacheroot) then
-      begin
-        created := True;
-        Result.SetSize(RSTranslator.Map.ChunkSide, RSTranslator.Map.ChunkSide);
-      end;
-    end;
-
-    if not created then
-      Result.LoadFromFile(cachename + '.png');
-    Result.SaveToFile(cachename + '.bmp');
-    DeleteFile(cachename + '.png');
-    Exit;
+    w := 'w=' + ToStr(RSTranslator.Map.ChunkSide);
+    h := 'h=' + ToStr(RSTranslator.Map.ChunkSide);
+    RunScript(RSMAP_PATH + 'concurrent-cache.simba', ['filename='+Result, w, h]);
   end;
 
-  Result.LoadFromFile(cachename + '.bmp');
+  Result += '.bmp';
 end;
 
-function TRSChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap; overload;
+function TRSChunkLoader.WaitBitmap(filename: String): TMufasaBitmap;
 begin
-  Result := Self.GetBitmap(ToStr(chunk.X) + '-' + ToStr(chunk.Y), plane, map);
-end;
+  Result.Init();
+  Result.SetName(filename);
 
+  Self.WaitFile(filename, 15000, 50);
+
+  Result.LoadFromFile(filename);
+  Exit;
+end;
 
 (*
 ## TRSChunkLoader.GetJSONFile
 ```pascal
-function TRSChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: ERSMapJSON): TJSONArray;
-function TRSChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: ERSMapJSON): TJSONArray; overload;
+function TRSChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: ERSMapJSON): TJSONArray;
 ```
 Returns a chunk json file.
 If possible, it will be loaded from a cached file.
@@ -202,41 +281,19 @@ If no cache file exists, the file is unzipped, loaded and saved into cache for f
 This are an internal methods. Don't use them if you don't know what you are doing.
 ```
 *)
-function TRSChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: ERSMapJSON): TJSONArray;
+function TRSChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: ERSMapJSON): TJSONArray;
 var
-  name, cacheroot, cachename, zipFile, zipPath, contents: String;
+  filename, contents: String;
 begin
-  case jsonType of
-    ERSMapJSON.OBJECTS: name := 'objects';
-    ERSMapJSON.NPCS:    name := 'npcs';
-  end;
+  filename := Self.JSONCache[jsonType] + ToStr(plane) + DirectorySeparator + ToStr(chunk.X) + '-' + ToStr(chunk.Y);
 
-  cacheroot := Self.Cache + name + DirectorySeparator;
-  cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
-  zipPath := RSMAP_PATH + 'files' + DirectorySeparator + name + '.zip';
-  zipFile := ToStr(plane) + '/' + chunk + '.json';
+  if FileExists(filename + '.json') then
+    Self.WaitFile(filename + '.json');
 
-  if not FileExists(cachename + '.json') then
-  begin
-    if not ForceDirectories(ExtractFilePath(cachename + '.json')) then
-      Self.Fatal('Failed to create objects cache directories.');
-
-    if not UnZipOneFile(zipPath, zipFile, cacheroot) then
-      Exit;
-
-    Self.DebugLn('Caching ' + chunk + ' ' + ToStr(jsonType) + ' this can take ~10 seconds.');
-  end;
-
-  contents := ReadFileContents(cachename + '.json');
-
-  if contents <> '' then
-    Result.Init(contents);
+  contents := ReadFileContents(filename + '.json');
+  if contents <> '' then Result.Init(contents);
 end;
 
-function TRSChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: ERSMapJSON): TJSONArray; overload;
-begin
-  Result := Self.GetJSONFile(ToStr(chunk.X) + '-' + ToStr(chunk.Y), plane, jsonType);
-end;
 
 
 (*
@@ -274,23 +331,25 @@ This returns a bitmap of all the `chunks` you pass into it or `start` and `finis
 This is an internal method. Don't use it if you don't know what you are doing.
 ```
 *)
-function TRSChunkLoader.GetMap(chunks: TPointArray; plane: UInt32; map: ERSMap): TMufasaBitmap;
+function TRSChunkLoader.GetMap(start, finish: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap;
 var
+  chunks: TPointArray;
   i, x, y, n: Int32;
   lo, hi: TPoint;
   chunkMaps: array of record
     Point: TPoint;
     Image: TMufasaBitmap;
+    Filename: String;
   end;
 begin
+  chunks := TRSChunkLoader.GetChunks(start, finish);
   SetLength(chunkMaps, Length(chunks));
 
   lo := [$FFFFFF, $FFFFFF];
-
   for i := 0 to High(chunks) do
   begin
-    chunkMaps[i].Image := Self.GetBitmap(chunks[i], plane, map);
-
+    chunkMaps[i].Filename := Self.QueueBitmap(chunks[i], plane, map);
+    //chunkMaps[i].Image := Self.GetBitmap(chunks[i], plane, map);
     x := chunks[i].X;
     y := 199 - chunks[i].Y;
 
@@ -308,18 +367,10 @@ begin
   begin
     x := (chunkMaps[i].Point.X - lo.X) * n;
     y := (chunkMaps[i].Point.Y - lo.Y) * n;
-
+    chunkMaps[i].Image := Self.WaitBitmap(chunkMaps[i].Filename);
     Result.DrawBitmap(chunkMaps[i].Image, Point(x, y));
     chunkMaps[i].Image.Free();
   end;
-end;
-
-function TRSChunkLoader.GetMap(start, finish: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap; overload;
-var
-  chunks: TPointArray;
-begin
-  chunks := TRSChunkLoader.GetChunks(start, finish);
-  Result := Self.GetMap(chunks, plane, map);
 end;
 
 (*
@@ -638,14 +689,21 @@ begin
     Result := Self.BuildGraph(name, map);
     Self.DebugLn('Took ' + ToStr((GetTickCount()-t) div 1000) + ' seconds to generate webgraph.');
 
-    if not WriteFileContents(cachename + '.nodes', Result.NodesToString(), False) then
-      Self.Fatal('Failed to save ' + name + ' webgraph nodes.');
-    if not WriteFileContents(cachename + '.paths', Result.PathsToString(), False) then
-      Self.Fatal('Failed to save ' + name + ' webgraph paths.');
-    if not WriteFileContents(cachename + '.names', Result.NamesToString(), False) then
-      Self.Fatal('Failed to save ' + name + ' webgraph names.');
-    if not WriteFileContents(cachename + '.doors', Result.DoorsToString(), False) then
-      Self.Fatal('Failed to save ' + name + ' webgraph doors.');
+    if Result.Nodes <> [] then
+      if not WriteFileContents(cachename + '.nodes', Result.NodesToString(), False) then
+        Self.Fatal('Failed to save ' + name + ' webgraph nodes.');
+
+    if Result.Paths <> [] then
+      if not WriteFileContents(cachename + '.paths', Result.PathsToString(), False) then
+        Self.Fatal('Failed to save ' + name + ' webgraph paths.');
+
+    if Result.Names <> [] then
+      if not WriteFileContents(cachename + '.names', Result.NamesToString(), False) then
+        Self.Fatal('Failed to save ' + name + ' webgraph names.');
+
+    if Result.Doors <> [] then
+      if not WriteFileContents(cachename + '.doors', Result.DoorsToString(), False) then
+        Self.Fatal('Failed to save ' + name + ' webgraph doors.');
 
     Exit;
   end;
@@ -990,6 +1048,10 @@ end;
 procedure TRSMapLoader.Init(downscale: UInt32);
 var
   version: String;
+  {$IFNDEF MAPLOADER_KEEP_CACHE}
+  dir: String;
+  available: TStringArray;
+  {$ENDIF}
 begin
   Self.Name := 'RSMap.Loader';
   version := SHA1String(
@@ -1001,15 +1063,30 @@ begin
   );
 
   version := version.SubString(6);
-  Self.Cache := CACHE_DIR + 'map' + DirectorySeparator +
-                version + DirectorySeparator;
+  Self.Cache := CACHE_DIR + 'map' + DirectorySeparator;
+
+  {$IFNDEF MAPLOADER_KEEP_CACHE}
+  available := FindDirectories(Self.Cache, False);
+  {$ENDIF}
+
+  Self.Cache += version;
+
+  {$IFNDEF MAPLOADER_KEEP_CACHE}
+  for dir in available do
+  begin
+    if dir = Self.Cache then Continue;
+    DeleteDirectory(dir, False);
+  end;
+  {$ENDIF}
+
+  Self.Cache += DirectorySeparator;
 
   if not ForceDirectories(Self.Cache) then
     Self.Fatal('Failed to create TRSMapLoader cache directory for: ' + version);
 
   Self.Downscale := downscale;
-  Self.Loader.Setup(Self.Name + '.Loader', cache);
-  Self.LegacyLoader.Setup(Self.Name + '.LegacyLoader', cache);
+  Self.Loader.Setup(Self.Name + '.Loader', Self.Cache);
+  Self.LegacyLoader.Setup(Self.Name + '.LegacyLoader', Self.Cache);
 end;
 
 procedure TRSMapLoader.Pack();
@@ -1580,7 +1657,6 @@ function TRSMapLoader.GetGlobal(b: TBox; offset: TPoint = [0,0]): TBox; overload
 begin
   Result := Self.GetGlobal(Self.LocalIndex(b.Center()), b, offset);
 end;
-
 
 
 function TRSMapLoader.GetLocal(regionIndex: Int32; p: TPoint; offset: TPoint = [0,0]): TPoint;

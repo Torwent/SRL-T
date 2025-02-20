@@ -1,0 +1,22 @@
+var
+  zip, cache: String;
+begin
+  zip := GetProcessParameter('zip');
+  if zip = '' then RaiseException('[ConcurrentUnzipper]: Fatal: TRSMapLoader zip not specified.');
+
+  cache := GetProcessParameter('cache');
+  if cache = '' then RaiseException('[ConcurrentUnzipper]: Fatal: TRSMapLoader cache not specified.');
+
+  if not ForceDirectories(cache) then
+  begin
+    WriteLn('[ConcurrentUnzipper]: Fatal: Failed to create TRSMapLoader cache directoriey: ' + cache);
+    TerminateScript();
+  end;
+
+  try
+    UnZipFile(zip, cache);
+  except
+    WriteLn('[ConcurrentUnzipper]: Fatal: ', GetExceptionMessage());
+  end;
+  WriteLn('[ConcurrentUnzipper]: Finished unzipping ', ExtractFileName(zip), '.');
+end;

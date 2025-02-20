@@ -1,0 +1,26 @@
+var
+  filename: String;
+  bmp: TMufasaBitmap;
+  w, h: Int32;
+begin
+  filename := GetProcessParameter('filename');
+  if filename = '' then RaiseException('[ConcurrentCache]: Fatal: TRSMapLoader filename not specified.');
+
+  bmp.Init();
+  if FileExists(filename + '.png') then
+    bmp.LoadFromFile(filename + '.png')
+  else
+  begin
+    w := StrToIntDef(GetProcessParameter('w'), -1);
+    if w = -1 then RaiseException('[ConcurrentCache]: Fatal: TRSMapLoader w not specified or invalid.');
+    h := StrToIntDef(GetProcessParameter('h'), -1);
+    if h = -1 then RaiseException('[ConcurrentCache]: Fatal: TRSMapLoader h not specified or invalid.');
+
+    bmp.SetSize(w, h);
+  end;
+
+  bmp.SaveToFile(filename + '.bmp');
+  bmp.Free();
+  DeleteFile(filename + '.png');
+  WriteLn('[ConcurrentCache]: Finished caching ', ExtractFileName(filename));
+end;
