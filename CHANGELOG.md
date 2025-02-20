@@ -1,3 +1,12 @@
+## [7.17.13](https://github.com/Torwent/SRL-T/compare/v7.17.12...v7.17.13) (2025-02-20)
+
+
+### Bug Fixes
+
+* read notes ([d78e974](https://github.com/Torwent/SRL-T/commit/d78e974bcd10f2e6eb076aa191b2bfe6801fe258))
+
+
+
 ## [7.17.12](https://github.com/Torwent/SRL-T/compare/v7.17.11...v7.17.12) (2025-02-17)
 
 
@@ -32,15 +41,6 @@
 ### Bug Fixes
 
 * **walkerv2:** small bug fixed when hovering certain items ([b5cefd5](https://github.com/Torwent/SRL-T/commit/b5cefd566779ad475fc9764510b7de8b19149553))
-
-
-
-## [7.17.8](https://github.com/Torwent/SRL-T/compare/v7.17.7...v7.17.8) (2025-02-13)
-
-
-### Bug Fixes
-
-* **trsobjects:** small logic fix ([208555c](https://github.com/Torwent/SRL-T/commit/208555cdd98d79e4fe7d7451da06fdb230594b27))
 
 
 
