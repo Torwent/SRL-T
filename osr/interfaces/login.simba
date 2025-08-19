@@ -372,7 +372,7 @@ begin
 
   if Self.OpenWorldSwitcher() then
   begin
-    for i := 1 to 3 do // Three pages of worlds
+    for i := 1 to 7 do // Seven pages of worlds
     begin
       if Self.ClickWorld(World) then
       begin
@@ -382,7 +382,7 @@ begin
 
       Keyboard.PressKey(VK_RIGHT);
 
-      Wait(500, 5000, wdLeft);
+      Wait(500, 2000, wdLeft);
     end;
   end;
 end;
