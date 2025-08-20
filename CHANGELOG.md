@@ -1,3 +1,12 @@
+## [7.21.3](https://github.com/Torwent/SRL-T/compare/v7.21.2...v7.21.3) (2025-08-20)
+
+
+### Bug Fixes
+
+* Update SwitchToWorld to have the correct 7 pages of worlds ([ef6eb6f](https://github.com/Torwent/SRL-T/commit/ef6eb6feed792db66b8466a04733e7f783a52c1e))
+
+
+
 ## [7.21.2](https://github.com/Torwent/SRL-T/compare/v7.21.1...v7.21.2) (2025-08-15)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * typo ([e20b6de](https://github.com/Torwent/SRL-T/commit/e20b6de0f58863b419862cc0d08e443c73958c08))
-
-
-
-## [7.20.15](https://github.com/Torwent/SRL-T/compare/v7.20.14...v7.20.15) (2025-08-01)
-
-
-### Bug Fixes
-
-* Update login.simba ([3eae1f4](https://github.com/Torwent/SRL-T/commit/3eae1f456a83d55c26e61e6a9a7e79edc41884a1))
 
 
 
