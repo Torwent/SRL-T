@@ -1,3 +1,12 @@
+## [7.21.6](https://github.com/Torwent/SRL-T/compare/v7.21.5...v7.21.6) (2025-10-10)
+
+
+### Bug Fixes
+
+* typo a some tweaks to the last commit ([da7b0bb](https://github.com/Torwent/SRL-T/commit/da7b0bb6e1a3cc5f6bee151f2a154fded7395417))
+
+
+
 ## [7.21.5](https://github.com/Torwent/SRL-T/compare/v7.21.4...v7.21.5) (2025-10-10)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **itemfinder:** update ([f2d5dc1](https://github.com/Torwent/SRL-T/commit/f2d5dc1aac9909a8f3e68df3df8b53d4d80c4947))
-
-
-
-## [7.21.1](https://github.com/Torwent/SRL-T/compare/v7.21.0...v7.21.1) (2025-08-06)
-
-
-### Bug Fixes
-
-* **itemfinder:** weird bug in some items ([73b01f8](https://github.com/Torwent/SRL-T/commit/73b01f8ced563260f14bd57f114da2621dd526be))
 
 
 
