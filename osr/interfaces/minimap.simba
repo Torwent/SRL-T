@@ -364,22 +364,19 @@ begin
   Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
 
   Self.DotsIMGs[ERSMinimapDot.PLAYER].Init();
-  Self.DotsIMGs[ERSMinimapDot.PLAYER].SetSize(2,2);
+  Self.DotsIMGs[ERSMinimapDot.PLAYER].SetSize(1,2);
   Self.DotsIMGs[ERSMinimapDot.PLAYER].SetPixel(0,0, 16711422);
-  Self.DotsIMGs[ERSMinimapDot.PLAYER].SetPixel(1,0, 16711422);
-  Self.DotsIMGs[ERSMinimapDot.PLAYER].SetPixel(1,1, 15527148);
+  Self.DotsIMGs[ERSMinimapDot.PLAYER].SetPixel(0,1, 15527148);
 
   Self.DotsIMGs[ERSMinimapDot.NPC].Init();
-  Self.DotsIMGs[ERSMinimapDot.NPC].SetSize(2,2);
-  Self.DotsIMGs[ERSMinimapDot.NPC].SetPixel(0,0, 195836);
-  Self.DotsIMGs[ERSMinimapDot.NPC].SetPixel(1,0, 62965);
-  Self.DotsIMGs[ERSMinimapDot.NPC].SetPixel(1,1, 60909);
+  Self.DotsIMGs[ERSMinimapDot.NPC].SetSize(1,2);
+  Self.DotsIMGs[ERSMinimapDot.NPC].SetPixel(0,0, 62965);
+  Self.DotsIMGs[ERSMinimapDot.NPC].SetPixel(0,1, 60909);
 
   Self.DotsIMGs[ERSMinimapDot.ITEM].Init();
-  Self.DotsIMGs[ERSMinimapDot.ITEM].SetSize(2,2);
-  Self.DotsIMGs[ERSMinimapDot.ITEM].SetPixel(0,0, 2105598);
-  Self.DotsIMGs[ERSMinimapDot.ITEM].SetPixel(1,0, 395004);
-  Self.DotsIMGs[ERSMinimapDot.ITEM].SetPixel(1,1, 241);
+  Self.DotsIMGs[ERSMinimapDot.ITEM].SetSize(1,2);
+  Self.DotsIMGs[ERSMinimapDot.ITEM].SetPixel(0,0, 395004);
+  Self.DotsIMGs[ERSMinimapDot.ITEM].SetPixel(0,1, 241);
 
   AddOnTerminate(@Self.Free);
 end;
@@ -877,7 +874,7 @@ Returns the ERSMinimapDots found in a bitmap of the minimap.
 *)
 function TRSMinimap.GetDotsBitmap(bmp: TMufasaBitmap; dots: ERSMinimapDots): TPointArray;
 const
-  THRESHOLDS: TSingleArray = [0.999, 0.99, 098];
+  THRESHOLDS: TSingleArray = [0.999, 0.99, 0.98];
 var
   mmDot: ERSMinimapDot;
   matrix: TSingleMatrix;
@@ -889,7 +886,6 @@ begin
     begin
       with matrix.ArgMax() do
       begin
-        WriteLn(mmDot, ': ', matrix[Y,X]);
         if matrix[Y,X] < THRESHOLDS[mmDot] then Break;
         Result += [X,Y];
         matrix.Fill([X, Y, X+1, Y+1], 0);
