@@ -1,3 +1,12 @@
+## [7.21.7](https://github.com/Torwent/SRL-T/compare/v7.21.6...v7.21.7) (2025-10-11)
+
+
+### Bug Fixes
+
+* **minimap:** dots ([38f33f2](https://github.com/Torwent/SRL-T/commit/38f33f259b299a391dc5ad5185d2b9ae0f9b41f2))
+
+
+
 ## [7.21.6](https://github.com/Torwent/SRL-T/compare/v7.21.5...v7.21.6) (2025-10-10)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * Update SwitchToWorld to have the correct 7 pages of worlds ([ef6eb6f](https://github.com/Torwent/SRL-T/commit/ef6eb6feed792db66b8466a04733e7f783a52c1e))
-
-
-
-## [7.21.2](https://github.com/Torwent/SRL-T/compare/v7.21.1...v7.21.2) (2025-08-15)
-
-
-### Bug Fixes
-
-* **itemfinder:** update ([f2d5dc1](https://github.com/Torwent/SRL-T/commit/f2d5dc1aac9909a8f3e68df3df8b53d4d80c4947))
 
 
 
