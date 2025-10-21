@@ -1,3 +1,12 @@
+## [7.21.9](https://github.com/Torwent/SRL-T/compare/v7.21.8...v7.21.9) (2025-10-21)
+
+
+### Bug Fixes
+
+* paint over already detected dot shadows so they are not detected twice ([b983ea8](https://github.com/Torwent/SRL-T/commit/b983ea824bf55722ea0e6250293fb606ccfea5db))
+
+
+
 ## [7.21.8](https://github.com/Torwent/SRL-T/compare/v7.21.7...v7.21.8) (2025-10-17)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **Minimap:** read wasplib changelog ([6ffeea7](https://github.com/Torwent/SRL-T/commit/6ffeea767be4dedbe7b1c1b1267162ad57f95f11))
-
-
-
-## [7.21.4](https://github.com/Torwent/SRL-T/compare/v7.21.3...v7.21.4) (2025-09-21)
-
-
-### Bug Fixes
-
-* force-bump ([16b84f7](https://github.com/Torwent/SRL-T/commit/16b84f765d1a1d175103311410f76099523444ef))
 
 
 
