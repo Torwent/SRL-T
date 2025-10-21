@@ -866,7 +866,7 @@ function TRSMinimap.FindDotShadows(bmp: TMufasaBitmap): T2DPointArray;
 var
   matrix: TIntegerMatrix;
   y,x: Int32;
-  center: TPoint;
+  center, pt: TPoint;
 begin
   matrix := bmp.ToMatrix();
   center := bmp.getCenter();
@@ -881,6 +881,8 @@ begin
       if matrix[y-2,x] = $FEFEFE then
       begin
         Result += [[x,y], [x+1,y+1], [x+2,y+1], [x+3,y]];
+        for pt in Result[High(Result)] do //remove shadow from matrix
+          matrix[pt.Y, pt.X] := $0;
         Continue;
       end;
 
@@ -888,9 +890,17 @@ begin
       if matrix[y-4,x] = $FEFEFE then
       begin
         if matrix[y-4,x+1] = $FEFEFE then
-          Result += [[x-1, y-1], [x,y], [x+1,y], [x+2,y-1]]
+        begin
+          Result += [[x-1, y-1], [x,y], [x+1,y], [x+2,y-1]];
+          for pt in Result[High(Result)] do //remove shadow from matrix
+            matrix[pt.Y, pt.X] := $0;
+        end
         else if matrix[y-4,x-1] = $FEFEFE then
+        begin
           Result += [[x-2, y-1], [x-1,y], [x,y], [x+1,y-1]];
+          for pt in Result[High(Result)] do //remove shadow from matrix
+            matrix[pt.Y, pt.X] := $0;
+        end;
         Continue;
       end;
 
@@ -898,6 +908,8 @@ begin
       if matrix[y-2,x] = $13FEFE then
       begin
         Result += [[x,y], [x+1,y+1], [x+2,y+1], [x+3,y]];
+        for pt in Result[High(Result)] do //remove shadow from matrix
+          matrix[pt.Y, pt.X] := $0;
         Continue;
       end;
 
@@ -905,6 +917,8 @@ begin
       if matrix[y-4,x] = $13FEFE then
       begin
         Result += [[x-1, y-1], [x,y], [x+1,y], [x+2,y-1]];
+        for pt in Result[High(Result)] do //remove shadow from matrix
+          matrix[pt.Y, pt.X] := $0;
         Continue;
       end;
 
@@ -912,6 +926,8 @@ begin
       if matrix[y-4,x] = $0EFEFE then
       begin
         Result += [[x-2, y-1], [x-1,y], [x,y], [x+1,y-1]];
+        for pt in Result[High(Result)] do //remove shadow from matrix
+          matrix[pt.Y, pt.X] := $0;
         Continue;
       end;
 
@@ -919,6 +935,8 @@ begin
       if matrix[y-2,x] = $3838FF then
       begin
         Result += [[x,y], [x+1,y+1], [x+2,y+1], [x+3,y]];
+        for pt in Result[High(Result)] do //remove shadow from matrix
+          matrix[pt.Y, pt.X] := $0;
         Continue;
       end;
 
@@ -926,6 +944,8 @@ begin
       if matrix[y-4,x] = $3434FF then
       begin
         Result += [[x-1, y-1], [x,y], [x+1,y], [x+2,y-1]];
+        for pt in Result[High(Result)] do //remove shadow from matrix
+          matrix[pt.Y, pt.X] := $0;
         Continue;
       end;
 
@@ -933,6 +953,8 @@ begin
       if matrix[y-4,x] = $0C0CFE then
       begin
         Result += [[x-2, y-1], [x-1,y], [x,y], [x+1,y-1]];
+        for pt in Result[High(Result)] do //remove shadow from matrix
+          matrix[pt.Y, pt.X] := $0;
         Continue;
       end;
     end;
