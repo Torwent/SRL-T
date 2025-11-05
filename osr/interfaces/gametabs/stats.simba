@@ -38,6 +38,7 @@ ERSSkill = (ATTACK, HITPOINTS, MINING, STRENGTH, AGILITY, SMITHING, DEFENCE, HER
     FARMING,
     CONSTRUCTION,
     HUNTER,
+    SAILING,
     TOTAL
   );
 
@@ -66,6 +67,7 @@ const
    'Farming',
    'Construction',
    'Hunter',
+   'Sailing',
    'Total'
   ];
 
@@ -118,10 +120,15 @@ begin
   alignment.Bottom := GameTab.Bounds.Y2;
   Self.SetupAlignment(alignment);
 
-  boxes := Grid(3, 8, 53, 23, [10, 9], [Self.Bounds.X1 + 2, Self.Bounds.Y1 + 6]);
+  boxes := Grid(3, 8, 55, 29, [8, 1], [Self.Bounds.X1 + 1, Self.Bounds.Y1 + 3]);
+  boxes += Box(Self.Bounds.X1 + 1, Self.Bounds.Y2 - 18, Self.Bounds.X2 - 1, Self.Bounds.Y2 - 1);
+
   for i := 0 to Ord(High(ERSSkill)) do
-    Self.SkillBoxes[ERSSkill(i)] := boxes[i];
+   Self.SkillBoxes[ERSSkill(i)] := boxes[i];
+
 end;
+
+
 
 (*
 ## Stats.IsOpen

@@ -169,6 +169,8 @@ var
   buttons: TRSButtonArray;
 begin
   buttons := Self.GetButtons();
+  if Length(buttons) < Ord(button) then
+    Exit;
   if buttons <> [] then
     Result := buttons[button];
 end;
