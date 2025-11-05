@@ -10,7 +10,6 @@
 type
   ERSSpell = (
     UNKNOWN,
-
     // Standard
     LUMBRIDGE_HOME_TELEPORT,
     WIND_STRIKE,
@@ -58,10 +57,11 @@ type
     MAGIC_DART,
     ARDOUGNE_TELEPORT,
     EARTH_BLAST,
-    CIVITAS_ILLA_FORTIS_TELEPORT,   
+    CIVITAS_ILLA_FORTIS_TELEPORT,
     HIGH_LEVEL_ALCHEMY,
 
     CHARGE_WATER_ORB,
+    TELEPORT_BOAT_TO_ME,
     WATCHTOWER_TELEPORT,
     FIRE_BLAST,
     CHARGE_EARTH_ORB,
@@ -78,6 +78,7 @@ type
 
     CHARGE_AIR_ORB,
     VULNERABILITY,
+    TELEPORT_ME_TO_BOAT,
     TELEPORT_TO_KOUREND,
     EARTH_WAVE,
     ENFEEBLE,
@@ -245,6 +246,7 @@ type
     IMAGES_ZIP: String;
     IMAGES_PATH: String;
     SpellImages: array [ERSSpell] of TMufasaBitmapArray;
+    SimTolerance : Extended;
   end;
 
 procedure TRSSpellFinder.Free();
@@ -265,6 +267,9 @@ begin
                       DirectorySeparator;
 
   ForceDirectories(Self.IMAGES_PATH);
+
+  if Self.SimTolerance = 0 then
+    Self.SimTolerance += 0.85;
 
   Self.Name := 'SpellFinder';
   AddOnTerminate(@Self.Free);
@@ -311,23 +316,47 @@ type
 
 function TRSSpellFinder.FindAll(spells: array of ERSSpell; box: TBox; maxToFind: Integer = 0): TRSSpellFinderMatchArray;
 var
-  i, j, x1, y1, x2, y2: Int32;
+  i, j, x2, y2: Int32;
   SpellBitmaps: array of TMufasaBitmapArray;
+  bmp: TMufasaBitmap;
+  matrix: TSingleMatrix;
+  pt: TPoint;
+  bmpMatrix, spellMatrix: T2DIntArray;
+  cache: TMatchTemplateRGBCache;
 begin
   for i := 0 to High(spells) do
     SpellBitmaps += Self.GetSpellImages(spells[i]);
 
+  bmp.Init();
+  bmp.FromClient(box);
+  bmpMatrix := bmp.ToMatrix();
+
   for i := 0 to High(SpellBitmaps) do
     for j := 0 to High(SpellBitmaps[i]) do
-      if FindBitmapIn(SpellBitmaps[i][j].getIndex(), x1, y1, box) then
+    begin
+      spellMatrix := SpellBitmaps[i][j].ToMatrix();
+      cache := TMatchTemplateRGBCache.Create(bmpMatrix, spellMatrix);
+      matrix := MatchTemplateMask(cache, spellMatrix, ETMFormula.TM_CCOEFF_NORMED);
+
+      pt := matrix.ArgMax();
+      if matrix[pt.Y, pt.X] >= Self.SimTolerance then
       begin
-        x2 := x1 + SpellBitmaps[i][j].getWidth() - 1;
-        y2 := y1 + SpellBitmaps[i][j].getHeight() - 1;
-        Result += [spells[i], [x1, y1, x2, y2], i];
+        pt.X += box.X1;
+        pt.Y += box.Y1;
+
+        x2 := pt.X + SpellBitmaps[i][j].getWidth() - 1;
+        y2 := pt.Y + SpellBitmaps[i][j].getHeight() - 1;
+        Result += [spells[i], [pt.X, pt.Y, x2, y2], i];
         if Length(Result) = maxToFind then
+        begin
+          bmp.Free();
           Exit;
+        end;
         Break;
       end;
+    end;
+
+  bmp.Free();
 end;
 
 function TRSSpellFinder.Find(spells: array of ERSSpell; box: TBox; out match: TRSSpellFinderMatch): Boolean;
