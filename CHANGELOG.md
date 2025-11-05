@@ -1,3 +1,13 @@
+## [7.21.11](https://github.com/Torwent/SRL-T/compare/v7.21.10...v7.21.11) (2025-11-05)
+
+
+### Bug Fixes
+
+* dump sprites ([df3ee89](https://github.com/Torwent/SRL-T/commit/df3ee89c5ffeaa76865c70d3a3355c7029c042f3))
+* Update spellfinder.simba ([d047205](https://github.com/Torwent/SRL-T/commit/d0472057c03789831bf68f65168c04412aaeb5ac))
+
+
+
 ## [7.21.10](https://github.com/Torwent/SRL-T/compare/v7.21.9...v7.21.10) (2025-11-05)
 
 
@@ -31,15 +41,6 @@
 ### Bug Fixes
 
 * **minimap:** dots ([38f33f2](https://github.com/Torwent/SRL-T/commit/38f33f259b299a391dc5ad5185d2b9ae0f9b41f2))
-
-
-
-## [7.21.6](https://github.com/Torwent/SRL-T/compare/v7.21.5...v7.21.6) (2025-10-10)
-
-
-### Bug Fixes
-
-* typo a some tweaks to the last commit ([da7b0bb](https://github.com/Torwent/SRL-T/commit/da7b0bb6e1a3cc5f6bee151f2a154fded7395417))
 
 
 
