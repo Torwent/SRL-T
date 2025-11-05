@@ -1,3 +1,12 @@
+## [7.21.10](https://github.com/Torwent/SRL-T/compare/v7.21.9...v7.21.10) (2025-11-05)
+
+
+### Bug Fixes
+
+* force bump ([8757dd8](https://github.com/Torwent/SRL-T/commit/8757dd8b8fe758fe2afe5c577f9e18d63621e84c))
+
+
+
 ## [7.21.9](https://github.com/Torwent/SRL-T/compare/v7.21.8...v7.21.9) (2025-10-21)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * typo a some tweaks to the last commit ([da7b0bb](https://github.com/Torwent/SRL-T/commit/da7b0bb6e1a3cc5f6bee151f2a154fded7395417))
-
-
-
-## [7.21.5](https://github.com/Torwent/SRL-T/compare/v7.21.4...v7.21.5) (2025-10-10)
-
-
-### Bug Fixes
-
-* **Minimap:** read wasplib changelog ([6ffeea7](https://github.com/Torwent/SRL-T/commit/6ffeea767be4dedbe7b1c1b1267162ad57f95f11))
 
 
 
