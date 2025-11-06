@@ -1,3 +1,12 @@
+## [7.21.12](https://github.com/Torwent/SRL-T/compare/v7.21.11...v7.21.12) (2025-11-06)
+
+
+### Bug Fixes
+
+* force bump ([c971d04](https://github.com/Torwent/SRL-T/commit/c971d04f6803d1d3e2c4cba7d774d95186ae093e))
+
+
+
 ## [7.21.11](https://github.com/Torwent/SRL-T/compare/v7.21.10...v7.21.11) (2025-11-05)
 
 
@@ -32,15 +41,6 @@
 ### Bug Fixes
 
 * **TRSMinimap:** different approach to minimap dots ([89d8f0e](https://github.com/Torwent/SRL-T/commit/89d8f0e98f301e5964fb57c97174e2d0c91286a9))
-
-
-
-## [7.21.7](https://github.com/Torwent/SRL-T/compare/v7.21.6...v7.21.7) (2025-10-11)
-
-
-### Bug Fixes
-
-* **minimap:** dots ([38f33f2](https://github.com/Torwent/SRL-T/commit/38f33f259b299a391dc5ad5185d2b9ae0f9b41f2))
 
 
 
