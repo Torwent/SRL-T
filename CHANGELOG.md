@@ -1,3 +1,12 @@
+## [7.21.13](https://github.com/Torwent/SRL-T/compare/v7.21.12...v7.21.13) (2025-11-07)
+
+
+### Bug Fixes
+
+* hitsplats and gave them some tolerance ([d8b6f82](https://github.com/Torwent/SRL-T/commit/d8b6f82e10fdb3f90daba6a57152323f5cf7dde1))
+
+
+
 ## [7.21.12](https://github.com/Torwent/SRL-T/compare/v7.21.11...v7.21.12) (2025-11-06)
 
 
@@ -32,15 +41,6 @@
 ### Bug Fixes
 
 * paint over already detected dot shadows so they are not detected twice ([b983ea8](https://github.com/Torwent/SRL-T/commit/b983ea824bf55722ea0e6250293fb606ccfea5db))
-
-
-
-## [7.21.8](https://github.com/Torwent/SRL-T/compare/v7.21.7...v7.21.8) (2025-10-17)
-
-
-### Bug Fixes
-
-* **TRSMinimap:** different approach to minimap dots ([89d8f0e](https://github.com/Torwent/SRL-T/commit/89d8f0e98f301e5964fb57c97174e2d0c91286a9))
 
 
 
