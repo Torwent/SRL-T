@@ -676,11 +676,16 @@ const
   WHITES: TIntegerArray = [$FFFFFF, $FCFCFC, $C7C7C7];
 
   BLUE_SPLATS: T2DIntegerArray = [
-    [$FF4040,$A20A12,$4D0402], [$C73232,$7E070E,$3C0301], [$FC3D3D,$9F070F,$4A0100]
+    [$FF4040,$A20A12,$4D0402],
+    [$C73232,$7E070E,$3C0301],
+    [$FC3D3D,$9F070F,$4A0100]
   ];
 
   RED_SPLATS: T2DIntegerArray = [
-    [$0000BA,$01018D,$000059], [$000091,$00006E,$000045], [$0000B7,$00008A,$000056]
+    [$0000BA,$000B94,$000059],
+    [$0000BA,$01018D,$000059],
+    [$000091,$00006E,$000045],
+    [$0000B7,$00008A,$000056]
   ];
 
   MAX_SPLATS: T2DIntegerArray = [
@@ -698,7 +703,7 @@ const
     begin
       for j := 0 to High(colors[i]) do
       begin
-        if SRL.FindColors(found, colors[i,j], b) = 0 then
+        if SRL.FindColors(found, CTS0(colors[i,j], 2), b) = 0 then
         begin
           tpa := [];
           Continue(2);
@@ -720,11 +725,11 @@ var
   i, hit: Int32;
 begin
   for i := 0 to High(WHITES) do
-    if SRL.FindColors(tpa, WHITES[i], area) > 0 then
+    if SRL.FindColors(tpa, CTS0(WHITES[i], 2), area) > 0 then
       white += tpa;
 
   if white = [] then Exit;
-  if SRL.FindColors(black, $0, area) = 0 then
+  if SRL.FindColors(black, CTS0($0, 2), area) = 0 then
     Exit;
 
   number := PointsInRangeOf(white, black, 1, 3);
