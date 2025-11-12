@@ -1,3 +1,12 @@
+## [7.21.15](https://github.com/Torwent/SRL-T/compare/v7.21.14...v7.21.15) (2025-11-12)
+
+
+### Bug Fixes
+
+* rollback map objects.zip ([40a753a](https://github.com/Torwent/SRL-T/commit/40a753a1f630c457b9c1915320d84191cf9934ff))
+
+
+
 ## [7.21.14](https://github.com/Torwent/SRL-T/compare/v7.21.13...v7.21.14) (2025-11-12)
 
 
@@ -32,15 +41,6 @@
 
 * dump sprites ([df3ee89](https://github.com/Torwent/SRL-T/commit/df3ee89c5ffeaa76865c70d3a3355c7029c042f3))
 * Update spellfinder.simba ([d047205](https://github.com/Torwent/SRL-T/commit/d0472057c03789831bf68f65168c04412aaeb5ac))
-
-
-
-## [7.21.10](https://github.com/Torwent/SRL-T/compare/v7.21.9...v7.21.10) (2025-11-05)
-
-
-### Bug Fixes
-
-* force bump ([8757dd8](https://github.com/Torwent/SRL-T/commit/8757dd8b8fe758fe2afe5c577f9e18d63621e84c))
 
 
 
