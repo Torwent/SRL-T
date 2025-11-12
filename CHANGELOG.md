@@ -1,3 +1,12 @@
+## [7.21.14](https://github.com/Torwent/SRL-T/compare/v7.21.13...v7.21.14) (2025-11-12)
+
+
+### Bug Fixes
+
+* update map files ([1087b1d](https://github.com/Torwent/SRL-T/commit/1087b1de04c7c3562c37f64177889da159fea9cd))
+
+
+
 ## [7.21.13](https://github.com/Torwent/SRL-T/compare/v7.21.12...v7.21.13) (2025-11-07)
 
 
@@ -32,15 +41,6 @@
 ### Bug Fixes
 
 * force bump ([8757dd8](https://github.com/Torwent/SRL-T/commit/8757dd8b8fe758fe2afe5c577f9e18d63621e84c))
-
-
-
-## [7.21.9](https://github.com/Torwent/SRL-T/compare/v7.21.8...v7.21.9) (2025-10-21)
-
-
-### Bug Fixes
-
-* paint over already detected dot shadows so they are not detected twice ([b983ea8](https://github.com/Torwent/SRL-T/commit/b983ea824bf55722ea0e6250293fb606ccfea5db))
 
 
 
