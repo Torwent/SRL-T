@@ -137,7 +137,7 @@ begin
 
     ERSMap.HEIGHT:
     begin
-      cacheroot := Self.Cache + 'heightmap' + DirectorySeparator;
+      cacheroot := Self.Cache + 'heightmap' + DirectorySeparator + '0' + DirectorySeparator;
       cachename := cacheroot + chunk;
       zipPath := RSMAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip';
       zipFile := chunk + '.png';
