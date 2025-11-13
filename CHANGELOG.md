@@ -1,3 +1,12 @@
+## [7.21.16](https://github.com/Torwent/SRL-T/compare/v7.21.15...v7.21.16) (2025-11-13)
+
+
+### Bug Fixes
+
+* enforce heightmap to use plane 0 only ([4056393](https://github.com/Torwent/SRL-T/commit/4056393aed00eac6b5765fe0065b66f5e1f2da10))
+
+
+
 ## [7.21.15](https://github.com/Torwent/SRL-T/compare/v7.21.14...v7.21.15) (2025-11-12)
 
 
@@ -31,16 +40,6 @@
 ### Bug Fixes
 
 * force bump ([c971d04](https://github.com/Torwent/SRL-T/commit/c971d04f6803d1d3e2c4cba7d774d95186ae093e))
-
-
-
-## [7.21.11](https://github.com/Torwent/SRL-T/compare/v7.21.10...v7.21.11) (2025-11-05)
-
-
-### Bug Fixes
-
-* dump sprites ([df3ee89](https://github.com/Torwent/SRL-T/commit/df3ee89c5ffeaa76865c70d3a3355c7029c042f3))
-* Update spellfinder.simba ([d047205](https://github.com/Torwent/SRL-T/commit/d0472057c03789831bf68f65168c04412aaeb5ac))
 
 
 
