@@ -137,10 +137,10 @@ begin
 
     ERSMap.HEIGHT:
     begin
-      cacheroot := Self.Cache + 'heightmap' + DirectorySeparator + '0' + DirectorySeparator;
-      cachename := cacheroot + chunk;
+      cacheroot := Self.Cache + 'heightmap' + DirectorySeparator;
+      cachename := cacheroot + '0' + DirectorySeparator + chunk;
       zipPath := RSMAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip';
-      zipFile := chunk + '.png';
+      zipFile := '0/' + chunk + '.png';
     end;
 
     ERSMap.COLLISION:
