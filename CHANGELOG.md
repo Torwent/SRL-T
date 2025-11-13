@@ -1,3 +1,12 @@
+## [7.21.17](https://github.com/Torwent/SRL-T/compare/v7.21.16...v7.21.17) (2025-11-13)
+
+
+### Bug Fixes
+
+* typos ([bc603bf](https://github.com/Torwent/SRL-T/commit/bc603bfde9983f582d5bcc0c1c5f5e41bec8a368))
+
+
+
 ## [7.21.16](https://github.com/Torwent/SRL-T/compare/v7.21.15...v7.21.16) (2025-11-13)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * hitsplats and gave them some tolerance ([d8b6f82](https://github.com/Torwent/SRL-T/commit/d8b6f82e10fdb3f90daba6a57152323f5cf7dde1))
-
-
-
-## [7.21.12](https://github.com/Torwent/SRL-T/compare/v7.21.11...v7.21.12) (2025-11-06)
-
-
-### Bug Fixes
-
-* force bump ([c971d04](https://github.com/Torwent/SRL-T/commit/c971d04f6803d1d3e2c4cba7d774d95186ae093e))
 
 
 
