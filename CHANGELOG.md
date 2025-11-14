@@ -1,3 +1,12 @@
+## [7.21.18](https://github.com/Torwent/SRL-T/compare/v7.21.17...v7.21.18) (2025-11-14)
+
+
+### Bug Fixes
+
+* spellfinder ([a84792f](https://github.com/Torwent/SRL-T/commit/a84792f1f0012a387ff4c69b12fcf0f9aea2025b))
+
+
+
 ## [7.21.17](https://github.com/Torwent/SRL-T/compare/v7.21.16...v7.21.17) (2025-11-13)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * update map files ([1087b1d](https://github.com/Torwent/SRL-T/commit/1087b1de04c7c3562c37f64177889da159fea9cd))
-
-
-
-## [7.21.13](https://github.com/Torwent/SRL-T/compare/v7.21.12...v7.21.13) (2025-11-07)
-
-
-### Bug Fixes
-
-* hitsplats and gave them some tolerance ([d8b6f82](https://github.com/Torwent/SRL-T/commit/d8b6f82e10fdb3f90daba6a57152323f5cf7dde1))
 
 
 
