@@ -269,7 +269,7 @@ begin
   ForceDirectories(Self.IMAGES_PATH);
 
   if Self.SimTolerance = 0 then
-    Self.SimTolerance += 0.85;
+    Self.SimTolerance := 0.85;
 
   Self.Name := 'SpellFinder';
   AddOnTerminate(@Self.Free);
@@ -314,50 +314,63 @@ type
   end;
   TRSSpellFinderMatchArray = array of TRSSpellFinderMatch;
 
+
 function TRSSpellFinder.FindAll(spells: array of ERSSpell; box: TBox; maxToFind: Integer = 0): TRSSpellFinderMatchArray;
 var
-  i, j, x2, y2: Int32;
-  SpellBitmaps: array of TMufasaBitmapArray;
-  bmp: TMufasaBitmap;
+  i, j: Int32;
+  spellBitmaps: array of TMufasaBitmapArray;
+  bmp, tmp: TMufasaBitmap;
   matrix: TSingleMatrix;
   pt: TPoint;
-  bmpMatrix, spellMatrix: T2DIntArray;
-  cache: TMatchTemplateRGBCache;
+  b: TBox;
+  black: TPointArray;
+  value: Single;
 begin
   for i := 0 to High(spells) do
-    SpellBitmaps += Self.GetSpellImages(spells[i]);
+    spellBitmaps += Self.GetSpellImages(spells[i]);
 
   bmp.Init();
   bmp.FromClient(box);
-  bmpMatrix := bmp.ToMatrix();
 
-  for i := 0 to High(SpellBitmaps) do
-    for j := 0 to High(SpellBitmaps[i]) do
+  for i := 0 to High(spellBitmaps) do
+    for j := 0 to High(spellBitmaps[i]) do
     begin
-      spellMatrix := SpellBitmaps[i][j].ToMatrix();
-      cache := TMatchTemplateRGBCache.Create(bmpMatrix, spellMatrix);
-      matrix := MatchTemplateMask(cache, spellMatrix, ETMFormula.TM_CCOEFF_NORMED);
-
+      matrix := bmp.MatchTemplate(spellBitmaps[i, j], ETMFormula.TM_CCOEFF_NORMED);
       pt := matrix.ArgMax();
-      if matrix[pt.Y, pt.X] >= Self.SimTolerance then
-      begin
-        pt.X += box.X1;
-        pt.Y += box.Y1;
+      if matrix[pt.Y, pt.X] <= 0.5 then
+        Continue;
 
-        x2 := pt.X + SpellBitmaps[i][j].getWidth() - 1;
-        y2 := pt.Y + SpellBitmaps[i][j].getHeight() - 1;
-        Result += [spells[i], [pt.X, pt.Y, x2, y2], i];
-        if Length(Result) = maxToFind then
-        begin
-          bmp.Free();
-          Exit;
-        end;
-        Break;
+      b := [pt.X, pt.Y, pt.X + SpellBitmaps[i, j].getWidth() - 1, pt.Y + SpellBitmaps[i, j].getHeight() - 1];
+
+      tmp := bmp.Copy(b);
+      spellBitmaps[i, j].FindColors(black, $0);
+      tmp.DrawTPA(black, $0);
+      //tmp.Debug();
+      //we basically get the black from the image and draw it on the template
+      //then if they are the same, tmp should look almost identical to spellBitmaps[i, j]
+      //and we compare it below.
+      value := tmp.CompareAt(spellBitmaps[i, j], [0,0], 3);
+      tmp.Free();
+
+      if value <= Self.SimTolerance then
+        Continue;
+
+      bmp.DrawBoxFilled(b, False, $FFFFFF);
+
+      b := b.Offset([box.X1, box.Y1]);
+
+      Result += [spells[i], b, i];
+      if Length(Result) = maxToFind then
+      begin
+        bmp.Free();
+        Exit;
       end;
+      Break;
     end;
 
   bmp.Free();
 end;
+
 
 function TRSSpellFinder.Find(spells: array of ERSSpell; box: TBox; out match: TRSSpellFinderMatch): Boolean;
 var
