@@ -1,3 +1,12 @@
+## [7.21.19](https://github.com/Torwent/SRL-T/compare/v7.21.18...v7.21.19) (2025-11-16)
+
+
+### Bug Fixes
+
+* **heightmap:** read notes ([78ae7a1](https://github.com/Torwent/SRL-T/commit/78ae7a1748a613a9be94d701898a9a561e0ca0eb))
+
+
+
 ## [7.21.18](https://github.com/Torwent/SRL-T/compare/v7.21.17...v7.21.18) (2025-11-14)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * rollback map objects.zip ([40a753a](https://github.com/Torwent/SRL-T/commit/40a753a1f630c457b9c1915320d84191cf9934ff))
-
-
-
-## [7.21.14](https://github.com/Torwent/SRL-T/compare/v7.21.13...v7.21.14) (2025-11-12)
-
-
-### Bug Fixes
-
-* update map files ([1087b1d](https://github.com/Torwent/SRL-T/commit/1087b1de04c7c3562c37f64177889da159fea9cd))
 
 
 
