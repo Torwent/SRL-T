@@ -657,6 +657,8 @@ WriteLn rsw.GetHeight();
 ```
 *)
 function TRSMap.Height(p: TPoint = [-1,-1]; global: Boolean): Single; overload;
+var
+  pt: TPoint;
 begin
   if Self.DisableHeightmap or not Assigned(Self.Loader.Heightmap) then
     Exit;
@@ -670,8 +672,15 @@ begin
   if global then
     p := Self.Loader.GetLocal(Self.RegionIndex, p);
 
-  if Self.Loader.Heightmap.Bounds().Contains(p) then
-    Result := RSTranslator.Color2Height(Self.Loader.Heightmap.GetPixel(p));
+  for pt in [p, p.Offset(0,1), p.Offset(1,0), p.Offset(1,1)] do
+  begin
+    if Self.Loader.Heightmap.Bounds().Contains(p) then
+      Result += RSTranslator.Color2Height(Self.Loader.Heightmap.GetPixel(pt))
+    else
+      Result += RSTranslator.Color2Height(Self.Loader.Heightmap.GetPixel(p));
+  end;
+
+  Result := Result/4;
 end;
 
 function TRSMap.Height(p: TPoint = [-1,-1]): Single;

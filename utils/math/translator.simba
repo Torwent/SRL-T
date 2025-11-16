@@ -50,7 +50,7 @@ procedure TRSTranslator.Setup();
 begin
   Self.TileSize := 4;
   Self.TileArea := Self.TileSize * Self.TileSize;
-  Self.MaxHeight := 2040;
+  Self.MaxHeight := 6048;
   Self.Planes := 3;
 
   Self.RSMap.ChunkSide := 64;
@@ -314,7 +314,7 @@ function TRSTranslator.Color2Height(color: Int32): Single;
 const
   H_VALUE := Self.MaxHeight / $FFFFFF;
 begin
-  Result := (color*H_VALUE) / 29.14;
+  Result := color * H_VALUE / 29.14;
 end;
 
 
