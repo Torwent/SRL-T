@@ -1,3 +1,12 @@
+## [7.21.20](https://github.com/Torwent/SRL-T/compare/v7.21.19...v7.21.20) (2025-11-16)
+
+
+### Bug Fixes
+
+* ruby enchant large ([34b4e79](https://github.com/Torwent/SRL-T/commit/34b4e79bcb90879bad470ba9ef6090948a628abf))
+
+
+
 ## [7.21.19](https://github.com/Torwent/SRL-T/compare/v7.21.18...v7.21.19) (2025-11-16)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * enforce heightmap to use plane 0 only ([4056393](https://github.com/Torwent/SRL-T/commit/4056393aed00eac6b5765fe0065b66f5e1f2da10))
-
-
-
-## [7.21.15](https://github.com/Torwent/SRL-T/compare/v7.21.14...v7.21.15) (2025-11-12)
-
-
-### Bug Fixes
-
-* rollback map objects.zip ([40a753a](https://github.com/Torwent/SRL-T/commit/40a753a1f630c457b9c1915320d84191cf9934ff))
 
 
 
