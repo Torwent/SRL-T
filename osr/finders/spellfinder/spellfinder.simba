@@ -323,7 +323,7 @@ var
   matrix: TSingleMatrix;
   pt: TPoint;
   b: TBox;
-  black: TPointArray;
+  black, white: TPointArray;
   value: Single;
 begin
   for i := 0 to High(spells) do
@@ -331,6 +331,16 @@ begin
 
   bmp.Init();
   bmp.FromClient(box);
+
+  //if selected spells then replace white outline with
+  // gametab background colors
+  if SRL.FindColors(white, $FFFFFF, box) > 10 then
+    for white in white.Cluster(8) do
+      if white.Density() < 0.28 then
+      begin
+        bmp.DrawTPA(white.Offset([-box.x1, -box.y1]), $354049);
+        Break;
+      end;
 
   for i := 0 to High(spellBitmaps) do
     for j := 0 to High(spellBitmaps[i]) do
@@ -345,7 +355,7 @@ begin
       tmp := bmp.Copy(b);
       spellBitmaps[i, j].FindColors(black, $0);
       tmp.DrawTPA(black, $0);
-      //tmp.Debug();
+
       //we basically get the black from the image and draw it on the template
       //then if they are the same, tmp should look almost identical to spellBitmaps[i, j]
       //and we compare it below.
