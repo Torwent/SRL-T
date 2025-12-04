@@ -1,3 +1,12 @@
+## [7.21.21](https://github.com/Torwent/SRL-T/compare/v7.21.20...v7.21.21) (2025-12-04)
+
+
+### Bug Fixes
+
+* force bump ([5e58a24](https://github.com/Torwent/SRL-T/commit/5e58a246b2ba384ca4861a7e41aa5bb9003148f9))
+
+
+
 ## [7.21.20](https://github.com/Torwent/SRL-T/compare/v7.21.19...v7.21.20) (2025-11-16)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * typos ([bc603bf](https://github.com/Torwent/SRL-T/commit/bc603bfde9983f582d5bcc0c1c5f5e41bec8a368))
-
-
-
-## [7.21.16](https://github.com/Torwent/SRL-T/compare/v7.21.15...v7.21.16) (2025-11-13)
-
-
-### Bug Fixes
-
-* enforce heightmap to use plane 0 only ([4056393](https://github.com/Torwent/SRL-T/commit/4056393aed00eac6b5765fe0065b66f5e1f2da10))
 
 
 
