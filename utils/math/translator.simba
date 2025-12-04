@@ -55,7 +55,7 @@ begin
 
   Self.RSMap.ChunkSide := 64;
   Self.RSMap.Dimensions := [100, 200];
-  Self.RSMap.Scope := [16, 19, 66, 196];
+  Self.RSMap.Scope := [15, 19, 66, 196];
 
   Self.Map.ChunkSide := Self.TileSize * Self.RSMap.ChunkSide;
   Self.Map.Dimensions.X := Self.RSMap.Dimensions.X * Self.Map.ChunkSide;
