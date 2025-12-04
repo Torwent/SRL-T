@@ -335,7 +335,7 @@ begin
   for i := 0 to High(spellBitmaps) do
     for j := 0 to High(spellBitmaps[i]) do
     begin
-      matrix := bmp.MatchTemplate(spellBitmaps[i, j], ETMFormula.TM_CCOEFF_NORMED);
+      matrix := bmp.MatchTemplateMask(spellBitmaps[i, j], ETMFormula.TM_CCOEFF_NORMED);
       pt := matrix.ArgMax();
       if matrix[pt.Y, pt.X] <= 0.5 then
         Continue;
@@ -345,7 +345,7 @@ begin
       tmp := bmp.Copy(b);
       spellBitmaps[i, j].FindColors(black, $0);
       tmp.DrawTPA(black, $0);
-      //tmp.Debug();
+
       //we basically get the black from the image and draw it on the template
       //then if they are the same, tmp should look almost identical to spellBitmaps[i, j]
       //and we compare it below.
