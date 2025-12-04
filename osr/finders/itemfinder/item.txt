@@ -18138,8 +18138,8 @@ ironwood plank
 noted ironwood plank
 rosewood plank
 noted rosewood plank
-teleport boat to me
-teleport me to boat
+summon boat
+teleport to boat
 mounted giant blue krill
 mounted giant blue krill
 mounted golden haddock
@@ -18348,17 +18348,17 @@ storm cruiser's shoes
 fetid key
 captured wind mote
 gurtob's fabric roll
-nifty hat
-nifty jacket
-nifty trousers
-nifty shoes
+swamp cruiser's hat
+swamp cruiser's jacket
+swamp cruiser's trousers
+swamp cruiser's shoes
 serrated key
 heart of ithell
 gwyna's fabric roll
-sleek hat
-sleek jacket
-sleek trousers
-sleek shoes
+crystal glider's hat
+crystal glider's jacket
+crystal glider's trousers
+crystal glider's shoes
 sunken rum
 tiny pearl
 noted tiny pearl
@@ -18630,7 +18630,7 @@ oak mast and linen sails
 teak mast and canvas sails
 teak mast and linen sails
 mahogany mast and canvas sails
-mahogany mast and linen sails
+mahogany mast and canvas sails
 camphor mast and canvas sails
 camphor mast and linen sails
 ironwood mast and cotton sails
@@ -19307,6 +19307,9 @@ ironwood logs
 noted ironwood logs
 rosewood logs
 noted rosewood logs
+jar of feathers
+crate of arrowtips
+crate of clothes
 marrentill seed
 marrentill seed
 marrentill seed
