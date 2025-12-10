@@ -372,7 +372,7 @@ begin
 
   if Self.OpenWorldSwitcher() then
   begin
-    for i := 1 to 7 do // Seven pages of worlds
+    for i := 1 to 9 do // Nine pages of worlds
     begin
       if Self.ClickWorld(World) then
       begin
