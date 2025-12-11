@@ -1,3 +1,13 @@
+## [7.21.22](https://github.com/Torwent/SRL-T/compare/v7.21.21...v7.21.22) (2025-12-11)
+
+
+### Bug Fixes
+
+* force bump ([254b289](https://github.com/Torwent/SRL-T/commit/254b289d81d87694bb4c92030b7ed911b1761e59))
+* Iterate over nine pages of worlds ([45b7c6c](https://github.com/Torwent/SRL-T/commit/45b7c6c437eb8d1c7c9bfcb86adfdc8456f8a925))
+
+
+
 ## [7.21.21](https://github.com/Torwent/SRL-T/compare/v7.21.20...v7.21.21) (2025-12-04)
 
 
@@ -31,15 +41,6 @@
 ### Bug Fixes
 
 * spellfinder ([a84792f](https://github.com/Torwent/SRL-T/commit/a84792f1f0012a387ff4c69b12fcf0f9aea2025b))
-
-
-
-## [7.21.17](https://github.com/Torwent/SRL-T/compare/v7.21.16...v7.21.17) (2025-11-13)
-
-
-### Bug Fixes
-
-* typos ([bc603bf](https://github.com/Torwent/SRL-T/commit/bc603bfde9983f582d5bcc0c1c5f5e41bec8a368))
 
 
 
