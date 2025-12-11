@@ -717,7 +717,7 @@ begin
 
   ACA(colors, 2, c, t, h, s);
 
-  cts := CTS2(c, Round(t*2.5), h, s)
+  cts := CTS2(c, Round(t*2.5), h, s);
   for i := 0 to High(Result.Finder.Colors) do
     if Result.Finder.Colors[i] = cts then
       Exit;
