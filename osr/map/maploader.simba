@@ -207,7 +207,7 @@ var
   name, cacheroot, cachename, zipFile, zipPath, contents: String;
 begin
   case jsonType of
-    ERSMapJSON.OBJECTS: name := 'objects';
+    ERSMapJSON.OBJECTS: name := 'objects1400';
     ERSMapJSON.NPCS:    name := 'npcs';
   end;
 
@@ -1012,7 +1012,7 @@ begin
      SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'map.zip') +
      SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip') +
      SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'collision.zip') +
-     SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'objects.zip') +
+     SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'objects1400.zip') +
      SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'npcs.zip')
   );
 

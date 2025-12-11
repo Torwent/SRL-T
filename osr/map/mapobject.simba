@@ -45,6 +45,7 @@ var
   i, c, t: Int32;
   h, s: Extended;
   colors: TIntegerArray;
+  cts: TCTS2Color;
 begin
   Result := Self;
 
@@ -56,12 +57,13 @@ begin
     colors += colorsJSON.getInt(i);
 
   ACA(colors, 2, c, t, h, s);
+  cts := CTS2(c, Round(t*2.5), h, s);
 
   for i := 0 to High(Result.Finder.Colors) do
-    if Result.Finder.Colors[i] = CTS2(c, t, h, s) then
+    if Result.Finder.Colors[i] = cts then
       Exit;
 
-  Result.Finder.Colors := [CTS2(c, t, h, s)];
+  Result.Finder.Colors += cts;
 end;
 
 
@@ -77,7 +79,7 @@ function TRSMapObject.GetSize(json: TJSONArray): Vector3; static;
 begin
   Result.X := json.getInt(0) * 0.8;
   Result.Y := json.getInt(1) * 0.8;
-  Result.Z := json.getInt(2) / 40; //TODO: build this into the JSONs
+  Result.Z := json.getInt(2) / 128;
 end;
 
 
@@ -444,6 +446,7 @@ var
   i, c, t: Int32;
   h, s: Extended;
   colors: TIntegerArray;
+  cts: TCTS2Color;
 begin
   Result := Self;
 
@@ -464,16 +467,18 @@ begin
     SetLength(Result.Rotations, Length(Result.Coordinates));
   end;
 
+  WriteLn colorsJSON.ToString();
   for i := 0 to colorsJSON.High() do
     colors += colorsJSON.getInt(i);
 
   ACA(colors, 2, c, t, h, s);
 
+  cts := CTS2(c, Round(t*2.5), h, s);
   for i := 0 to High(Result.Finder.Colors) do
-    if Result.Finder.Colors[i] = CTS2(c, t, h, s) then
+    if Result.Finder.Colors[i] = cts then
       Exit;
 
-  Result.Finder.Colors := [CTS2(c, t, h, s)];
+  Result.Finder.Colors += cts;
 end;
 
 function TRSObjectV2.Merge(json: TJSONObject): TRSObjectV2; overload;
@@ -694,6 +699,7 @@ var
   h, s: Extended;
   colors: TIntegerArray;
   p: TPoint;
+  cts: TCTS2Color;
 begin
   Result := Self;
 
@@ -711,11 +717,12 @@ begin
 
   ACA(colors, 2, c, t, h, s);
 
+  cts := CTS2(c, Round(t*2.5), h, s)
   for i := 0 to High(Result.Finder.Colors) do
-    if Result.Finder.Colors[i] = CTS2(c, t, h, s) then
+    if Result.Finder.Colors[i] = cts then
       Exit;
 
-  Result.Finder.Colors := [CTS2(c, t, h, s)];
+  Result.Finder.Colors += cts;
 end;
 
 function TRSNPCV2.Merge(json: TJSONObject): TRSNPCV2; overload;
