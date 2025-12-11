@@ -1,3 +1,12 @@
+## [7.21.23](https://github.com/Torwent/SRL-T/compare/v7.21.22...v7.21.23) (2025-12-11)
+
+
+### Bug Fixes
+
+* update maps ([ff84004](https://github.com/Torwent/SRL-T/commit/ff840044216c6a313e539ffebf7666a6f0b20770))
+
+
+
 ## [7.21.22](https://github.com/Torwent/SRL-T/compare/v7.21.21...v7.21.22) (2025-12-11)
 
 
@@ -32,15 +41,6 @@
 ### Bug Fixes
 
 * **heightmap:** read notes ([78ae7a1](https://github.com/Torwent/SRL-T/commit/78ae7a1748a613a9be94d701898a9a561e0ca0eb))
-
-
-
-## [7.21.18](https://github.com/Torwent/SRL-T/compare/v7.21.17...v7.21.18) (2025-11-14)
-
-
-### Bug Fixes
-
-* spellfinder ([a84792f](https://github.com/Torwent/SRL-T/commit/a84792f1f0012a387ff4c69b12fcf0f9aea2025b))
 
 
 
