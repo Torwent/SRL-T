@@ -467,7 +467,6 @@ begin
     SetLength(Result.Rotations, Length(Result.Coordinates));
   end;
 
-  WriteLn colorsJSON.ToString();
   for i := 0 to colorsJSON.High() do
     colors += colorsJSON.getInt(i);
 
