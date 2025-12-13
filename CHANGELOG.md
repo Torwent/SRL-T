@@ -1,3 +1,12 @@
+## [7.21.24](https://github.com/Torwent/SRL-T/compare/v7.21.23...v7.21.24) (2025-12-13)
+
+
+### Bug Fixes
+
+* force bump ([c272984](https://github.com/Torwent/SRL-T/commit/c272984be830ecbae1258e3fa0faf1cbcf9be35a))
+
+
+
 ## [7.21.23](https://github.com/Torwent/SRL-T/compare/v7.21.22...v7.21.23) (2025-12-11)
 
 
@@ -32,15 +41,6 @@
 ### Bug Fixes
 
 * ruby enchant large ([34b4e79](https://github.com/Torwent/SRL-T/commit/34b4e79bcb90879bad470ba9ef6090948a628abf))
-
-
-
-## [7.21.19](https://github.com/Torwent/SRL-T/compare/v7.21.18...v7.21.19) (2025-11-16)
-
-
-### Bug Fixes
-
-* **heightmap:** read notes ([78ae7a1](https://github.com/Torwent/SRL-T/commit/78ae7a1748a613a9be94d701898a9a561e0ca0eb))
 
 
 
