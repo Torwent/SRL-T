@@ -10,7 +10,6 @@ Methods to interact with the game mainscreen.
 
 {.$DEFINE SRL_DEBUG_MOUSE} // Enable me print uptext recognition
 
-
 (*
 ## TRSObjectFinder
 
