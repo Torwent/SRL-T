@@ -675,24 +675,27 @@ function TRSMainScreen.FindHitsplats(area: TBox): TRSHitsplatArray;
 const
   WHITES: TIntegerArray = [$FFFFFF, $FCFCFC, $C7C7C7];
 
-  BLUE_SPLATS: T2DIntegerArray = [
-    [$FF4040,$A20A12,$4D0402],
-    [$C73232,$7E070E,$3C0301],
-    [$FC3D3D,$9F070F,$4A0100]
-  ];
+    BLUE_SPLATS: T2DIntegerArray = [
+      [$FF4040,$A20A12,$4D0402],
+      [$C73232,$7E070E,$3C0301],
+      [$FC3D3D,$9F070F,$4A0100],
+      [$FC483B,$AD0603,$470301]
+    ];
 
-  RED_SPLATS: T2DIntegerArray = [
-    [$0000BA,$000B94,$000059],
-    [$0000BA,$01018D,$000059],
-    [$000091,$00006E,$000045],
-    [$0000B7,$00008A,$000056]
-  ];
+    RED_SPLATS: T2DIntegerArray = [
+      [$0000BA,$000B94,$000059],
+      [$0000BA,$01018D,$000059],
+      [$000091,$00006E,$000045],
+      [$0000B7,$00008A,$000056],
+      [$0000BA,$000A94,$000059]
+    ];
 
-  MAX_SPLATS: T2DIntegerArray = [
-    [$0000F3,$0000BA,$0024B3,$01018D,$004ED3,$0081F8,$0FB5FA],
-    [$0000BD,$000091,$00006E,$001C8B,$003CA4,$0064C1,$0B8DC3],
-    [$0000F0,$0000B7,$00008A,$0021B0,$004BD0,$007EF5,$0CB2F7]
-  ];
+    MAX_SPLATS: T2DIntegerArray = [
+      [$0000F3,$0000BA,$0024B3,$01018D,$004ED3,$0081F8,$0FB5FA],
+      [$0000BD,$000091,$00006E,$001C8B,$003CA4,$0064C1,$0B8DC3],
+      [$0000F0,$0000B7,$00008A,$0021B0,$004BD0,$007EF5,$0CB2F7],
+      [$0004EE,$0000BA,$000B94,$0051DD,$0BACF7]
+    ];  
 
   function _Find(out tpa: TPointArray; b: TBox; colors: T2DIntegerArray): Boolean;
   var
