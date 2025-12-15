@@ -1,3 +1,12 @@
+## [7.21.26](https://github.com/Torwent/SRL-T/compare/v7.21.25...v7.21.26) (2025-12-15)
+
+
+### Bug Fixes
+
+* Update mainscreen.simba ([9a20ceb](https://github.com/Torwent/SRL-T/commit/9a20ceb90af56fb7e3123bb2622128d9f57aeb57))
+
+
+
 ## [7.21.25](https://github.com/Torwent/SRL-T/compare/v7.21.24...v7.21.25) (2025-12-13)
 
 
@@ -32,15 +41,6 @@
 
 * force bump ([254b289](https://github.com/Torwent/SRL-T/commit/254b289d81d87694bb4c92030b7ed911b1761e59))
 * Iterate over nine pages of worlds ([45b7c6c](https://github.com/Torwent/SRL-T/commit/45b7c6c437eb8d1c7c9bfcb86adfdc8456f8a925))
-
-
-
-## [7.21.21](https://github.com/Torwent/SRL-T/compare/v7.21.20...v7.21.21) (2025-12-04)
-
-
-### Bug Fixes
-
-* force bump ([5e58a24](https://github.com/Torwent/SRL-T/commit/5e58a246b2ba384ca4861a7e41aa5bb9003148f9))
 
 
 
