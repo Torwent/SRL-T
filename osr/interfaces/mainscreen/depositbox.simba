@@ -178,6 +178,32 @@ begin
   Result := ItemFinder.Find([item], Self.EquipmentSlotBoxes, match);
   box := match.Box;
 end;
+(*
+TRSDepositBox._FindRandomInventoryItems
+--------------------------------------
+```
+function TRSDepositBox._FindRandomInventoryItems(items: TRSItemArray): TIntegerArray
+```
+Helper function used to find the slots of anything that isn't called with parameter item:TRSItemArray.
+Shouldn't be called directly.
+
+*)
+function TRSDepositBox._FindRandomInventoryItems(items: TRSItemArray):  TIntegerArray;
+var
+  slot: Int32;
+  usedSlots: TIntegerArray;
+  match: TRSItemFinderMatch;
+  matches: TRSItemFinderMatchArray;
+begin
+  for slot := Low(Self.InventorySlotBoxes) to High(Self.InventorySlotBoxes) do
+    if SRL.CountColor(CTS1(1118740, 35), Self.InventorySlotBoxes[slot]) > 0 then
+      usedSlots += slot;
+
+  matches := ItemFinder.FindAll(items, Self.InventorySlotBoxes, usedSlots.Len());
+  Result := usedSlots;
+  for match in matches do
+    Result.Remove(match.Index);
+end;
 
 function TRSDepositBox.ContainsInventoryItem(item: TRSItem): Boolean;
 var
@@ -404,6 +430,37 @@ function TRSDepositBox.DepositAll(): Boolean; deprecated 'Use TRSDepositBox.Depo
 begin
   Result := Self.DepositInventory();
 end;
+
+(*
+TRSDepositBox.DepositAllBut
+---------------------------
+```
+function TRSDepositBox.DepositAllBut(safeItems:TRSItemArray): Boolean
+```
+Deposits everything, but what is called with safeItems:TRSItemArray
+Single Item Example:
+```Pascal
+begin
+  DepositBox.DepositAllBut(['Iron bar']);
+end;```
+Multiple Item Example:
+```Pascal
+begin
+  DepositBox.DepositAllBut(['Iron bar','Coal']);
+end;```
+*)
+function TRSDepositBox.DepositAllBut(safeItems:TRSItemArray):Boolean;
+var
+  slot:Int32;
+  slots:TIntegerArray;
+begin
+ slots:= self._FindRandomInventoryItems(safeItems);
+ for slot in slots do
+ begin
+  Result:=self.Items.MouseSlot(slot);
+  Mouse.Click(1);
+ end;
+end;  
 
 var
   DepositBox: TRSDepositBox;
