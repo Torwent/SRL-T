@@ -1,3 +1,12 @@
+## [7.21.27](https://github.com/Torwent/SRL-T/compare/v7.21.26...v7.21.27) (2025-12-21)
+
+
+### Bug Fixes
+
+* update remote input ([80ef749](https://github.com/Torwent/SRL-T/commit/80ef749af64369245da16e595f8a0aa15911a26f))
+
+
+
 ## [7.21.26](https://github.com/Torwent/SRL-T/compare/v7.21.25...v7.21.26) (2025-12-16)
 
 
@@ -34,16 +43,6 @@
 ### Bug Fixes
 
 * update maps ([ff84004](https://github.com/Torwent/SRL-T/commit/ff840044216c6a313e539ffebf7666a6f0b20770))
-
-
-
-## [7.21.22](https://github.com/Torwent/SRL-T/compare/v7.21.21...v7.21.22) (2025-12-11)
-
-
-### Bug Fixes
-
-* force bump ([254b289](https://github.com/Torwent/SRL-T/commit/254b289d81d87694bb4c92030b7ed911b1761e59))
-* Iterate over nine pages of worlds ([45b7c6c](https://github.com/Torwent/SRL-T/commit/45b7c6c437eb8d1c7c9bfcb86adfdc8456f8a925))
 
 
 
