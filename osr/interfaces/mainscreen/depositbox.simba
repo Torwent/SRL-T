@@ -179,6 +179,23 @@ begin
   box := match.Box;
 end;
 
+function TRSDepositBox.FindRandomInventoryItems(items: TRSItemArray):  TIntegerArray;
+var
+  slot: Int32;
+  usedSlots: TIntegerArray;
+  match: TRSItemFinderMatch;
+  matches: TRSItemFinderMatchArray;
+begin
+  for slot := Low(Self.InventorySlotBoxes) to High(Self.InventorySlotBoxes) do
+    if SRL.CountColor(CTS1(1118740, 35), Self.InventorySlotBoxes[slot]) > 0 then
+      usedSlots += slot;
+
+  matches := ItemFinder.FindAll(items, Self.InventorySlotBoxes, usedSlots.Len());
+  Result := usedSlots;
+  for match in matches do
+    Result.Remove(match.Index);
+end;                                    
+
 function TRSDepositBox.ContainsInventoryItem(item: TRSItem): Boolean;
 var
   b: TBox;
@@ -404,6 +421,24 @@ function TRSDepositBox.DepositAll(): Boolean; deprecated 'Use TRSDepositBox.Depo
 begin
   Result := Self.DepositInventory();
 end;
+
+function TRSDepositBox.DepositAllBut(safeItems:TRSItemArray):Boolean;
+var
+  slot:Int32;
+  slots:TIntegerArray;
+begin
+ slots:= self.FindRandomInventoryItems(safeItems);
+ for slot in slots do
+ begin
+  if self.Items.SlotEmpty(slot) then
+  Continue;
+  self.Items.MouseSlot(slot);
+  Mouse.Click(1);
+  Wait(600,602);
+ end;
+  if self.FindRandomInventoryItems(safeItems) = [] then
+  Result:=True;
+end;                                  
 
 var
   DepositBox: TRSDepositBox;
