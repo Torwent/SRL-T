@@ -434,7 +434,7 @@ begin
   Continue;
   self.Items.MouseSlot(slot);
   Mouse.Click(1);
-  Wait(600,602);
+  Wait(615,625);
  end;
   if self.FindRandomInventoryItems(safeItems) = [] then
   Result:=True;
