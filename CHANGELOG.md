@@ -1,3 +1,12 @@
+## [7.21.28](https://github.com/Torwent/SRL-T/compare/v7.21.27...v7.21.28) (2025-12-21)
+
+
+### Bug Fixes
+
+* RI update restart runelite pls ([82dbf72](https://github.com/Torwent/SRL-T/commit/82dbf721326a7cc4746abb27844a6a1a64c31a5e))
+
+
+
 ## [7.21.27](https://github.com/Torwent/SRL-T/compare/v7.21.26...v7.21.27) (2025-12-21)
 
 
@@ -34,15 +43,6 @@
 ### Bug Fixes
 
 * force bump ([c272984](https://github.com/Torwent/SRL-T/commit/c272984be830ecbae1258e3fa0faf1cbcf9be35a))
-
-
-
-## [7.21.23](https://github.com/Torwent/SRL-T/compare/v7.21.22...v7.21.23) (2025-12-11)
-
-
-### Bug Fixes
-
-* update maps ([ff84004](https://github.com/Torwent/SRL-T/commit/ff840044216c6a313e539ffebf7666a6f0b20770))
 
 
 
