@@ -357,7 +357,7 @@ begin
   inherited;
 
   Self.Name := 'Minimap';
-  Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
+  Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvqh8j430ESAIAFOMDaw==');
 
   AddOnTerminate(@Self.Free);
 end;
