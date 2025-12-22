@@ -115,6 +115,7 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
   LOGIN_MESSAGE_MEMBERS = 'You need a members account';
   LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
   LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
+  LOGIN_MESSAGE_UPDATED =  'RuneScape has been updated! Please restart the game to retry';
 
   LOGIN_MESSAGES = [
     LOGIN_MESSAGE_CONNECTING,
@@ -132,7 +133,8 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
     LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER,
     LOGIN_MESSAGE_MEMBERS,
     LOGIN_MESSAGE_IN_MEMBERS_AREA ,
-    LOGIN_MESSAGE_AUTHENTICATOR
+    LOGIN_MESSAGE_AUTHENTICATOR,
+    LOGIN_MESSAGE_UPDATED
   ];
 
   LOGIN_DIALOG_OK = 'Ok';
@@ -514,7 +516,8 @@ begin
     LOGIN_MESSAGE_NEED_SKILL_TOTAL,
     LOGIN_MESSAGE_ACCOUNT_DISABLED,
     LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER,
-    LOGIN_MESSAGE_AUTHENTICATOR:
+    LOGIN_MESSAGE_AUTHENTICATOR,
+    LOGIN_MESSAGE_UPDATED:
       Result := False;
 
     // Retry
