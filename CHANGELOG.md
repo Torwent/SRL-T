@@ -1,3 +1,12 @@
+## [7.21.29](https://github.com/Torwent/SRL-T/compare/v7.21.28...v7.21.29) (2025-12-22)
+
+
+### Bug Fixes
+
+* corrected minimap flag bitmap ([14ef7d3](https://github.com/Torwent/SRL-T/commit/14ef7d3c441fe4ebc41792db8dfa2ef3e1f9b780))
+
+
+
 ## [7.21.28](https://github.com/Torwent/SRL-T/compare/v7.21.27...v7.21.28) (2025-12-21)
 
 
@@ -34,15 +43,6 @@
 ### Bug Fixes
 
 * force bump ([1b14717](https://github.com/Torwent/SRL-T/commit/1b1471714bddbd7f0c34922c6413ca8c17dd9f4a))
-
-
-
-## [7.21.24](https://github.com/Torwent/SRL-T/compare/v7.21.23...v7.21.24) (2025-12-13)
-
-
-### Bug Fixes
-
-* force bump ([c272984](https://github.com/Torwent/SRL-T/commit/c272984be830ecbae1258e3fa0faf1cbcf9be35a))
 
 
 
