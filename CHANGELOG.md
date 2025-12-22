@@ -1,3 +1,12 @@
+## [7.21.30](https://github.com/Torwent/SRL-T/compare/v7.21.29...v7.21.30) (2025-12-22)
+
+
+### Bug Fixes
+
+* update RI again ([faddcaf](https://github.com/Torwent/SRL-T/commit/faddcafa63971c32d837c81b2ba2d8c5d7f2faad))
+
+
+
 ## [7.21.29](https://github.com/Torwent/SRL-T/compare/v7.21.28...v7.21.29) (2025-12-22)
 
 
@@ -34,15 +43,6 @@
 * force bump ([ad9955f](https://github.com/Torwent/SRL-T/commit/ad9955f7f586cee79c1e97f62717641612079328))
 * Update mainscreen.simba ([7d8e3e1](https://github.com/Torwent/SRL-T/commit/7d8e3e1e4d1269d0cdf4d7d4aaf9bfc77c48f4a5))
 * Update mainscreen.simba ([9a20ceb](https://github.com/Torwent/SRL-T/commit/9a20ceb90af56fb7e3123bb2622128d9f57aeb57))
-
-
-
-## [7.21.25](https://github.com/Torwent/SRL-T/compare/v7.21.24...v7.21.25) (2025-12-13)
-
-
-### Bug Fixes
-
-* force bump ([1b14717](https://github.com/Torwent/SRL-T/commit/1b1471714bddbd7f0c34922c6413ca8c17dd9f4a))
 
 
 
