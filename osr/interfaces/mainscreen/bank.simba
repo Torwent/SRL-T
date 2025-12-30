@@ -36,7 +36,7 @@ type
 
     InceneratorBox, SlotsArea: TBox;
     Tabs, SlotBoxes: TBoxArray;
-    _Memory: record
+    _Cache: record
       Items: TRSItemArray;
       Positions: array of TRSBankPosition;
     end;
@@ -63,39 +63,39 @@ begin
   Result.Noted := True;
 end;
 
-function TRSBank._IndexOfMemory(item: TRSItem): Integer;
+function TRSBank._IndexOfCache(item: TRSItem): Int32;
 var
   i: Int32;
 begin
   Result := -1;
-  for i := Low(Self._Memory.Items) to High(Self._Memory.Items) do
-    if item = Self._Memory.Items[i] then
+  for i := Low(Self._Cache.Items) to High(Self._Cache.Items) do
+    if item = Self._Cache.Items[i] then
       Exit(i);
 end;
 
-procedure TRSBank._PutMemory(item: TRSItem; position: TRSBankPosition);
+procedure TRSBank._CachePosition(item: TRSItem; position: TRSBankPosition);
 var
   index: Int32;
 begin
-  index := Self._IndexOfMemory(item);
+  index := Self._IndexOfCache(item);
   if index = -1 then
   begin
-    Self._Memory.Items += item;
-    SetLength(Self._Memory.Positions, Length(Self._Memory.Items));
-    index := Self._IndexOfMemory(item);
+    Self._Cache.Items += item;
+    SetLength(Self._Cache.Positions, Length(Self._Cache.Items));
+    index := Self._IndexOfCache(item);
   end;
-  Self._Memory.Positions[index] := position;
+  Self._Cache.Positions[index] := position;
 end;
 
-function TRSBank._GetMemory(item: TRSItem): TRSBankPosition;
+function TRSBank._GetCachedPosition(item: TRSItem): TRSBankPosition;
 var
   index: Int32;
 begin
-  index := Self._IndexOfMemory(item);
+  index := Self._IndexOfCache(item);
   if index = -1 then
     Result :=[-1, -1]
   else
-    Result := Self._Memory.Positions[index];
+    Result := Self._Cache.Positions[index];
 end;
 
 function TRSBank.GetTabBox(tab: Int32): TBox;
@@ -1048,7 +1048,7 @@ var
 begin
   if not Self.FindItem(item.Item, box) then
   begin
-    position := Self._GetMemory(item.Item);
+    position := Self._GetCachedPosition(item.Item);
     if position.Tab = -1 then
       position.Tab := Self.FindItemTab(item.Item, False);
 
@@ -1070,7 +1070,7 @@ begin
       begin
         position.Tab := -1;
         position.Scroll := -1;
-        Self._PutMemory(item.Item, position);
+        Self._CachePosition(item.Item, position);
         if attempts = 2 then
           Exit;
         Exit(Self.FindItem(item, box, attempts + 1));
@@ -1084,7 +1084,7 @@ begin
   //by setting this everytime, item.Scroll will slowly be adjusted
   //to something that will match all required items in a script.
   position.Scroll := Self.GetScrollPosition();
-  Self._PutMemory(item.Item, position);
+  Self._CachePosition(item.Item, position);
   Result := True;
 end;
 
