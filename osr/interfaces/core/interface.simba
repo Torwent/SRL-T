@@ -453,7 +453,7 @@ begin
   B.Y2 := B.Y1 + 15;
   B.LimitTo(Self.Bounds);
 
-  Result := OCR.Recognize(B, TOCRThresholdFilter.Create(15), RS_FONT_BOLD_12);
+  Result := OCR.Recognize(B, TOCRThresholdFilter.Create(13), RS_FONT_BOLD_12);
 end;
 
 function TRSTitledInterface.ClickCloseButton(PressEscape: Boolean = False): Boolean;

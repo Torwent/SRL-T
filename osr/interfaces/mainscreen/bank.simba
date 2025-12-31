@@ -814,8 +814,6 @@ begin
   Result := -1;
 end;
 
-
-
 function TRSBank.Open(Location: ERSBankLocation): Boolean; overload;
 var
   ATPA: T2DPointArray;
@@ -1078,9 +1076,8 @@ begin
     end;
   end;
 
-  if position.Tab = -1 then
-    position.Tab := Self.GetCurrentTab();
 
+  position.Tab := Self.GetCurrentTab();
   //by setting this everytime, item.Scroll will slowly be adjusted
   //to something that will match all required items in a script.
   position.Scroll := Self.GetScrollPosition();
@@ -1262,8 +1259,7 @@ end;
 (*
 ## Bank.WithdrawItem
 ```pascal
-function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
-function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
+function TRSBank.WithdrawItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
 function TRSBank.WithdrawItem(item: TRSItem; useQuantityButtons: Boolean): Boolean; overload;
 ```
 
@@ -1271,15 +1267,15 @@ Finds and withdraws an item.
 
 Parameters:
 - Item
-	TRSItem, TRSBankWithdrawItem or TRSBankItem variable to withdraw.
-  TRSBankItem caches the bank tab and scroll position the item is at for next uses.
+	TRSItem, TRSBankItem to withdraw.
+  Item to withdraw, quantity and noted if using TRSBankItem.
 - useQuantityButtons
   Determines if to use the 1,5,10,X,ALL `Quantity` buttons.
 
 Example:
 ```pascal
 var
-  ItemToWithdraw: TRSBankWithdrawItem;
+  ItemToWithdraw: TRSBankItem;
   
 ItemToWithdraw.Item := 'Iron full helm'; 
 ItemToWithdraw.Quantity := 5;
@@ -1292,7 +1288,7 @@ Bank.WithdrawItem(ItemToWithdraw, True);
 Bank.WithdrawItem(['Iron full helm', 5, False], True);  
 ```
 *)
-function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
+function TRSBank.WithdrawItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
 var
   box: TBox;
 begin
@@ -1312,7 +1308,6 @@ end;
 (*
 ## Bank.DepositItem
 ```pascal
-function TRSBank.DepositItem(Item: TRSBankDepositItem; useQuantityButtons: Boolean): Boolean; deprecated 'Use the TRSBankItem version instead';
 function TRSBank.DepositItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload
 ```
 
@@ -1320,7 +1315,7 @@ Deposits the specified **item** into the bank.
 
 Example:
 ```pascal
-WriteLn BankDepositItem(['Coins', TRSBank.QUANTITY_ALL]);
+WriteLn BankDepositItem(['Coins', TRSBank.QUANTITY_ALL, False]);
 ```
 *)
 function TRSBank.DepositItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
@@ -1388,6 +1383,18 @@ function TRSBank.DepositAll(): Boolean;
 begin
   if Self.IsOpen() then
     Result := (Inventory.Count() = 0) or Self.GetButton(ERSBankButton.DEPOSIT_INVENTORY).Click();
+end;
+
+(*
+## Bank.DepositEquipment
+```pascal
+function TRSBank.DepositEquipment: Boolean;
+```
+Depositis your equipment by clicking the deposit equipment button
+*)
+function TRSBank.DepositEquipment(): Boolean;
+begin
+  Result := Self.IsOpen() and Self.GetButton(ERSBankButton.DEPOSIT_WORN).Click();
 end;
 
 var
