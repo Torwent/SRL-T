@@ -364,7 +364,19 @@ begin
   Self.ScrollArea.Y2 := Self.Bounds.Y2 - 44;
 end;
 
+function TRSbank.GetTitle(): String; override;
+var
+  B: TBox;
+begin
+  B := Self.Bounds;
+  B.X1 += 50;
+  B.Y1 += 10;
+  B.X2 -= 50;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
 
+  Result := OCR.Recognize(B, TOCRThresholdFilter.Create(13), RS_FONT_BOLD_12);
+end;
 
 //should look for the query instead of interface title. Check the comment below for more info.
 function TRSBank.IsSearchOpen(waitTime: Int32 = 0): Boolean;
