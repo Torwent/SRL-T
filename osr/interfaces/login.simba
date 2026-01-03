@@ -118,14 +118,14 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
   LOGIN_MESSAGE_UPDATED =  'RuneScape has been updated! Please restart the game to retry';
   LOGIN_MESSAGE_TOO_MANY_ATTEMPTS = 'Too many login attempts from your address';
   LOGIN_MESSAGE_UNABLE_TO_CONNECT = 'Unable to connect';
-  LOGIN_MESSAGE_NO_REPLY_LOGINSERVER = 'No reply from loginserver';
-  LOGIN_MESSAGE_ACCOUNT_LOCKED = 'Account locked as we suspect it has been stolen';
-  LOGIN_MESSAGE_TOO_MANY_INCORRECT = 'Too many incorrect logins';
+  LOGIN_MESSAGE_NO_REPLY_LOGINSERVER = 'No reply from login server';
+  LOGIN_MESSAGE_ACCOUNT_LOCKED = 'Your account has been locked as we suspect it has been stolen';
+  LOGIN_MESSAGE_TOO_MANY_INCORRECT = 'Too many incorrect logins from your address';
   LOGIN_MESSAGE_INVALID_EMAIL_PASS = 'Invalid email or password';
   LOGIN_MESSAGE_SERVICE_UNAVAILABLE = 'Service unavailable';
   LOGIN_MESSAGE_SESSION_ERROR = 'There was a problem updating your session';
   LOGIN_MESSAGE_UNEXPECTED_RESPONSE = 'Unexpected server response';
-  LOGIN_MESSAGE_NOT_LOGGED_OUT_ALT = 'Account has not logged out from its last session';
+  LOGIN_MESSAGE_NOT_LOGGED_OUT_ALT = 'Your account has not logged out from its last session';
   LOGIN_MESSAGE_BEING_UPDATED = 'RuneScape is being updated';
   LOGIN_MESSAGE_RELOAD_PAGE = 'Please reload this page';
 
