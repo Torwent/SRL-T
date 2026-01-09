@@ -1,3 +1,12 @@
+## [7.21.31](https://github.com/Torwent/SRL-T/compare/v7.21.30...v7.21.31) (2026-01-09)
+
+
+### Bug Fixes
+
+* Update README.md ([7b5964a](https://github.com/Torwent/SRL-T/commit/7b5964ace7c9035ae30d4181be807fe51a795441))
+
+
+
 ## [7.21.30](https://github.com/Torwent/SRL-T/compare/v7.21.29...v7.21.30) (2025-12-22)
 
 
@@ -31,18 +40,6 @@
 ### Bug Fixes
 
 * update remote input ([80ef749](https://github.com/Torwent/SRL-T/commit/80ef749af64369245da16e595f8a0aa15911a26f))
-
-
-
-## [7.21.26](https://github.com/Torwent/SRL-T/compare/v7.21.25...v7.21.26) (2025-12-16)
-
-
-### Bug Fixes
-
-* force bump ([8ed5fe5](https://github.com/Torwent/SRL-T/commit/8ed5fe569948e8e8c000b14988f44c6cbdd708e9))
-* force bump ([ad9955f](https://github.com/Torwent/SRL-T/commit/ad9955f7f586cee79c1e97f62717641612079328))
-* Update mainscreen.simba ([7d8e3e1](https://github.com/Torwent/SRL-T/commit/7d8e3e1e4d1269d0cdf4d7d4aaf9bfc77c48f4a5))
-* Update mainscreen.simba ([9a20ceb](https://github.com/Torwent/SRL-T/commit/9a20ceb90af56fb7e3123bb2622128d9f57aeb57))
 
 
 
