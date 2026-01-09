@@ -1,3 +1,12 @@
+## [7.21.32](https://github.com/Torwent/SRL-T/compare/v7.21.31...v7.21.32) (2026-01-09)
+
+
+### Bug Fixes
+
+* revert npcs.zip ([29c9f47](https://github.com/Torwent/SRL-T/commit/29c9f47ac555f1215ea41b0aea4ce95b41669105))
+
+
+
 ## [7.21.31](https://github.com/Torwent/SRL-T/compare/v7.21.30...v7.21.31) (2026-01-09)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * RI update restart runelite pls ([82dbf72](https://github.com/Torwent/SRL-T/commit/82dbf721326a7cc4746abb27844a6a1a64c31a5e))
-
-
-
-## [7.21.27](https://github.com/Torwent/SRL-T/compare/v7.21.26...v7.21.27) (2025-12-21)
-
-
-### Bug Fixes
-
-* update remote input ([80ef749](https://github.com/Torwent/SRL-T/commit/80ef749af64369245da16e595f8a0aa15911a26f))
 
 
 
