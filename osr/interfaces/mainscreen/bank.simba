@@ -20,6 +20,10 @@ type
     PLACEHOLDERS, SEARCH, DEPOSIT_INVENTORY, DEPOSIT_WORN
   );
 
+  TRSBankPosition = record
+    Tab, Scroll: Int32;
+  end;
+
   TRSBank = record(TRSTitledInterface)
     Items: TRSItemInterface;
     FINDER_UPTEXT: TStringArray;
@@ -32,15 +36,16 @@ type
 
     InceneratorBox, SlotsArea: TBox;
     Tabs, SlotBoxes: TBoxArray;
+    _Cache: record
+      Items: TRSItemArray;
+      Positions: array of TRSBankPosition;
+    end;
   end;
 
   TRSBankItem = record
     Item: TRSItem;
     Quantity: Int32;
     Noted: Boolean;
-
-    Tab: Int32;
-    Scroll: Int32;
   end;
 
   TRSBankItemArray = array of TRSBankItem;
@@ -50,9 +55,6 @@ begin
   Result.Item := item;
   Result.Quantity := quantity;
   Result.Noted := noted;
-
-  Result.Tab := -1;
-  Result.Scroll := -1;
 end;
 
 function TRSBankItem.GetNoted(): TRSBankItem;
@@ -61,33 +63,40 @@ begin
   Result.Noted := True;
 end;
 
-type
-  //Deprecated use TRSBankItem instead
-  TRSBankWithdrawItem = record
-    Item: TRSItem;
-    Quantity: Int32;
-    Noted: Boolean;
-  end;
+function TRSBank._IndexOfCache(item: TRSItem): Int32;
+var
+  i: Int32;
+begin
+  Result := -1;
+  for i := Low(Self._Cache.Items) to High(Self._Cache.Items) do
+    if item = Self._Cache.Items[i] then
+      Exit(i);
+end;
 
-  //Deprecated use TRSBankSlot instead
-  TRSBankWithdrawSlot = record
-    Slot: Int32;
-    Quantity: Int32;
-    Noted: Boolean;
+procedure TRSBank._CachePosition(item: TRSItem; position: TRSBankPosition);
+var
+  index: Int32;
+begin
+  index := Self._IndexOfCache(item);
+  if index = -1 then
+  begin
+    Self._Cache.Items += item;
+    SetLength(Self._Cache.Positions, Length(Self._Cache.Items));
+    index := Self._IndexOfCache(item);
   end;
+  Self._Cache.Positions[index] := position;
+end;
 
-  //Deprecated use TRSBankItem instead
-  TRSBankDepositItem = record
-    Item: TRSItem;
-    Quantity: Int32;
-  end;
-
-  //Deprecated use TRSBankSlot instead
-  TRSBankDepositSlot = record
-    Slot: Int32;
-    Quantity: Int32;
-  end;
-
+function TRSBank._GetCachedPosition(item: TRSItem): TRSBankPosition;
+var
+  index: Int32;
+begin
+  index := Self._IndexOfCache(item);
+  if index = -1 then
+    Result :=[-1, -1]
+  else
+    Result := Self._Cache.Positions[index];
+end;
 
 function TRSBank.GetTabBox(tab: Int32): TBox;
 begin
@@ -355,7 +364,19 @@ begin
   Self.ScrollArea.Y2 := Self.Bounds.Y2 - 44;
 end;
 
+function TRSbank.GetTitle(): String; override;
+var
+  B: TBox;
+begin
+  B := Self.Bounds;
+  B.X1 += 50;
+  B.Y1 += 10;
+  B.X2 -= 50;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
 
+  Result := OCR.Recognize(B, TOCRThresholdFilter.Create(13), RS_FONT_BOLD_12);
+end;
 
 //should look for the query instead of interface title. Check the comment below for more info.
 function TRSBank.IsSearchOpen(waitTime: Int32 = 0): Boolean;
@@ -805,8 +826,6 @@ begin
   Result := -1;
 end;
 
-
-
 function TRSBank.Open(Location: ERSBankLocation): Boolean; overload;
 var
   ATPA: T2DPointArray;
@@ -1012,7 +1031,7 @@ end;
 ## Bank.FindItem
 ```pascal
 function TRSBank.FindItem(Item: TRSItem; out box: TBox): Boolean;
-function TRSBank.FindItem(out item: TRSBankItem; out box: TBox; attempts: Int32 = 0): Boolean; overload;
+function TRSBank.FindItem(item: TRSBankItem; out box: TBox; attempts: Int32 = 0): Boolean; overload;
 ```
 
 Finds and returns the bounds of an item in the bank
@@ -1032,33 +1051,36 @@ begin
   Result := Self.Items.Find([item], box);
 end;
 
-function TRSBank.FindItem(out item: TRSBankItem; out box: TBox; attempts: Int32 = 0): Boolean; overload;
+function TRSBank.FindItem(item: TRSBankItem; out box: TBox; attempts: Int32 = 0): Boolean; overload;
 var
   count: Int32;
+  position: TRSBankPosition;
 begin
   if not Self.FindItem(item.Item, box) then
   begin
-    if item.Tab = -1 then
-      item.Tab := Self.FindItemTab(item.Item, False);
+    position := Self._GetCachedPosition(item.Item);
+    if position.Tab = -1 then
+      position.Tab := Self.FindItemTab(item.Item, False);
 
-    if item.Tab = 0 then
+    if position.Tab = 0 then
       count := Self.Items.Count();
 
-    if Self.OpenTab(item.Tab) then
-      if item.Tab = 0 then WaitUntil(count <> Self.Items.Count(), 300, 3000);
+    if Self.OpenTab(position.Tab) then
+      if position.Tab = 0 then WaitUntil(count <> Self.Items.Count(), 300, 3000);
 
     if not Self.FindItem(item.Item, box) then
     begin
-      if item.Scroll = -1 then
-        item.Scroll := Self.FindItemScroll(item.Item);
+      if position.Scroll = -1 then
+        position.Scroll := Self.FindItemScroll(item.Item);
 
-      if Self.GetScrollPosition() <> item.Scroll then
-        Self.SetScrollPosition(item.Scroll);
+      if Self.GetScrollPosition() <> position.Scroll then
+        Self.SetScrollPosition(position.Scroll);
 
       if not Self.FindItem(item.Item, box) then
       begin
-        item.Tab := -1;
-        item.Scroll := -1;
+        position.Tab := -1;
+        position.Scroll := -1;
+        Self._CachePosition(item.Item, position);
         if attempts = 2 then
           Exit;
         Exit(Self.FindItem(item, box, attempts + 1));
@@ -1066,12 +1088,12 @@ begin
     end;
   end;
 
-  if item.Tab = -1 then
-    item.Tab := Self.GetCurrentTab();
 
+  position.Tab := Self.GetCurrentTab();
   //by setting this everytime, item.Scroll will slowly be adjusted
   //to something that will match all required items in a script.
-  item.Scroll := Self.GetScrollPosition();
+  position.Scroll := Self.GetScrollPosition();
+  Self._CachePosition(item.Item, position);
   Result := True;
 end;
 
@@ -1249,8 +1271,7 @@ end;
 (*
 ## Bank.WithdrawItem
 ```pascal
-function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
-function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
+function TRSBank.WithdrawItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
 function TRSBank.WithdrawItem(item: TRSItem; useQuantityButtons: Boolean): Boolean; overload;
 ```
 
@@ -1258,15 +1279,15 @@ Finds and withdraws an item.
 
 Parameters:
 - Item
-	TRSItem, TRSBankWithdrawItem or TRSBankItem variable to withdraw.
-  TRSBankItem caches the bank tab and scroll position the item is at for next uses.
+	TRSItem, TRSBankItem to withdraw.
+  Item to withdraw, quantity and noted if using TRSBankItem.
 - useQuantityButtons
   Determines if to use the 1,5,10,X,ALL `Quantity` buttons.
 
 Example:
 ```pascal
 var
-  ItemToWithdraw: TRSBankWithdrawItem;
+  ItemToWithdraw: TRSBankItem;
   
 ItemToWithdraw.Item := 'Iron full helm'; 
 ItemToWithdraw.Quantity := 5;
@@ -1279,7 +1300,7 @@ Bank.WithdrawItem(ItemToWithdraw, True);
 Bank.WithdrawItem(['Iron full helm', 5, False], True);  
 ```
 *)
-function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
+function TRSBank.WithdrawItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
 var
   box: TBox;
 begin
@@ -1295,24 +1316,10 @@ begin
   Result := Self.WithdrawItem(tmp, useQuantityButtons);
 end;
 
-function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; useQuantityButtons: Boolean): Boolean; overload; deprecated 'Use the TRSBankItem version instead';
-var
-  b: TBox;
-begin
-  if Self.FindItem(Item.Item, B) then
-    Result := Self.WithdrawHelper(B, Item.Quantity, Item.Noted, useQuantityButtons);
-end;
-
-
-function TRSBank.WithdrawSlot(Item: TRSBankWithdrawSlot; useQuantityButtons: Boolean): Boolean;
-begin
-  Result := Self.WithdrawHelper(Self.SlotBoxes[Item.Slot], Item.Quantity, Item.Noted, useQuantityButtons);
-end;
 
 (*
 ## Bank.DepositItem
 ```pascal
-function TRSBank.DepositItem(Item: TRSBankDepositItem; useQuantityButtons: Boolean): Boolean; deprecated 'Use the TRSBankItem version instead';
 function TRSBank.DepositItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload
 ```
 
@@ -1320,7 +1327,7 @@ Deposits the specified **item** into the bank.
 
 Example:
 ```pascal
-WriteLn BankDepositItem(['Coins', TRSBank.QUANTITY_ALL]);
+WriteLn BankDepositItem(['Coins', TRSBank.QUANTITY_ALL, False]);
 ```
 *)
 function TRSBank.DepositItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
@@ -1358,15 +1365,6 @@ begin
   Result := Self.DepositItem(tmp, useQuantityButtons);
 end;
 
-function TRSBank.DepositItem(item: TRSBankDepositItem; useQuantityButtons: Boolean): Boolean; overload; deprecated 'Use the TRSBankItem version instead';
-var
-  slot: TBox;
-begin
-  if Inventory.Items.FindAny([item.Item], slot) then
-    Result := Self.DepositHelper(slot, item.Quantity, useQuantityButtons);
-end;
-
-
 function TRSBank.DepositItems(items: array of TRSBankItem; useQuantityButtons: Boolean): Boolean;
 var
   i: Int32;
@@ -1386,11 +1384,6 @@ begin
 end;
 
 
-function TRSBank.DepositSlot(Item: TRSBankDepositSlot; useQuantityButtons: Boolean): Boolean; 
-begin
-  Result := Self.DepositHelper(Inventory.GetSlotBox(Item.Slot), Item.Quantity, useQuantityButtons);
-end;
-
 (*
 ## Bank.DepositAll
 ```pascal
@@ -1402,6 +1395,18 @@ function TRSBank.DepositAll(): Boolean;
 begin
   if Self.IsOpen() then
     Result := (Inventory.Count() = 0) or Self.GetButton(ERSBankButton.DEPOSIT_INVENTORY).Click();
+end;
+
+(*
+## Bank.DepositEquipment
+```pascal
+function TRSBank.DepositEquipment: Boolean;
+```
+Depositis your equipment by clicking the deposit equipment button
+*)
+function TRSBank.DepositEquipment(): Boolean;
+begin
+  Result := Self.IsOpen() and Self.GetButton(ERSBankButton.DEPOSIT_WORN).Click();
 end;
 
 var
