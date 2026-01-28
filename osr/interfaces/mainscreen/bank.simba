@@ -10,15 +10,15 @@ Methods to interact with the Bank.
 
 type
   ERSBankLocation = (CASTLE_WARS, FEROX, GRAND_EXCHANGE, FALADOR_EAST);
-  
-  // In order FindButtons returns
-  ERSBankButton = (
-    WORN, MENU,
-    SWAP, INSERT,
-    ITEM, NOTE,
-    QUANTITY_1, QUANTITY_5, QUANTITY_10, QUANTITY_CUSTOM, QUANTITY_ALL,
-    PLACEHOLDERS, SEARCH, DEPOSIT_INVENTORY, DEPOSIT_WORN
-  );
+
+  {$SCOPEDENUMS ON}
+  ERSBankTitleButton = (SETTINGS, TUTORIAL);
+  ERSBankSideButton = (INCINERATOR, POTION_STORAGE);
+  ERSBankModeButton = (ARRANGEMENT, NOTES);
+  ERSBankQuantityButton = (ONE, FIVE, TEN, CUSTOM, ALL);
+  ERSBankMiscButton = (SEARCH, PLACEHOLDERS);
+  ERSBankDepositButton = (CONTAINERS, INVENTORY, WORN);
+  {$SCOPEDENUMS OFF}
 
   TRSBankPosition = record
     Tab, Scroll: Int32;
@@ -34,6 +34,7 @@ type
 
     CachedQuantity: Int32;
 
+    TitleBar, SideBar, BottomBar,
     InceneratorBox, SlotsArea: TBox;
     Tabs, SlotBoxes: TBoxArray;
     _Cache: record
@@ -105,36 +106,6 @@ begin
 end;
 
 
-function TRSBank.HasIncinerator(): Boolean;
-var
-  b: TBox;
-begin
-  b := Self.InceneratorBox;
-  b.Y1 += 55;
-  Result := SRL.CountColor(CTS2(6842995, 32, 0.10, 0.11), b) > 0;
-end;
-
-function TRSBank.InceneratorTooltipVisible(): Boolean;
-begin
-  Result := SRL.CountColor(10551295, Self.InceneratorBox) > 0;
-end;
-
-function TRSBank.UnHoverIncinerator(): Boolean;
-var
-  p: TPoint;
-begin
-  if not Self.InceneratorBox.Contains(Mouse.Position) then
-    Exit(True);
-
-  repeat
-    p := SRL.RandomPoint(Self.Bounds);
-  until not Self.InceneratorBox.Contains(p);
-
-  Mouse.Move(p);
-  Result := WaitUntil(not Self.InceneratorTooltipVisible(), 100, 1000);
-end;
-
-
 function TRSBank.GetPopUpButtons(): TRSButtonArray;
 begin
   Result := Self.FindButtons([[74,30]]);
@@ -167,21 +138,181 @@ begin
 end;
 
 
-function TRSBank.GetButtons(): TRSButtonArray;
-begin
-  if Self.UnHoverIncinerator() then
-    Result := Self.FindButtons([[48,20], [23,20], [34,34], [23,23]]);
-end;
-
-function TRSBank.GetButton(button: ERSBankButton): TRSButton;
+function TRSBank.GetButton(button: ERSBankTitleButton): TRSButton;
 var
   buttons: TRSButtonArray;
 begin
-  buttons := Self.GetButtons();
-  if Length(buttons) < Ord(button) then
-    Exit;
-  if buttons <> [] then
+  buttons := Self.FindButtons([[21,21]], Self.TitleBar);
+  if High(buttons) >= Ord(button) then
     Result := buttons[button];
+end;
+
+function TRSBank.GetButton(button: ERSBankSideButton): TRSButton; overload;
+var
+  buttons: TRSButtonArray;
+  i: Int32;
+begin
+  buttons := Self.FindButtons([[34,34]], Self.SideBar);
+
+  case button of
+    ERSBankSideButton.INCINERATOR:
+      for i := 0 to High(buttons) do
+        if SRL.CountColor(CTS2(2721742, 7, 0.11, 4.00), buttons[i].Bounds) > 3 then
+          Exit(buttons[i]);
+    ERSBankSideButton.POTION_STORAGE:
+      for i := 0 to High(buttons) do
+        if SRL.CountColor(CTS2(2721742, 7, 0.11, 4.00), buttons[i].Bounds) = 0 then
+          Exit(buttons[i]);
+  end;
+end;
+
+function TRSBank.InceneratorTooltipVisible(): Boolean;
+begin
+  Result := SRL.CountColor(10551295, Self.BottomBar) > 0;
+end;
+
+function TRSBank.UnHoverIncinerator(): Boolean;
+var
+  button: TRSButton;
+  pt: TPoint;
+begin
+  button := Self.GetButton(ERSBankSideButton.INCINERATOR);
+  if button = Default(TRSButton) then
+    Exit(True);
+  if not button.Bounds.Contains(Mouse.Position) then
+    Exit(True);
+
+  repeat
+    pt := SRL.RandomPoint(Self.Bounds);
+  until not button.Bounds.Contains(pt);
+
+  Mouse.Move(pt);
+  Result := WaitUntil(not Self.InceneratorTooltipVisible(), 100, 1000);
+end;
+
+
+function TRSBank.GetInteractionSection(): TBox;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+begin
+  if not Self.UnHoverIncinerator() then
+    Exit;
+
+  SRL.FindColors(tpa, CTS0($232B2E, 5), Self.BottomBar);
+  atpa := tpa.Cluster(1);
+  atpa.FilterDimensions(0, 0, 2, 32);
+  if Length(atpa) <> 3 then
+    Exit;
+
+  with Self.BottomBar do
+    Result := [X1, Y1, atpa[0][0].X, Y2];
+end;
+
+function TRSBank.GetQuantitySection(): TBox;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+begin
+  if not Self.UnHoverIncinerator() then
+    Exit;
+  SRL.FindColors(tpa, CTS0($232B2E, 5), Self.BottomBar);
+  atpa := tpa.Cluster(1);
+  atpa.FilterDimensions(0, 0, 2, 32);
+  if Length(atpa) <> 3 then
+    Exit;
+
+  with Self.BottomBar do
+    Result := [atpa[0][0].X, Y1, atpa[1][0].X, Y2];
+end;
+
+function TRSBank.GetButtonSection(): TBox;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+begin
+  if not Self.UnHoverIncinerator() then
+    Exit;
+  SRL.FindColors(tpa, CTS0($232B2E, 5), Self.BottomBar);
+  atpa := tpa.Cluster(1);
+  atpa.FilterDimensions(0, 0, 2, 32);
+  if Length(atpa) <> 3 then
+    Exit;
+
+  with Self.BottomBar do
+    Result := [atpa[1][0].X, Y1, atpa[2][0].X, Y2];
+end;
+
+function TRSBank.GetDynamicSection(): TBox;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+begin
+  if not Self.UnHoverIncinerator() then
+    Exit;
+  SRL.FindColors(tpa, CTS0($232B2E, 5), Self.BottomBar);
+  atpa := tpa.Cluster(1);
+  atpa.FilterDimensions(0, 0, 2, 32);
+  if Length(atpa) <> 3 then
+    Exit;
+
+  with Self.BottomBar do
+    Result := [atpa[2][0].X, Y1, X2, Y2];
+end;
+
+
+
+function TRSBank.GetButton(button: ERSBankModeButton): TRSButton; overload;
+var
+  buttons: TRSButtonArray;
+begin
+  buttons := Self.FindButtons([[34,34]], Self.GetInteractionSection());
+  if High(buttons) >= Ord(button) then
+    Result := buttons[button];
+end;
+
+function TRSBank.GetButton(button: ERSBankQuantityButton): TRSButton; overload;
+var
+  buttons: TRSButtonArray;
+begin
+  buttons := Self.FindButtons([[34,34]], Self.GetQuantitySection());
+  if High(buttons) >= Ord(button) then
+    Result := buttons[button];
+end;
+
+function TRSBank.GetButton(button: ERSBankMiscButton): TRSButton; overload;
+var
+  buttons: TRSButtonArray;
+begin
+  buttons := Self.FindButtons([[44, 34], [34,34]], Self.GetButtonSection());
+  if High(buttons) >= Ord(button) then
+    Result := buttons[button];
+end;
+
+function TRSBank.GetButton(button: ERSBankDepositButton): TRSButton; overload;
+var
+  buttons: TRSButtonArray;
+  i: Int32;
+begin
+  buttons := Self.FindButtons([[34,34]], Self.GetDynamicSection());
+
+  case button of
+    ERSBankDepositButton.WORN:
+      for i := 0 to High(buttons) do
+        if SRL.CountColor(CTS2(8885663, 17, 0.09, 0.35), buttons[i].Bounds) > 5 then
+          Exit(buttons[i]);
+    ERSBankDepositButton.INVENTORY:
+      for i := 0 to High(buttons) do
+        if SRL.CountColor(CTS2(997739, 13, 0.10, 1.12), buttons[i].Bounds) > 5 then
+          Exit(buttons[i]);
+
+    ERSBankDepositButton.CONTAINERS:
+      for i := 0 to High(buttons) do
+        if (SRL.CountColor(CTS2(8885663, 17, 0.09, 0.35), buttons[i].Bounds) = 0) and
+           (SRL.CountColor(CTS2(997739, 13, 0.10, 1.12), buttons[i].Bounds) = 0)
+        then
+          Exit(buttons[i]);
+  end;
 end;
 
 
@@ -255,7 +386,7 @@ begin
 
   inherited;
 
-  buttons := Self.GetButtons();
+  //buttons := Self.GetButtons();
   buttons.Draw(bitmap);
 
   Bitmap.DrawBoxes(Self.Tabs, $00FFFF);
@@ -388,12 +519,12 @@ end;
 //if you search an item and press enter the button stays enabled while the query is closed.
 function TRSBank.OpenSearch(waitTime: Int32 = 0): Boolean;
 begin
-  Result := Self.GetButton(ERSBankButton.SEARCH).Click() and Self.IsSearchOpen(waitTime);
+  Result := Self.GetButton(ERSBankMiscButton.SEARCH).Click() and Self.IsSearchOpen(waitTime);
 end;
 
 function TRSBank.ClearSearch(): Boolean;
 begin
-  Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Click();
+  Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankMiscButton.SEARCH).Click();
 end;
 
 (*
@@ -705,7 +836,7 @@ var
 begin
   if Self.ContainsItem(item) then
   begin
-    if not Self.GetButton(ERSBankButton.SEARCH).Enabled() then //if we found the item and we are not searching anything return the current tab.
+    if not Self.GetButton(ERSBankMiscButton.SEARCH).Enabled() then //if we found the item and we are not searching anything return the current tab.
       Exit(Self.GetCurrentTab());
 
     Self.OpenSearch(600); //if we found the item and we are searching something, it's better to clear the search and start from scratch.
@@ -771,7 +902,7 @@ var
 begin
   if Self.ContainsItem(item) then
   begin
-    if not Self.GetButton(ERSBankButton.SEARCH).Enabled() then
+    if not Self.GetButton(ERSBankMiscButton.SEARCH).Enabled() then
       Exit(Self.GetScrollPosition())
     else
     begin
@@ -916,7 +1047,7 @@ begin
 
   if Self.IsCustomQuantity(amount) then
   begin
-    button := Self.GetButton(ERSBankButton.QUANTITY_CUSTOM);
+    button := Self.GetButton(ERSBankQuantityButton.CUSTOM);
 
     if not button.Enabled() then
     begin
@@ -937,10 +1068,10 @@ begin
   end;
 
   case amount of
-    1:   button := Self.GetButton(ERSBankButton.QUANTITY_1);
-    5:   button := Self.GetButton(ERSBankButton.QUANTITY_5);
-    10:  button := Self.GetButton(ERSBankButton.QUANTITY_10);
-    else button := Self.GetButton(ERSBankButton.QUANTITY_ALL)
+    1:   button := Self.GetButton(ERSBankQuantityButton.ONE);
+    5:   button := Self.GetButton(ERSBankQuantityButton.FIVE);
+    10:  button := Self.GetButton(ERSBankQuantityButton.TEN);
+    else button := Self.GetButton(ERSBankQuantityButton.ALL)
   end;
 
   if not button.Enabled() then
@@ -957,13 +1088,22 @@ function TRSBank.WithdrawHelper(b: TBox; amount: Int32; noted: Boolean; useQuant
 var
   button: TRSButton;
 begin
-  if noted then button := Self.GetButton(ERSBankButton.NOTE)
-  else button := Self.GetButton(ERSBankButton.ITEM);
-
-  if not button.Enabled() then
+  button := Self.GetButton(ERSBankModeButton.NOTES);
+  if noted then
   begin
-    if not button.Enable() then Exit;
-    Wait(600,800);
+    if not button.Enabled() then
+    begin
+      if not button.Enable() then Exit;
+      Wait(600,800);
+    end;
+  end
+  else
+  begin
+    if not button.Disable() then
+    begin
+      if not button.Disable() then Exit;
+      Wait(600,800);
+    end;
   end;
 
   if not useQuantityButtons then
@@ -982,10 +1122,10 @@ begin
   if not Self.IsCustomQuantity(amount) then
   begin
     case amount of
-      1:   button := Self.GetButton(ERSBankButton.QUANTITY_1);
-      5:   button := Self.GetButton(ERSBankButton.QUANTITY_5);
-      10:  button := Self.GetButton(ERSBankButton.QUANTITY_10);
-      else button := Self.GetButton(ERSBankButton.QUANTITY_ALL);
+      1:   button := Self.GetButton(ERSBankQuantityButton.ONE);
+      5:   button := Self.GetButton(ERSBankQuantityButton.FIVE);
+      10:  button := Self.GetButton(ERSBankQuantityButton.TEN);
+      else button := Self.GetButton(ERSBankQuantityButton.ALL);
     end;
 
     if not button.Enabled() then
@@ -998,7 +1138,7 @@ begin
     Exit(True);
   end;
 
-  button := Self.GetButton(ERSBankButton.QUANTITY_CUSTOM);
+  button := Self.GetButton(ERSBankQuantityButton.CUSTOM);
 
   if not button.Enabled() then
   begin
@@ -1392,9 +1532,17 @@ function TRSBank.DepositAll: Boolean;
 Depositis your inventory by clicking the deposit inventory button
 *)
 function TRSBank.DepositAll(): Boolean;
+var
+  btn: TRSButton;
 begin
-  if Self.IsOpen() then
-    Result := (Inventory.Count() = 0) or Self.GetButton(ERSBankButton.DEPOSIT_INVENTORY).Click();
+  if not Self.IsOpen() then
+    Exit;
+
+  btn := Self.GetButton(ERSBankDepositButton.INVENTORY);
+  if btn = Default(TRSButton) then
+    Self.Fatal('This script needs the "Deposit Inventory" button visible!');
+
+  Result := (Inventory.Count() = 0) or btn.Click();
 end;
 
 (*
@@ -1406,7 +1554,7 @@ Depositis your equipment by clicking the deposit equipment button
 *)
 function TRSBank.DepositEquipment(): Boolean;
 begin
-  Result := Self.IsOpen() and Self.GetButton(ERSBankButton.DEPOSIT_WORN).Click();
+  Result := Self.IsOpen() and Self.GetButton(ERSBankDepositButton.WORN).Click();
 end;
 
 var
@@ -1482,6 +1630,24 @@ procedure TRSClient.ClientModeChanged(); override;
 begin
   inherited;
   Bank.SetupAlignment();
+
+  with Bank.Bounds do
+  begin
+    Bank.TitleBar.X1 := X1 + 30;
+    Bank.TitleBar.Y1 := Y1 + 7;  
+    Bank.TitleBar.X2 := X1 + 120;
+    Bank.TitleBar.Y2 := Y1 + 27;
+
+    Bank.SideBar.X1 := X1 + 6;
+    Bank.SideBar.Y1 := Y1 + 75;
+    Bank.SideBar.X2 := X1 + 43;
+    Bank.SideBar.Y2 := Y2 - 47;
+
+    Bank.BottomBar.X1 := X1 + 6;
+    Bank.BottomBar.Y1 := Y2 - 43;
+    Bank.BottomBar.X2 := X2 - 6;
+    Bank.BottomBar.Y2 := Y2 - 6;
+  end;
 end;
 
 procedure TSRL.Setup(); override;
