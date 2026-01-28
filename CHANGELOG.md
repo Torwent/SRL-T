@@ -1,3 +1,12 @@
+## [7.21.34](https://github.com/Torwent/SRL-T/compare/v7.21.33...v7.21.34) (2026-01-28)
+
+
+### Bug Fixes
+
+* TRSBank.IsOpen ([1eebd04](https://github.com/Torwent/SRL-T/commit/1eebd045d8614a5fca295314e1ba4e1b6b204254))
+
+
+
 ## [7.21.33](https://github.com/Torwent/SRL-T/compare/v7.21.32...v7.21.33) (2026-01-28)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * update RI again ([faddcaf](https://github.com/Torwent/SRL-T/commit/faddcafa63971c32d837c81b2ba2d8c5d7f2faad))
-
-
-
-## [7.21.29](https://github.com/Torwent/SRL-T/compare/v7.21.28...v7.21.29) (2025-12-22)
-
-
-### Bug Fixes
-
-* corrected minimap flag bitmap ([14ef7d3](https://github.com/Torwent/SRL-T/commit/14ef7d3c441fe4ebc41792db8dfa2ef3e1f9b780))
 
 
 
