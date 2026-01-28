@@ -80,11 +80,11 @@ begin
     [BUTTON_ENABLED_COLORS, 3, Box(379,181,412,214).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(395,197).Offset(Self.Bounds.X1, Self.Bounds.Y1)],
     [BUTTON_ENABLED_COLORS, 4, Box(379,224,412,257).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(395,240).Offset(Self.Bounds.X1, Self.Bounds.Y1)],
     [BUTTON_ENABLED_COLORS, 5, Box(379,267,412,300).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(395,283).Offset(Self.Bounds.X1, Self.Bounds.Y1)],
-    [BUTTON_ENABLED_COLORS, 6, Box(21,267,58,300).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(39,283).Offset(Self.Bounds.X1, Self.Bounds.Y1)],
-    [BUTTON_ENABLED_COLORS, 7, Box(75,267,112,300).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(93,283).Offset(Self.Bounds.X1, Self.Bounds.Y1)],
-    [BUTTON_ENABLED_COLORS, 8, Box(129,267,166,300).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(147,283).Offset(Self.Bounds.X1, Self.Bounds.Y1)]
+    [BUTTON_ENABLED_COLORS, 6, Box(129,267,166,300).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(147,283).Offset(Self.Bounds.X1, Self.Bounds.Y1)],
+    [BUTTON_ENABLED_COLORS, 7, Box(21,267,58,300).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(39,283).Offset(Self.Bounds.X1, Self.Bounds.Y1)],
+    [BUTTON_ENABLED_COLORS, 8, Box(75,267,112,300).Offset([Self.Bounds.X1, Self.Bounds.Y1]), Point(93,283).Offset(Self.Bounds.X1, Self.Bounds.Y1)]
   ];
-end;
+end; 
 
 function TRSDepositBox.GetButton(button: ERSDepositButton): TRSButton;
 begin
