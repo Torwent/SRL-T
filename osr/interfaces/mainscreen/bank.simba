@@ -335,14 +335,14 @@ begin
 
   b := Self.Bounds;
   b.Y1 := b.Y2 - 39;
-  b.X1 += 240;
-  b.X2 -= 155;
-  b.Y2 -= 25;
+  b.X1 += 90;
+  b.X2 -= 225;
+  b.Y2 -= 15;
 
   count1 := SRL.CountColor(0, b);
-  count2 := SRL.CountColor(2070783, b);
+  count2 := SRL.CountColor(2070783, b) + SRL.CountColor(16777215, b);
 
-  Result := ((count1 = 94) and (count2 = 116)) or Self.IsTitle('Bank') or Self.IsTitle('Equip');
+  Result := ((count1 = 120) and (count2 = 140)) or Self.IsTitle('Bank') or Self.IsTitle('Equip');
 
   if Result and waitForItems then
     WaitUntil(SRL.CountColor(RS_ITEM_BORDER, Self.SlotsArea) > 0, 50, 1000);
@@ -849,8 +849,9 @@ begin
 
   //Here is where the interesting stuff starts. We are going to look for the BankTab text on the left side that shows up when you search for an item.
   //In particular, we are interested in the BankTab text that is right above the item we found.
-  searchBox := [Self.Bounds.X1 + 56, Self.Bounds.Y1 + 77, Self.Bounds.X1 + 84, b.Y1]; //First we restrict the search box. SearchBox.Y2 will be Box.Y1 because we are not interested in anything below the item.
-                                                                 //We also set X1, Y1, X2 to known values that will make the search box smaller based on the Bank.Bounds.
+  //First we restrict the search box. SearchBox.Y2 will be Box.Y1 because we are not interested in anything below the item.
+  //We also set X1, Y1, X2 to known values that will make the search box smaller based on the Bank.Bounds.
+  searchBox := [Self.Bounds.X1 + 56, Self.Bounds.Y1 + 77, Self.Bounds.X1 + 84, b.Y1];
   if searchBox.Height < 8 then
   begin
     if openTab then
