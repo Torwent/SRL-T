@@ -1,3 +1,12 @@
+## [7.21.33](https://github.com/Torwent/SRL-T/compare/v7.21.32...v7.21.33) (2026-01-28)
+
+
+### Bug Fixes
+
+* **bank:** update to the new layout ([e544f73](https://github.com/Torwent/SRL-T/commit/e544f734793255ad978562e80769e3c478c74c4d))
+
+
+
 ## [7.21.32](https://github.com/Torwent/SRL-T/compare/v7.21.31...v7.21.32) (2026-01-09)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * corrected minimap flag bitmap ([14ef7d3](https://github.com/Torwent/SRL-T/commit/14ef7d3c441fe4ebc41792db8dfa2ef3e1f9b780))
-
-
-
-## [7.21.28](https://github.com/Torwent/SRL-T/compare/v7.21.27...v7.21.28) (2025-12-21)
-
-
-### Bug Fixes
-
-* RI update restart runelite pls ([82dbf72](https://github.com/Torwent/SRL-T/commit/82dbf721326a7cc4746abb27844a6a1a64c31a5e))
 
 
 
