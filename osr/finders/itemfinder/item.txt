@@ -7851,10 +7851,10 @@ noted black mask (1)
 black mask
 noted black mask
 witchwood icon
-bandana eyepatch
-bandana eyepatch
-bandana eyepatch
-bandana eyepatch
+bandana eyepatch (white)
+bandana eyepatch (red)
+bandana eyepatch (blue)
+bandana eyepatch (brown)
 hat eyepatch
 crabclaw hook
 pipe section
@@ -7919,10 +7919,10 @@ brown navy slacks
 black navy slacks
 purple navy slacks
 grey navy slacks
-noted bandana eyepatch
-noted bandana eyepatch
-noted bandana eyepatch
-noted bandana eyepatch
+noted bandana eyepatch (white)
+noted bandana eyepatch (red)
+noted bandana eyepatch (blue)
+noted bandana eyepatch (brown)
 noted hat eyepatch
 security book
 stronghold notes
@@ -14982,163 +14982,110 @@ keris partisan of breaching
 elidinis' ward
 sigil of resilience
 sigil of resilience
-noted sigil of resilience
 sigil of consistency
 sigil of consistency
-noted sigil of consistency
 sigil of the formidable fighter
 sigil of the formidable fighter
-noted sigil of the formidable fighter
 sigil of the rigorous ranger
 sigil of the rigorous ranger
-noted sigil of the rigorous ranger
 sigil of the meticulous mage
 sigil of the meticulous mage
-noted sigil of the meticulous mage
 sigil of fortification
 sigil of fortification
-noted sigil of fortification
 sigil of barrows
 sigil of barrows
-noted sigil of barrows
 sigil of deft strikes
 sigil of deft strikes
-noted sigil of deft strikes
 sigil of freedom
 sigil of freedom
-noted sigil of freedom
 sigil of enhanced harvest
 sigil of enhanced harvest
-noted sigil of enhanced harvest
 sigil of storage
 sigil of storage
-noted sigil of storage
 sigil of the smith
 sigil of the smith
-noted sigil of the smith
 sigil of the alchemist
 sigil of the alchemist
-noted sigil of the alchemist
 sigil of the fletcher
 sigil of the fletcher
-noted sigil of the fletcher
 sigil of the chef
 sigil of the chef
-noted sigil of the chef
 sigil of the craftsman
 sigil of the craftsman
-noted sigil of the craftsman
 sigil of the abyss
 sigil of the abyss
-noted sigil of the abyss
 sigil of stamina
 sigil of stamina
-noted sigil of stamina
 sigil of the potion master
 sigil of the potion master
-noted sigil of the potion master
 sigil of the eternal jeweller
 sigil of the eternal jeweller
-noted sigil of the eternal jeweller
 sigil of the treasure hunter
 sigil of the treasure hunter
-noted sigil of the treasure hunter
 sigil of mobility
 sigil of mobility
-noted sigil of mobility
 sigil of exaggeration
 sigil of exaggeration
-noted sigil of exaggeration
 sigil of specialised strikes
 sigil of specialised strikes
-noted sigil of specialised strikes
 sigil of the porcupine
 sigil of the porcupine
-noted sigil of the porcupine
 sigil of binding
 sigil of binding
-noted sigil of binding
 sigil of escaping
 sigil of escaping
-noted sigil of escaping
 sigil of the ruthless ranger
 sigil of the ruthless ranger
-noted sigil of the ruthless ranger
 sigil of the feral fighter
 sigil of the feral fighter
-noted sigil of the feral fighter
 sigil of the menacing mage
 sigil of the menacing mage
-noted sigil of the menacing mage
 sigil of prosperity
 sigil of prosperity
-noted sigil of prosperity
 sigil of the dwarves
 sigil of the dwarves
-noted sigil of the dwarves
 sigil of the elves
 sigil of the elves
-noted sigil of the elves
 sigil of the barbarians
 sigil of the barbarians
-noted sigil of the barbarians
 sigil of the gnomes
 sigil of the gnomes
-noted sigil of the gnomes
 sigil of nature
 sigil of nature
-noted sigil of nature
 sigil of devotion
 sigil of devotion
-noted sigil of devotion
 sigil of the forager
 sigil of the forager
-noted sigil of the forager
 sigil of garments
 sigil of garments
-noted sigil of garments
 sigil of slaughter
 sigil of slaughter
-noted sigil of slaughter
 sigil of the fortune farmer
 sigil of the fortune farmer
-noted sigil of the fortune farmer
 sigil of versatility
 sigil of versatility
-noted sigil of versatility
 sigil of the serpent
 sigil of the serpent
-noted sigil of the serpent
 sigil of supreme stamina
 sigil of supreme stamina
-noted sigil of supreme stamina
 sigil of preservation
 sigil of preservation
-noted sigil of preservation
 sigil of finality
 sigil of finality
-noted sigil of finality
 sigil of pious protection
 sigil of pious protection
-noted sigil of pious protection
 sigil of aggression
 sigil of aggression
-noted sigil of aggression
 sigil of rampage
 sigil of rampage
-noted sigil of rampage
 sigil of the skiller
 sigil of the skiller
-noted sigil of the skiller
 sigil of remote storage
 sigil of remote storage
-noted sigil of remote storage
 sigil of last recall
 sigil of last recall
-noted sigil of last recall
 sigil of the guardian angel
 sigil of the guardian angel
-noted sigil of the guardian angel
 mount karuulm diary
 group ironman helm
 group ironman platebody
@@ -16443,58 +16390,40 @@ smoke ancient sceptre (l)
 shadow ancient sceptre (l)
 sigil of sustenance
 sigil of sustenance
-noted sigil of sustenance
 sigil of hoarding
 sigil of hoarding
-noted sigil of hoarding
 sigil of the alchemaniac
 sigil of the alchemaniac
-noted sigil of the alchemaniac
 sigil of the hunter
 sigil of the hunter
-noted sigil of the hunter
 sigil of resistance
 sigil of resistance
-noted sigil of resistance
 sigil of agile fortune
 sigil of agile fortune
-noted sigil of agile fortune
 sigil of the food master
 sigil of the food master
-noted sigil of the food master
-sigil of the well-fed
-sigil of the well-fed
-noted sigil of the well-fed
+sigil of the well fed
+sigil of the well fed
 sigil of the infernal chef
 sigil of the infernal chef
-noted sigil of the infernal chef
 sigil of the infernal smith
 sigil of the infernal smith
-noted sigil of the infernal smith
 sigil of the lightbearer
 sigil of the lightbearer
-noted sigil of the lightbearer
 sigil of the bloodhound
 sigil of the bloodhound
-noted sigil of the bloodhound
 sigil of precision
 sigil of precision
-noted sigil of precision
 sigil of the augmented thrall
 sigil of the augmented thrall
-noted sigil of the augmented thrall
 sigil of faith
 sigil of faith
-noted sigil of faith
 sigil of titanium
 sigil of titanium
-noted sigil of titanium
 sigil of the ninja
 sigil of the ninja
-noted sigil of the ninja
 sigil of woodcraft
 sigil of woodcraft
-noted sigil of woodcraft
 corrupted voidwaker
 noted corrupted voidwaker
 corrupted dragon claws
@@ -16509,7 +16438,10 @@ noted corrupted scythe of vitur (uncharged)
 corrupted tumeken's shadow
 corrupted tumeken's shadow (uncharged)
 noted corrupted tumeken's shadow (uncharged)
-quest lamp
+fremennik quest lamp
+elf quest lamp
+gnome quest lamp
+mahjarrat 1 quest lamp
 trinket of vengeance
 noted trinket of vengeance
 trinket of fairies
@@ -17043,6 +16975,7 @@ large meat pouch (open)
 small fur pouch (open)
 medium fur pouch (open)
 large fur pouch (open)
+prospector legs
 brimhaven voucher
 agility xp
 graceful recolour
@@ -17158,37 +17091,26 @@ chitin
 noted chitin
 sigil of meticulousness
 sigil of meticulousness
-noted sigil of meticulousness
 sigil of revoked limitation
 sigil of revoked limitation
-noted sigil of revoked limitation
-sigil of rampart
-sigil of rampart
-noted sigil of rampart
+sigil of the rampart
+sigil of the rampart
 sigil of deception
 sigil of deception
-noted sigil of deception
-sigil of lithe
-sigil of lithe
-noted sigil of lithe
-sigil of adroit
-sigil of adroit
-noted sigil of adroit
+sigil of litheness
+sigil of litheness
+sigil of the adroit
+sigil of the adroit
 sigil of onslaught
 sigil of onslaught
-noted sigil of onslaught
 sigil of restoration
 sigil of restoration
-noted sigil of restoration
-sigil of swashbuckler
-sigil of swashbuckler
-noted sigil of swashbuckler
-sigil of gunslinger
-sigil of gunslinger
-noted sigil of gunslinger
+sigil of the swashbuckler
+sigil of the swashbuckler
+sigil of the gunslinger
+sigil of the gunslinger
 sigil of arcane swiftness
 sigil of arcane swiftness
-noted sigil of arcane swiftness
 guthixian temple teleport
 dni23 torso lightbuttons
 dni23 torso darkbuttons
@@ -18836,7 +18758,7 @@ dragon keel schematic
 small key (the pandemonium)
 small key (the onyx crest)
 small key (tear of the soul)
-small key (ynsdail)
+small key (ynysdail)
 small key (minotaurs' rest)
 small key (buccaneers' haven)
 small key (isle of bones)
@@ -19310,6 +19232,57 @@ noted rosewood logs
 jar of feathers
 crate of arrowtips
 crate of clothes
+lovley jubbly bib
+beer belly sweater
+jad jumper
+christmas dinner
+holy moleys
+kharidian quest lamp
+myreque quest lamp
+dragonkin quest lamp
+mahjarrat 2 quest lamp
+camelot quest lamp
+recipe for disaster quest lamp
+annihilation weapon scroll
+noted annihilation weapon scroll
+annihilation blueprints
+noted annihilation blueprints
+annihilation teleport scroll
+noted annihilation teleport scroll
+bow of faerdhinen (c)
+crystal body
+crystal body (inactive)
+crystal legs
+crystal legs (inactive)
+crystal helm
+crystal helm (inactive)
+toxic staff (uncharged)
+toxic staff (deadman)
+noted the dogsword
+noted thunder khopesh
+trinket of avarice
+noted trinket of avarice
+trinket of fortuity (inactive)
+noted trinket of fortuity (inactive)
+trinket of fortuity (active)
+noted trinket of fortuity (active)
+sigil of the gods
+sigil of the gods
+sigil of conclusion
+sigil of conclusion
+sigil of automation
+sigil of automation
+sigil of eternal belief
+sigil of eternal belief
+sigil of efficiency
+sigil of efficiency
+starter cape
+deadman's skull
+hooded slayer helmet
+hooded slayer helmet (i)
+facility bottle (empty)
+noted facility bottle (empty)
+facility bottle (full)
 marrentill seed
 marrentill seed
 marrentill seed
