@@ -1,3 +1,12 @@
+## [7.21.36](https://github.com/Torwent/SRL-T/compare/v7.21.35...v7.21.36) (2026-01-29)
+
+
+### Bug Fixes
+
+* Update README.md ([494edf0](https://github.com/Torwent/SRL-T/commit/494edf021c801a898d4817f1bd63dd7f21ce510f))
+
+
+
 ## [7.21.35](https://github.com/Torwent/SRL-T/compare/v7.21.34...v7.21.35) (2026-01-29)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * revert npcs.zip ([29c9f47](https://github.com/Torwent/SRL-T/commit/29c9f47ac555f1215ea41b0aea4ce95b41669105))
-
-
-
-## [7.21.31](https://github.com/Torwent/SRL-T/compare/v7.21.30...v7.21.31) (2026-01-09)
-
-
-### Bug Fixes
-
-* Update README.md ([7b5964a](https://github.com/Torwent/SRL-T/commit/7b5964ace7c9035ae30d4181be807fe51a795441))
 
 
 
