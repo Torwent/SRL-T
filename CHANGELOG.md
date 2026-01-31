@@ -1,3 +1,12 @@
+## [7.21.37](https://github.com/Torwent/SRL-T/compare/v7.21.36...v7.21.37) (2026-01-31)
+
+
+### Bug Fixes
+
+* revert item img zip ([75792a8](https://github.com/Torwent/SRL-T/commit/75792a8884b3d0b1d624039faa83bf2a946eadea))
+
+
+
 ## [7.21.36](https://github.com/Torwent/SRL-T/compare/v7.21.35...v7.21.36) (2026-01-29)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **bank:** update to the new layout ([e544f73](https://github.com/Torwent/SRL-T/commit/e544f734793255ad978562e80769e3c478c74c4d))
-
-
-
-## [7.21.32](https://github.com/Torwent/SRL-T/compare/v7.21.31...v7.21.32) (2026-01-09)
-
-
-### Bug Fixes
-
-* revert npcs.zip ([29c9f47](https://github.com/Torwent/SRL-T/commit/29c9f47ac555f1215ea41b0aea4ce95b41669105))
 
 
 
