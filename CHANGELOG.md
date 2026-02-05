@@ -1,3 +1,12 @@
+## [7.21.39](https://github.com/Torwent/SRL-T/compare/v7.21.38...v7.21.39) (2026-02-05)
+
+
+### Bug Fixes
+
+* item update ([15350bf](https://github.com/Torwent/SRL-T/commit/15350bf76dd2226e1419d6baec19b320bfcfb24b))
+
+
+
 ## [7.21.38](https://github.com/Torwent/SRL-T/compare/v7.21.37...v7.21.38) (2026-01-31)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * bump ([621bd60](https://github.com/Torwent/SRL-T/commit/621bd607a74272d4a0b77d3e0c2e608c0165e91f))
-
-
-
-## [7.21.34](https://github.com/Torwent/SRL-T/compare/v7.21.33...v7.21.34) (2026-01-28)
-
-
-### Bug Fixes
-
-* TRSBank.IsOpen ([1eebd04](https://github.com/Torwent/SRL-T/commit/1eebd045d8614a5fca295314e1ba4e1b6b204254))
 
 
 
