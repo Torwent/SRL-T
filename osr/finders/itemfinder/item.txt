@@ -19283,6 +19283,8 @@ hooded slayer helmet (i)
 facility bottle (empty)
 noted facility bottle (empty)
 facility bottle (full)
+noted rum
+noted rum
 marrentill seed
 marrentill seed
 marrentill seed
