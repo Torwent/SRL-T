@@ -459,8 +459,8 @@ end;
 function TRSTitledInterface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
 begin
 
-
-  Result := SRL.CountColor(65536, Self.CloseButtonBounds) > 80;
+  if (SRL.CountColor(65536, Self.CloseButtonBounds) > 80) or (SRL.CountColor(CTS2(1250841, 6, 1.47, 2.40), Self.CloseButtonBounds) > 80) then
+    Result := True;
 
   if Result then
   begin
