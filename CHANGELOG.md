@@ -1,3 +1,12 @@
+## [7.21.41](https://github.com/Torwent/SRL-T/compare/v7.21.40...v7.21.41) (2026-02-17)
+
+
+### Bug Fixes
+
+* Update walker.simba ([88eb050](https://github.com/Torwent/SRL-T/commit/88eb05026a7e734f94ad2ea1240ff6ad03f9b8b4))
+
+
+
 ## [7.21.40](https://github.com/Torwent/SRL-T/compare/v7.21.39...v7.21.40) (2026-02-05)
 
 
@@ -32,15 +41,6 @@
 ### Bug Fixes
 
 * revert item img zip ([75792a8](https://github.com/Torwent/SRL-T/commit/75792a8884b3d0b1d624039faa83bf2a946eadea))
-
-
-
-## [7.21.36](https://github.com/Torwent/SRL-T/compare/v7.21.35...v7.21.36) (2026-01-29)
-
-
-### Bug Fixes
-
-* Update README.md ([494edf0](https://github.com/Torwent/SRL-T/commit/494edf021c801a898d4817f1bd63dd7f21ce510f))
 
 
 
