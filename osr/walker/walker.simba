@@ -330,29 +330,29 @@ begin
 
   fileName := WALKER_MAPS + map;
 
-  if FileExists(fileName) then
+  if FileExists(fileName) and force then
   begin
-    if not force then
-      Exit;
-
     if not DeleteFile(fileName) then
       RaiseException('Failed to delete: ' + fileName);
   end;
 
-  WriteLn 'Downloading file: ' + url + ' > ' + fileName;
-  path := ExtractFileDir(fileName);
-  if not ForceDirectories(path) then
-    TerminateScript('Failed to create path: ' + path);
+  if not FileExists(fileName) then
+  begin
+    WriteLn 'Downloading file: ' + url + ' > ' + fileName;
+    path := ExtractFileDir(fileName);
+    if not ForceDirectories(path) then
+      TerminateScript('Failed to create path: ' + path);
 
-  client := InitializeHTTPClient(False);
-  try
-    GetHTTPPageEx(client, url, fileName);
-  finally
-    FreeHTTPClient(client);
+    client := InitializeHTTPClient(False);
+    try
+      GetHTTPPageEx(client, url, fileName);
+    finally
+      FreeHTTPClient(client);
+    end;
   end;
 
   Self.AddRegion(map, start);
-end;
+end; 
 
 
 (*
