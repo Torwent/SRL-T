@@ -300,23 +300,23 @@ begin
     ERSBankDepositButton.WORN:
       for i := 0 to High(buttons) do
         if (SRL.CountColor(CTS2(8885663, 17, 0.09, 0.35), buttons[i].Bounds) > 5)
-        or (SRL.CountColor(CTS2(7635336, 12, 0.17, 0.35), buttons[i].Bounds) > 5) then // Different color if hovered
+        or (SRL.CountColor(CTS2(7635336, 12, 0.17, 0.35), buttons[i].Bounds) > 5) // Different color if hovered
+        or (SRL.CountColor(CTS2(5528449, 20, 0.11, 0.34), buttons[i].Bounds) > 5) then // Different color if hovered & clicked
           Exit(buttons[i]);
     ERSBankDepositButton.INVENTORY:
       for i := 0 to High(buttons) do
-        if (SRL.CountColor(CTS2(997739, 13, 0.10, 1.12), buttons[i].Bounds) > 5)
-        or (SRL.CountColor(CTS2(2441311, 10, 0.14, 0.96), buttons[i].Bounds) > 5) then // Different color if hovered
+        if (SRL.CountColor(CTS2(997739, 13, 0.10, 1.12),  buttons[i].Bounds) > 5)
+        or (SRL.CountColor(CTS2(2441311, 10, 0.14, 0.96), buttons[i].Bounds) > 5) // Different color if hovered
+        or (SRL.CountColor(CTS2(1585516, 9, 0.16, 1.07),  buttons[i].Bounds) > 5) then // Different color if hovered & clicked
           Exit(buttons[i]);
-
     ERSBankDepositButton.CONTAINERS:
       for i := 0 to High(buttons) do
-        if (SRL.CountColor(CTS2(8885663, 17, 0.09, 0.35), buttons[i].Bounds) = 0) and
-           (SRL.CountColor(CTS2(997739, 13, 0.10, 1.12), buttons[i].Bounds) = 0)
-        then
+        if (SRL.CountColor(CTS2(5259613, 9, 0.41, 0.40), buttons[i].Bounds) > 5)
+        or (SRL.CountColor(CTS2(5063768, 7, 0.65, 0.27), buttons[i].Bounds) > 5) // Different color if hovered
+        or (SRL.CountColor(CTS2(4142694, 7, 0.29, 0.65), buttons[i].Bounds) > 5) then // Different color if hovered & clicked
           Exit(buttons[i]);
   end;
 end;
-
 
 (*
 ## Bank.IsOpen
