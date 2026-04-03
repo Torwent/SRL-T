@@ -95,12 +95,12 @@ var
   boxes: TBoxArray;
   foundText: String;
 begin
-  if SRL.FindColors(tpa, CTS2(901389, 1, 0.01, 0.01), Self.Bounds) < 1 then
+  if SRL.FindColors(tpa, CTS2(15132220, 1, 0.01, 0.01), Self.Bounds) < 1 then
     Exit;
 
   boxes := tpa.Cluster(15, 1).ToTBA();
-  Result:=foundText := OCR.Recognize(boxes[0], TOCRColorFilter.Create([901389]), RS_FONT_PLAIN_12);
-end;
+  Result:=foundText := OCR.Recognize(boxes[0], TOCRColorFilter.Create([15132220]), RS_FONT_PLAIN_12);
+end; 
 
 function FindTrackIndex(const trackName: String; const trackList: array of String): Int32;
 var
