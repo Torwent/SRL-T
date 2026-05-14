@@ -15621,7 +15621,7 @@ flower crown
 flower crown
 mystic robe bottom (dark)
 mystic robe bottom (light)
-bow of faerdhinen
+bow of faerdhinen (c)
 menaphite remedy(4)
 noted menaphite remedy(4)
 menaphite remedy(3)
@@ -16560,8 +16560,8 @@ trailblazer reloaded iron trophy
 trailblazer reloaded bronze trophy
 globetrotter pendant
 banker's note
-guardian horn
-sage's greaves
+minion whistle
+searing boots
 sage's axe
 ruinous powers
 trailblazer reloaded relic hunter (t1) armour set
@@ -19249,7 +19249,6 @@ annihilation blueprints
 noted annihilation blueprints
 annihilation teleport scroll
 noted annihilation teleport scroll
-bow of faerdhinen (c)
 crystal body
 crystal body (inactive)
 crystal legs
@@ -19317,6 +19316,137 @@ milk sample
 pristine spider silk
 silklined herb sack
 open silklined herb sack
+ballistic attractor
+ballistic attractor schematic
+veiled kraken tentacle
+veiled kraken ink sac
+scribbled notes
+egg box
+archibald
+archibald
+archibald
+archibald
+archibald
+archibald
+archibald
+noted bow of faerdhinen (c)
+noted crystal body
+noted crystal legs
+noted crystal helm
+noted avernic treads (max)
+noted elidinis' ward (f)
+noted purging staff
+noted dragonfire shield
+bronze cannon
+iron cannon
+steel cannon
+mithril cannon
+adamant cannon
+rune cannon
+dragon cannon
+knapsack
+knapsack
+barbarian arm
+evil eye
+transmutation ledger
+soul shard
+map of alacrity
+clue contract
+butler's bell
+flask of fervour
+flask of fervour
+infernal tecpatl
+nature's recurve
+v's helm
+fang of the hound
+king's barrage
+shadowflame quadrant
+lithic sceptre
+lithic sceptre (uncharged)
+demonic hood (t1)
+noted demonic hood (t1)
+demonic robe top (t1)
+noted demonic robe top (t1)
+demonic robe bottom (t1)
+noted demonic robe bottom (t1)
+demonic boots (t1)
+noted demonic boots (t1)
+demonic hood (t2)
+noted demonic hood (t2)
+demonic robe top (t2)
+noted demonic robe top (t2)
+demonic robe bottom (t2)
+noted demonic robe bottom (t2)
+demonic boots (t2)
+noted demonic boots (t2)
+demonic hood (t3)
+noted demonic hood (t3)
+demonic robe top (t3)
+noted demonic robe top (t3)
+demonic robe bottom (t3)
+noted demonic robe bottom (t3)
+demonic boots (t3)
+noted demonic boots (t3)
+demonic sceptre
+noted demonic sceptre
+demonic pacts banner
+noted demonic pacts banner
+demonic skin contract
+noted demonic skin contract
+demonic axe ornament kit
+noted demonic axe ornament kit
+demonic staff ornament kit
+noted demonic staff ornament kit
+demonic trident ornament kit
+noted demonic trident ornament kit
+trident of the swamp (o)
+uncharged toxic trident (o)
+noted uncharged toxic trident (o)
+trident of the swamp (e) (o)
+uncharged toxic trident (e)
+noted uncharged toxic trident (e)
+trident of the seas (o)
+trident of the seas (full) (o)
+noted trident of the seas (full) (o)
+trident of the seas (e) (o)
+uncharged trident (e) (o)
+noted uncharged trident (e) (o)
+iban's staff
+iban's staff (u) (o)
+iban's staff (o)
+soulreaper axe (o)
+noted soulreaper axe (o)
+demonic slayer helmet
+demonic slayer helmet
+demonic quill
+noted demonic quill
+demonic pacts dragon trophy
+demonic pacts rune trophy
+demonic pacts adamant trophy
+demonic pacts mithril trophy
+demonic pacts steel trophy
+demonic pacts iron trophy
+demonic pacts bronze trophy
+impish ritual kit
+noted impish ritual kit
+demonic pacts throne scroll
+noted demonic pacts throne scroll
+impish whistle
+noted impish whistle
+demonic pacts demon butler scroll
+noted demonic pacts demon butler scroll
+demonic contractor throne
+incoming damage modifier
+incoming damage clamping
+immaculate mole skin
+gem pouch
+open gem pouch
+gem satchel
+open gem satchel
+gem tote
+open gem tote
+gem sack
+open gem sack
 marrentill seed
 marrentill seed
 marrentill seed
