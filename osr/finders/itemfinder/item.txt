@@ -19447,6 +19447,17 @@ gem tote
 open gem tote
 gem sack
 open gem sack
+bosun's workbench
+recoloured sail
+dyes
+bosun's workbench schematic
+mission totem
+noted mission totem
+spectator oculus
+trinket of vengeance (2)
+noted trinket of vengeance (2)
+trinket of vengeance (1)
+noted trinket of vengeance (1)
 marrentill seed
 marrentill seed
 marrentill seed

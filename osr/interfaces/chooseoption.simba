@@ -351,7 +351,6 @@ begin
   Result := Self.CountOption([text], caseSensitive, closeIfNotFound);
 end;
 
-
 function TRSChooseOption.FindSub(): TBox;
 var
   atpa: T2DPointArray;
@@ -368,6 +367,7 @@ begin
     if (Length(tpa) < 100) then Continue; //prevents small black areas around letters from getting detected
 
     if (Length((EdgeFromBox(tpa.Bounds).Difference(tpa))) = 0) and not tpa.Bounds().Contains(Self.Bounds) then
+    if tpa.Bounds.Height = 16 then continue else // first box found is the title of submenu which is 16 height
       Exit(tpa.Bounds.Expand(-1));
   end
 end;
