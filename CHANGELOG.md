@@ -1,3 +1,12 @@
+## [7.21.47](https://github.com/Torwent/SRL-T/compare/v7.21.46...v7.21.47) (2026-05-27)
+
+
+### Bug Fixes
+
+* Submenu fix ([1a6aefb](https://github.com/Torwent/SRL-T/commit/1a6aefb1e0af572d0dbbfa15d53f2b5e6529d14d))
+
+
+
 ## [7.21.46](https://github.com/Torwent/SRL-T/compare/v7.21.45...v7.21.46) (2026-04-09)
 
 
@@ -32,15 +41,6 @@
 
 * Bank Buttons ([2b68318](https://github.com/Torwent/SRL-T/commit/2b68318d59afc6b1f69eeecf9477b2ccabe129bb))
 * **bank:** increase FilterDimensions min height to reject stray pixels ([f87d7ec](https://github.com/Torwent/SRL-T/commit/f87d7ecd0f66c38c1aa5241f010e3e7a20582de2))
-
-
-
-## [7.21.42](https://github.com/Torwent/SRL-T/compare/v7.21.41...v7.21.42) (2026-02-27)
-
-
-### Bug Fixes
-
-* bump ([618cc0c](https://github.com/Torwent/SRL-T/commit/618cc0cbd8865c293071e5e122100b2429718dd3))
 
 
 
