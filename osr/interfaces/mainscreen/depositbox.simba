@@ -93,8 +93,8 @@ end;
 
 function TRSDepositBox.IsOpen(): Boolean; overload;
 begin
-  Result := StringMatch(Self.GetTitle.After(' - '), 'Deposit Box') >= 0.85;
-end;
+  Result := StringMatch(Self.GetTitle.After(' - '), 'Item Deposits') >= 0.85;
+end;     
 
 function TRSDepositBox.IsOpen(WaitTime: Int32): Boolean; overload;
 begin
