@@ -1,3 +1,12 @@
+## [7.21.48](https://github.com/Torwent/SRL-T/compare/v7.21.47...v7.21.48) (2026-07-01)
+
+
+### Bug Fixes
+
+* Update depositbox.simba ([1584208](https://github.com/Torwent/SRL-T/commit/1584208ec8d43512822b249b6e9b39fb1297befa))
+
+
+
 ## [7.21.47](https://github.com/Torwent/SRL-T/compare/v7.21.46...v7.21.47) (2026-05-27)
 
 
@@ -31,16 +40,6 @@
 ### Bug Fixes
 
 * update grandexchange ([d3e33ac](https://github.com/Torwent/SRL-T/commit/d3e33ac28542c9779e4c6826f67495fd9f3a6f69))
-
-
-
-## [7.21.43](https://github.com/Torwent/SRL-T/compare/v7.21.42...v7.21.43) (2026-03-07)
-
-
-### Bug Fixes
-
-* Bank Buttons ([2b68318](https://github.com/Torwent/SRL-T/commit/2b68318d59afc6b1f69eeecf9477b2ccabe129bb))
-* **bank:** increase FilterDimensions min height to reject stray pixels ([f87d7ec](https://github.com/Torwent/SRL-T/commit/f87d7ecd0f66c38c1aa5241f010e3e7a20582de2))
 
 
 
