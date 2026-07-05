@@ -437,7 +437,7 @@ type
     Rotations: TSingleArray;
   end;
 
-  PRSObjectV2 = ^TGameObjectV2;
+  PGameObjectV2 = ^TGameObjectV2;
 
   TGameObjectV2Array = array of TGameObjectV2;
 
@@ -688,7 +688,7 @@ type
     DotFilters: TDotFilterArray;
   end;
 
-  PRSNPCV2 = ^TNPCV2;
+  PNPCV2 = ^TNPCV2;
 
   TNPCV2Array = array of TNPCV2;
 
@@ -993,24 +993,24 @@ Helper internal router methods that "route" methods to the right type.
 function TMapObject._FindExRouter(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
 begin
   case Self.MapObjectType of
-    EGameMapObjectType.OBJ: Result := PRSObjectV2(@Self)^.FindEx(cuboids, atpa);
-    EGameMapObjectType.NPC: Result := PRSNPCV2(@Self)^.FindEx(cuboids, atpa);
+    EGameMapObjectType.OBJ: Result := PGameObjectV2(@Self)^.FindEx(cuboids, atpa);
+    EGameMapObjectType.NPC: Result := PNPCV2(@Self)^.FindEx(cuboids, atpa);
   end;
 end;
 
 function TMapObject._GetCuboidArrayRouter(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray;
 begin
   case Self.MapObjectType of
-    EGameMapObjectType.OBJ: Result := PRSObjectV2(@Self)^.GetCuboidArray(me, angle);
-    EGameMapObjectType.NPC: Result := PRSNPCV2(@Self)^.GetCuboidArray(me, angle);
+    EGameMapObjectType.OBJ: Result := PGameObjectV2(@Self)^.GetCuboidArray(me, angle);
+    EGameMapObjectType.NPC: Result := PNPCV2(@Self)^.GetCuboidArray(me, angle);
   end;
 end;
 
 procedure TMapObject._DrawRouter(bitmap: TMufasaBitmap);
 begin
   case Self.MapObjectType of
-    EGameMapObjectType.OBJ: PRSObjectV2(@Self)^.Draw(bitmap);
-    EGameMapObjectType.NPC: PRSNPCV2(@Self)^.Draw(bitmap);
+    EGameMapObjectType.OBJ: PGameObjectV2(@Self)^.Draw(bitmap);
+    EGameMapObjectType.NPC: PNPCV2(@Self)^.Draw(bitmap);
   end;
 end;
 

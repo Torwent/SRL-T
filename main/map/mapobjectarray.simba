@@ -82,7 +82,7 @@ begin
       begin
         Delete(tmp^.Coordinates, j, 1);
         if tmp^.MapObjectType = EGameMapObjectType.OBJ then
-          Delete(PRSObjectV2(tmp)^.Rotations, j, 1);
+          Delete(PGameObjectV2(tmp)^.Rotations, j, 1);
       end;
 
     if Length(tmp^.Coordinates) = 0 then
@@ -105,7 +105,7 @@ begin
       begin
         Delete(tmp^.Coordinates, j, 1);
         if tmp^.MapObjectType = EGameMapObjectType.OBJ then
-          Delete(PRSObjectV2(tmp)^.Rotations, j, 1);
+          Delete(PGameObjectV2(tmp)^.Rotations, j, 1);
       end;
 
     if Length(tmp^.Coordinates) = 0 then
@@ -619,8 +619,8 @@ begin
 
   mapObj := Self.MapObjects.GetClosest();
   case mapObj^.MapObjectType of
-    EGameMapObjectType.OBJ: System.Debug(PRSObjectV2(mapObj)^);
-    EGameMapObjectType.NPC: System.Debug(PRSNPCV2(mapObj)^);
+    EGameMapObjectType.OBJ: System.Debug(PGameObjectV2(mapObj)^);
+    EGameMapObjectType.NPC: System.Debug(PNPCV2(mapObj)^);
   end;
 end;
 
