@@ -1,3 +1,12 @@
+## [7.21.51](https://github.com/Torwent/SRL-T/compare/v7.21.50...v7.21.51) (2026-07-05)
+
+
+### Bug Fixes
+
+* more renames ([afce0d6](https://github.com/Torwent/SRL-T/commit/afce0d60a47fd8c4a8421b3c38b4f51bc461793a))
+
+
+
 ## [7.21.50](https://github.com/Torwent/SRL-T/compare/v7.21.49...v7.21.50) (2026-07-05)
 
 
@@ -37,15 +46,6 @@
 ### Bug Fixes
 
 * Submenu fix ([1a6aefb](https://github.com/Torwent/SRL-T/commit/1a6aefb1e0af572d0dbbfa15d53f2b5e6529d14d))
-
-
-
-## [7.21.46](https://github.com/Torwent/SRL-T/compare/v7.21.45...v7.21.46) (2026-04-09)
-
-
-### Bug Fixes
-
-* Update interface.simba ([658d4f3](https://github.com/Torwent/SRL-T/commit/658d4f37f9e89087b9d9796432cca72cad9964c9))
 
 
 
