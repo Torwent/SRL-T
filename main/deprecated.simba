@@ -49,17 +49,17 @@ begin
 end;
 
 
-function TMainScreen.IsClassicOpen(): Boolean; deprecated 'Use RSInterface.IsOpen(EInterfaceType.CLASSIC) instead.';
+function TMainScreen.IsClassicOpen(): Boolean; deprecated 'Use GameInterface.IsOpen(EInterfaceType.CLASSIC) instead.';
 begin
-  Result := RSInterface.IsOpen(EInterfaceType.CLASSIC);
+  Result := GameInterface.IsOpen(EInterfaceType.CLASSIC);
 end;
 
-function TMainScreen.HasInterface(): Boolean; deprecated 'Use RSInterface.IsOpen() instead.';
+function TMainScreen.HasInterface(): Boolean; deprecated 'Use GameInterface.IsOpen() instead.';
 begin
-  Result := RSInterface.IsOpen();
+  Result := GameInterface.IsOpen();
 end;
 
-function TMainScreen.CloseInterface(pressEscape: Boolean = True): Boolean; deprecated 'Use RSInterface.Close() instead.';
+function TMainScreen.CloseInterface(pressEscape: Boolean = True): Boolean; deprecated 'Use GameInterface.Close() instead.';
 begin
-  Result := RSInterface.Close(pressEscape);
+  Result := GameInterface.Close(pressEscape);
 end;

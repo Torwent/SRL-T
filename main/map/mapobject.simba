@@ -250,7 +250,7 @@ var
 begin
   shouldExit := True;
 
-  if (GameClient.Mode = EClientMode.FIXED) and RSInterface.IsOpen() then
+  if (GameClient.Mode = EClientMode.FIXED) and GameInterface.IsOpen() then
     Exit;
 
   if Self.Filter.UpText and Self.Filter.Walker then
@@ -291,7 +291,7 @@ begin
     TerminateScript(SRL.TimeStamp() + ':[TMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
   shouldExit := True;
 
-  if (GameClient.Mode = EClientMode.FIXED) and RSInterface.IsOpen() then
+  if (GameClient.Mode = EClientMode.FIXED) and GameInterface.IsOpen() then
     Exit;
   if Self.Filter.UpText then Self.Walker^.TargetUpText := Copy(Self.UpText);
 

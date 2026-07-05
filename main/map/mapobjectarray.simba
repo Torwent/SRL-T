@@ -636,7 +636,7 @@ end;
 
 function TBanks.Hover(mapObj: PRSMapObject = nil): Boolean;
 begin
-  if RSInterface.IsOpen() then
+  if GameInterface.IsOpen() then
     Exit;
 
   if mapObj = nil then
@@ -647,11 +647,11 @@ end;
 
 function TBanks.Open(mapObj: PRSMapObject = nil): Boolean;
 begin
-  if RSInterface.IsOpen() then
+  if GameInterface.IsOpen() then
   begin
     if Bank.IsOpen() or BankPin.IsOpen() then
       Exit(True);
-    RSInterface.Close(True);
+    GameInterface.Close(True);
   end;
 
   if mapObj = nil then
@@ -666,12 +666,12 @@ begin
     Exit;
 
   Minimap.WaitMoving();
-  Result := WaitUntil(RSInterface.IsOpen(), 300, 3000) and (Bank.IsOpen() or BankPin.IsOpen());
+  Result := WaitUntil(GameInterface.IsOpen(), 300, 3000) and (Bank.IsOpen() or BankPin.IsOpen());
 end;
 
 function TBanks.WalkHover(mapObj: PRSMapObject = nil): Boolean;
 begin
-  if RSInterface.IsOpen() then
+  if GameInterface.IsOpen() then
     Exit;
 
   if mapObj = nil then
@@ -682,11 +682,11 @@ end;
 
 function TBanks.WalkOpen(mapObj: PRSMapObject = nil): Boolean;
 begin
-  if RSInterface.IsOpen() then
+  if GameInterface.IsOpen() then
   begin
     if Bank.IsOpen() or BankPin.IsOpen() then
       Exit(True);
-    RSInterface.Close(True);
+    GameInterface.Close(True);
   end;
 
   if mapObj = nil then
@@ -701,7 +701,7 @@ begin
     Exit;
 
   Minimap.WaitMoving();
-  Result := WaitUntil(RSInterface.IsOpen(), 300, 3000) and (Bank.IsOpen() or BankPin.IsOpen());
+  Result := WaitUntil(GameInterface.IsOpen(), 300, 3000) and (Bank.IsOpen() or BankPin.IsOpen());
 end;
 
 var

@@ -138,13 +138,13 @@ begin
 end;
 
 var
-  RSInterface, InterfaceArea: TInterfaceArea;
+  GameInterface, InterfaceArea: TInterfaceArea;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin
   inherited;
   InterfaceArea.SetupAlignment();
-  RSInterface.SetupAlignment();
+  GameInterface.SetupAlignment();
 end;
 
 procedure TSRL.Setup(); override;
@@ -152,13 +152,13 @@ begin
   inherited;
 
   InterfaceArea.Setup();
-  RSInterface.Setup();
-  RSInterface.Name := 'RSInterface';
+  GameInterface.Setup();
+  GameInterface.Name := 'GameInterface';
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  RSInterface.Draw(Bitmap);
+  GameInterface.Draw(Bitmap);
 end;
