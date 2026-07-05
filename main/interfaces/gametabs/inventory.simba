@@ -5,7 +5,7 @@ Methods to interact with the inventory.
 
 {$DEFINE SRL_INVENTORY_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 const
@@ -25,7 +25,7 @@ const
   DROP_PATTERN_SPIRAL: TIntegerArray   = [0,1,2,3, 7,11,15,19,23, 27,26,25,24, 20,16,12,8,4, 5, 6,10,14,18,22, 21,17,13,9];
 
 type
-  TRSInventory = record(TRSItemGameTab)
+  TInventory = record(TItemGameTab)
     LOW_SLOT: Int32;
     HIGH_SLOT: Int32;
     ShiftEnabled: Boolean;
@@ -34,9 +34,9 @@ type
 (*
 ## Inventory.GetSlotBoxes
 ```pascal
-function TRSInventory.GetSlotBoxes(): TBoxArray;
+function TInventory.GetSlotBoxes(): TBoxArray;
 ```
-Mainly used internally by TRSInventory methods.
+Mainly used internally by TInventory methods.
 This function is used to return a TBoxArray of the inventory slots.
 
 Example:
@@ -45,18 +45,18 @@ Debug(Inventory.GetSlotBoxes());
 ```
 *)
 
-function TRSInventory.GetSlotBoxes(): TBoxArray;
+function TInventory.GetSlotBoxes(): TBoxArray;
 begin
   Result := Self.SlotBoxes;
 end;
 
-function TRSInventory.GetSlotBox(slot: Int32): TBox;
+function TInventory.GetSlotBox(slot: Int32): TBox;
 begin
   if InRange(slot, 0, Self.HIGH_SLOT) then
     Result := Self.SlotBoxes[slot];
 end;
 
-procedure TRSInventory.Setup(); override;
+procedure TInventory.Setup(); override;
 begin
   inherited;
 
@@ -69,9 +69,9 @@ begin
   Self.ShiftEnabled := True;
 end;
 
-procedure TRSInventory.SetupAlignment(); overload;
+procedure TInventory.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left   := GameTab.Bounds.X1;
   alignment.Right  := GameTab.Bounds.X2;
@@ -86,7 +86,7 @@ end;
 (*
 ## Inventory.IsOpen
 ```pascal
-function TRSInventory.IsOpen(): Boolean;
+function TInventory.IsOpen(): Boolean;
 ```
 Returns true if the inventory gametab is open, false if it's not.
 
@@ -95,7 +95,7 @@ Example:
 WriteLn Inventory.IsOpen();
 ```
 *)
-function TRSInventory.IsOpen(): Boolean;
+function TInventory.IsOpen(): Boolean;
 begin
   Result := GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY;
 end;
@@ -103,7 +103,7 @@ end;
 (*
 ## Inventory.Open
 ```pascal
-function TRSInventory.Open(): Boolean;
+function TInventory.Open(): Boolean;
 ```
 Attempts to open the inventory, returns true if it succeeds.
 
@@ -112,7 +112,7 @@ Example:
 WriteLn Inventory.Open();
 ```
 *)
-function TRSInventory.Open(): Boolean;
+function TInventory.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.INVENTORY);
 end;
@@ -121,7 +121,7 @@ end;
 (*
 ## Inventory.PointToSlot
 ```pascal
-function TRSInventory.PointToSlot(P: TPoint): Int32;
+function TInventory.PointToSlot(P: TPoint): Int32;
 ```
 Returns the inventory slot index which contains the TPoint `P`.
 Returns -1 if the point does not fall in any slots.
@@ -137,7 +137,7 @@ Slot := Inventory.PointToSlot(P);
 WriteLn(Slot); // 15
 ```
 *)
-function TRSInventory.PointToSlot(p: TPoint): Int32;
+function TInventory.PointToSlot(p: TPoint): Int32;
 begin
   Result := Self.Items.PointToSlot(p);
 end;
@@ -145,7 +145,7 @@ end;
 (*
 ## Inventory.MouseSlot
 ```pascal
-function TRSInventory.MouseSlot(slot: Int32): Boolean;
+function TInventory.MouseSlot(slot: Int32): Boolean;
 ```
 Moves the mouse over the slot. Slot is an Integer between 0 and 27.
 
@@ -155,7 +155,7 @@ if Inventory.HoverSlot(1) then
   WriteLn('Mouse is now over slot #1');
 ```
 *)
-function TRSInventory.MouseSlot(slot: Int32): Boolean;
+function TInventory.MouseSlot(slot: Int32): Boolean;
 begin
   Result := Self.Items.MouseSlot(slot);
 end;
@@ -164,7 +164,7 @@ end;
 (*
 ## Inventory.ClickSlot
 ```pascal
-function TRSInventory.ClickSlot(slot: Int32; option: String = ''): Boolean;
+function TInventory.ClickSlot(slot: Int32; option: String = ''): Boolean;
 ```
 Moves the mouse and clicks on the slot. Slot is an Integer between 0 and 27.
 
@@ -180,18 +180,18 @@ if Inventory.ClickSlot(1, 'Drop') then
   WriteLn('Right clicked and selected "Drop" on slot #1', 'Drop');
 ```
 *)
-function TRSInventory.ClickSlot(slot: Int32; option: String = ''): Boolean;
+function TInventory.ClickSlot(slot: Int32; option: String = ''): Boolean;
 begin
   Result := Self.Items.InteractSlot(slot, option);
 end;
 
-function TRSInventory.IsSlotUsed(b: TBox): Boolean; overload;
+function TInventory.IsSlotUsed(b: TBox): Boolean; overload;
 begin
   // black with tolerance for when item is transparent
   Result := SRL.CountColor(CTS1(1118740, 35), b) > 0;
 end;
 
-function TRSInventory.IsSlotUsed(slot: Int32): Boolean; overload;
+function TInventory.IsSlotUsed(slot: Int32): Boolean; overload;
 begin
   Result := Self.Open() and Self.IsSlotUsed(Self.GetSlotBox(slot));
 end;
@@ -199,7 +199,7 @@ end;
 (*
 ## Inventory.IsSlotSelected
 ```pascal
-function TRSInventory.IsSlotSelected(Slot: Int32): Boolean;
+function TInventory.IsSlotSelected(Slot: Int32): Boolean;
 ```
 Returns True if the slot is selected (white outline).
 
@@ -209,7 +209,7 @@ if Inventory.IsSlotSelected(1) then
   WriteLn('Slot 1 is selected!');
 ```
 *)
-function TRSInventory.IsSlotSelected(slot: Int32): Boolean;
+function TInventory.IsSlotSelected(slot: Int32): Boolean;
 var
   b: TBox;
 begin
@@ -225,7 +225,7 @@ end;
 (*
 ## Inventory.GetSelectedSlot
 ```pascal
-function TRSInventory.GetSelectedSlot(): Int32;
+function TInventory.GetSelectedSlot(): Int32;
 ```
 Returns the index of the selected slot (white outline).
 **-1** is returned if no slot is selected.
@@ -235,7 +235,7 @@ Example:
 WriteLn(Inventory.GetSelectedSlot());
 ```
 *)
-function TRSInventory.GetSelectedSlot(): Int32;
+function TInventory.GetSelectedSlot(): Int32;
 var
   tpa: TPointArray;
   atpa: T2DPointArray;
@@ -269,7 +269,7 @@ end;
 (*
 ## Inventory.SetSelectedSlot
 ```pascal
-function TRSInventory.SetSelectedSlot(Slot: Int32): Boolean;
+function TInventory.SetSelectedSlot(Slot: Int32): Boolean;
 ```
 Set the slot as selected (white outline).
 Slot can be **-1** to unselect the currently selected slot.
@@ -279,7 +279,7 @@ Example:
 WriteLn(Inventory.GetSelectedSlot());
 ```
 *)
-function TRSInventory.SetSelectedSlot(slot: Int32; skipConfirmation: Boolean = False): Boolean;
+function TInventory.SetSelectedSlot(slot: Int32; skipConfirmation: Boolean = False): Boolean;
 var
   selected: Int32;
 begin
@@ -305,7 +305,7 @@ end;
 (*
 ## Inventory.RandomPattern
 ```pascal
-function TRSInventory.RandomPattern(): TIntegerArray;
+function TInventory.RandomPattern(): TIntegerArray;
 ```
 Returns a random inventory pattern.
 
@@ -314,7 +314,7 @@ Example:
 Inventory.ShiftDrop(Inventory.RandomPattern());
 ```
 *)
-function TRSInventory.RandomPattern(): TIntegerArray;
+function TInventory.RandomPattern(): TIntegerArray;
 var
   Patterns: T2DIntegerArray;
 begin
@@ -331,7 +331,7 @@ end;
 (*
 ## Inventory.ErrorPattern
 ```pascal
-function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
+function TInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
 ```
 Returns the passed in pattern slightly modified.
 
@@ -340,7 +340,7 @@ Example:
 Inventory.ShiftDrop(Iventory.ErrorPattern(Inventory.RandomPattern()));
 ```
 *)
-function TRSInventory.ErrorPattern(pattern: TIntegerArray = DROP_PATTERN_REGULAR; errorChance: Int32 = 5): TIntegerArray;
+function TInventory.ErrorPattern(pattern: TIntegerArray = DROP_PATTERN_REGULAR; errorChance: Int32 = 5): TIntegerArray;
 var i,j,h,k,tmp: Int32;
 begin
   Result := Copy(Pattern);
@@ -372,7 +372,7 @@ begin
 end;
 
 
-procedure TRSInventory.Draw(Bitmap: TMufasaBitmap); override;
+procedure TInventory.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then Exit;
   inherited();
@@ -382,11 +382,11 @@ end;
 (*
 ## Inventory.Count
 ```pascal
-function TRSInventory.Count(): Int32;
-function TRSInventory.CountItem(Item: TRSItem): Int32;
-function TRSInventory.CountItems(items: TRSItemArray): Int32;
-function TRSInventory.CountItemStack(item: TRSItem): Int32;
-function TRSInventory.CountSlotStack(slot: Int32): Int32;
+function TInventory.Count(): Int32;
+function TInventory.CountItem(Item: TItem): Int32;
+function TInventory.CountItems(items: TItemArray): Int32;
+function TInventory.CountItemStack(item: TItem): Int32;
+function TInventory.CountSlotStack(slot: Int32): Int32;
 ```
 Counts how many items are in the inventory right now or slack amounts.
 
@@ -397,32 +397,32 @@ WriteLn Inventory.CountItem('Shark');
 WriteLn Inventory.CountItemStack('Air rune');
 ```
 *)
-function TRSInventory.Count(): Int32;
+function TInventory.Count(): Int32;
 begin
   if not Self.Open() then
     Exit;
   Result := Self.Items.Count();
 end;
 
-function TRSInventory.CountItem(item: TRSItem): Int32;
+function TInventory.CountItem(item: TItem): Int32;
 begin
   if Self.Open() then
     Result := Self.Items.Count(item);
 end;
 
-function TRSInventory.CountItems(items: TRSItemArray): Int32;
+function TInventory.CountItems(items: TItemArray): Int32;
 begin
   if Self.Open() then
     Result := Self.Items.Count(items);
 end;
 
-function TRSInventory.CountItemStack(item: TRSItem): Int32;
+function TInventory.CountItemStack(item: TItem): Int32;
 begin
   if Self.Open() then
     Result := Self.Items.CountStack(item);
 end;
 
-function TRSInventory.CountSlotStack(slot: Int32): Int32;
+function TInventory.CountSlotStack(slot: Int32): Int32;
 begin
   if Self.Open() then
     Result := Self.Items.CountStack(slot);
@@ -432,7 +432,7 @@ end;
 (*
 ## Inventory.IsFull
 ```pascal
-function TRSInventory.IsFull(): Boolean;
+function TInventory.IsFull(): Boolean;
 ```
 Returns true if the inventory is full.
 
@@ -441,7 +441,7 @@ Example:
 WriteLn Inventory.IsFull();
 ```
 *)
-function TRSInventory.IsFull(): Boolean;
+function TInventory.IsFull(): Boolean;
 begin
   Result := Self.Count() >= 28;
 end;
@@ -449,7 +449,7 @@ end;
 (*
 ## Inventory.WaitCount
 ```pascal
-function TRSInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 ```
 Wait **WaitTime** until the Inventory.Count() matches **Count**.
 
@@ -458,7 +458,7 @@ Example:
 Inventory.WaitCount(28, 5000); //Wait up to 5 seconds to have 28 items in the inventory.
 ```
 *)
-function TRSInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if (Interval = -1) then
     Interval := SRL.TruncatedGauss(50, 1500);
@@ -469,7 +469,7 @@ end;
 (*
 ## Inventory.RandomSlotNearby
 ```pascal
-function TRSInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
+function TInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
 ```
 Randomly returns one of the **Slots** weighted towards **Slot** by distance.
 
@@ -482,7 +482,7 @@ WriteLn('This slot is likely nearby slot 0');
 WriteLn(Slot);
 ```
 *)
-function TRSInventory.RandomSlotNearby(slot: Int32; slots: TIntegerArray): Int32;
+function TInventory.RandomSlotNearby(slot: Int32; slots: TIntegerArray): Int32;
 begin
   Result := Self.Items.RandomSlotNearby(slot, slots);
 end;
@@ -491,7 +491,7 @@ end;
 (*
 ## Inventory.FindItems
 ```pascal
-function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
+function TInventory.FindItems(Items: TItemArray; out Slots: TIntegerArray): Boolean;
 ```
 Attempts to find the items passed in **Items**. The function returns true if any item is found and
 the slots of the found items will be returned in **Slots**.
@@ -506,7 +506,7 @@ begin
 end;
 ```
 *)
-function TRSInventory.FindItems(items: TRSItemArray; out slots: TIntegerArray): Boolean;
+function TInventory.FindItems(items: TItemArray; out slots: TIntegerArray): Boolean;
 begin
   if not Self.Open() then
     Exit;
@@ -517,8 +517,8 @@ end;
 (*
 ## Inventory.FindItem
 ```pascal
-function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray): Boolean;
-function TRSInventory.FindItem(item: TRSItem; out slot: Int32): Boolean; overload;
+function TInventory.FindItem(Item: TItem; out Slots: TIntegerArray): Boolean;
+function TInventory.FindItem(item: TItem; out slot: Int32): Boolean; overload;
 ```
 
 Attempts to find the item passed in **Item**. The function returns true if the item was found can be
@@ -538,12 +538,12 @@ begin
 end;
 ```
 *)
-function TRSInventory.FindItem(item: TRSItem; out slots: TIntegerArray): Boolean;
+function TInventory.FindItem(item: TItem; out slots: TIntegerArray): Boolean;
 begin
   Result := Self.FindItems([item], slots);
 end;
 
-function TRSInventory.FindItem(item: TRSItem; out slot: Int32): Boolean; overload;
+function TInventory.FindItem(item: TItem; out slot: Int32): Boolean; overload;
 begin
   slot := -1;
   if not Self.Open() then
@@ -556,9 +556,9 @@ end;
 (*
 ## Inventory.Contains
 ```pascal
-function TRSInventory.ContainsAny(items: TRSItemArray): Boolean;
-function TRSInventory.ContainsItem(item: TRSItem): Boolean;
-function TRSInventory.ContainsAll(items: TRSItemArray): Boolean;
+function TInventory.ContainsAny(items: TItemArray): Boolean;
+function TInventory.ContainsItem(item: TItem): Boolean;
+function TInventory.ContainsAll(items: TItemArray): Boolean;
 ```
 Returns true if the inventory contains an `item` or `items`.
 
@@ -569,17 +569,17 @@ WriteLn Inventory.ContainsItem('Shark');
 WriteLn Inventory.ContainsAll(['Shark', 'Lobster', 'Tuna']);
 ```
 *)
-function TRSInventory.ContainsAny(items: TRSItemArray): Boolean;
+function TInventory.ContainsAny(items: TItemArray): Boolean;
 begin
   Result := Self.Open() and Self.Items.ContainsAny(items);
 end;
 
-function TRSInventory.ContainsItem(item: TRSItem): Boolean;
+function TInventory.ContainsItem(item: TItem): Boolean;
 begin
   Result := Self.Open() and Self.Items.Contains(item);
 end;
 
-function TRSInventory.ContainsAll(items: TRSItemArray): Boolean;
+function TInventory.ContainsAll(items: TItemArray): Boolean;
 begin
   Result := Self.Open() and Self.Items.ContainsAll(items);
 end;
@@ -588,13 +588,13 @@ end;
 (*
 ## Inventory.Discover
 ```pascal
-function TRSInventory.DiscoverAllEx(): array of TRSItemArray;
-function TRSInventory.DiscoverAll(): TRSItemArray;
-function TRSInventory.Discover(slot: Int32): TRSItemArray;
+function TInventory.DiscoverAllEx(): array of TItemArray;
+function TInventory.DiscoverAll(): TItemArray;
+function TInventory.Discover(slot: Int32): TItemArray;
 ```
 Returns possible items found in the inventory, either in a single slot or all of them.
-The extended version returns an `array of TRSItemArray` while the others return
-a flat `TRSItemArray`.
+The extended version returns an `array of TItemArray` while the others return
+a flat `TItemArray`.
 
 Example:
 ```pascal
@@ -604,17 +604,17 @@ if Inventory.Open() then
 WriteLn Inventory.Discover(0);
 ```
 *)
-function TRSInventory.DiscoverAllEx(): array of TRSItemArray;
+function TInventory.DiscoverAllEx(): array of TItemArray;
 begin
   Result := Self.Items.DiscoverAllEx();
 end;
 
-function TRSInventory.DiscoverAll(): TRSItemArray;
+function TInventory.DiscoverAll(): TItemArray;
 begin
   Result := Self.Items.DiscoverAll();
 end;
 
-function TRSInventory.Discover(slot: Int32): TRSItemArray;
+function TInventory.Discover(slot: Int32): TItemArray;
 begin
   Result := Self.Items.Discover(slot);
 end;
@@ -623,7 +623,7 @@ end;
 (*
 ## Inventory.MouseItem
 ```pascal
-function TRSInventory.MouseItem(Item: TRSItem): Boolean;
+function TInventory.MouseItem(Item: TItem): Boolean;
 ```
 Hover **Item** in the inventory.
 
@@ -633,7 +633,7 @@ if Inventory.MouseItem('Bronze arrows') then
   ChooseOption.Select('Drop');
 ```
 *)
-function TRSInventory.MouseItem(item: TRSItem): Boolean;
+function TInventory.MouseItem(item: TItem): Boolean;
 begin
   if not Self.Open() then
     Exit;
@@ -643,7 +643,7 @@ end;
 (*
 ## Inventory.ClickItem
 ```pascal
-function TRSInventory.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
+function TInventory.ClickItem(Item: TItem; Option: String = ''): Boolean;
 ```
 Clicks **Item** in the inventory. If **Option** is specified that option will be
 selected with right click if it exists.
@@ -654,7 +654,7 @@ WriteLn Inventory.ClickItem('Attack potion(3)');
 WriteLn Inventory.ClickItem('Ashes', 'Drop');
 ```
 *)
-function TRSInventory.ClickItem(item: TRSItem; option: String = ''): Boolean;
+function TInventory.ClickItem(item: TItem; option: String = ''): Boolean;
 begin
   if not Self.Open() then
     Exit;
@@ -665,8 +665,8 @@ end;
 (*
 ## Inventory.Use()
 ```pascal
-function TRSInventory.Use(slot, otherSlot: Int32): Boolean;
-function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
+function TInventory.Use(slot, otherSlot: Int32): Boolean;
+function TInventory.Use(Item, OtherItem: TItem): Boolean; overload;
 ```
 Use 2 slots or items on one another.
 
@@ -675,7 +675,7 @@ Example:
 WriteLn Inventory.Use('Knife', 'Oak logs');
 ```
 *)
-function TRSInventory.Use(slot, otherSlot: Int32): Boolean;
+function TInventory.Use(slot, otherSlot: Int32): Boolean;
 var
   b: TBox;
 begin
@@ -690,7 +690,7 @@ begin
   end;
 end;
 
-function TRSInventory.Use(item, otherItem: TRSItem): Boolean; overload;
+function TInventory.Use(item, otherItem: TItem): Boolean; overload;
 var
   slots, otherSlots: TIntegerArray;
   slot, otherSlot: Int32;
@@ -710,15 +710,15 @@ end;
 (*
 ## Inventory.Drop
 ```pascal
-function TRSInventory.RightClickDrop(slots: TIntegerArray): Boolean;
-function TRSInventory.RightClickDrop(items: TRSItemArray; pattern: TIntegerArray): Boolean; overload;
-function TRSInventory.ShiftDrop(slots: TIntegerArray): Boolean;
-function TRSInventory.ShiftDrop(items: TRSItemArray; pattern: TIntegerArray): Boolean; overload;
+function TInventory.RightClickDrop(slots: TIntegerArray): Boolean;
+function TInventory.RightClickDrop(items: TItemArray; pattern: TIntegerArray): Boolean; overload;
+function TInventory.ShiftDrop(slots: TIntegerArray): Boolean;
+function TInventory.ShiftDrop(items: TItemArray; pattern: TIntegerArray): Boolean; overload;
 ```
 Right click or shift drops `slots` or `items` specified.
 If `items` are passed in, you also have to specify a `pattern` to use.
 
-Shift dropping falls back to right click dropping if `TRSInventory.ShiftEnabled` is set to false.
+Shift dropping falls back to right click dropping if `TInventory.ShiftEnabled` is set to false.
 
 Example:
 ```pascal
@@ -729,7 +729,7 @@ Inventory.RightClickDrop(['Maple logs', 'Willow logs'], DROP_PATTERN_SNAKE);
 Inventory.ShiftDrop(['Maple logs', 'Willow logs'], DROP_PATTERN_SNAKE);
 ```
 *)
-function TRSInventory.RightClickDrop(slots: TIntegerArray): Boolean;
+function TInventory.RightClickDrop(slots: TIntegerArray): Boolean;
 var
   b: TBox;
   i, j, attempts: Int32;
@@ -778,7 +778,7 @@ begin
   Result := attempts <= 5;
 end;
 
-function TRSInventory.RightClickDrop(items: TRSItemArray; pattern: TIntegerArray): Boolean; overload;
+function TInventory.RightClickDrop(items: TItemArray; pattern: TIntegerArray): Boolean; overload;
 var
   slots, order: TIntegerArray;
   i: Int32;
@@ -794,7 +794,7 @@ begin
 end;
 
 
-function TRSInventory.ShiftDrop(slots: TIntegerArray): Boolean;
+function TInventory.ShiftDrop(slots: TIntegerArray): Boolean;
 var
   box: TBox;
   i, j, attempts: Int32;
@@ -862,13 +862,13 @@ begin
   Self.ShiftEnabled := False;
 end;
 
-function TRSInventory.ShiftDrop(slots, pattern: TIntegerArray): Boolean; overload;
+function TInventory.ShiftDrop(slots, pattern: TIntegerArray): Boolean; overload;
 begin
   Result := Self.ShiftDrop(slots.Intersection(pattern));
 end;
 
 
-function TRSInventory.ShiftDrop(items: TRSItemArray; pattern: TIntegerArray): Boolean; overload;
+function TInventory.ShiftDrop(items: TItemArray; pattern: TIntegerArray): Boolean; overload;
 var
   slots: TIntegerArray;
 begin
@@ -879,9 +879,9 @@ end;
 var
 (*
 ## var Inventory
-Global TRSInventory variable.
+Global TInventory variable.
 *)
-  Inventory: TRSInventory;
+  Inventory: TInventory;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

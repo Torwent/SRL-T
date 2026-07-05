@@ -1,10 +1,10 @@
 {$DEFINE SRL_CHATBUTTONS_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
-  TRSChatButtons = type TRSInterface;
+  TChatButtons = type TInterface;
 
   ERSChatButton = (
     CLOSED,
@@ -29,7 +29,7 @@ type
     AUTOCHAT    //Chat autochat (only for the public chat button)
   );
 
-function TRSChatButtons.GetButtons(): TGameButtonArray;
+function TChatButtons.GetButtons(): TGameButtonArray;
 var
   i: Int32;
   Boxes: TBoxArray;
@@ -44,7 +44,7 @@ begin
     Result += [[CTS1(1555, 6), CTS1(5399922, 0), CTS1(795452, 0)], i, Boxes[i], Boxes[i].Middle];
 end;
 
-function TRSChatButtons.GetButton(Button: ERSChatButton): TGameButton;
+function TChatButtons.GetButton(Button: ERSChatButton): TGameButton;
 var
   Buttons: TGameButtonArray := Self.GetButtons();
 begin
@@ -55,7 +55,7 @@ begin
 end;
 
 
-function TRSChatButtons.GetActive(): ERSChatButton;
+function TChatButtons.GetActive(): ERSChatButton;
 var
   Buttons: TGameButtonArray := Self.GetButtons();
   i: Int32;
@@ -66,13 +66,13 @@ begin
       Exit(ERSChatButton((i+1)));
 end;
 
-function TRSChatButtons.IsOpen(): Boolean;
+function TChatButtons.IsOpen(): Boolean;
 begin
   Result := Self.GetActive() = ERSChatButton.CLOSED;
 end;
 
 
-procedure TRSChatButtons.Draw(Bitmap: TMufasaBitmap); override;
+procedure TChatButtons.Draw(Bitmap: TMufasaBitmap); override;
 var
   buttons: TGameButtonArray;
 begin
@@ -82,15 +82,15 @@ begin
 end;
 
 
-procedure TRSChatButtons.Setup; override;
+procedure TChatButtons.Setup; override;
 begin
   inherited;
   Self.Name := 'ChatButtons';
 end;
 
-procedure TRSChatButtons.SetupAlignment(); overload;
+procedure TChatButtons.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left := RootInterface.Bounds.X1;
   alignment.Right := RootInterface.Bounds.X1 + 518;
@@ -100,17 +100,17 @@ begin
 end;
 
 
-function TRSChatButtons.IsActive(button: ERSChatButton): Boolean;
+function TChatButtons.IsActive(button: ERSChatButton): Boolean;
 begin
   Result := Self.GetButton(Button).Enabled;
 end;
 
-function TRSChatButtons.Open(button: ERSChatButton): Boolean;
+function TChatButtons.Open(button: ERSChatButton): Boolean;
 begin
   Result := Self.GetButton(Button).Enable;
 end;
 
-function TRSChatButtons.Close: Boolean;
+function TChatButtons.Close: Boolean;
 begin
   if RSClient.Mode = ERSClientMode.FIXED then
     Exit(False);
@@ -122,7 +122,7 @@ begin
 end;
 
 
-function TRSChatButtons.GetState(Button: ERSChatButton): ERSChatButtonState;
+function TChatButtons.GetState(Button: ERSChatButton): ERSChatButtonState;
 var
   TPA: TPointArray;
 begin
@@ -141,7 +141,7 @@ begin
     Result := ERSChatButtonState.AUTOCHAT;
 end;
 
-function TRSChatButtons.ChangeState(Button: ERSChatButton; State: ERSChatButtonState): Boolean;
+function TChatButtons.ChangeState(Button: ERSChatButton; State: ERSChatButtonState): Boolean;
 begin
   if Self.GetState(Button) = State then
     Exit(True);
@@ -165,7 +165,7 @@ begin
 end;
 
 var
-  ChatButtons: TRSChatButtons;
+  ChatButtons: TChatButtons;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

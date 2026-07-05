@@ -5,7 +5,7 @@ Methods to interact with the minimap.
 
 {$DEFINE SRL_MINIMAP_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -14,10 +14,10 @@ type
   ERSMinimapOrb = (COMPASS, EXPERIENCE, HITPOINTS, PRAYER, ENERGY, SPECIAL_ATTACK);
 
 (*
-(TRSMinimap)=
-## type TRSMinimap
+(TMinimap)=
+## type TMinimap
 ```pascal
-TRSMinimap = record(TRSInterface)
+TMinimap = record(TInterface)
   CompassCircleOffset: TPoint;
   XPCircleOffset: TPoint;
   HitpointsCircleOffset: TPoint;
@@ -28,9 +28,9 @@ TRSMinimap = record(TRSInterface)
   FlagBitmap: Int32;
 end;
 ```
-TRSMinimap type used to interact with the minimap
+TMinimap type used to interact with the minimap
 *)
-  TRSMinimap = record(TRSInterface)
+  TMinimap = record(TInterface)
     Orbs: TCircleArray;
     Polygon: TPointArray;
     FlagBitmap: Int32;
@@ -39,7 +39,7 @@ TRSMinimap type used to interact with the minimap
 (*
 ## Minimap.GetOrbLevel
 ```pascal
-function TRSMinimap.GetLevel(Orb: TCircle): Int32;
+function TMinimap.GetLevel(Orb: TCircle): Int32;
 ```
 Returns the level of the specified orb.
 
@@ -48,7 +48,7 @@ Example:
 WriteLn Minimap.GetLevel(Minimap.GetSpecAttackCircle());
 ```
 *)
-function TRSMinimap.GetLevel(orb: ERSMinimapOrb): Int32;
+function TMinimap.GetLevel(orb: ERSMinimapOrb): Int32;
 begin
   Result := OCR.RecognizeNumber([Self.Orbs[orb].X-35, Self.Orbs[orb].Y-1, Self.Orbs[orb].X-15, Self.Orbs[orb].Y+9], TOCRShadowFilter.Create(), RS_FONT_PLAIN_11);
 end;
@@ -56,7 +56,7 @@ end;
 (*
 ## Minimap.GetRunEnergy
 ```pascal
-function TRSMinimap.GetRunEnergy(): Int32;
+function TMinimap.GetRunEnergy(): Int32;
 ```
 Returns the run energy level.
 
@@ -65,7 +65,7 @@ Example:
 WriteLn Minimap.GetRunEnergy();
 ```
 *)
-function TRSMinimap.GetRunEnergy(): Int32;
+function TMinimap.GetRunEnergy(): Int32;
 begin
   Result := Self.GetLevel(ERSMinimapOrb.ENERGY);
 end;
@@ -73,7 +73,7 @@ end;
 (*
 ## Minimap.GetHPLevel
 ```pascal
-function TRSMinimap.GetHPLevel(): Int32;
+function TMinimap.GetHPLevel(): Int32;
 ```
 Returns the current hp level.
 
@@ -82,7 +82,7 @@ Example:
 WriteLn Minimap.GetHPLevel();
 ```
 *)
-function TRSMinimap.GetHPLevel(): Int32;
+function TMinimap.GetHPLevel(): Int32;
 begin
   Result := Self.GetLevel(ERSMinimapOrb.HITPOINTS);
 end;
@@ -90,7 +90,7 @@ end;
 (*
 ## Minimap.GetHPPercent
 ```pascal
-function TRSMinimap.GetHPPercent(): Int32;
+function TMinimap.GetHPPercent(): Int32;
 ```
 Returns the current hp percentage level.
 
@@ -99,7 +99,7 @@ Example:
 WriteLn Minimap.GetHPPercent();
 ```
 *)
-function TRSMinimap.GetHPPercent(): Int32;
+function TMinimap.GetHPPercent(): Int32;
 var
   tpa: TPointArray;
   circle: TCircle;
@@ -115,7 +115,7 @@ end;
 (*
 ## Minimap.GetPrayerLevel
 ```pascal
-function TRSMinimap.GetPrayerLevel(): Int32;
+function TMinimap.GetPrayerLevel(): Int32;
 ```
 Returns the current prayer level.
 
@@ -124,7 +124,7 @@ Example:
 WriteLn Minimap.GetPrayerLevel();
 ```
 *)
-function TRSMinimap.GetPrayerLevel(): Int32;
+function TMinimap.GetPrayerLevel(): Int32;
 begin
   Result := Self.GetLevel(ERSMinimapOrb.PRAYER);
 end;
@@ -132,7 +132,7 @@ end;
 (*
 ## Minimap.GetPrayerPercent
 ```pascal
-function TRSMinimap.GetPrayerPercent(): Int32;
+function TMinimap.GetPrayerPercent(): Int32;
 ```
 Returns the current Prayer percentage level.
 
@@ -141,7 +141,7 @@ Example:
 WriteLn Minimap.GetPrayerPercent();
 ```
 *)
-function TRSMinimap.GetPrayerPercent(): Int32;
+function TMinimap.GetPrayerPercent(): Int32;
 var
   tpa: TPointArray;
   circle: TCircle;
@@ -157,7 +157,7 @@ end;
 (*
 ## Minimap.GetSpecLevel
 ```pascal
-function TRSMinimap.GetSpecLevel(): Int32;
+function TMinimap.GetSpecLevel(): Int32;
 ```
 Returns the current special attack level.
 
@@ -166,7 +166,7 @@ Example:
 WriteLn Minimap.GetSpecLevel();
 ```
 *)
-function TRSMinimap.GetSpecLevel(): Int32;
+function TMinimap.GetSpecLevel(): Int32;
 begin
   Result := Self.GetLevel(ERSMinimapOrb.SPECIAL_ATTACK);
 end;
@@ -175,7 +175,7 @@ end;
 (*
 ## Minimap.GetCompassAngle
 ```pascal
-function TRSMinimap.GetCompassAngle(asDegrees: Boolean = True): Double;
+function TMinimap.GetCompassAngle(asDegrees: Boolean = True): Double;
 ```
 Returns the current compass angle as degrees or radians.
 
@@ -188,7 +188,7 @@ Example:
 WriteLn Minimap.GetCompassAngle();
 ```
 *)
-function TRSMinimap.GetCompassAngle(asDegrees: Boolean = True): Double;
+function TMinimap.GetCompassAngle(asDegrees: Boolean = True): Double;
 var
   dotpts: TPointArray;
   g: T2DPointArray;
@@ -219,9 +219,9 @@ end;
 (*
 ## Minimap.SetCompassAngle
 ```pascal
-procedure TRSMinimap.SetCompassAngleEx(degrees, accuracy: Double);
-procedure TRSMinimap.SetCompassAngle(degrees: Double);
-procedure TRSMinimap.SetCompassAngle(minDegrees, maxDegrees: Double); overload;
+procedure TMinimap.SetCompassAngleEx(degrees, accuracy: Double);
+procedure TMinimap.SetCompassAngle(degrees: Double);
+procedure TMinimap.SetCompassAngle(minDegrees, maxDegrees: Double); overload;
 ```
 Sets the current compass angle.
 If you specify a minimum and a maximum angle a gaussian distribution will be used.
@@ -231,7 +231,7 @@ Example:
 Minimap.SetCompassAngle(180);
 ```
 *)
-procedure TRSMinimap.SetCompassAngleEx(degrees, accuracy: Double);
+procedure TMinimap.SetCompassAngleEx(degrees, accuracy: Double);
 const
   DEG_PER_PIXEL = 2.83;
 var
@@ -310,12 +310,12 @@ begin
   end;
 end;
 
-procedure TRSMinimap.SetCompassAngle(degrees: Double);
+procedure TMinimap.SetCompassAngle(degrees: Double);
 begin
   Self.SetCompassAngleEx(degrees, 5);
 end;
 
-procedure TRSMinimap.SetCompassAngle(minDegrees, maxDegrees: Double); overload;
+procedure TMinimap.SetCompassAngle(minDegrees, maxDegrees: Double); overload;
 var
   degrees: Double;
 begin
@@ -325,7 +325,7 @@ end;
 
 
 
-procedure TRSMinimap.Draw(Bitmap: TMufasaBitmap); override;
+procedure TMinimap.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
@@ -347,12 +347,12 @@ begin
   Bitmap.SetPixel(Self.Center.X, Self.Center.Y, $0000FF);
 end;
 
-procedure TRSMinimap.Free();
+procedure TMinimap.Free();
 begin
   FreeBitmap(Self.FlagBitmap);
 end;
 
-procedure TRSMinimap.Setup(); override;
+procedure TMinimap.Setup(); override;
 begin
   inherited;
 
@@ -362,9 +362,9 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-procedure TRSMinimap.SetupAlignment(); overload;
+procedure TMinimap.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   case RSClient.Mode of
     ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
@@ -419,17 +419,17 @@ end;
 (*
 ## Minimap.IsPointOn
 ```pascal
-function TRSMinimap.IsPointOn(P: TPoint): Boolean;
-function TRSMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
+function TMinimap.IsPointOn(P: TPoint): Boolean;
+function TMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
 ```
 Checks if a point is on the minimap.
 *)
-function TRSMinimap.IsPointOn(p: TPoint): Boolean;
+function TMinimap.IsPointOn(p: TPoint): Boolean;
 begin
   Result := SRL.PointInPoly(p, Self.Polygon);
 end;
 
-function TRSMinimap.IsPointOn(p: TPoint; expand: Int32): Boolean; overload;
+function TMinimap.IsPointOn(p: TPoint; expand: Int32): Boolean; overload;
 begin
   Result := SRL.PointInPoly(p, ExpandPolygon(Self.Polygon, expand));
 end;
@@ -438,11 +438,11 @@ end;
 (*
 ## Minimap.Filter
 ```pascal
-function TRSMinimap.Filter(arr: TPointArray): TPointArray;
+function TMinimap.Filter(arr: TPointArray): TPointArray;
 ```
 Filters the given TPointArray and returns only the points that are visible in the Minimap.
 *)
-function TRSMinimap.Filter(arr: TPointArray): TPointArray;
+function TMinimap.Filter(arr: TPointArray): TPointArray;
 var
   p: TPoint;
 begin
@@ -455,12 +455,12 @@ end;
 (*
 ## Minimap.RandomPointOn
 ```pascal
-function TRSMinimap.RandomPointOn(p: TPoint; randomness: Int32): TPoint;
+function TMinimap.RandomPointOn(p: TPoint; randomness: Int32): TPoint;
 ```
 Creates a random point that based on `randomness` and `p` that is on the minimap.
 Returns `[0, 0]` if the point couldn't be generated, e.g. it's too far away from the minimap.
 *)
-function TRSMinimap.RandomPointOn(p: TPoint; randomness: Int32): TPoint;
+function TMinimap.RandomPointOn(p: TPoint; randomness: Int32): TPoint;
 begin
   if not Self.IsPointOn(p) then
     Self.Fatal(p.ToString() + ' is not a valid point to generate a random point.');
@@ -473,16 +473,16 @@ end;
 (*
 ## Minimap.IsStatus
 ```pascal
-function TRSMinimap.IsPoisoned(): Boolean;
-function TRSMinimap.IsEnvenomed();
-function TRSMinimap.IsRunEnabled(): Boolean;
-function TRSMinimap.IsPrayerEnabled(): Boolean;
-function TRSMinimap.HasStamina();
-function TRSMinimap.IsSpecEnabled(): Boolean;
-function TRSMinimap.IsSpecWeapon();
+function TMinimap.IsPoisoned(): Boolean;
+function TMinimap.IsEnvenomed();
+function TMinimap.IsRunEnabled(): Boolean;
+function TMinimap.IsPrayerEnabled(): Boolean;
+function TMinimap.HasStamina();
+function TMinimap.IsSpecEnabled(): Boolean;
+function TMinimap.IsSpecWeapon();
 ```
 Returns whether the player has the specified status or not.
-For the `TRSMinimap.IsSpecWeapon()` one, it will return false if the special attack level is at 0.
+For the `TMinimap.IsSpecWeapon()` one, it will return false if the special attack level is at 0.
 
 Example:
 ```pascal
@@ -495,37 +495,37 @@ Writeln Minimap.IsPrayerEnabled();
 Writeln Minimap.IsSpecWeapon();
 ```
 *)
-function TRSMinimap.IsPoisoned(): Boolean;
+function TMinimap.IsPoisoned(): Boolean;
 begin
   Result := SRL.CountColor(CTS0(16391, 3), Self.Orbs[ERSMinimapOrb.HITPOINTS].Bounds()) > 0;
 end;
 
-function TRSMinimap.IsEnvenomed(): Boolean;
+function TMinimap.IsEnvenomed(): Boolean;
 begin
   Result := SRL.CountColor(CTS0(1515790, 9), Self.Orbs[ERSMinimapOrb.HITPOINTS].Bounds()) > 0;
 end;
 
-function TRSMinimap.IsRunEnabled(): Boolean;
+function TMinimap.IsRunEnabled(): Boolean;
 begin
   Result := SRL.CountColor(CTS2(4211520, 6, 2.84, 0.14), Self.Orbs[ERSMinimapOrb.ENERGY].Bounds) = 0;
 end;
 
-function TRSMinimap.IsPrayerEnabled(): Boolean;
+function TMinimap.IsPrayerEnabled(): Boolean;
 begin
   Result := SRL.CountColor(CTS0(1168105, 33), Self.Orbs[ERSMinimapOrb.PRAYER].Bounds()) > 20;
 end;
 
-function TRSMinimap.HasStamina(): Boolean;
+function TMinimap.HasStamina(): Boolean;
 begin
   Result := SRL.CountColor(CTS0(2709951, 38), Self.Orbs[ERSMinimapOrb.ENERGY].Bounds()) > 0;
 end;
 
-function TRSMinimap.IsSpecEnabled(): Boolean;
+function TMinimap.IsSpecEnabled(): Boolean;
 begin
   Result := SRL.CountColor(CTS2(8682326, 16, 0.03, 1.15), Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK].Bounds()) > 1;
 end;
 
-function TRSMinimap.IsSpecWeapon(): Boolean;
+function TMinimap.IsSpecWeapon(): Boolean;
 begin
   Result := ((SRL.CountColor(CTS2(8480786, 19, 0.05, 1.36), Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK].Bounds()) > 0) or
             Self.IsSpecEnabled());
@@ -535,7 +535,7 @@ end;
 (*
 ## Minimap.CurePoison
 ```pascal
-function TRSMinimap.CurePoison(): Boolean;
+function TMinimap.CurePoison(): Boolean;
 ```
 Attempts to cure poison by clicking the HP orb.
 This only works if you have a source of anti-poison.
@@ -545,7 +545,7 @@ Example:
 Writeln Minimap.CurePoison();
 ```
 *)
-function TRSMinimap.CurePoison(): Boolean;
+function TMinimap.CurePoison(): Boolean;
 var
   T: UInt64;
 begin
@@ -567,7 +567,7 @@ end;
 (*
 ## Minimap.EnableRun
 ```pascal
-function TRSMinimap.EnableRun(): Boolean;
+function TMinimap.EnableRun(): Boolean;
 ```
 Attempts to enable the run energy by clicking the run orb.
 
@@ -576,7 +576,7 @@ Example:
 Writeln Minimap.EnableRun();
 ```
 *)
-function TRSMinimap.EnableRun(): Boolean;
+function TMinimap.EnableRun(): Boolean;
 var
   T: UInt64;
 begin
@@ -598,7 +598,7 @@ end;
 (*
 ## Minimap.DisableRun
 ```pascal
-function TRSMinimap.DisableRun(): Boolean;
+function TMinimap.DisableRun(): Boolean;
 ```
 Attempts to disable the run energy by clicking the run orb.
 
@@ -607,7 +607,7 @@ Example:
 Writeln Minimap.DisableRun();
 ```
 *)
-function TRSMinimap.DisableRun(): Boolean;
+function TMinimap.DisableRun(): Boolean;
 var
   T: UInt64;
 begin
@@ -630,7 +630,7 @@ end;
 (*
 ## Minimap.EnablePrayer
 ```pascal
-function TRSMinimap.EnablePrayer(): Boolean;
+function TMinimap.EnablePrayer(): Boolean;
 ```
 Attempts to enable quick prayers by clicking the prayer orb.
 
@@ -639,7 +639,7 @@ Example:
 Writeln Minimap.EnablePrayer();
 ```
 *)
-function TRSMinimap.EnablePrayer(): Boolean;
+function TMinimap.EnablePrayer(): Boolean;
 var
   T: UInt64;
 begin
@@ -661,7 +661,7 @@ end;
 (*
 ## Minimap.DisablePrayer
 ```pascal
-function TRSMinimap.DisablePrayer(): Boolean;
+function TMinimap.DisablePrayer(): Boolean;
 ```
 Attempts to disable quick prayers by clicking the prayer orb.
 
@@ -670,7 +670,7 @@ Example:
 Writeln Minimap.DisablePrayer();
 ```
 *)
-function TRSMinimap.DisablePrayer(): Boolean;
+function TMinimap.DisablePrayer(): Boolean;
 var
   T: UInt64;
 begin
@@ -693,7 +693,7 @@ end;
 (*
 ## Minimap.EnableSpec
 ```pascal
-function TRSMinimap.EnableSpec(minSpec: Int32): Boolean;
+function TMinimap.EnableSpec(minSpec: Int32): Boolean;
 ```
 Attempts to enable the special attack if we have at leas **minSpec** special attack level.
 
@@ -702,7 +702,7 @@ Example:
 WriteLn Minimap.EnableSpec(25);
 ```
 *)
-function TRSMinimap.EnableSpec(minSpec: Int32): Boolean;
+function TMinimap.EnableSpec(minSpec: Int32): Boolean;
 var
   T: UInt64;
 begin
@@ -728,7 +728,7 @@ end;
 (*
 ## Minimap.DisableSpec
 ```pascal
-function TRSMinimap.DisableSpec();
+function TMinimap.DisableSpec();
 ```
 Attempts to disable the special attack.
 
@@ -737,7 +737,7 @@ Example:
 WriteLn Minimap.DisableSpec();
 ```
 *)
-function TRSMinimap.DisableSpec(): Boolean;
+function TMinimap.DisableSpec(): Boolean;
 var
   T: UInt64;
 begin
@@ -763,7 +763,7 @@ end;
 (*
 ## Minimap.FindFlag
 ```pascal
-function TRSMinimap.FindFlag(out p: TPoint): Boolean;
+function TMinimap.FindFlag(out p: TPoint): Boolean;
 ```
 Find the red flag when you are walking somewhere on the minimap.
 
@@ -773,7 +773,7 @@ if Minimap.FindFlag(p) then
   Debug(Box(p, 3, 3));
 ```
 *)
-function TRSMinimap.FindFlag(out p: TPoint): Boolean;
+function TMinimap.FindFlag(out p: TPoint): Boolean;
 begin
   Result := FindBitmapToleranceIn(Self.FlagBitmap, P.X, P.Y, Self.Bounds, 5);
 end;
@@ -781,8 +781,8 @@ end;
 (*
 ## Minimap.HasFlag
 ```pascal
-function TRSMinimap.HasFlag(): Boolean;
-function TRSMinimap.HasFlag(waitTime: Int32): Boolean; overload;
+function TMinimap.HasFlag(): Boolean;
+function TMinimap.HasFlag(waitTime: Int32): Boolean; overload;
 ```
 Returns whether the minimap has a red flag or not.
 
@@ -791,14 +791,14 @@ Example:
 WriteLn Minimap.HasFlag();
 ```
 *)
-function TRSMinimap.HasFlag(): Boolean;
+function TMinimap.HasFlag(): Boolean;
 var
   P: TPoint;
 begin
   Result := FindFlag(P);
 end;
 
-function TRSMinimap.HasFlag(waitTime: Int32): Boolean; overload;
+function TMinimap.HasFlag(waitTime: Int32): Boolean; overload;
 var
   P: TPoint;
   T: UInt64;
@@ -817,11 +817,11 @@ end;
 (*
 ## Minimap.WaitFlag
 ```pascal
-procedure TRSMinimap.WaitFlag(UntilDistance: Int32 = 0);
+procedure TMinimap.WaitFlag(UntilDistance: Int32 = 0);
 ```
 Waits until we reach the red flag on the minimap when we are walking.
 *)
-procedure TRSMinimap.WaitFlag(UntilDistance: Int32 = 0);
+procedure TMinimap.WaitFlag(UntilDistance: Int32 = 0);
 var
   Current: TPoint;
   Previous: TPoint;
@@ -849,7 +849,7 @@ end;
 (*
 ## Minimap.FindDotShadows
 ```pascal
-function TRSMinimap.FindDotShadows(bmp: TMufasaBitmap): T2DPointArray;
+function TMinimap.FindDotShadows(bmp: TMufasaBitmap): T2DPointArray;
 ```
 Returns an ATPA of the found dot shadows in a bitmap of the minimap.
 
@@ -862,7 +862,7 @@ bmp.Debug();
 bmp.Free();
 ```
 *)
-function TRSMinimap.FindDotShadows(bmp: TMufasaBitmap): T2DPointArray;
+function TMinimap.FindDotShadows(bmp: TMufasaBitmap): T2DPointArray;
 var
   matrix: TIntegerMatrix;
   y,x: Int32;
@@ -963,11 +963,11 @@ end;
 (*
 ## Minimap.GetDotsBitmap
 ```pascal
-function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
+function TMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
 ```
 Returns the ERSMinimapDots found in a bitmap of the minimap.
 *)
-function TRSMinimap.GetDotsBitmap(bmp: TMufasaBitmap; dots: ERSMinimapDots): TPointArray;
+function TMinimap.GetDotsBitmap(bmp: TMufasaBitmap; dots: ERSMinimapDots): TPointArray;
 const
   BLACK = 65536;
 var
@@ -1058,14 +1058,14 @@ end;
 (*
 ## Minimap.GetDots
 ```pascal
-function TRSMinimap.GetDots(dots: ERSMinimapDots; box: TBox): TPointArray;
-function TRSMinimap.GetDots(dots: ERSMinimapDots): TPointArray; overload;
-function TRSMinimap.GetDots(dot: ERSMinimapDot; box: TBox): TPointArray; overload;
-function TRSMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
+function TMinimap.GetDots(dots: ERSMinimapDots; box: TBox): TPointArray;
+function TMinimap.GetDots(dots: ERSMinimapDots): TPointArray; overload;
+function TMinimap.GetDots(dot: ERSMinimapDot; box: TBox): TPointArray; overload;
+function TMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
 ```
 Returns a TPointArray with the coordinates of the ERSMinimapDots found on the minimap.
 *)
-function TRSMinimap.GetDots(dots: ERSMinimapDots; box: TBox): TPointArray;
+function TMinimap.GetDots(dots: ERSMinimapDots; box: TBox): TPointArray;
 var
   bmp: TMufasaBitmap;
 begin
@@ -1078,17 +1078,17 @@ begin
   bmp.Free();
 end;
 
-function TRSMinimap.GetDots(dots: ERSMinimapDots): TPointArray; overload;
+function TMinimap.GetDots(dots: ERSMinimapDots): TPointArray; overload;
 begin
   Result := Self.GetDots(dots, Self.Bounds);
 end;
 
-function TRSMinimap.GetDots(dot: ERSMinimapDot; box: TBox): TPointArray; overload;
+function TMinimap.GetDots(dot: ERSMinimapDot; box: TBox): TPointArray; overload;
 begin
   Result := Self.GetDots([dot], box);
 end;
 
-function TRSMinimap.GetDots(dot: ERSMinimapDot): TPointArray; overload;
+function TMinimap.GetDots(dot: ERSMinimapDot): TPointArray; overload;
 begin
   Result := Self.GetDots([dot], Self.Bounds);
 end;
@@ -1097,12 +1097,12 @@ end;
 (*
 ## Minimap.CleanMinimap
 ```pascal
-procedure TRSMinimap.CleanMinimap(bitmap: TMufasaBitmap);
+procedure TMinimap.CleanMinimap(bitmap: TMufasaBitmap);
 ```
 Method used to clear minimap dots from a minimap bitmap (image).
 You probably don't need to use this, it's an internal method.
 *)
-procedure TRSMinimap.CleanMinimap(bitmap: TMufasaBitmap);
+procedure TMinimap.CleanMinimap(bitmap: TMufasaBitmap);
 
   procedure _Find(p: TPoint);
   var
@@ -1167,7 +1167,7 @@ end;
 (*
 ## Minimap.GetCleanMinimap
 ```pascal
-function TRSMinimap.GetCleanMinimap(angle: Double = $FFFF): TMufasaBitmap;
+function TMinimap.GetCleanMinimap(angle: Double = $FFFF): TMufasaBitmap;
 ```
 Method used to "screenshot" the minimap and clean it with Minimap.CleanMinimap().
 You probably don't need to use this directly but you can see what it does in the following example.
@@ -1177,7 +1177,7 @@ Example:
 Minimap.GetCleanMinimap().Debug();
 ```
 *)
-function TRSMinimap.GetCleanMinimap(angle: Double = $FFFF): TMufasaBitmap;
+function TMinimap.GetCleanMinimap(angle: Double = $FFFF): TMufasaBitmap;
 var
   bitmap: TMufasaBitmap;
 begin
@@ -1195,9 +1195,9 @@ begin
 end;
 
 (*
-## TRSMinimap.ScaleMinimap
+## TMinimap.ScaleMinimap
 ```pascal
-function TRSMinimap.ScaleMinimap(bitmap: TMufasaBitmap; scaling: Int32): TMufasaBitmap;
+function TMinimap.ScaleMinimap(bitmap: TMufasaBitmap; scaling: Int32): TMufasaBitmap;
 ```
 Method used to scale down the minimap.
 You probably don't need to use this directly but you can see what it does in the following example.
@@ -1207,7 +1207,7 @@ Example:
 Minimap.ScaleMinimap(Minimap.GetCleanMinimap(), 4).Debug();
 ```
 *)
-function TRSMinimap.ScaleMinimap(bitmap: TMufasaBitmap; scaling: Int32; radius: Int32 = 67): TMufasaBitmap;
+function TMinimap.ScaleMinimap(bitmap: TMufasaBitmap; scaling: Int32; radius: Int32 = 67): TMufasaBitmap;
 var
   p: TPoint;
   tmp: TMufasaBitmap;
@@ -1238,7 +1238,7 @@ end;
 (*
 ## Minimap.IsPlayerMoving
 ```pascal
-function TRSMinimap.IsPlayerMoving(MinShift: Integer = 500): Boolean;
+function TMinimap.IsPlayerMoving(MinShift: Integer = 500): Boolean;
 ```
 Returns whether the player is moving or not according to the specified minimum pixel shift.
 
@@ -1247,7 +1247,7 @@ Example:
 WriteLn Minimap.IsPlayerMoving();
 ```
 *)
-function TRSMinimap.IsPlayerMoving(MinShift: Integer = 500): Boolean;
+function TMinimap.IsPlayerMoving(MinShift: Integer = 500): Boolean;
 begin
   with Self.Center do
     Result := SRL.GetPixelShift([X - 40, Y - 40, X + 40, Y + 40], 300) >= MinShift;
@@ -1256,7 +1256,7 @@ end;
 (*
 ## Minimap.WaitPlayerMoving
 ```pascal
-procedure TRSMinimap.WaitPlayerMoving(MinShift: Integer = 500; Timeout: Int32 = 20000);
+procedure TMinimap.WaitPlayerMoving(MinShift: Integer = 500; Timeout: Int32 = 20000);
 ```
 Waits for the player to stop moving.
 
@@ -1265,7 +1265,7 @@ Example:
 Minimap.WaitPlayerMoving();
 ```
 *)
-procedure TRSMinimap.WaitPlayerMoving(MinShift: Integer = 500; Timeout: Int32 = 20000);
+procedure TMinimap.WaitPlayerMoving(MinShift: Integer = 500; Timeout: Int32 = 20000);
 var
   T: UInt64;
 begin
@@ -1274,7 +1274,7 @@ begin
     ;
 end;
 
-procedure TRSMinimap.WaitMoving();
+procedure TMinimap.WaitMoving();
 var
   timeout, countdown: TCountDown;
   moving: Boolean;
@@ -1297,9 +1297,9 @@ var
 (*
 (Minimap)=
 ## var Minimap
-Global `TRSMinimap` variable.
+Global `TMinimap` variable.
 *)
-  Minimap: TRSMinimap;
+  Minimap: TMinimap;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

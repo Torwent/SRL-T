@@ -19,15 +19,15 @@ if not Login.LoginPlayer() then
 
 {$DEFINE SRL_LOGIN_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
 (*
-(TRSLoginPlayer)=
-## type TRSLoginPlayer
+(TLoginPlayer)=
+## type TLoginPlayer
 ```pascal
-TRSLoginPlayer = record
+TLoginPlayer = record
   User: String;
   Password: String;
   Pin: String;
@@ -37,10 +37,10 @@ TRSLoginPlayer = record
 end;
 ```
 Type responsible for managing player data.
-You usually don't use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
-The **Active** variable decides wether the player is inteded to be skipped or not by TRSLogin.
+You usually don't use this directly but instead use TLogin methods to interact with TLoginPlayers stored in TLogin.Players array.
+The **Active** variable decides wether the player is inteded to be skipped or not by TLogin.
 *)
-  TRSLoginPlayer = record
+  TLoginPlayer = record
     User: String;
     Password: String;
     Pin: String;
@@ -50,19 +50,19 @@ The **Active** variable decides wether the player is inteded to be skipped or no
   end;
 
 (*
-(TRSLogin)=
-## type TRSLogin
+(TLogin)=
+## type TLogin
 ```pascal
-TRSLogin = record(TRSInterface)
-  Players: array of TRSLoginPlayer;
+TLogin = record(TInterface)
+  Players: array of TLoginPlayer;
   PlayerIndex: Int32;
   AllowDangerousWorlds: Boolean;
 end;
 ```
-Type responsible for handling login and managing cached TRSLoginPlayers.
+Type responsible for handling login and managing cached TLoginPlayers.
 *)
-  TRSLogin = record(TRSInterface)
-    Players: array of TRSLoginPlayer;
+  TLogin = record(TInterface)
+    Players: array of TLoginPlayer;
     PlayerIndex: Int32;
 
     AllowDangerousWorlds: Boolean;
@@ -180,13 +180,13 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
 (*
 ## Login.FindText
 ```pascal
-function TRSLogin.FindText(Text: String; out B: TBox): Boolean;
-function TRSLogin.FindText(Text: String): Boolean; overload;
+function TLogin.FindText(Text: String; out B: TBox): Boolean;
+function TLogin.FindText(Text: String): Boolean; overload;
 ```
-Internal TRSLogin method used to find a message on the TRSLogin interface.
+Internal TLogin method used to find a message on the TLogin interface.
 You probably will never to use this directly.
 *)
-function TRSLogin.FindText(text: String; out b: TBox): Boolean;
+function TLogin.FindText(text: String; out b: TBox): Boolean;
 begin
   Result := (OCR.LocateText(Self.Bounds, text, RS_FONT_BOLD_12,  Self.WhiteOCRFilter, b) = 1) or
             (OCR.LocateText(Self.Bounds, text, RS_FONT_BOLD_12,  Self.YellowOCRFilter, b) = 1) or
@@ -194,7 +194,7 @@ begin
             (OCR.LocateText(Self.Bounds, text, RS_FONT_PLAIN_11, Self.WhiteOCRFilter, b) = 1);
 end;
 
-function TRSLogin.FindText(text: String): Boolean; overload;
+function TLogin.FindText(text: String): Boolean; overload;
 var
   b: TBox;
 begin
@@ -204,7 +204,7 @@ end;
 (*
 ## Login.IsReady
 ```pascal
-function TRSLogin.IsReady(): Boolean;
+function TLogin.IsReady(): Boolean;
 ```
 Checks if the login screen is ready to login. In other words, has no dialogs up.
 
@@ -213,7 +213,7 @@ Example:
 WriteLn Login.IsReady();
 ```
 *)
-function TRSLogin.IsReady(): Boolean;
+function TLogin.IsReady(): Boolean;
 begin
   Result := Self.FindText('Welcome') or
             (Self.FindText('Login:') and Self.FindText('Password:'));
@@ -222,7 +222,7 @@ end;
 (*
 ## Login.UsingLauncher
 ```pascal
-function TRSLogin.UsingLauncher(): Boolean;
+function TLogin.UsingLauncher(): Boolean;
 ```
 Checks if the client was launched by a launcher (Steam/Jagex Launcher) or was manually ran by the user.
 
@@ -231,7 +231,7 @@ Example:
 WriteLn Login.UsingLauncher();
 ```
 *)
-function TRSLogin.UsingLauncher(): Boolean;
+function TLogin.UsingLauncher(): Boolean;
 begin
   Result := not Self.FindText('New User') and
             not Self.FindText('Existing User') and not Self.FindText('Login:')
@@ -241,12 +241,12 @@ end;
 (*
 ## Login.ClickText
 ```pascal
-function TRSLogin.ClickText(Text: String): Boolean;
+function TLogin.ClickText(Text: String): Boolean;
 ```
-Internal TRSLogin method used to find the specified **Text** on the TRSLogin interface and click it.
+Internal TLogin method used to find the specified **Text** on the TLogin interface and click it.
 You probably will never to use this directly.
 *)
-function TRSLogin.ClickText(text: String): Boolean;
+function TLogin.ClickText(text: String): Boolean;
 var
   b: TBox;
 begin
@@ -258,12 +258,12 @@ end;
 (*
 ## Login.ClickWorld
 ```pascal
-function TRSLogin.ClickWorld(World: Int32): Boolean;
+function TLogin.ClickWorld(World: Int32): Boolean;
 ```
-Internal TRSLogin method used to click a world on the login interface.
+Internal TLogin method used to click a world on the login interface.
 You probably will never to use this directly.
 *)
-function TRSLogin.ClickWorld(World: Int32): Boolean;
+function TLogin.ClickWorld(World: Int32): Boolean;
 var
   B: TBox;
 begin
@@ -286,16 +286,16 @@ end;
 (*
 ## Login.IsOpen
 ```pascal
-function TRSLogin.IsOpen(): Boolean;
+function TLogin.IsOpen(): Boolean;
 ```
-TRSLogin method used to check if we are on the login screen.
+TLogin method used to check if we are on the login screen.
 
 Example:
 ```pascal
 WriteLn Login.IsOpen();
 ```
 *)
-function TRSLogin.IsOpen(): Boolean;
+function TLogin.IsOpen(): Boolean;
 begin
   Result := Self.FindText('Click to switch');
 end;
@@ -303,16 +303,16 @@ end;
 (*
 ## Login.IsWorldSwitcherOpen
 ```pascal
-function TRSLogin.IsWorldSwitcherOpen(): Boolean;
+function TLogin.IsWorldSwitcherOpen(): Boolean;
 ```
-TRSLogin method used to check if the login world switcher is open.
+TLogin method used to check if the login world switcher is open.
 
 Example:
 ```pascal
 WriteLn Login.IsWorldSwitcherOpen();
 ```
 *)
-function TRSLogin.IsWorldSwitcherOpen(): Boolean;
+function TLogin.IsWorldSwitcherOpen(): Boolean;
 begin
   Result := Self.FindText('Cancel');
 end;
@@ -320,9 +320,9 @@ end;
 (*
 ## Login.OpenWorldSwitcher
 ```pascal
-function TRSLogin.OpenWorldSwitcher(): Boolean;
+function TLogin.OpenWorldSwitcher(): Boolean;
 ```
-TRSLogin method used to open the login screen world switcher.
+TLogin method used to open the login screen world switcher.
 
 Example:
 ```pascal
@@ -330,7 +330,7 @@ if not Login.IsWorldSwitcherOpen() then
   WriteLn Login.OpenWorldSwitcher();
 ```
 *)
-function TRSLogin.OpenWorldSwitcher(): Boolean;
+function TLogin.OpenWorldSwitcher(): Boolean;
 begin
   Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000);
 end;
@@ -338,9 +338,9 @@ end;
 (*
 ## Login.CloseWorldSwitcher
 ```pascal
-function TRSLogin.CloseWorldSwitcher(): Boolean;
+function TLogin.CloseWorldSwitcher(): Boolean;
 ```
-TRSLogin method used to close the login screen world switcher.
+TLogin method used to close the login screen world switcher.
 
 Example:
 ```pascal
@@ -348,7 +348,7 @@ if Login.IsWorldSwitcherOpen() then
   WriteLn Login.CloseWorldSwitcher();
 ```
 *)
-function TRSLogin.CloseWorldSwitcher(): Boolean;
+function TLogin.CloseWorldSwitcher(): Boolean;
 begin
   Result := Self.IsOpen() or (Self.ClickText('Cancel') and WaitUntil(Self.IsOpen(), 100, 1000));
 end;
@@ -356,7 +356,7 @@ end;
 (*
 ## Login.GetCurrentWorld
 ```pascal
-function TRSLogin.GetCurrentWorld(): Int32;
+function TLogin.GetCurrentWorld(): Int32;
 ```
 Returns the currently selected world.
 
@@ -365,7 +365,7 @@ Example:
 WriteLn Login.GetCurrentWorld();
 ```
 *)
-function TRSLogin.GetCurrentWorld(): Int32;
+function TLogin.GetCurrentWorld(): Int32;
 var
   B: TBox;
 begin
@@ -380,7 +380,7 @@ end;
 (*
 ## Login.SwitchToWorld
 ```pascal
-function TRSLogin.SwitchToWorld(World: Int32): Boolean;
+function TLogin.SwitchToWorld(World: Int32): Boolean;
 ```
 Attempts to switch the current world to the **World** specified.
 
@@ -389,7 +389,7 @@ Example:
 WriteLn Login.SwitchToWorld(303);
 ```
 *)
-function TRSLogin.SwitchToWorld(World: Int32): Boolean;
+function TLogin.SwitchToWorld(World: Int32): Boolean;
 var
   i: Int32;
 begin
@@ -416,12 +416,12 @@ end;
 (*
 ## Login.HandleDialogs
 ```pascal
-function TRSLogin.HandleDialogs(): Boolean;
+function TLogin.HandleDialogs(): Boolean;
 ```
-Internal TRSLogin method used to handle the dialog messages.
+Internal TLogin method used to handle the dialog messages.
 You probably will never need to call this directly.
 *)
-function TRSLogin.HandleDialogs(): Boolean;
+function TLogin.HandleDialogs(): Boolean;
 var
   Dialog: String;
 begin
@@ -444,7 +444,7 @@ end;
 (*
 ## Login.EnterField
 ```pascal
-function TRSLogin.EnterField(Field, Details: String): Boolean;
+function TLogin.EnterField(Field, Details: String): Boolean;
 ```
 
 Used to enter player details in the login screen.
@@ -456,7 +456,7 @@ WriteLn Login.EnterField('Login:', 'my user name') and
         Login.EnterField('Password:', 'my password');
 ```
 *)
-function TRSLogin.EnterField(Field, Details: String): Boolean;
+function TLogin.EnterField(Field, Details: String): Boolean;
 var
   B: TBox;
 begin
@@ -491,7 +491,7 @@ end;
 (*
 ## Login.GetLoginMessage
 ```pascal
-function TRSLogin.GetLoginMessage(): String;
+function TLogin.GetLoginMessage(): String;
 ```
 Returns the login message that matches any of the messages stored in the constant **LOGIN_MESSAGES**.
 This is not an internal method but you probably will never need to call this directly.
@@ -501,7 +501,7 @@ Example:
 WriteLn Login.GetLoginMessage();
 ```
 *)
-function TRSLogin.GetLoginMessage(): String;
+function TLogin.GetLoginMessage(): String;
 var
   i: Int32;
 begin
@@ -519,7 +519,7 @@ end;
 (*
 ## Login.HandleMessage
 ```pascal
-function TRSLogin.HandleMessage(Message: String): Boolean;
+function TLogin.HandleMessage(Message: String): Boolean;
 ```
 Attempts to handle the currently displayed login message.
 This is not an internal method but you probably will never need to call this directly.
@@ -529,7 +529,7 @@ Example:
 WriteLn Login.HandleMessage(Login.GetLoginMessage());
 ```
 *)
-function TRSLogin.HandleMessage(Message: String): Boolean;
+function TLogin.HandleMessage(Message: String): Boolean;
 begin
   Self.DebugLn('Handling login message: ' + Message);
 
@@ -584,7 +584,7 @@ end;
 (*
 ## Login.EnterGame
 ```pascal
-function TRSLogin.EnterGame(): Boolean;
+function TLogin.EnterGame(): Boolean;
 ```
 
 Attempts to login into the game.
@@ -598,7 +598,7 @@ if Login.EnterField('Login:', 'my user name') and
   WriteLn Login.EnterGame();
 ```
 *)
-function TRSLogin.EnterGame(): Boolean;
+function TLogin.EnterGame(): Boolean;
 var
   current, timeout, failsafe: UInt64;
 begin
@@ -634,18 +634,18 @@ end;
 (*
 ## Login.GetPlayer
 ```pascal
-function TRSLogin.GetPlayer(): TRSLoginPlayer;
+function TLogin.GetPlayer(): TLoginPlayer;
 ```
-Returns the currently selected TRSLoginPlayer.
-The currently selected TRSLoginPlayer is decided by TRSLogin.PlayerIndex which
-is an index of the TRSLogin.Players array.
+Returns the currently selected TLoginPlayer.
+The currently selected TLoginPlayer is decided by TLogin.PlayerIndex which
+is an index of the TLogin.Players array.
 
 Example:
 ```pascal
   WriteLn Login.GetPlayer().Username;
 ```
 *)
-function TRSLogin.GetPlayer(): TRSLoginPlayer;
+function TLogin.GetPlayer(): TLoginPlayer;
 begin
   if Self.Players = [] then
     Self.Fatal('No players declared: Add an account if you want scripts to handle login.');
@@ -658,11 +658,11 @@ end;
 (*
 ## Login.DoLogin
 ```pascal
-function TRSLogin.DoLogin(player: TRSLoginPlayer; launcher: Boolean = False): Boolean;
+function TLogin.DoLogin(player: TLoginPlayer; launcher: Boolean = False): Boolean;
 ```
 Performs a login in the loginscreen with the specified player.
 *)
-function TRSLogin.DoLogin(player: TRSLoginPlayer; launcher: Boolean = False): Boolean;
+function TLogin.DoLogin(player: TLoginPlayer; launcher: Boolean = False): Boolean;
 var
   tpa: TPointArray;
   atpa: T2DPointArray;
@@ -698,11 +698,11 @@ end;
 (*
 ## Login.WaitLoginMessage
 ```pascal
-function TRSLogin.WaitLoginMessage(): Boolean;
+function TLogin.WaitLoginMessage(): Boolean;
 ```
 Waits for a login message after a login was performed, returns true if we successfully enter the game lobby.
 *)
-function TRSLogin.WaitLoginMessage(): Boolean;
+function TLogin.WaitLoginMessage(): Boolean;
 var
   message: String;
   timeout: UInt64;
@@ -731,22 +731,22 @@ end;
 (*
 ## Login.LoginPlayer
 ```pascal
-function TRSLogin.LoginPlayer(): Boolean;
+function TLogin.LoginPlayer(): Boolean;
 ```
 Attempts to login the current selected player into the game.
-The currently selected player is decided by TRSLogin.PlayerIndex which is an
-index of the TRSLogin.Players array.
+The currently selected player is decided by TLogin.PlayerIndex which is an
+index of the TLogin.Players array.
 
 Example:
 ```pascal
 WriteLn Login.LoginPlayer();
 ```
 *)
-function TRSLogin.LoginPlayer(): Boolean;
+function TLogin.LoginPlayer(): Boolean;
 var
   attempts, world: Int32;
   timeout: UInt64;
-  player: TRSLoginPlayer;
+  player: TLoginPlayer;
   isLauncher: Boolean;
 begin
   Self.DebugLn('Logging in player');
@@ -808,11 +808,11 @@ end;
 ## Login.LoginPlayer overload which allows for fully customizable hop and percentage.
 It's coded to behave as the default if you just prefer having the option to customize.
 ```pascal
-function TRSLogin.LoginPlayer(randomHop; hopChance): Boolean; overload;
+function TLogin.LoginPlayer(randomHop; hopChance): Boolean; overload;
 ```
 Attempts to login the current selected player into the game.
-The currently selected player is decided by TRSLogin.PlayerIndex which is an
-index of the TRSLogin.Players array.
+The currently selected player is decided by TLogin.PlayerIndex which is an
+index of the TLogin.Players array.
 
 Example:
 ```pascal
@@ -820,11 +820,11 @@ WriteLn Login.LoginPlayer(True, 90); // When on the main login lobby, has a 90% 
 ```
 *)
 
-function TRSLogin.LoginPlayer(randomHop: Boolean; hopChance: Int32 = 30): Boolean; overload;
+function TLogin.LoginPlayer(randomHop: Boolean; hopChance: Int32 = 30): Boolean; overload;
 var
   attempts, world: Int32;
   timeout: UInt64;
-  player: TRSLoginPlayer;
+  player: TLoginPlayer;
   isLauncher: Boolean;
 begin
   Self.DebugLn('Logging in player');
@@ -885,18 +885,18 @@ end;
 (*
 ## Login.AddPlayer
 ```pascal
-procedure TRSLogin.AddPlayer(user, pass: String; pin: String = ''; worlds: TIntegerArray = []);
+procedure TLogin.AddPlayer(user, pass: String; pin: String = ''; worlds: TIntegerArray = []);
 ```
-Adds a TRSLoginPlayer to the TRSLogin.Players array.
+Adds a TLoginPlayer to the TLogin.Players array.
 
 Example:
 ```pascal
-Login.AddPlayer('my username', 'my password', '0000'); //Adds a player to TRSLogin.Players
-Login.PlayerIndex := High(Login.Players);              //Our added TRSLoginPlayer will be the last in the array.
+Login.AddPlayer('my username', 'my password', '0000'); //Adds a player to TLogin.Players
+Login.PlayerIndex := High(Login.Players);              //Our added TLoginPlayer will be the last in the array.
 Login.LoginPlayer();                                   //Login Login.Players[Login.PlayerIndex]
 ```
 *)
-procedure TRSLogin.AddPlayer(user, pass: String; pin: String = ''; worlds: TIntegerArray = []);
+procedure TLogin.AddPlayer(user, pass: String; pin: String = ''; worlds: TIntegerArray = []);
 begin
   Self.Players += [user, pass, pin, worlds, true];
 end;
@@ -904,10 +904,10 @@ end;
 (*
 ## Login.NextPlayer
 ```pascal
-procedure TRSLogin.NextPlayer(DisableCurrentPlayer: Boolean);
+procedure TLogin.NextPlayer(DisableCurrentPlayer: Boolean);
 ```
-This basically increments TRSLogin.PlayerIndex to the next TRSLoginPlayer that has the **Active** variable set to true.
-If TRSLogin.PlayerIndex is already set to our last TRSLoginPlayer, then it's reset to 0 and set to the first **Active** player.
+This basically increments TLogin.PlayerIndex to the next TLoginPlayer that has the **Active** variable set to true.
+If TLogin.PlayerIndex is already set to our last TLoginPlayer, then it's reset to 0 and set to the first **Active** player.
 
 Example:
 ```pascal
@@ -916,7 +916,7 @@ Login.NextPlayer(True);        //Make sure you have a couple of players to run t
 WriteLn Login.PlayerIndex;
 ```
 *)
-procedure TRSLogin.NextPlayer(disableCurrentPlayer: Boolean);
+procedure TLogin.NextPlayer(disableCurrentPlayer: Boolean);
 
   function Next(): Int32;
   var
@@ -944,7 +944,7 @@ end;
 (*
 ## Login.GetPlayerPin
 ```pascal
-function TRSLogin.GetPlayerPin(): String;
+function TLogin.GetPlayerPin(): String;
 ```
 Get the current player bank pin.
 
@@ -954,7 +954,7 @@ if BankPin.IsOpen() then
   BankPin.Enter(Login.GetPlayerPin());
 ```
 *)
-function TRSLogin.GetPlayerPin(): String;
+function TLogin.GetPlayerPin(): String;
 begin
   Result := Self.GetPlayer().Pin;
   if (Length(Result) <> 4) or (not Result.IsDigit()) then
@@ -964,7 +964,7 @@ end;
 (*
 ## Login.GetPlayerBioHash
 ```pascal
-function TRSLogin.GetPlayerBioHash(): Double;
+function TLogin.GetPlayerBioHash(): Double;
 ```
 Get the current player BioHash.
 
@@ -973,7 +973,7 @@ Example:
 WriteLn Login.GetPlayerBioHash();
 ```
 *)
-function TRSLogin.GetPlayerBioHash(): Double;
+function TLogin.GetPlayerBioHash(): Double;
 var
   h: UInt32;
 begin
@@ -995,9 +995,9 @@ end;
 (*
 ## Login.Draw
 ```pascal
-procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
+procedure TLogin.Draw(Bitmap: TMufasaBitmap); override;
 ```
-Internal TRSLogin method used for debugging.
+Internal TLogin method used for debugging.
 You probably will never need to call this directly but can be useful for debugging.
 This is automatically called with **SRL.Debug()**.
 
@@ -1006,7 +1006,7 @@ Example:
 SRL.Debug();
 ```
 *)
-procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
+procedure TLogin.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -1017,12 +1017,12 @@ end;
 (*
 ## Login.Setup
 ```pascal
-procedure TRSLogin.Setup(); override;
+procedure TLogin.Setup(); override;
 ```
-Internal TRSLogin setup method. This is automatically called by SRL and you
+Internal TLogin setup method. This is automatically called by SRL and you
 probably will never need to call this directly.
 *)
-procedure TRSLogin.Setup(); override;
+procedure TLogin.Setup(); override;
 begin
   inherited;
 
@@ -1034,16 +1034,16 @@ end;
 (*
 ## Login.SetupAlignment
 ```pascal
-procedure TRSLogin.SetupAlignment(); overload;
+procedure TLogin.SetupAlignment(); overload;
 ```
-Internal TRSLogin aligment method. This is automatically called by SRL and you
+Internal TLogin aligment method. This is automatically called by SRL and you
 probably will never need to call this directly.
 
-This is responsible for setting up the TRSLogin interface coordinates.
+This is responsible for setting up the TLogin interface coordinates.
 *)
-procedure TRSLogin.SetupAlignment(); overload;
+procedure TLogin.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left   := RootInterface.Bounds.X1;
   alignment.Right  := RootInterface.Bounds.X2;
@@ -1058,10 +1058,10 @@ end;
 (*
 (Login)=
 ## var Login
-Global TRSLogin variable.
+Global TLogin variable.
 *)
 var
-  Login: TRSLogin;
+  Login: TLogin;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

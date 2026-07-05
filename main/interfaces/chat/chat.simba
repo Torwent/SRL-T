@@ -5,7 +5,7 @@ Methods to interact with the chat box.
 
 {$DEFINE SRL_CHAT_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 const
@@ -38,14 +38,14 @@ const
 type
   ERSIronManType = (NONE, IRONMAN, HARDCORE, ULTIMATE, GROUP, HARCORE_GROUP, UNRANKED_GROUP);
 
-  TRSChat = record(TRSInterface)
+  TChat = record(TInterface)
     LineBoxes: TBoxArray;
   end;
 
 (*
 ## Chat.Setup
 ```pascal
-procedure TRSChat.Setup; override;
+procedure TChat.Setup; override;
 ```
 
 Initializes **Chat** variables.
@@ -54,7 +54,7 @@ Initializes **Chat** variables.
 This is automatically called on the **Chat** variable.
 ```
 *)
-procedure TRSChat.Setup(); override;
+procedure TChat.Setup(); override;
 begin
   inherited;
 
@@ -64,7 +64,7 @@ end;
 (*
 ## Chat.SetupAlignment
 ```pascal
-procedure TRSChat.SetupAlignment(); overload;
+procedure TChat.SetupAlignment(); overload;
 ```
 Setups up the interface aligment for the current client mode.
 
@@ -72,9 +72,9 @@ Setups up the interface aligment for the current client mode.
 This is automatically called on the **TGameClient.ClientModeChanged** function.
 ```
 *)
-procedure TRSChat.SetupAlignment(); overload;
+procedure TChat.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left   := ChatButtons.Bounds.X1;
   alignment.Right  := ChatButtons.Bounds.X2;
@@ -91,7 +91,7 @@ begin
   Self.LineBoxes[CHAT_INPUT_LINE].Y2 += 2;
 end;
 
-procedure TRSChat.Draw(Bitmap: TMufasaBitmap); override;
+procedure TChat.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -104,8 +104,8 @@ end;
 
 (*
 ## Chat.GetDisplayNameBox
-function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox;
-function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
+function TChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox;
+function TChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
 
 Get the user name box. Useful for certain things like hiding the username for screenshots.
 
@@ -113,7 +113,7 @@ Example::
 
   Debug(Chat.GetDisplayNameBox());
 *)
-function TRSChat.GetDisplayNameBox(colors: TIntegerArray = [$FFFFFF, $000000]; out color: Integer): TBox;
+function TChat.GetDisplayNameBox(colors: TIntegerArray = [$FFFFFF, $000000]; out color: Integer): TBox;
 var
   tpa: TPointArray;
 begin
@@ -123,14 +123,14 @@ begin
       Exit(tpa.Bounds());
 end;
 
-function TRSChat.GetDisplayNameBox(colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
+function TChat.GetDisplayNameBox(colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
 var
   c: Integer;
 begin
   Result := Self.GetDisplayNameBox(colors, c);
 end;
 
-function TRSChat.GetIronManType() : ERSIronManType;
+function TChat.GetIronManType() : ERSIronManType;
 const
     NAME_LINE_BOX : TBox := Self.LineBoxes[CHAT_INPUT_LINE];
 begin
@@ -155,7 +155,7 @@ end;
 (*
 ## Chat.GetDisplayName
 ```pascal
-function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
+function TChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
 ```
 
 Get the user displayed name.
@@ -165,7 +165,7 @@ Example:
 WriteLn('The user name is: ', Chat.GetDisplayName);
 ```
 *)
-function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
+function TChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
 var
   color: Int32;
 begin
@@ -182,7 +182,7 @@ end;
 (*
 ## Chat.IsTransparent
 ```pascal
-function TRSChat.IsTransparent: Boolean;
+function TChat.IsTransparent: Boolean;
 ```
 
 Returns true if the chat box is in transparent mode.
@@ -192,7 +192,7 @@ Example:
 WriteLn Chat.IsTransparent;
 ```
 *)
-function TRSChat.IsTransparent(): Boolean;
+function TChat.IsTransparent(): Boolean;
 begin
   Result := Self.GetDisplayName([$FFFFFF]) <> '';
 end;
@@ -200,7 +200,7 @@ end;
 (*
 ## Chat.IsOpen
 ```pascal
-function TRSChat.IsOpen: Boolean;
+function TChat.IsOpen: Boolean;
 ```
 
 Returns true if the chat box is open.
@@ -210,7 +210,7 @@ Example:
 WriteLn Chat.IsOpen;
 ```
 *)
-function TRSChat.IsOpen(): Boolean;
+function TChat.IsOpen(): Boolean;
 begin
   Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or Self.IsTransparent();
 end;
@@ -219,7 +219,7 @@ end;
 (*
 ## Chat.GetQuery
 ```pascal
-function TRSChat.GetQuery: String;
+function TChat.GetQuery: String;
 ```
 
 Returns the query question.
@@ -229,7 +229,7 @@ Example:
 WriteLn Chat.GetQuery;
 ```
 *)
-function TRSChat.GetQuery(): String;
+function TChat.GetQuery(): String;
 begin
   Result := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$000000]), RS_FONT_BOLD_12);
 end;
@@ -237,7 +237,7 @@ end;
 (*
 ## Chat.GetQueryAnswer
 ```pascal
-function TRSChat.GetQueryAnswer: String;
+function TChat.GetQueryAnswer: String;
 ```
 
 Returns the currently typed answer.
@@ -247,7 +247,7 @@ Example:
 WriteLn Chat.GetQueryAnswer;
 ```
 *)
-function TRSChat.GetQueryAnswer(): String;
+function TChat.GetQueryAnswer(): String;
 begin
   Result := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12);
 end;
@@ -255,7 +255,7 @@ end;
 (*
 ## Chat.FindQuery
 ```pascal
-function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 ```
 
 Returns true if the specified **Query** is currently open or opens up within **WaitTime**.
@@ -265,7 +265,7 @@ Example:
 WriteLn Chat.FindQuery('How many doses', 2000); //Example query of NMZ Potion Barrels.
 ```
 *)
-function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if Interval = -1 then
     Interval := SRL.TruncatedGauss(50, 1500);
@@ -276,7 +276,7 @@ end;
 (*
 ## Chat.AnswerQuery
 ```pascal
-function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 ```
 
 Replies with **Answer** to the specified **Query**.
@@ -286,7 +286,7 @@ Example:
 Chat.AnswerQuery('How many doses', '20', 2000); //Example query of NMZ Potion Barrels.
 ```
 *)
-function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if Result := FindQuery(Query, WaitTime, Interval) then
   begin
@@ -299,22 +299,22 @@ begin
 end;
 
 type
-  TRSChatboxOption = record
+  TChatboxOption = record
     Text: String;
     Bounds: TBox;
     Number: Int32;
   end;
-  TRSChatboxOptionArray = array of TRSChatboxOption;
+  TChatboxOptionArray = array of TChatboxOption;
 
 (*
 ## Chat.GetOptions
 ```pascal
-function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray;
+function TChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TChatboxOptionArray;
 ```
 
 Internal function to retrieve the currently available chat options.
 *)
-function TRSChat.GetOptions(colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray;
+function TChat.GetOptions(colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TChatboxOptionArray;
 var
   Strings: TStringArray;
   Boxes: TBoxArray;
@@ -337,7 +337,7 @@ end;
 (*
 ## Chat.FindOption
 ```pascal
-function TRSChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
+function TChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
 ```
 
 Returns true if the specified **Text** is an available option.
@@ -347,9 +347,9 @@ Example:
 Chat.FindOption('Yes'); //Common chat option in several instances as an example where you are asked Yes or No.
 ```
 *)
-function TRSChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
+function TChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
 var
-  Option: TRSChatboxOption;
+  Option: TChatboxOption;
 begin
   for Option in GetOptions(Colors) do
     if Text in Option.Text then
@@ -359,7 +359,7 @@ end;
 (*
 ## Chat.ClickOption
 ```pascal
-function TRSChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
+function TChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
 ```
 
 Attempts to click the specied chat option. If **UseKeyboard** is true, the keyboard will be used.
@@ -369,9 +369,9 @@ Example:
 Chat.ClickOption('Yes', True); //Common chat option in several instances as an example where you are asked Yes or No.
 ```
 *)
-function TRSChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
+function TChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
 var
-  Option: TRSChatboxOption;
+  Option: TChatboxOption;
 begin
   for Option in GetOptions(Colors) do
     if Text in Option.Text then
@@ -388,7 +388,7 @@ end;
 (*
 ## Chat.ClickContinue
 ```pascal
-function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
+function TChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
 ```
 
 Attempts to click the continue chat option. If **UseKeyboard** is true, the keyboard will be used.
@@ -398,7 +398,7 @@ Example:
 Chat.ClickContinue(True);
 ```
 *)
-function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
+function TChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
 begin
   if Self.ClickOption('Click here to continue', UseKeyboard, [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]) then
   begin
@@ -410,17 +410,17 @@ end;
 (*
 ## Chat.ChatToOption
 ```pascal
-function TRSChat.ChatToOption(Option: String): Boolean;
+function TChat.ChatToOption(Option: String): Boolean;
 ```
 
-Continuously advances the chat with **TRSChat.ClickContinue** until the specified **Option** appears.
+Continuously advances the chat with **TChat.ClickContinue** until the specified **Option** appears.
 
 Example:
 ```pascal
 Chat.ChatToOption('Yes');
 ```
 *)
-function TRSChat.ChatToOption(Option: String): Boolean;
+function TChat.ChatToOption(Option: String): Boolean;
 var
   Timeout: TCountdown;
 begin
@@ -434,7 +434,7 @@ end;
 (*
 ## Chat.GetMessage
 ```pascal
-function TRSChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
+function TChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
 ```
 
 Get the message in the specified **Line**.
@@ -444,7 +444,7 @@ Example:
 WriteLn Chat.GetMessage(5);
 ```
 *)
-function TRSChat.GetMessage(line: Int32; colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
+function TChat.GetMessage(line: Int32; colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
 const
   STATIC_OFFSET = 2; // Make static text placement so RecognizeStatic can be used
 var
@@ -478,7 +478,7 @@ end;
 (*
 ## Chat.FindMessage
 ```pascal
-function TRSChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
+function TChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
 ```
 
 Returns true if **Message** is found in any chat line.
@@ -488,7 +488,7 @@ Example:
 WriteLn Chat.FindMessage('Buying gf');
 ```
 *)
-function TRSChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
+function TChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
 var
   I: Int32;
 begin
@@ -500,7 +500,7 @@ end;
 (*
 ## Chat.GetChat
 ```pascal
-function TRSChat.GetChat: String;
+function TChat.GetChat: String;
 ```
 
 Returns the message displayed in a chat when we are talking with an NPC or interacting with something.
@@ -510,9 +510,9 @@ Example:
 WriteLn Chat.GetChat;
 ```
 *)
-function TRSChat.GetChat(): String;
+function TChat.GetChat(): String;
 var
-  Option: TRSChatboxOption;
+  Option: TChatboxOption;
 begin
   for Option in Self.GetOptions() do
   begin
@@ -526,7 +526,7 @@ end;
 (*
 ## Chat.GetChatTitle
 ```pascal
-function TRSChat.GetChatTitle: String;
+function TChat.GetChatTitle: String;
 ```
 
 Returns the chat title if available. This is usually a red text and sometimes has 2 swords pointing to it.
@@ -537,9 +537,9 @@ if 'Select an Option' = Chat.GetChatTitle then
   Chat.ClickOption('access my bank');
 ```
 *)
-function TRSChat.GetChatTitle(): String;
+function TChat.GetChatTitle(): String;
 var
-  Options: TRSChatboxOptionArray;
+  Options: TChatboxOptionArray;
 begin
   Options := Self.GetOptions([$000080]);
   if Length(Options) > 0 then
@@ -549,7 +549,7 @@ end;
 (*
 ## Chat.LeveledUp
 ```pascal
-function TRSChat.LeveledUp(): Boolean;
+function TChat.LeveledUp(): Boolean;
 ```
 Returns true if we have the level up message on the chat box.
 Declared here and overriden in stats.simba
@@ -561,7 +561,7 @@ if Chat.LeveledUp then
 ```
 *)
 {$H-}
-function TRSChat.LeveledUp(): Boolean;
+function TChat.LeveledUp(): Boolean;
 begin
   //Overriden in stats.simba
 end;
@@ -572,7 +572,7 @@ end;
 Global Chat variable.
 *)
 var
-  Chat: TRSChat;
+  Chat: TChat;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

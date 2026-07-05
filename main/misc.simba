@@ -5,7 +5,7 @@ Miscellaneous methods and variables
 
 {$DEFINE SRL_MISC_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 const
@@ -41,11 +41,11 @@ function TSRL.GetLevelAtXP(XP:UInt32): Int32;
 Given some XP, it returns what level that is.
 *)
 function TSRL.GetLevelAtXP(XP: UInt32): Int32; constref;
-var 
+var
   total:Double;
 begin
   while (total < XP*4+1) do
-  begin  
+  begin
     Inc(Result);
     total += Floor(Result + 300 * 2 ** (Result / 7));
   end;
@@ -90,7 +90,7 @@ end;
 ```pascal
 function TSRL.AvgBrightness(B: TBox): Int32;
 ```
-Returns the average brightness of a area on the screen. 
+Returns the average brightness of a area on the screen.
 Returns a value between ``0`` and ``100``, ``0`` being black.
 *)
 function TSRL.AvgBrightness(B: TBox): Int32; constref;
@@ -107,7 +107,7 @@ end;
 ```pascal
 function TSRL.PeakBrightness(B: TBox): Int32;
 ```
-Returns the peak brightness of a area on the screen. 
+Returns the peak brightness of a area on the screen.
 Returns a value between ``0`` and ``100``, ``0`` being black.
 *)
 function TSRL.PeakBrightness(B: TBox): Int32; constref;
@@ -132,6 +132,3 @@ begin
 
   Result := FloatToStr(Round(f,dec)) + (['','K','M','B','T'])[i]
 end;
-
-
-

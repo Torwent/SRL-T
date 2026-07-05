@@ -4,7 +4,7 @@
 
 {$DEFINE SRL_SPELLFINDER_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -242,14 +242,14 @@ type
     SINISTER_OFFERING
   );
 
-  TRSSpellFinder = record(TSRLBaseRecord)
+  TSpellFinder = record(TSRLBaseRecord)
     IMAGES_ZIP: String;
     IMAGES_PATH: String;
     SpellImages: array [ERSSpell] of TMufasaBitmapArray;
     SimTolerance : Extended;
   end;
 
-procedure TRSSpellFinder.Free();
+procedure TSpellFinder.Free();
 var
   spell: ERSSpell;
   i: Int32;
@@ -259,7 +259,7 @@ begin
       Self.SpellImages[spell][i].Free();
 end;
 
-procedure TRSSpellFinder.Setup();
+procedure TSpellFinder.Setup();
 begin
   Self.IMAGES_ZIP  := {$macro CURRENT_DIRECTORY} + 'images.zip';
   Self.IMAGES_PATH := CACHE_DIR + 'spellfinder' + DirectorySeparator +
@@ -275,7 +275,7 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-function TRSSpellFinder.GetSpellImages(spell: ERSSpell): TMufasaBitmapArray;
+function TSpellFinder.GetSpellImages(spell: ERSSpell): TMufasaBitmapArray;
 const
   SIZES: TStringArray = ['_large.png', '_small.png'];
 var
@@ -307,15 +307,15 @@ begin
 end;
 
 type
-  TRSSpellFinderMatch = record
+  TSpellFinderMatch = record
     Spell: ERSSpell;
     Box: TBox;
     Index: Int32;
   end;
-  TRSSpellFinderMatchArray = array of TRSSpellFinderMatch;
+  TSpellFinderMatchArray = array of TSpellFinderMatch;
 
 
-function TRSSpellFinder.FindAll(spells: array of ERSSpell; box: TBox; maxToFind: Integer = 0): TRSSpellFinderMatchArray;
+function TSpellFinder.FindAll(spells: array of ERSSpell; box: TBox; maxToFind: Integer = 0): TSpellFinderMatchArray;
 var
   i, j: Int32;
   spellBitmaps: array of TMufasaBitmapArray;
@@ -372,9 +372,9 @@ begin
 end;
 
 
-function TRSSpellFinder.Find(spells: array of ERSSpell; box: TBox; out match: TRSSpellFinderMatch): Boolean;
+function TSpellFinder.Find(spells: array of ERSSpell; box: TBox; out match: TSpellFinderMatch): Boolean;
 var
-  matches: TRSSpellFinderMatchArray;
+  matches: TSpellFinderMatchArray;
 begin
   matches := Self.FindAll(spells, box, 1);
 
@@ -384,7 +384,7 @@ begin
 end;
 
 var
-  SpellFinder: TRSSpellFinder;
+  SpellFinder: TSpellFinder;
 
 begin
   SpellFinder.Setup();

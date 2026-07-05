@@ -5,7 +5,7 @@ Methods to interact with the deposit box interface.
 
 {$DEFINE SRL_DEPOSITBOX_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -15,18 +15,18 @@ type
     DEPOSIT_WORN, DEPOSIT_LOOT, DEPOSIT_INVENTORY
   );
 
-  TRSDepositBox = record(TRSTitledInterface)
-    Items: TRSItemInterface;
+  TDepositBox = record(TTitledInterface)
+    Items: TItemInterface;
     InventorySlotBoxes, EquipmentSlotBoxes : TBoxArray;
     Buttons: TGameButtonArray;
   end;
 
-function TRSDepositBox.GetAllSlotBoxes(): TBoxArray;
+function TDepositBox.GetAllSlotBoxes(): TBoxArray;
 begin
   Result := Self.InventorySlotBoxes + Self.EquipmentSlotBoxes;
 end;
 
-procedure TRSDepositBox.Setup(); override;
+procedure TDepositBox.Setup(); override;
 begin
   inherited;
   Self.Name := 'DepositBox';
@@ -34,9 +34,9 @@ begin
   Self.Items.SlotBoxesFunction := @Self.GetAllSlotBoxes;
 end;
 
-procedure TRSDepositBox.SetupAlignment(); overload;
+procedure TDepositBox.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 const
   BUTTON_ENABLED_COLORS : array of TCTS1Color = [[2369440, 5], [2700350, 5]];
 begin
@@ -86,22 +86,22 @@ begin
   ];
 end;
 
-function TRSDepositBox.GetButton(button: ERSDepositButton): TGameButton;
+function TDepositBox.GetButton(button: ERSDepositButton): TGameButton;
 begin
   Result := Self.Buttons[button];
 end;
 
-function TRSDepositBox.IsOpen(): Boolean; overload;
+function TDepositBox.IsOpen(): Boolean; overload;
 begin
   Result := StringMatch(Self.GetTitle.After(' - '), 'Item Deposits') >= 0.85;
 end;
 
-function TRSDepositBox.IsOpen(WaitTime: Int32): Boolean; overload;
+function TDepositBox.IsOpen(WaitTime: Int32): Boolean; overload;
 begin
   Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
 end;
 
-function TRSDepositBox.Close(PressEscape: Boolean = False): Boolean;
+function TDepositBox.Close(PressEscape: Boolean = False): Boolean;
 begin
   if not Self.IsOpen() then
     Exit(True);
@@ -109,9 +109,9 @@ begin
   Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
 end;
 
-function TRSDepositBox.FindInventoryItems(items: TRSItemArray): TIntegerArray;
+function TDepositBox.FindInventoryItems(items: TItemArray): TIntegerArray;
 var
-  matches: TRSItemFinderMatchArray;
+  matches: TItemFinderMatchArray;
   i: Int32;
 begin
   if not Self.IsOpen then
@@ -123,9 +123,9 @@ begin
     Result[I] := matches[I].Index;
 end;
 
-function TRSDepositBox.FindEquipmentItems(items: TRSItemArray): TIntegerArray;
+function TDepositBox.FindEquipmentItems(items: TItemArray): TIntegerArray;
 var
-  matches: TRSItemFinderMatchArray;
+  matches: TItemFinderMatchArray;
   i: Int32;
 begin
   if not Self.IsOpen then
@@ -137,9 +137,9 @@ begin
     Result[I] := matches[I].Index;
 end;
 
-function TRSDepositBox.FindInventoryItem(item: TRSItem): Int32;
+function TDepositBox.FindInventoryItem(item: TItem): Int32;
 var
-  match: TRSItemFinderMatch;
+  match: TItemFinderMatch;
 begin
   if not Self.IsOpen then
     Exit;
@@ -148,9 +148,9 @@ begin
     Result := match.Index;
 end;
 
-function TRSDepositBox.FindEquipmentItem(item: TRSItem): Int32;
+function TDepositBox.FindEquipmentItem(item: TItem): Int32;
 var
-  match: TRSItemFinderMatch;
+  match: TItemFinderMatch;
 begin
   if not Self.IsOpen then
     Exit;
@@ -159,9 +159,9 @@ begin
     Result := match.Index;
 end;
 
-function TRSDepositBox.FindInventoryItem(item: TRSItem; out box: TBox): Boolean; overload;
+function TDepositBox.FindInventoryItem(item: TItem; out box: TBox): Boolean; overload;
 var
-  match: TRSItemFinderMatch;
+  match: TItemFinderMatch;
 begin
   if not Self.IsOpen then
     Exit;
@@ -169,9 +169,9 @@ begin
   box := match.Box;
 end;
 
-function TRSDepositBox.FindEquipmentItem(item: TRSItem; out box: TBox): Boolean; overload;
+function TDepositBox.FindEquipmentItem(item: TItem; out box: TBox): Boolean; overload;
 var
-  match: TRSItemFinderMatch;
+  match: TItemFinderMatch;
 begin
   if not Self.IsOpen then
     Exit;
@@ -179,43 +179,43 @@ begin
   box := match.Box;
 end;
 
-function TRSDepositBox.ContainsInventoryItem(item: TRSItem): Boolean;
+function TDepositBox.ContainsInventoryItem(item: TItem): Boolean;
 var
   b: TBox;
 begin
   Result := Self.FindInventoryItem(item, b);
 end;
 
-function TRSDepositBox.ContainsEquipmentItem(item: TRSItem): Boolean;
+function TDepositBox.ContainsEquipmentItem(item: TItem): Boolean;
 var
   b: TBox;
 begin
   Result :=  Self.FindEquipmentItem(item, b);
 end;
 
-function TRSDepositBox.ContainsAnyInventoryItems(items: TRSItemArray): Boolean;
+function TDepositBox.ContainsAnyInventoryItems(items: TItemArray): Boolean;
 var
-  match: TRSItemFinderMatch;
+  match: TItemFinderMatch;
 begin
   if not Self.IsOpen then
     Exit;
   Result := ItemFinder.Find(items, Self.InventorySlotBoxes, match);
 end;
 
-function TRSDepositBox.ContainsAnyEquipmentItems(items: TRSItemArray): Boolean;
+function TDepositBox.ContainsAnyEquipmentItems(items: TItemArray): Boolean;
 var
-  match: TRSItemFinderMatch;
+  match: TItemFinderMatch;
 begin
   if not Self.IsOpen then
     Exit;
   Result := ItemFinder.Find(items, Self.EquipmentSlotBoxes, match);
 end;
 
-function TRSDepositBox.ContainsAllInventoryItems(items: TRSItemArray): Boolean;
+function TDepositBox.ContainsAllInventoryItems(items: TItemArray): Boolean;
 var
-  matches: TRSItemFinderMatchArray;
-  match: TRSItemFinderMatch;
-  found: TRSItemArray;
+  matches: TItemFinderMatchArray;
+  match: TItemFinderMatch;
+  found: TItemArray;
 begin
   if not Self.IsOpen then
     Exit;
@@ -231,11 +231,11 @@ begin
   Result := items.Len = found.Len;
 end;
 
-function TRSDepositBox.ContainsAllEquipmentItems(items: TRSItemArray): Boolean;
+function TDepositBox.ContainsAllEquipmentItems(items: TItemArray): Boolean;
 var
-  matches: TRSItemFinderMatchArray;
-  match: TRSItemFinderMatch;
-  found: TRSItemArray;
+  matches: TItemFinderMatchArray;
+  match: TItemFinderMatch;
+  found: TItemArray;
 begin
   if not Self.IsOpen then
     Exit;
@@ -251,12 +251,12 @@ begin
   Result := items.Len = found.Len;
 end;
 
-function TRSDepositBox.CountInventoryItem(item: TRSItem): Int32;
+function TDepositBox.CountInventoryItem(item: TItem): Int32;
 begin
   Result := Length(Self.FindInventoryItems([item]));
 end;
 
-function TRSDepositBox.CountInventoryItemStack(item: TRSItem): Int32;
+function TDepositBox.CountInventoryItemStack(item: TItem): Int32;
 var
   b: TBox;
 begin
@@ -264,7 +264,7 @@ begin
     Result := SRL.GetItemAmount(b);
 end;
 
-function TRSDepositBox.CountEquipmentItemStack(item: TRSItem): Int32;
+function TDepositBox.CountEquipmentItemStack(item: TItem): Int32;
 var
   b: TBox;
 begin
@@ -272,7 +272,7 @@ begin
     Result := SRL.GetItemAmount(b);
 end;
 
-function TRSDepositBox.ClickInventoryItem(item: TRSItem; option: String = ''): Boolean;
+function TDepositBox.ClickInventoryItem(item: TItem; option: String = ''): Boolean;
 var
   b : TBox;
 begin
@@ -289,7 +289,7 @@ begin
   Result := ChooseOption.Select(option);
 end;
 
-function TRSDepositBox.ClickEquipmentItem(item: TRSItem; option: String = ''): Boolean;
+function TDepositBox.ClickEquipmentItem(item: TItem; option: String = ''): Boolean;
 var
   b : TBox;
 begin
@@ -306,7 +306,7 @@ begin
   Result := ChooseOption.Select(option);
 end;
 
-function TRSDepositBox.DepositHelper(b: TBox; amount: Int32; useQuantityButtons: Boolean): Boolean;
+function TDepositBox.DepositHelper(b: TBox; amount: Int32; useQuantityButtons: Boolean): Boolean;
 var
   Button: TGameButton;
 begin
@@ -359,7 +359,7 @@ begin
   end;
 end;
 
-function TRSDepositBox.DepositItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean;
+function TDepositBox.DepositItem(item: TBankItem; useQuantityButtons: Boolean): Boolean;
 var
   b: TBox;
 begin
@@ -367,17 +367,17 @@ begin
     Result := Self.DepositHelper(b, item.Quantity, useQuantityButtons);
 end;
 
-function TRSDepositBox.DepositItem(Item: TRSItem; useQuantityButtons: Boolean): Boolean; overload;
+function TDepositBox.DepositItem(Item: TItem; useQuantityButtons: Boolean): Boolean; overload;
 var
-  tmp: TRSBankItem;
+  tmp: TBankItem;
 begin
   tmp := tmp.Setup(item);
   Result := Self.DepositItem(tmp, useQuantityButtons);
 end;
 
-function TRSDepositBox.DepositItemArray(items: array of TRSBankItem; useQuantityButtons: Boolean): Boolean;
+function TDepositBox.DepositItemArray(items: array of TBankItem; useQuantityButtons: Boolean): Boolean;
 var
-  item: TRSBankItem;
+  item: TBankItem;
 begin
   Result := True;
   for item in items do
@@ -385,9 +385,9 @@ begin
       Result := False;
 end;
 
-function TRSDepositBox.DepositItemArray(items: TRSItemArray; useQuantityButtons: Boolean): Boolean; overload;
+function TDepositBox.DepositItemArray(items: TItemArray; useQuantityButtons: Boolean): Boolean; overload;
 var
-  item: TRSItem;
+  item: TItem;
 begin
   Result := True;
   for item in items do
@@ -395,20 +395,20 @@ begin
       Result := False;
 end;
 
-function TRSDepositBox.DepositInventory(): Boolean;
+function TDepositBox.DepositInventory(): Boolean;
 begin
   Result := Self.IsOpen() and Self.Buttons[ERSDepositButton.DEPOSIT_INVENTORY].Click();
 end;
 
-function TRSDepositBox.DepositAll(): Boolean; deprecated 'Use TRSDepositBox.DepositInventory().';
+function TDepositBox.DepositAll(): Boolean; deprecated 'Use TDepositBox.DepositInventory().';
 begin
   Result := Self.DepositInventory();
 end;
 
 var
-  DepositBox: TRSDepositBox;
+  DepositBox: TDepositBox;
 
-function TRSGameTabs.GetCurrentTab(): ERSGametab; override;
+function TGameTabs.GetCurrentTab(): ERSGametab; override;
 begin
   Result := inherited;
 

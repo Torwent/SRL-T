@@ -5,7 +5,7 @@ Methods to handle antiban.
 
 {$DEFINE SRL_ANTIBAN_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type

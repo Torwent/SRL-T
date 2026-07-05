@@ -1,23 +1,23 @@
 {$DEFINE SRL_INTERFACEAREA_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
   ERSInterfaceType = (CLASSIC, SCROLL, ANY);
 
-  TRSInterfaceArea = record(TRSInterface)
+  TInterfaceArea = record(TInterface)
     EscapeEnabled: Boolean;
   end;
 
 (*
-## TRSInterfaceArea.IsOpen
+## TInterfaceArea.IsOpen
 ```pascal
-function TRSInterfaceArea.IsOpen(interfaceType: ERSInterfaceType = ERSInterfaceType.ANY): Boolean;
+function TInterfaceArea.IsOpen(interfaceType: ERSInterfaceType = ERSInterfaceType.ANY): Boolean;
 ```
 Returns True/False if any interface is found open.
 *)
-function TRSInterfaceArea.IsOpen(interfaceType: ERSInterfaceType = ERSInterfaceType.ANY): Boolean;
+function TInterfaceArea.IsOpen(interfaceType: ERSInterfaceType = ERSInterfaceType.ANY): Boolean;
 begin
   case interfaceType of
     ERSInterfaceType.CLASSIC: Result := SRL.CountColor(CTS0(3358536, 2), Self.Bounds) > 10000;
@@ -27,13 +27,13 @@ begin
 end;
 
 (*
-## TRSInterfaceArea.GetCloseButton
+## TInterfaceArea.GetCloseButton
 ```pascal
-function TRSInterfaceArea.GetCloseButton(): TGameButton;
+function TInterfaceArea.GetCloseButton(): TGameButton;
 ```
 Attempts to close any open interface found.
 *)
-function TRSInterfaceArea.GetCloseButton(): TGameButton;
+function TInterfaceArea.GetCloseButton(): TGameButton;
 var
   buttons: TGameButtonArray;
 begin
@@ -43,14 +43,14 @@ begin
 end;
 
 (*
-## TRSInterfaceArea.Close
+## TInterfaceArea.Close
 ```pascal
-function TRSInterfaceArea.ClickClose(pressEscape: Boolean = False): Boolean;
-function TRSInterfaceArea.Close(pressEscape: Boolean): Boolean;
+function TInterfaceArea.ClickClose(pressEscape: Boolean = False): Boolean;
+function TInterfaceArea.Close(pressEscape: Boolean): Boolean;
 ```
 Attempts to close any open interface found.
 *)
-function TRSInterfaceArea.ClickClose(pressEscape: Boolean = False): Boolean;
+function TInterfaceArea.ClickClose(pressEscape: Boolean = False): Boolean;
 var
   button: TGameButton;
 begin
@@ -73,7 +73,7 @@ begin
   Result := button.Click();
 end;
 
-function TRSInterfaceArea.Close(pressEscape: Boolean): Boolean;
+function TInterfaceArea.Close(pressEscape: Boolean): Boolean;
 begin
   if not Self.IsOpen() then
     Exit(True);
@@ -87,13 +87,13 @@ end;
 
 
 (*
-## TRSInterfaceArea.Setup
+## TInterfaceArea.Setup
 ```pascal
-procedure TRSInterfaceArea.Setup(); override;
+procedure TInterfaceArea.Setup(); override;
 ```
-Initializes TRSInterfaceArea. This is called automatically for you.
+Initializes TInterfaceArea. This is called automatically for you.
 *)
-procedure TRSInterfaceArea.Setup(); override;
+procedure TInterfaceArea.Setup(); override;
 begin
   inherited;
   Self.Name := 'InterfaceArea';
@@ -101,15 +101,15 @@ begin
 end;
 
 (*
-## TRSInterfaceArea.SetupAlignment
+## TInterfaceArea.SetupAlignment
 ```pascal
-procedure TRSInterfaceArea.SetupAlignment(); overload;
+procedure TInterfaceArea.SetupAlignment(); overload;
 ```
-Initializes TRSInterfaceArea coordinates. This is automatically called for you.
+Initializes TInterfaceArea coordinates. This is automatically called for you.
 *)
-procedure TRSInterfaceArea.SetupAlignment(); overload;
+procedure TInterfaceArea.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Top  := MainScreen.Bounds.Y1;
   alignment.Left := MainScreen.Bounds.X1;
@@ -138,7 +138,7 @@ begin
 end;
 
 var
-  RSInterface, InterfaceArea: TRSInterfaceArea;
+  RSInterface, InterfaceArea: TInterfaceArea;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

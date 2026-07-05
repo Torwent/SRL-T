@@ -5,38 +5,38 @@ context menu that opens on right clicking.
 *)
 {$DEFINE SRL_CHOOSEOPTION_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
 (*
-(TRSChooseOption_Option)=
-## type TRSChooseOption_Option
+(TChooseOption_Option)=
+## type TChooseOption_Option
 ```pascal
-TRSChooseOption_Option = record
+TChooseOption_Option = record
   Text: String;
   Bounds: TBox;
   StringIndex, OptionIndex: Int32;
 end;
 
-TRSChooseOption_OptionArray = array of TRSChooseOption_Option;
+TChooseOption_OptionArray = array of TChooseOption_Option;
 ```
 Helper type to handle the context menu options.
 You probably won't have to use this directly.
 *)
-  TRSChooseOption_Option = record
+  TChooseOption_Option = record
     Text: String;
     Bounds: TBox;
     StringIndex, OptionIndex: Int32;
   end;
 
-  TRSChooseOption_OptionArray = array of TRSChooseOption_Option;
+  TChooseOption_OptionArray = array of TChooseOption_Option;
 
 (*
-(TRSChooseOption)=
-## type TRSChooseOption
+(TChooseOption)=
+## type TChooseOption
 ```pascal
-TRSChooseOption = record
+TChooseOption = record
   Bitmap: Int32;
   BitmapWidth: Int32;
   BitmapHeight: Int32;
@@ -46,7 +46,7 @@ end;
 ```
 Main record responsible for handling the ChooseOption menu.
 *)
-  TRSChooseOption = record
+  TChooseOption = record
     Bitmap: Int32;
     BitmapWidth: Int32;
     BitmapHeight: Int32;
@@ -59,8 +59,8 @@ Main record responsible for handling the ChooseOption menu.
 (*
 ## ChooseOption.IsOpen
 ```pascal
-function TRSChooseOption.IsOpen(): Boolean;
-function TRSChooseOption.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+function TChooseOption.IsOpen(): Boolean;
+function TChooseOption.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 ```
 Returns True/False if the choose option menu is currently visible/open.
 
@@ -69,7 +69,7 @@ Example:
 WriteLn ChooseOption.IsOpen();
 ```
 *)
-function TRSChooseOption.IsOpen(): Boolean;
+function TChooseOption.IsOpen(): Boolean;
 var
   tpa: TPointArray;
   atpa: T2DPointArray;
@@ -90,7 +90,7 @@ begin
   end;
 end;
 
-function TRSChooseOption.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+function TChooseOption.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
   if (Interval = -1) then
     Interval := SRL.TruncatedGauss(50, 1500);
@@ -102,7 +102,7 @@ end;
 (*
 ## ChooseOption.IsOpen
 ```pascal
-function TRSChooseOption.Open(): Boolean;
+function TChooseOption.Open(): Boolean;
 ```
 Opens the choose option context menu if it's not currently open.
 
@@ -111,7 +111,7 @@ Example:
 WriteLn ChooseOption.Open();
 ```
 *)
-function TRSChooseOption.Open(): Boolean;
+function TChooseOption.Open(): Boolean;
 begin
   Result := Self.IsOpen();
 
@@ -126,12 +126,12 @@ end;
 (*
 ## ChooseOption.Free
 ```pascal
-function TRSChooseOption.Free(): Boolean;
+function TChooseOption.Free(): Boolean;
 ```
-Releases loaded bitmaps that the TRSChooseOption loads to work.
+Releases loaded bitmaps that the TChooseOption loads to work.
 This is automatically called for you on script termination, you don't have to call it.
 *)
-procedure TRSChooseOption.Free();
+procedure TChooseOption.Free();
 begin
   FreeBitmap(Self.Bitmap);
 end;
@@ -139,13 +139,13 @@ end;
 (*
 ## ChooseOption.Setup
 ```pascal
-procedure TRSChooseOption.Setup();
+procedure TChooseOption.Setup();
 ```
-TRSChooseOption setup method.
+TChooseOption setup method.
 This is responsible for loading the needed bitmaps into memory and is automatically called for you when a script is ran so you
 don't have to call it.
 *)
-procedure TRSChooseOption.Setup();
+procedure TChooseOption.Setup();
 begin
   Self.Bitmap := BitmapFromString(20, 18, 'meJxzD4l1pwAxkAsGj15Mv+DyGpogXBmyemL04lEzgHqxhgPxehkwwoEkN9NCLwMRcYRHL5rvSNVLPBhAvWQjAO6IcGE=');
   GetBitmapSize(Self.Bitmap, Self.BitmapWidth, Self.BitmapHeight);
@@ -157,12 +157,12 @@ end;
 (*
 ## ChooseOption.GetOptions
 ```pascal
-function TRSChooseOption.GetOptions(): TRSChooseOption_OptionArray;
+function TChooseOption.GetOptions(): TChooseOption_OptionArray;
 ```
-Returns a `TRSChooseOption_OptionArray` of all available options in the Choose Option context menu.
+Returns a `TChooseOption_OptionArray` of all available options in the Choose Option context menu.
 This is a internal method, you probably don't need to call it.
 *)
-function TRSChooseOption.GetOptions(): TRSChooseOption_OptionArray;
+function TChooseOption.GetOptions(): TChooseOption_OptionArray;
 var
   i, h: Int32;
   b: TBox;
@@ -193,7 +193,7 @@ end;
 (*
 ## ChooseOption.Close
 ```pascal
-function TRSChooseOption.Close(): Boolean;
+function TChooseOption.Close(): Boolean;
 ```
 Closes the Choose option context menu if it's open.
 Returns True on success.
@@ -203,7 +203,7 @@ Example:
 WriteLn ChooseOption.Close();
 ```
 *)
-function TRSChooseOption.Close(): Boolean;
+function TChooseOption.Close(): Boolean;
 var
   boxes: TBoxArray;
   space: TBox;
@@ -226,10 +226,10 @@ end;
 (*
 ## ChooseOption.HasOption
 ```pascal
-function TRSChooseOption.HasOption(text: TStringArray; out option: TRSChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
-function TRSChooseOption.HasOption(text: TStringArray; out index: Int32; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
-function TRSChooseOption.HasOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
-function TRSChooseOption.HasOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HasOption(text: TStringArray; out option: TChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+function TChooseOption.HasOption(text: TStringArray; out index: Int32; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HasOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HasOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 ```
 Methods to check if an option is available in the choose option context menu.
 Returns true if the option specified is available.
@@ -239,9 +239,9 @@ Example:
 WriteLn ChooseOption.HasOption('Take');
 ```
 *)
-function TRSChooseOption.HasOption(text: TStringArray; out option: TRSChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+function TChooseOption.HasOption(text: TStringArray; out option: TChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
 var
-  choices: TRSChooseOption_OptionArray;
+  choices: TChooseOption_OptionArray;
   i, j: Int32;
 begin
   if not Self.Open() then
@@ -276,9 +276,9 @@ begin
   end;
 end;
 
-function TRSChooseOption.HasOption(text: TStringArray; out index: Int32; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HasOption(text: TStringArray; out index: Int32; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 var
-  option: TRSChooseOption_Option;
+  option: TChooseOption_Option;
 begin
   Result := Self.HasOption(text, option, caseSensitive, closeIfNotFound);
   if Result then
@@ -287,14 +287,14 @@ begin
     index := -1;
 end;
 
-function TRSChooseOption.HasOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HasOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 var
   i: Int32;
 begin
   Result := Self.HasOption(text, i, caseSensitive, closeIfNotFound);
 end;
 
-function TRSChooseOption.HasOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HasOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 begin
   Result := Self.HasOption([text], caseSensitive, closeIfNotFound);
 end;
@@ -303,8 +303,8 @@ end;
 (*
 ## ChooseOption.CountOption
 ```pascal
-function TRSChooseOption.CountOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32;
-function TRSChooseOption.CountOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32; overload;
+function TChooseOption.CountOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32;
+function TChooseOption.CountOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32; overload;
 ```
 Count how many times the specified option occurs in the choose option context menu.
 
@@ -313,9 +313,9 @@ Example:
 WriteLn ChooseOption.CountOption('Take Bones');
 ```
 *)
-function TRSChooseOption.CountOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32;
+function TChooseOption.CountOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32;
 var
-  choices: TRSChooseOption_OptionArray;
+  choices: TChooseOption_OptionArray;
   i, j: Int32;
 begin
   if not Self.Open() then
@@ -346,12 +346,12 @@ begin
   end;
 end;
 
-function TRSChooseOption.CountOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32; overload;
+function TChooseOption.CountOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32; overload;
 begin
   Result := Self.CountOption([text], caseSensitive, closeIfNotFound);
 end;
 
-function TRSChooseOption.FindSub(): TBox;
+function TChooseOption.FindSub(): TBox;
 var
   atpa: T2DPointArray;
   tpa: TPointArray;
@@ -372,12 +372,12 @@ begin
   end
 end;
 
-function TRSChooseOption.IsSubOpen(): Boolean;
+function TChooseOption.IsSubOpen(): Boolean;
 begin
   Result := not (Self.FindSub = [0,0,-1,-1]);
 end;
 
-function TRSChooseOption.OpenSub(): Boolean;
+function TChooseOption.OpenSub(): Boolean;
 begin
   if not self.Open then Exit(False);
 
@@ -387,7 +387,7 @@ begin
     Result := Self.IsSubOpen();
 end;
 
-function TRSChooseOption.GetSubOptions(): TRSChooseOption_OptionArray;
+function TChooseOption.GetSubOptions(): TChooseOption_OptionArray;
 var
   subBounds, b: TBox;
   i, h: Integer;
@@ -417,9 +417,9 @@ begin
   end;
 end;
 
-function TRSChooseOption.HasSubOption(text: TStringArray; out option: TRSChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+function TChooseOption.HasSubOption(text: TStringArray; out option: TChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
 var
-  choices: TRSChooseOption_OptionArray;
+  choices: TChooseOption_OptionArray;
   i, j: Int32;
 begin
   if not Self.Open() then
@@ -454,7 +454,7 @@ begin
   end;
 end;
 
-procedure TRSChooseOption.SelectSubOption(option: TRSChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
+procedure TChooseOption.SelectSubOption(option: TChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
 var
   from: TPoint;
   b: TBox;
@@ -478,9 +478,9 @@ begin
     tmpMouse.Click(mouseAction);
 end;
 
-function TRSChooseOption.SelectSubOption(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.SelectSubOption(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 var
-  option: TRSChooseOption_Option;
+  option: TChooseOption_Option;
 begin
   if not Self.OpenSub() then Exit();
 
@@ -489,18 +489,18 @@ begin
     Self.SelectSubOption(option, mouseAction);
 end;
 
-function TRSChooseOption.SelectSubOption(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.SelectSubOption(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 begin
   Result := SelectSubOption([text], mouseAction, caseSensitive, closeIfNotFound);
 end;
 
 
-function TRSChooseOption.HoverSubOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+function TChooseOption.HoverSubOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
 begin
   Result := SelectSubOption(text, MOUSE_MOVE, caseSensitive, closeIfNotFound);
 end;
 
-function TRSChooseOption.HoverSubOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HoverSubOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 begin
   Result := SelectSubOption([text], MOUSE_MOVE, caseSensitive, closeIfNotFound);
 end;
@@ -509,9 +509,9 @@ end;
 (*
 ## ChooseOption.Select
 ```pascal
-procedure TRSChooseOption.Select(option: TRSChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
-function TRSChooseOption.Select(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
-function TRSChooseOption.Select(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+procedure TChooseOption.Select(option: TChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
+function TChooseOption.Select(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.Select(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 ```
 Selects the specified option if it exists on the Choose option context menu.
 
@@ -520,7 +520,7 @@ Example:
 WriteLn ChooseOption.Select('Take Bones');
 ```
 *)
-procedure TRSChooseOption.Select(option: TRSChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
+procedure TChooseOption.Select(option: TChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
 var
   from: TPoint;
   b: TBox;
@@ -541,9 +541,9 @@ begin
     tmpMouse.Click(mouseAction);
 end;
 
-function TRSChooseOption.Select(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.Select(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 var
-  option: TRSChooseOption_Option;
+  option: TChooseOption_Option;
 begin
   Result := Self.HasOption(text, option, caseSensitive, False);
   if Result then
@@ -552,7 +552,7 @@ begin
       Result := Self.SelectSubOption(text, mouseAction, caseSensitive, closeIfNotFound);
 end;
 
-function TRSChooseOption.Select(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.Select(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 begin
   Result := Select([text], mouseAction, caseSensitive, closeIfNotFound);
 end;
@@ -560,8 +560,8 @@ end;
 (*
 ## ChooseOption.Hover
 ```pascal
-function TRSChooseOption.Hover(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
-function TRSChooseOption.Hover(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.Hover(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+function TChooseOption.Hover(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 ```
 Hovers the specified option if it exists on the Choose option context menu.
 
@@ -570,12 +570,12 @@ Example:
 WriteLn ChooseOption.Hover('Take Bones');
 ```
 *)
-function TRSChooseOption.Hover(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+function TChooseOption.Hover(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
 begin
   Result := Select(text, MOUSE_MOVE, caseSensitive, closeIfNotFound);
 end;
 
-function TRSChooseOption.Hover(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.Hover(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
 begin
   Result := Select([text], MOUSE_MOVE, caseSensitive, closeIfNotFound);
 end;
@@ -584,9 +584,9 @@ var
 (*
 (ChooseOption)=
 ## var ChooseOption
-Global variable for the TRSChooseOption record. You should use this variable when you want to interact with TRSChooseOption.
+Global variable for the TChooseOption record. You should use this variable when you want to interact with TChooseOption.
 *)
-  ChooseOption: TRSChooseOption;
+  ChooseOption: TChooseOption;
 
 procedure TSRL.Setup(); override;
 begin

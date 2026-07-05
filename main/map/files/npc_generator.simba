@@ -1,4 +1,4 @@
-{$I SRL-T/osr.simba}
+{$I SRL-T/main.simba}
 
 const
   PATH         = {$macro CURRENT_DIRECTORY};

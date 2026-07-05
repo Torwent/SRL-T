@@ -1,10 +1,10 @@
 {$DEFINE SRL_MUSIC_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 //by Kriptic
 type
-  TRSMusicPlayer = type TRSInterface;
+  TMusicPlayer = type TInterface;
 
 function HTMLDecode(const encodedStr: String): String;
 begin
@@ -43,9 +43,9 @@ begin
   FreeHTTPClient(http)
 end;
 
-procedure TRSMusicPlayer.SetupAlignment(); overload;
+procedure TMusicPlayer.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left := GameTab.Bounds.X1;
   alignment.Right := GameTab.Bounds.X2;
@@ -60,23 +60,23 @@ begin
 end;
 
 
-procedure TRSMusicPlayer.Setup(); override;
+procedure TMusicPlayer.Setup(); override;
 begin
   inherited;
   Self.Name := 'MusicPlayer';
 end;
 
-function TRSMusicPlayer.IsOpen(): Boolean;
+function TMusicPlayer.IsOpen(): Boolean;
 begin
   Result := GameTabs.GetCurrentTab() = ERSGameTab.MUSIC;  // Assuming the music tab constant is ERSGameTab.MUSIC
 end;
 
-function TRSMusicPlayer.Open(): Boolean;
+function TMusicPlayer.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.MUSIC);
 end;
 
-procedure TRSMusicPlayer.Scroll(down: Boolean);
+procedure TMusicPlayer.Scroll(down: Boolean);
 var
   scrollBar: TGameScrollBar;
 begin
@@ -89,7 +89,7 @@ begin
 end;
 
 
-function TRSMusicPlayer.GetCurrentTrack(): String;
+function TMusicPlayer.GetCurrentTrack(): String;
 var
   tpa: TPointArray;
   boxes: TBoxArray;
@@ -121,7 +121,7 @@ begin
   end;
 end;
 
-function TRSMusicPlayer.LocateTrack(trackName: String): TBox;
+function TMusicPlayer.LocateTrack(trackName: String): TBox;
 var
   tpa: TPointArray;
   boxes: TBoxArray;
@@ -168,7 +168,7 @@ begin
   Result := [0, 0, 0, 0];
 end;
 
-function TRSMusicPlayer.PlayTrack(trackName: String): Boolean;
+function TMusicPlayer.PlayTrack(trackName: String): Boolean;
 var
   trackBox: TBox;
 begin
@@ -189,7 +189,7 @@ begin
 end;
 
 var
-  MusicPlayer: TRSMusicPlayer;
+  MusicPlayer: TMusicPlayer;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin
@@ -209,7 +209,7 @@ begin
   MusicPlayer.Draw(Bitmap);
 end;
 
-procedure TRSInterface.SetScrollPosition_Mouse(value: Int32);
+procedure TInterface.SetScrollPosition_Mouse(value: Int32);
 var
   scrollBar: TGameScrollBar;
   scrollableHeight, targetY: Int32;
@@ -240,7 +240,7 @@ begin
   waituntil ((self.getscrollposition = value),100,5000); // Sleep for 100 milliseconds to allow the interface to update
 end;
 
-function TRSMusicPlayer.PlayRandomTrack(): Boolean;
+function TMusicPlayer.PlayRandomTrack(): Boolean;
 var
   randomIndex: Integer;
   trackName: String;

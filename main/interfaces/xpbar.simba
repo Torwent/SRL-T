@@ -4,11 +4,11 @@ Methods to interact with the XP bar.
 *)
 {$DEFINE SRL_XPBAR_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
-  TRSXPBar = record(TRSInterface)
+  TXPBar = record(TInterface)
     Tracker: record
       Start: Int64;
       Current: Int64;
@@ -16,8 +16,8 @@ type
       IsSetup: Boolean;
     end;
 
-    Alignment: TRSInterfaceAlignment;
-    Alignments: array of TRSInterfaceAlignment;
+    Alignment: TInterfaceAlignment;
+    Alignments: array of TInterfaceAlignment;
     Font: TFontSet;
     IsSetup: Boolean;
   end;
@@ -25,7 +25,7 @@ type
 (*
 ## XPBar.Setup
 ```pascal
-procedure TRSXPBar.Setup(); override;
+procedure TXPBar.Setup(); override;
 ```
 Initializes **XPBar** variables.
 
@@ -33,13 +33,13 @@ Initializes **XPBar** variables.
 This is automatically called on the **XPBar** variable.
 ```
 *)
-procedure TRSXPBar.Setup(); override;
+procedure TXPBar.Setup(); override;
 begin
   inherited;
   Self.Name := 'XPBar';
 end;
 
-procedure TRSXPBar.SetupAlignment(); overload;
+procedure TXPBar.SetupAlignment(); overload;
 begin
   SetLength(Self.Alignments, 3);
 
@@ -78,7 +78,7 @@ end;
 (*
 ## XPBar.IsEnabled
 ```pascal
-function TRSXPBar.IsEnabled(): Boolean;
+function TXPBar.IsEnabled(): Boolean;
 ```
 Checks if the XPBar circle is enabled.
 
@@ -87,7 +87,7 @@ Example:
 WriteLn XPBar.IsEnabled();
 ```
 *)
-function TRSXPBar.IsEnabled(): Boolean;
+function TXPBar.IsEnabled(): Boolean;
 var
   TPA: TPointArray;
 begin
@@ -98,7 +98,7 @@ end;
 (*
 ## XPBar.Enable
 ```pascal
-function TRSXPBar.Enable(): Boolean;
+function TXPBar.Enable(): Boolean;
 ```
 Enables the XPBar by clicking the XPBar circle.
 
@@ -108,7 +108,7 @@ if not XPBar.IsEnabled() then
   WriteLn XPBar.Enable();
 ```
 *)
-function TRSXPBar.Enable(): Boolean;
+function TXPBar.Enable(): Boolean;
 begin
   if Self.IsEnabled() then
     Exit(True);
@@ -121,11 +121,11 @@ end;
 (*
 ## XPBar._Setup
 ```pascal
-procedure TRSXPBar._Setup();
+procedure TXPBar._Setup();
 ```
 Internal method automatically called by SRL once when attempting to read the XPBar.
 *)
-procedure TRSXPBar._Setup();
+procedure TXPBar._Setup();
 var
   tpa: TPointArray;
 begin
@@ -163,7 +163,7 @@ end;
 (*
 ## XPBar.Read
 ```pascal
-function TRSXPBar.Read(): Int32;
+function TXPBar.Read(): Int32;
 ```
 Reads the XP in the XPBar.
 
@@ -172,7 +172,7 @@ Example:
 WriteLn XPBar.Read();
 ```
 *)
-function TRSXPBar.Read(): Int64;
+function TXPBar.Read(): Int64;
 var
   xpStr: String;
 begin
@@ -200,7 +200,7 @@ end;
 (*
 ## XPBar.EarnedXP
 ```pascal
-function TRSXPBar.EarnedXP(): Boolean;
+function TXPBar.EarnedXP(): Boolean;
 ```
 Returns True/False if we earned XP since the last time this or XPBar.Read() was called.
 
@@ -210,7 +210,7 @@ while True do
   WriteLn XPBar.EarnedXP();
 ```
 *)
-function TRSXPBar.EarnedXP(): Boolean;
+function TXPBar.EarnedXP(): Boolean;
 begin
   Result := Self.Read() > Self.Tracker.Previous;
 
@@ -221,11 +221,11 @@ end;
 (*
 ## XPBar.WaitXP
 ```pascal
-function TRSXPBar.WaitXP(waitTime: Int32 = 600; interval: Int32 = -1): Boolean;
+function TXPBar.WaitXP(waitTime: Int32 = 600; interval: Int32 = -1): Boolean;
 ```
 Waits a set amount of time until XPBar.EarnedXP() is true.
 *)
-function TRSXPBar.WaitXP(waitTime: Int32 = 600; interval: Int32 = -1): Boolean;
+function TXPBar.WaitXP(waitTime: Int32 = 600; interval: Int32 = -1): Boolean;
 begin
   if (interval = -1) then
     interval := SRL.TruncatedGauss(50, 200);
@@ -236,13 +236,13 @@ end;
 (*
 ## XPBar.TotalEarnedXP
 ```pascal
-function TRSXPBar.TotalEarnedXP(update: Boolean = False): Int32;
+function TXPBar.TotalEarnedXP(update: Boolean = False): Int32;
 ```
 Returns the total amount of earned experience.
 This is pretty reliable but should be taken with a grain of salt since XPBar can be misread
 due to several reasons, like open interfaces.
 *)
-function TRSXPBar.TotalEarnedXP(update: Boolean = False): Int32;
+function TXPBar.TotalEarnedXP(update: Boolean = False): Int32;
 begin
   if update then
     Self.Read();
@@ -253,7 +253,7 @@ end;
 (*
 ## XPBar.IsOpen
 ```pascal
-function TRSXPBar.IsOpen(): Boolean;
+function TXPBar.IsOpen(): Boolean;
 ```
 Checks if the XPBar is open.
 Keep in mind interfaces and things that cover the xp bar, might make this return false.
@@ -263,7 +263,7 @@ Example:
 WriteLn XPBar.IsOpen();
 ```
 *)
-function TRSXPBar.IsOpen(): Boolean; overload;
+function TXPBar.IsOpen(): Boolean; overload;
 begin
   Result := Self.Read() > 0;
 end;
@@ -271,7 +271,7 @@ end;
 (*
 ## XPBar.Open
 ```pascal
-function TRSXPBar.Open(): Boolean;
+function TXPBar.Open(): Boolean;
 ```
 Attempts to open the XPBar if it's not open.
 
@@ -281,7 +281,7 @@ if not XPBar.IsOpen() then
   WriteLn XPBar.Open();
 ```
 *)
-function TRSXPBar.Open(): Boolean;
+function TXPBar.Open(): Boolean;
 begin
   if Self.IsOpen() then
     Exit(True);
@@ -292,7 +292,7 @@ begin
     Self.DebugLn('Something is wrong with your XPBar.');
 end;
 
-procedure TRSXPBar.Draw(Bitmap: TMufasaBitmap); override;
+procedure TXPBar.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -305,10 +305,10 @@ end;
   Global XPBar variable.
 *)
 var
-  XPBar: TRSXPBar;
+  XPBar: TXPBar;
 
 
-function TRSMainScreen.IsVisible(p: TPoint): Boolean; override;
+function TMainScreen.IsVisible(p: TPoint): Boolean; override;
 begin
   Result := inherited;
   if not XPBar.IsSetup then Exit;
@@ -317,7 +317,7 @@ begin
     Exit(False);
 end;
 
-function TRSMainScreen.IsVisible(tpa: TPointArray; useCenter: Boolean = True): Boolean; override;
+function TMainScreen.IsVisible(tpa: TPointArray; useCenter: Boolean = True): Boolean; override;
 begin
   Result := inherited;
   if Result and useCenter then Exit;
@@ -327,7 +327,7 @@ begin
     Exit(False);
 end;
 
-function TRSMainScreen.Filter(arr: TPointArray): TPointArray; override;
+function TMainScreen.Filter(arr: TPointArray): TPointArray; override;
 begin
   Result := inherited;
   if not XPBar.IsSetup then Exit;

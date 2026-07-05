@@ -1,6 +1,6 @@
 {$DEFINE SRL_DEBUG_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 

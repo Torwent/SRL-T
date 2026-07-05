@@ -5,15 +5,15 @@ Methods to interact with the bank pin interface.
 
 {$DEFINE SRL_BANKPIN_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
-  TRSBankPin = record(TRSTitledInterface)
+  TBankPin = record(TTitledInterface)
     DigitFilter, ButtonFilter: TOCRColorFilter;
   end;
 
-procedure TRSBankPin.Setup(); override;
+procedure TBankPin.Setup(); override;
 begin
   inherited;
 
@@ -23,9 +23,9 @@ begin
   Self.ButtonFilter := TOCRColorFilter.Create([$007FFF])
 end;
 
-procedure TRSBankPin.SetupAlignment(); overload;
+procedure TBankPin.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left := InterfaceArea.Bounds.X1;
   alignment.Right := InterfaceArea.Bounds.X2;
@@ -43,13 +43,13 @@ begin
   Self.SetupAlignment(alignment);
 end;
 
-function TRSBankPin.GetButtons(): TGameButtonArray;
+function TBankPin.GetButtons(): TGameButtonArray;
 begin
   Result := FindButtons([[56,56]]);
 end;
 
 
-function TRSBankPin.ButtonsLoaded(): Boolean;
+function TBankPin.ButtonsLoaded(): Boolean;
 const
   DIGITS: TStringArray = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 var
@@ -74,8 +74,8 @@ end;
 (*
 ## BankPin.IsOpen
 ```pascal
-function TRSBankPin.IsOpen(): Boolean;
-function TRSBankPin.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
+function TBankPin.IsOpen(): Boolean;
+function TBankPin.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
 ```
 Returns true if the bank pin is open.
 
@@ -84,12 +84,12 @@ Example:
 WriteLn BankPin.IsOpen();
 ```
 *)
-function TRSBankPin.IsOpen(): Boolean;
+function TBankPin.IsOpen(): Boolean;
 begin
   Result := Length(Self.GetButtons()) = 10;
 end;
 
-function TRSBankPin.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
+function TBankPin.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
 begin
   if (interval = -1) then
     interval := SRL.TruncatedGauss(50, 1500);
@@ -100,7 +100,7 @@ end;
 (*
 ## BankPin.ClickDigit
 ```pascal
-function TRSBankPin.ClickDigit(digit: Char): Boolean; override;
+function TBankPin.ClickDigit(digit: Char): Boolean; override;
 ```
 Clicks a bank pin digit.
 
@@ -108,7 +108,7 @@ Clicks a bank pin digit.
 Original method by Olly, fixed by INeedBot.
 ```
 *)
-function TRSBankPin.ClickDigit(digit: Char): Boolean;
+function TBankPin.ClickDigit(digit: Char): Boolean;
 var
   buttons: TGameButtonArray;
   i: Int32;
@@ -140,7 +140,7 @@ end;
 (*
 ## BankPin.Enter
 ```pascal
-function TRSBankPin.Enter(pin: String): Boolean;
+function TBankPin.Enter(pin: String): Boolean;
 ```
 Handles entering the bank pin. Will do 4 attempts before terminating with a fatal error.
 
@@ -149,7 +149,7 @@ Example:
 BankPin.Enter('0000');
 ```
 *)
-function TRSBankPin.Enter(pin: String; attempts: Int32 = 3): Boolean;
+function TBankPin.Enter(pin: String; attempts: Int32 = 3): Boolean;
 
   function _GetDigitToEnter(): Char;
   const
@@ -205,7 +205,7 @@ begin
   Result := WaitUntil(_IsUnlocked(), 300, 3000) or Self.Enter(pin, Dec(attempts));
 end;
 
-procedure TRSBankPin.Draw(Bitmap: TMufasaBitmap); override;
+procedure TBankPin.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if (not Self.IsOpen()) then
     Exit;
@@ -216,9 +216,9 @@ begin
 end;
 
 var
-  BankPin: TRSBankPin;
+  BankPin: TBankPin;
 
-function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean; override;
+function TBank.IsOpen(WaitForItems: Boolean = True): Boolean; override;
 begin
   if BankPin.IsOpen() then
   begin

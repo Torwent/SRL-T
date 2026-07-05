@@ -5,7 +5,7 @@ Methods to interact with the combat tab.
 
 {$DEFINE SRL_COMBAT_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 const
@@ -71,12 +71,12 @@ var
   ];
 
 type
-  TRSCombat = type TRSInterface;
+  TCombat = type TInterface;
 
 (*
 ## Combat.Setup
 ```pascal
-procedure TRSCombat.Setup; override;
+procedure TCombat.Setup; override;
 ```
 
 Initializes **Combat** variables.
@@ -85,7 +85,7 @@ Initializes **Combat** variables.
 This is automatically called on the **Combat** variable.
 ```
 *)
-procedure TRSCombat.Setup; override;
+procedure TCombat.Setup; override;
 begin
   inherited;
   Self.ButtonEnabledColors := [CTS1(1711479, 21)];
@@ -95,7 +95,7 @@ end;
 (*
 ## Combat.SetupAlignment
 ```pascal
-procedure TRSCombat.SetupAlignment(); overload;
+procedure TCombat.SetupAlignment(); overload;
 ```
 Setups up the interface aligment for the current client mode.
 
@@ -103,9 +103,9 @@ Setups up the interface aligment for the current client mode.
 This is automatically called on the **TGameClient.ClientModeChanged** function.
 ```
 *)
-procedure TRSCombat.SetupAlignment(); overload;
+procedure TCombat.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left := GameTab.Bounds.X1;
   alignment.Right := GameTab.Bounds.X2;
@@ -117,7 +117,7 @@ end;
 (*
 ## Combat.IsOpen
 ```pascal
-function TRSCombat.IsOpen: Boolean;
+function TCombat.IsOpen: Boolean;
 ```
 
 Returns true if the combat tab is open.
@@ -127,7 +127,7 @@ Example:
 WriteLn Combat.IsOpen;
 ```
 *)
-function TRSCombat.IsOpen: Boolean;
+function TCombat.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.COMBAT);
 end;
@@ -135,7 +135,7 @@ end;
 (*
 ## Combat.Open
 ```pascal
-function TRSCombat.Open: Boolean;
+function TCombat.Open: Boolean;
 ```
 
 Attempts to open the combat tab.
@@ -145,7 +145,7 @@ Example:
 Combat.Open;
 ```
 *)
-function TRSCombat.Open: Boolean;
+function TCombat.Open: Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.COMBAT);
 end;
@@ -153,12 +153,12 @@ end;
 (*
 ## Combat.GetButtons
 ```pascal
-function TRSCombat.GetButtons: TGameButtonArray;
+function TCombat.GetButtons: TGameButtonArray;
 ```
 
 Internal function to get the available buttons in the combat tab.
 *)
-function TRSCombat.GetButtons: TGameButtonArray;
+function TCombat.GetButtons: TGameButtonArray;
 begin
   Result := Self.FindButtons([[69,45], [148,24], [148,42], [69,30], [69,48]])
 end;
@@ -166,7 +166,7 @@ end;
 (*
 ## Combat.GetCombatStyle
 ```pascal
-function TRSCombat.GetCombatStyle: String;
+function TCombat.GetCombatStyle: String;
 ```
 
 Get the current attack style.
@@ -177,7 +177,7 @@ WriteLn('The current combat style is: ', Combat.GetCombatStyle);
 
 ```
 *)
-function TRSCombat.GetCombatStyle: String;
+function TCombat.GetCombatStyle: String;
 var
   I,H: Int32;
   Buttons: TGameButtonArray;
@@ -201,7 +201,7 @@ end;
 (*
 ## Combat.SetCombatStyle
 ```pascal
-function TRSCombat.SetCombatStyle(Style: String): Boolean;
+function TCombat.SetCombatStyle(Style: String): Boolean;
 ```
 
 Set the attack style to the **Style** specified.
@@ -212,7 +212,7 @@ Combat.SetCombatStyle(COMBAT_STYLE_SLASH);
 
 ```
 *)
-function TRSCombat.SetCombatStyle(style: String): Boolean;
+function TCombat.SetCombatStyle(style: String): Boolean;
 var
   Buttons: TGameButtonArray;
   Button: TGameButton;
@@ -229,7 +229,7 @@ end;
 (*
 ## Combat.GetAutoRetaliate
 ```pascal
-function TRSCombat.GetAutoRetaliate(): Boolean;
+function TCombat.GetAutoRetaliate(): Boolean;
 ```
 
 Get the current state of auto retaliate.
@@ -240,7 +240,7 @@ WriteLn Combat.GetAutoRetaliate;
 
 ```
 *)
-function TRSCombat.GetAutoRetaliate(): Boolean;
+function TCombat.GetAutoRetaliate(): Boolean;
 var
   button: TGameButton;
 begin
@@ -255,7 +255,7 @@ end;
 (*
 ## Combat.SetAutoRetaliate
 ```pascal
-function TRSCombat.SetAutoRetaliate(value: Boolean): Boolean;
+function TCombat.SetAutoRetaliate(value: Boolean): Boolean;
 ```
 
 Set the state of auto retaliate on or off.
@@ -266,7 +266,7 @@ Combat.SetAutoRetaliate(True);
 
 ```
 *)
-function TRSCombat.SetAutoRetaliate(value: Boolean): Boolean;
+function TCombat.SetAutoRetaliate(value: Boolean): Boolean;
 var
   button: TGameButton;
 begin
@@ -281,7 +281,7 @@ end;
 (*
 ## Combat.GetWeapon
 ```pascal
-function TRSCombat.GetWeapon: String;
+function TCombat.GetWeapon: String;
 ```
 
 Get the name of the current worn weapon.
@@ -292,7 +292,7 @@ WriteLn('The current weapon is: ', Combat.GetWeapon);
 
 ```
 *)
-function TRSCombat.GetWeapon: String;
+function TCombat.GetWeapon: String;
 var
   B: TBox;
 begin
@@ -308,7 +308,7 @@ end;
 (*
 ## Combat.GetCombatLevel
 ```pascal
-function TRSCombat.GetCombatLevel: Int32;
+function TCombat.GetCombatLevel: Int32;
 ```
 
 Get the current combat level.
@@ -319,7 +319,7 @@ WriteLn('Current combat level is: ', Combat.GetCombatLevel);
 
 ```
 *)
-function TRSCombat.GetCombatLevel: Int32;
+function TCombat.GetCombatLevel: Int32;
 var
   B: TBox;
 begin
@@ -340,7 +340,7 @@ end;
   Global Combat variable.
 *)
 var
-  Combat: TRSCombat;
+  Combat: TCombat;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

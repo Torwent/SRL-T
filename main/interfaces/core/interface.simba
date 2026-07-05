@@ -1,14 +1,14 @@
 {$DEFINE SRL_INTERFACE_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
-  TRSInterfaceAlignment = record
+  TInterfaceAlignment = record
     Left, Top, Right, Bottom, MaxWidth, MaxHeight: Int32;
   end;
 
-  TRSInterface = record(TSRLBaseRecord)
+  TInterface = record(TSRLBaseRecord)
     ButtonColors: array of TCTS1Color;
     ButtonEnabledColors: array of TCTS1Color;
 
@@ -20,16 +20,16 @@ type
     ScrollArea: TBox;
   end;
 
-  PRSInterface = ^TRSInterface;
+  PRSInterface = ^TInterface;
 
-procedure TRSInterface.Setup();
+procedure TInterface.Setup();
 begin
   Self.Name := 'Interface';
   Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20), CTS1(1514268, 10)];
   Self.ButtonEnabledColors := [CTS1(2369440, 5), CTS1(2700350, 5)];
 end;
 
-procedure TRSInterface.SetupAlignment(alignment: TRSInterfaceAlignment);
+procedure TInterface.SetupAlignment(alignment: TInterfaceAlignment);
 var
   length, center, half, halfMax: Single;
 begin
@@ -85,7 +85,7 @@ type
   TGameButtonArray = array of TGameButton;
   TGameButtonDimensions = array of record Width, Height: Int32; end;
 
-function TRSInterface.FindButtons(Dimensions: TGameButtonDimensions; Area: TBox): TGameButtonArray; overload;
+function TInterface.FindButtons(Dimensions: TGameButtonDimensions; Area: TBox): TGameButtonArray; overload;
 var
   TPA: TPointArray;
   ATPA: T2DPointArray;
@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-function TRSInterface.FindButtons(Dimensions: TGameButtonDimensions): TGameButtonArray; overload;
+function TInterface.FindButtons(Dimensions: TGameButtonDimensions): TGameButtonArray; overload;
 var
   TPA: TPointArray;
   ATPA: T2DPointArray;
@@ -321,14 +321,14 @@ begin
 end;
 
 
-function TRSInterface.GetScrollArea(scrollBar: TGameScrollBar): TBox;
+function TInterface.GetScrollArea(scrollBar: TGameScrollBar): TBox;
 begin
   if Self.ScrollArea = [] then
     Exit(scrollBar.SliderRegion);
   Result := Self.ScrollArea;
 end;
 
-function TRSInterface.GetScrollBar(): TGameScrollBar;
+function TInterface.GetScrollBar(): TGameScrollBar;
 const
   COLOR_ARROW := CTS2(5206147, 15, 0.03, 0.28);
   COLOR_BORDER := 65536;
@@ -364,14 +364,14 @@ begin
   end;
 end;
 
-function TRSInterface.CanScroll(): Boolean;
+function TInterface.CanScroll(): Boolean;
 var
   ScrollBar: TGameScrollBar := Self.GetScrollBar();
 begin
   Result := Scrollbar.IsVisible() and (ScrollBar.Slider <> ScrollBar.SliderRegion);
 end;
 
-function TRSInterface.GetScrollPosition(): Int32;
+function TInterface.GetScrollPosition(): Int32;
 var
   ScrollBar: TGameScrollBar;
 begin
@@ -382,7 +382,7 @@ begin
     Result := ScrollBar.Position;
 end;
 
-procedure TRSInterface.SetScrollPosition(value: Int32);
+procedure TInterface.SetScrollPosition(value: Int32);
 var
   oldPos: Int32;
   scrollBar: TGameScrollBar;
@@ -434,7 +434,7 @@ begin
   end;
 end;
 
-procedure TRSInterface.Draw(Bitmap: TMufasaBitmap);
+procedure TInterface.Draw(Bitmap: TMufasaBitmap);
 var
   ScrollBar: TGameScrollBar;
 begin
@@ -447,11 +447,11 @@ begin
 end;
 
 type
-  TRSTitledInterface = record(TRSInterface)
+  TTitledInterface = record(TInterface)
     CloseButtonBounds: TBox;
   end;
 
-function TRSTitledInterface.GetTitle(): String;
+function TTitledInterface.GetTitle(): String;
 var
   B: TBox;
 begin
@@ -465,7 +465,7 @@ begin
   Result := OCR.Recognize(B, TOCRThresholdFilter.Create(15), RS_FONT_BOLD_12);
 end;
 
-function TRSTitledInterface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
+function TTitledInterface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
 begin
 
   if (SRL.CountColor(65536, Self.CloseButtonBounds) > 80) or (SRL.CountColor(CTS2(1250841, 6, 1.47, 2.40), Self.CloseButtonBounds) > 80) then
@@ -480,17 +480,17 @@ begin
   end;
 end;
 
-function TRSTitledInterface.IsTitle(Text: String): Boolean; overload;
+function TTitledInterface.IsTitle(Text: String): Boolean; overload;
 begin
   Result := Text in Self.GetTitle();
 end;
 
-function TRSTitledInterface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
+function TTitledInterface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
 begin
   Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
 end;
 
-procedure TRSTitledInterface.SetupAlignment(alignment: TRSInterfaceAlignment); override;
+procedure TTitledInterface.SetupAlignment(alignment: TInterfaceAlignment); override;
 begin
   inherited;
 
@@ -501,10 +501,10 @@ begin
 end;
 
 type
-  TRSRootInterface = type TRSInterface;
+  TRootInterface = type TInterface;
 
 var
-  RootInterface: TRSRootInterface;
+  RootInterface: TRootInterface;
 
 procedure TSRL.Setup(); override;
 begin
@@ -514,7 +514,7 @@ end;
 
 procedure TGameClient.ClientModeChanged(); override;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   inherited;
 

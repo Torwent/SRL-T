@@ -1,6 +1,6 @@
-{$DEFINE SRL_RSCHUNK_INCLUDED}
+{$DEFINE SRL_CHUNK_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -33,7 +33,7 @@ type
     WINTERTODT
   );
 
-function ERSChunk.Get(planes: TIntegerArray = []): TRSMapChunk; constref;
+function ERSChunk.Get(planes: TIntegerArray = []): TMapChunk; constref;
 begin
   case Self of
     ERSChunk.AL_KHARID              : Result := Chunk(Box(50,51,53,48), 0);
@@ -103,7 +103,7 @@ begin
   Result := ToStr(Self).Replace('_', ' ').Lower().Capitalize();
 end;
 
-function EBankChunk.Get(): TRSMapChunk;
+function EBankChunk.Get(): TMapChunk;
 begin
   case Self of
     EBankChunk.AL_KHARID:       Result := ERSChunk.AL_KHARID.Get();

@@ -1,20 +1,20 @@
 {$DEFINE SRL_GAMETAB_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
-  TRSGameTab = type TRSInterface;
+  TGameTab = type TInterface;
 
-procedure TRSGameTab.Setup(); override;
+procedure TGameTab.Setup(); override;
 begin
   inherited;
   Self.Name := 'GameTab';
 end;
 
-procedure TRSGameTab.SetupAlignment(); overload;
+procedure TGameTab.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   case RSClient.Mode of
     ERSClientMode.FIXED:
@@ -46,7 +46,7 @@ begin
 end;
 
 var
-  GameTab: TRSGameTab;
+  GameTab: TGameTab;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin
@@ -67,8 +67,8 @@ begin
 end;
 
 type
-  TRSItemGameTab = record(TRSInterface)
-    Items: TRSItemInterface;
+  TItemGameTab = record(TInterface)
+    Items: TItemInterface;
     SlotBoxes: TBoxArray;
   end;
-  PRSItemGameTab = ^TRSItemGameTab;
+  PRSItemGameTab = ^TItemGameTab;

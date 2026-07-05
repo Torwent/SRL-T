@@ -1,44 +1,44 @@
 (*
 # WalkerV2
 This file is responsible for the walking system.
-It is heavily inspired in the original TRSWalker by Slacky and it's future
+It is heavily inspired in the original TWalker by Slacky and it's future
 iterations made by Olly.
 *)
 
 {$DEFINE SRL_WALKERV2_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
 (*
 ## PRSWalkerV2
-TRSWalkerV2 pointer.
+TWalkerV2 pointer.
 *)
-  PRSWalkerV2 = ^TRSWalkerV2;
+  PRSWalkerV2 = ^TWalkerV2;
 
 (*
-## TRSWalker_OnWalkEvent
+## TWalker_OnWalkEvent
 Callback object method to use while walking. This can be used to perform custom tasks while walking.
 
 Example:
 ```pascal
-procedure TRSWalker.WalkerTasks(Walker: PRSWalker; Position: TPoint; Destination: TPoint);
+procedure TWalker.WalkerTasks(Walker: PRSWalker; Position: TPoint; Destination: TPoint);
 begin
   Antiban.RandomTab();
 end;
 
 var
-  rsw: TRSWalker;
+  rsw: TWalker;
 begin
   rsw.Setup('world');
   rsw.OnWaitMoving := @rsw.WalkerTasks;
 end;
 ```
 *)
-  TRSWalkerEvent = procedure(walker: PRSWalkerV2; position: TPoint; destination: TPoint) of object;
+  TWalkerEvent = procedure(walker: PRSWalkerV2; position: TPoint; destination: TPoint) of object;
 
-  TRSWalkerV2 = record(TSRLBaseRecord)
+  TWalkerV2 = record(TSRLBaseRecord)
     Position: function (): TPoint of object;
     Height:   function (p: TPoint = [-1,-1]): Single of object;
     GetLocal: function (tpa: TPointArray; offset: TPoint = [0,0]): TPointArray of object;
@@ -54,23 +54,23 @@ end;
     WebGraph: ^TWebGraphV2;
     MapImage: TMufasaBitmap;
 
-    OnWalkEvent, OnWaitMovingEvent: TRSWalkerEvent;
+    OnWalkEvent, OnWaitMovingEvent: TWalkerEvent;
 
     //Don't touch:
     _PathIndex: Int32;
     _Path: TPointArray;
     _DoorHandler: record
-      Door: TRSDoor;
-      DoorsOnPath: TRSDoorArray;
+      Door: TDoor;
+      DoorsOnPath: TDoorArray;
       FlagMoved, Handling, SettingUp, Skipped, Enabled: Boolean;
     end;
   end;
 
 
 (*
-## TRSWalkerV2.Setup
+## TWalkerV2.Setup
 ```pascal
-procedure TRSWalkerV2.Setup(
+procedure TWalkerV2.Setup(
   position: function (): TPoint of object;
   height: function (p: TPoint = [-1,-1]): Single of object;
   getLocal: function (tpa: TPointArray; offset: TPoint = [0,0]): TPointArray of object;
@@ -78,7 +78,7 @@ procedure TRSWalkerV2.Setup(
   mapImage: TMufasaBitmap
 );
 ```
-Setup method for TRSWalkerV2.
+Setup method for TWalkerV2.
 
 Only `position` is a hard requirement of this method,
 all others can be `nil` if you don't need them.
@@ -86,23 +86,23 @@ all others can be `nil` if you don't need them.
 `graph` is only required if you plan on doing webwaking and should point to your webgraph.
 `getLocal` and `mapImage` are just for webgraph debugging if webwalking crashes.
 
-`height` is only required if you want to pass in tile heights information to TRSWalkerV2.
+`height` is only required if you want to pass in tile heights information to TWalkerV2.
 
 Example:
 ```pascal
 Walker.Setup(@MyCustomPositionSystem, nil, nil, nil, nil);
 ```
 *)
-procedure TRSWalkerV2.Setup(
+procedure TWalkerV2.Setup(
   position: function (): TPoint of object;
   height: function (p: TPoint = [-1,-1]): Single of object;
   getLocal: function (tpa: TPointArray; offset: TPoint = [0,0]): TPointArray of object;
   graph: ^TWebGraphV2;
   mapImage: TMufasaBitmap
 );
-  type TRSWalkerV2 = TRSWalkerV2;
+  type TWalkerV2 = TWalkerV2;
   {$H-}
-  function TRSWalkerV2.DummyHeight(p: TPoint = [-1,-1]): Single;
+  function TWalkerV2.DummyHeight(p: TPoint = [-1,-1]): Single;
   begin
     Result := 0;
   end;
@@ -122,7 +122,7 @@ begin
 end;
 
 
-function TRSWalkerV2.PointToMM(playerPoint, p: TPoint; radians: Double): TPoint;
+function TWalkerV2.PointToMM(playerPoint, p: TPoint; radians: Double): TPoint;
 begin
   with Minimap.Center do
   begin
@@ -131,7 +131,7 @@ begin
   end;
 end;
 
-function TRSWalkerV2.PointToMMVec(playerPoint, p: TPoint; radians: Double): Vector3;
+function TWalkerV2.PointToMMVec(playerPoint, p: TPoint; radians: Double): Vector3;
 var
   MMpoint: TPoint;
 begin
@@ -142,7 +142,7 @@ begin
   end;
 end;
 
-function TRSWalkerV2.PointsToMM(playerPoint: TPoint; tpa: TPointArray; radians: Double): TPointArray;
+function TWalkerV2.PointsToMM(playerPoint: TPoint; tpa: TPointArray; radians: Double): TPointArray;
 var
   p: TPoint;
 begin
@@ -154,7 +154,7 @@ begin
     end;
 end;
 
-function TRSWalkerV2.FilterToMM(playerPoint: TPoint; dotFilter: TRSDotFilter; roll: Single): TRSDotFilter;
+function TWalkerV2.FilterToMM(playerPoint: TPoint; dotFilter: TDotFilter; roll: Single): TDotFilter;
 begin
   if dotFilter.Circle <> [] then
     with Self.PointToMM(playerPoint, dotFilter.Circle.Mean(), roll) do
@@ -166,7 +166,7 @@ begin
   Result.Timer   := dotFilter.Timer;
 end;
 
-function TRSWalkerV2.FiltersToMM(playerPoint: TPoint; dotFilters: TRSDotFilterArray; roll: Single): TRSDotFilterArray;
+function TWalkerV2.FiltersToMM(playerPoint: TPoint; dotFilters: TDotFilterArray; roll: Single): TDotFilterArray;
 var
   i: Int32;
 begin
@@ -183,7 +183,7 @@ begin
   end;
 end;
 
-function TRSWalkerV2.GetRectMS(playerPoint, mapPoint: TPoint; height: Double = 0; offset: Vector2 = [0,0]; radians: Single = $FFFF): TRectangle;
+function TWalkerV2.GetRectMS(playerPoint, mapPoint: TPoint; height: Double = 0; offset: Vector2 = [0,0]; radians: Single = $FFFF): TRectangle;
 var
   mapVec: Vector3;
 begin
@@ -199,7 +199,7 @@ begin
   Result := Minimap.VectorToMSRect(Vec3(mapVec.X - offset.X, mapVec.Y - offset.Y, height), 1, 1, radians);
 end;
 
-function TRSWalkerV2.MMToMap(playerPoint, minimapPoint: TPoint; radians: Single = $FFFF): TPoint;
+function TWalkerV2.MMToMap(playerPoint, minimapPoint: TPoint; radians: Single = $FFFF): TPoint;
 begin
   Result := playerPoint + minimapPoint - Minimap.Center;
   if (radians = $FFFF) then
@@ -209,33 +209,33 @@ end;
 
 
 (*
-## TRSWalkerV2.InRange
+## TWalkerV2.InRange
 ```pascal
-function TRSWalkerV2.InRangeEx(me, coordinate: TPoint; distance: Int32 = 4): Boolean;
-function TRSWalkerV2.AnyInRangeEx(me: TPoint; coordinates: TPointArray; distance: Int32 = 4): Boolean; overload;
-function TRSWalkerV2.InRange(coordinate: TPoint; distance: Int32 = 4): Boolean;
-function TRSWalkerV2.AnyInRange(coordinates: TPointArray; distance: Int32 = 4): Boolean; overload;
+function TWalkerV2.InRangeEx(me, coordinate: TPoint; distance: Int32 = 4): Boolean;
+function TWalkerV2.AnyInRangeEx(me: TPoint; coordinates: TPointArray; distance: Int32 = 4): Boolean; overload;
+function TWalkerV2.InRange(coordinate: TPoint; distance: Int32 = 4): Boolean;
+function TWalkerV2.AnyInRange(coordinates: TPointArray; distance: Int32 = 4): Boolean; overload;
 ```
 Method used to quickly check if we are within distance of a certain `coordinate`.
 This distance is measure in pixels and in a radial way.
 You can optionally pass in a TPA to check if the closest point is within distance.
 *)
-function TRSWalkerV2.InRangeEx(me, coordinate: TPoint; distance: Int32 = 4): Boolean;
+function TWalkerV2.InRangeEx(me, coordinate: TPoint; distance: Int32 = 4): Boolean;
 begin
   Result := me.InRange(coordinate, distance);
 end;
 
-function TRSWalkerV2.AnyInRangeEx(me: TPoint; coordinates: TPointArray; distance: Int32 = 4): Boolean; overload;
+function TWalkerV2.AnyInRangeEx(me: TPoint; coordinates: TPointArray; distance: Int32 = 4): Boolean; overload;
 begin
   Result := me.AnyInRange(coordinates, distance);
 end;
 
-function TRSWalkerV2.InRange(coordinate: TPoint; distance: Int32 = 4): Boolean;
+function TWalkerV2.InRange(coordinate: TPoint; distance: Int32 = 4): Boolean;
 begin
   Result := Self.InRangeEx(Self.Position(), coordinate, distance);
 end;
 
-function TRSWalkerV2.AnyInRange(coordinates: TPointArray; distance: Int32 = 4): Boolean; overload;
+function TWalkerV2.AnyInRange(coordinates: TPointArray; distance: Int32 = 4): Boolean; overload;
 begin
   Result := Self.AnyInRangeEx(Self.Position(), coordinates, distance);
 end;
@@ -244,7 +244,7 @@ end;
 (*
 ## Walker.CheckRunEnergy
 ```pascal
-procedure TRSWalkerV2.CheckRunEnergy();
+procedure TWalkerV2.CheckRunEnergy();
 ```
 Internal method used to check and enable the player run.
 You will probably never need to call this directly.
@@ -252,7 +252,7 @@ You will probably never need to call this directly.
 The values used are hardcoded and if you don't like them, it's recommended you override the method.
 The following example shows how one could override the function to enable run at 50% energy everytime, keep in mind though, you shouldn't do this, you should add randomness to it!
 *)
-procedure TRSWalkerV2.CheckRunEnergy();
+procedure TWalkerV2.CheckRunEnergy();
 begin
   if Minimap.IsRunEnabled() or (Minimap.GetRunEnergy() < Self.MinEnergy) then
     Exit;
@@ -264,12 +264,12 @@ end;
 (*
 ## Walker.AdaptiveWalkCheck
 ```pascal
-procedure TRSWalkerV2.AdaptiveWalkCheck(position: TPoint);
+procedure TWalkerV2.AdaptiveWalkCheck(position: TPoint);
 ```
-Internal method used to check if adaptive walk should toggle and toggle TRSWalkerV2.ScreenWalk.
+Internal method used to check if adaptive walk should toggle and toggle TWalkerV2.ScreenWalk.
 You will probably never need to call this directly.
 *)
-procedure TRSWalkerV2.AdaptiveWalkCheck(position: TPoint);
+procedure TWalkerV2.AdaptiveWalkCheck(position: TPoint);
 var
   wasEnabled: Boolean;
 begin
@@ -290,12 +290,12 @@ end;
 (*
 ## Walker.DoMouseAhead
 ```pascal
-procedure TRSWalkerV2.DoMouseAhead(position: TPoint; forced: Boolean = False);
+procedure TWalkerV2.DoMouseAhead(position: TPoint; forced: Boolean = False);
 ```
 Internal method used to pre-hover the next walking step.
 You will probably never need to call this directly.
 *)
-procedure TRSWalkerV2.DoMouseAhead(position: TPoint; forced: Boolean = False);
+procedure TWalkerV2.DoMouseAhead(position: TPoint; forced: Boolean = False);
 var
   flag: TPoint;
   dist: Int32;
@@ -350,14 +350,14 @@ end;
 (*
 ## Walker.WaitMoving
 ```pascal
-procedure TRSWalkerV2.WaitMoving(destination: TPoint; waitUntilDistance: Int32);
+procedure TWalkerV2.WaitMoving(destination: TPoint; waitUntilDistance: Int32);
 ```
 Internal method used to wait while we are moving using walker.
 You will probably never need to call this directly.
 
-This is where TRSWalkerV2.OnWaitMoving are called.
+This is where TWalkerV2.OnWaitMoving are called.
 *)
-procedure TRSWalkerV2.WaitMoving(destination: TPoint; waitUntilDistance: Int32);
+procedure TWalkerV2.WaitMoving(destination: TPoint; waitUntilDistance: Int32);
 var
   timeout, countdown: TCountDown;
   position: record Current, Previous: TPoint; end;
@@ -412,7 +412,7 @@ begin
 end;
 
 
-function TRSWalkerV2.FindFlagMove(out flag: TPoint): Boolean;
+function TWalkerV2.FindFlagMove(out flag: TPoint): Boolean;
 var
   i: Int32;
   p, q, median: TPoint;
@@ -444,7 +444,7 @@ begin
 end;
 
 
-procedure TRSWalkerV2.AntibanClick(randomness: Int32);
+procedure TWalkerV2.AntibanClick(randomness: Int32);
 var
   i: Int32;
 begin
@@ -462,14 +462,14 @@ end;
 (*
 ## Walker.Click
 ```pascal
-function TRSWalkerV2.Click(minimapPoint: TPoint; Randomness: Int32): Boolean;
+function TWalkerV2.Click(minimapPoint: TPoint; Randomness: Int32): Boolean;
 ```
 Internal method used by walker to handle clicking while walking.
 You will probably never need to call this directly.
 
 If you wish to modify certain walker behaviors, it can be a good approach to override this function.
 *)
-function TRSWalkerV2.Click(minimapPoint: TPoint; randomness: Int32; height: Single = 0): Boolean;
+function TWalkerV2.Click(minimapPoint: TPoint; randomness: Int32; height: Single = 0): Boolean;
 var
   p: TPoint;
   upText: String;
@@ -531,12 +531,12 @@ end;
 (*
 ## Walker.WalkStepHelper()
 ```pascal
-function TRSWalkerV2.WalkStepHelper(playerPoint, walkerPoint: TPoint; out minimapPoint: TPoint): Boolean;
+function TWalkerV2.WalkStepHelper(playerPoint, walkerPoint: TPoint; out minimapPoint: TPoint): Boolean;
 ```
 Internal method used by walker to help walking steps.
 You will probably never need to call this directly.
 *)
-function TRSWalkerV2.WalkStepHelper(playerPoint, walkerPoint: TPoint; out minimapPoint: TPoint): Boolean;
+function TWalkerV2.WalkStepHelper(playerPoint, walkerPoint: TPoint; out minimapPoint: TPoint): Boolean;
 var
   event_time: UInt64;
 begin
@@ -564,12 +564,12 @@ end;
 (*
 ## Walker.WalkFinalStep
 ```pascal
-function TRSWalkerV2.WalkFinalStep(playerPoint, walkerPoint: TPoint; WaitUntilDistance: Int32): Boolean;
+function TWalkerV2.WalkFinalStep(playerPoint, walkerPoint: TPoint; WaitUntilDistance: Int32): Boolean;
 ```
 Internal method used by walker when finishing walking a path.
 You will probably never need to call this directly but it can be used to take a single step.
 *)
-function TRSWalkerV2.WalkFinalStep(playerPoint, walkerPoint: TPoint; waitUntilDistance: Int32): Boolean;
+function TWalkerV2.WalkFinalStep(playerPoint, walkerPoint: TPoint; waitUntilDistance: Int32): Boolean;
 var
   minimapPoint, flag: TPoint;
   h, diff: Single;
@@ -623,12 +623,12 @@ end;
 (*
 ## Walker.WalkStep
 ```pascal
-function TRSWalkerV2.WalkStep(playerPoint, walkerPoint: TPoint): Boolean;
+function TWalkerV2.WalkStep(playerPoint, walkerPoint: TPoint): Boolean;
 ```
 Internal method used by walker while walking a path.
 You will probably never need to call this directly.
 *)
-function TRSWalkerV2.WalkStep(playerPoint, walkerPoint: TPoint): Boolean;
+function TWalkerV2.WalkStep(playerPoint, walkerPoint: TPoint): Boolean;
 var
   minimapPoint, flag: TPoint;
   waitUntilDistance: Int32;
@@ -684,12 +684,12 @@ end;
 (*
 ## Walker.IsWalkable
 ```pascal
-function TRSWalkerV2.IsWalkable(walkerPoint: TPoint; playerPoint: TPoint; Angle: Double): Boolean;
+function TWalkerV2.IsWalkable(walkerPoint: TPoint; playerPoint: TPoint; Angle: Double): Boolean;
 ```
 Internal method used by walker to decide if the destination point is within 1 click reach.
 You will probably never need to call this directly.
 *)
-function TRSWalkerV2.IsWalkable(walkerPoint: TPoint; playerPoint: TPoint; angle: Double): Boolean;
+function TWalkerV2.IsWalkable(walkerPoint: TPoint; playerPoint: TPoint; angle: Double): Boolean;
 var
   mmPoint: TPoint;
   h, diff: Single;
@@ -711,7 +711,7 @@ begin
 end;
 
 
-procedure TRSWalkerV2.DrawPath(bitmap: TMufasaBitmap; index: Int32; playerPoint: TPoint);
+procedure TWalkerV2.DrawPath(bitmap: TMufasaBitmap; index: Int32; playerPoint: TPoint);
 var
   i: Int32;
   path: TPointArray;
@@ -732,7 +732,7 @@ begin
   end;
 end;
 
-procedure TRSWalkerV2.DebugPath(index: Int32; playerPoint: TPoint);
+procedure TWalkerV2.DebugPath(index: Int32; playerPoint: TPoint);
 var
   bitmap: TMufasaBitmap;
 begin
@@ -751,7 +751,7 @@ begin
 end;
 
 {%codetools off}
-function TRSWalkerV2._BuildPath(tpa: TPointArray): TPointArray;
+function TWalkerV2._BuildPath(tpa: TPointArray): TPointArray;
 var
   i, j: Int32;
   line: TPointArray;
@@ -775,7 +775,7 @@ begin
   Result += tpa[High(tpa)];
 end;
 
-function TRSWalkerV2._AdvancePath(out index: Int32; playerPoint: TPoint; angle: Double): Boolean;
+function TWalkerV2._AdvancePath(out index: Int32; playerPoint: TPoint; angle: Double): Boolean;
 var
   previous: Int32;
   nearest, furthest: Int32;
@@ -801,7 +801,7 @@ begin
     index := Random(nearest, furthest);
 end;
 
-procedure TRSWalkerV2._WalkPathSetup(path: TPointArray);
+procedure TWalkerV2._WalkPathSetup(path: TPointArray);
 var
   me: TPoint;
 begin
@@ -818,7 +818,7 @@ begin
   end;
 end;
 
-function TRSWalkerV2._WalkPathHelper(out index: Int32; out angle: Double; playerPoint: TPoint; fails: Int32; debug: Boolean): Int32;
+function TWalkerV2._WalkPathHelper(out index: Int32; out angle: Double; playerPoint: TPoint; fails: Int32; debug: Boolean): Int32;
 begin
   if debug then
     Self.DebugPath(index, playerPoint);
@@ -856,9 +856,9 @@ end;
 {%codetools on}
 
 (*
-## TRSWalkerV2.WalkPath
+## TWalkerV2.WalkPath
 ```pascal
-function TRSWalkerV2.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Boolean;
+function TWalkerV2.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Boolean;
 ```
 Walks a path of points taken from the loaded map. We advice that WaitUntilDistance is not 0.
 
@@ -875,7 +875,7 @@ Example:
 Walker.WalkPath([[100,100],[120,120],[140,140],[160,160],[180,180]]);
 ```
 *)
-function TRSWalkerV2.WalkPath(path: TPointArray; waitUntilDistance: Int32 = 0; debug: Boolean = False): Boolean;
+function TWalkerV2.WalkPath(path: TPointArray; waitUntilDistance: Int32 = 0; debug: Boolean = False): Boolean;
 var
   playerPoint: TPoint;
   index, fails: Int32;
@@ -912,7 +912,7 @@ begin
 end;
 
 
-procedure TRSWalkerV2.SolveDoor(door: TRSDoor; compass: Single);
+procedure TWalkerV2.SolveDoor(door: TDoor; compass: Single);
 var
   rect: TRectangle;
   middleOfDoorside, doorTile: TPoint;
@@ -937,7 +937,7 @@ begin
   RSClient.Image.DrawRect(rect, $FFFF00);
   {$ENDIF}
 
-  tpa := TRSDoor.GetCorners(rect.ToTPA(), door.GetDoorAngle(), compass);
+  tpa := TDoor.GetCorners(rect.ToTPA(), door.GetDoorAngle(), compass);
   middleOfDoorside := [Round((tpa[0].X+tpa[1].X)/2), Round((tpa[0].Y+tpa[1].Y)/2)];
 
   Mouse.Move([Round((2*rect.Mean().X+3*middleOfDoorside.X)/5), Round((2*rect.Mean().Y+3*middleOfDoorside.Y)/5)]);
@@ -966,7 +966,7 @@ begin
 end;
 
 
-function TRSWalkerV2.WalkDoorway(path: TPointArray; waitUntilDistance: Int32 = 0; debug: Boolean = False): Boolean;
+function TWalkerV2.WalkDoorway(path: TPointArray; waitUntilDistance: Int32 = 0; debug: Boolean = False): Boolean;
 var
   playerPoint: TPoint;
   pathToDoor: TPointArray;
@@ -983,7 +983,7 @@ begin
     end;
 
   if doorIndex = -1 then
-    Self.Fatal('Couldn''t find a door on the path for TRSWalkerV2.WalkDoorway to handle!');
+    Self.Fatal('Couldn''t find a door on the path for TWalkerV2.WalkDoorway to handle!');
 
   pathToDoor := Copy(path, 0, doorIndex + 1); //you need this + 1 to get door.After node
   Self._WalkPathSetup(pathToDoor);
@@ -1067,7 +1067,7 @@ begin
               end;
 
             if postDoorIndex = -1 then
-              Self.Fatal('Couldn''t find then next door on the path for TRSWalkerV2.WalkDoorway to handle!');
+              Self.Fatal('Couldn''t find then next door on the path for TWalkerV2.WalkDoorway to handle!');
           end
           else
             postDoorIndex := High(path);
@@ -1096,9 +1096,9 @@ end;
 
 
 (*
-## TRSWalkerV2.WalkBlind
+## TWalkerV2.WalkBlind
 ```pascal
-function TRSWalkerV2.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
+function TWalkerV2.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
 ```
 "Blindly" walks to a point taken from the loaded map.
 A straight line is generated between the player's position and destination which is then walked.
@@ -1116,22 +1116,22 @@ Example:
 Walker.WalkBlind([300, 300]);
 ```
 *)
-function TRSWalkerV2.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
+function TWalkerV2.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
 begin
   Result := Self.WalkPath([Destination], WaitUntilDistance);
 end;
 
 
 (*
-## TRSWalkerV2.GetClosestPoint
+## TWalkerV2.GetClosestPoint
 ```pascal
-function TRSWalkerV2.GetClosestPointEx(me: TPoint; destinations: TPointArray): TPoint;
-function TRSWalkerV2.GetClosestPoint(destinations: TPointArray): TPoint;
+function TWalkerV2.GetClosestPointEx(me: TPoint; destinations: TPointArray): TPoint;
+function TWalkerV2.GetClosestPoint(destinations: TPointArray): TPoint;
 ```
 Method used to get the closest Point to the Player out of a TPA.
 *)
 
-function TRSWalkerV2.GetClosestPointEx(me: TPoint; destinations: TPointArray; out path: TPointArray): TPoint; overload;
+function TWalkerV2.GetClosestPointEx(me: TPoint; destinations: TPointArray; out path: TPointArray): TPoint; overload;
 var
   shortPaths: T2DPointArray;
   shortest, dist: Int32;
@@ -1170,20 +1170,20 @@ begin
   Result := shortPaths.RandomValue().Last();
 end;
 
-function TRSWalkerV2.GetClosestPointEx(me: TPoint; destinations: TPointArray): TPoint; overload;
+function TWalkerV2.GetClosestPointEx(me: TPoint; destinations: TPointArray): TPoint; overload;
 var
   _: TPointArray;
 begin
   Result := GetClosestPointEx(me, destinations, _);
 end;
 
-function TRSWalkerV2.GetClosestPoint(destinations: TPointArray): TPoint;
+function TWalkerV2.GetClosestPoint(destinations: TPointArray): TPoint;
 begin
   Result := Self.GetClosestPointEx(Self.Position(), destinations);
 end;
 
 
-function TRSWalkerV2._HardSolveDoor(door: TRSDoor): Boolean;
+function TWalkerV2._HardSolveDoor(door: TDoor): Boolean;
 var
   middleBottom, me: TPoint;
   angle: Single;
@@ -1224,10 +1224,10 @@ begin
 end;
 
 
-function TRSWalkerV2.GetDoorsOnPath(path: TPointArray): TRSDoorArray;
+function TWalkerV2.GetDoorsOnPath(path: TPointArray): TDoorArray;
 var
   i: Int32;
-  door: TRSDoor;
+  door: TDoor;
   n1, n2, tmp: TPoint;
 begin
   for i := 0 to High(path) - 1 do
@@ -1251,15 +1251,15 @@ end;
 
 
 (*
-## TRSWalkerV2.WebWalk
+## TWalkerV2.WebWalk
 ```pascal
-function TRSWalkerV2.WebWalkEx(me: TPoint; destination: TPoint; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0): Boolean;
-function TRSWalkerV2.WebWalk(destination: TPoint; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0): Boolean;
-function TRSWalkerV2.WebWalk(destinations: TPointArray; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0): Boolean; overload;
+function TWalkerV2.WebWalkEx(me: TPoint; destination: TPoint; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0): Boolean;
+function TWalkerV2.WebWalk(destination: TPoint; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0): Boolean;
+function TWalkerV2.WebWalk(destinations: TPointArray; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0): Boolean; overload;
 ```
 Web walks to the destination point on the loaded map. Does **not** handle any obstacles.
 *)
-function TRSWalkerV2.WebWalkEx(me: TPoint; destination: TPoint; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0; debug: Boolean = False): Boolean;
+function TWalkerV2.WebWalkEx(me: TPoint; destination: TPoint; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0; debug: Boolean = False): Boolean;
   function _GetPath(me: TPoint; safe: Boolean): TPointArray;
   var
     bmp: TMufasaBitmap;
@@ -1311,10 +1311,10 @@ function TRSWalkerV2.WebWalkEx(me: TPoint; destination: TPoint; waitUntilDistanc
 var
   path: TPointArray;
   tries: Int32;
-  doors: TRSDoorArray;
+  doors: TDoorArray;
 begin
   if not System.InRange(pathRandomness, 0, 1) then
-    Self.Fatal('TRSWalkerV2.WebWalk `PathRandomness` must be within 0..1');
+    Self.Fatal('TWalkerV2.WebWalk `PathRandomness` must be within 0..1');
 
   if not Self._DoorHandler.Enabled then
   begin
@@ -1361,12 +1361,12 @@ begin
   Result := Self.WalkPath(path, waitUntilDistance, debug);
 end;
 
-function TRSWalkerV2.WebWalk(destination: TPoint; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0; debug: Boolean = False): Boolean;
+function TWalkerV2.WebWalk(destination: TPoint; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0; debug: Boolean = False): Boolean;
 begin
   Result := Self.WebWalkEx(Self.Position(), destination, waitUntilDistance, pathRandomness, debug);
 end;
 
-function TRSWalkerV2.WebWalk(destinations: TPointArray; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0; debug: Boolean = False): Boolean; overload;
+function TWalkerV2.WebWalk(destinations: TPointArray; waitUntilDistance: Int32 = 0; pathRandomness: Double = 0; debug: Boolean = False): Boolean; overload;
 var
   me, destination: TPoint;
 begin
@@ -1377,19 +1377,19 @@ end;
 
 
 (*
-## TRSWalkerV2.MakePointVisible
+## TWalkerV2.MakePointVisible
 ```pascal
-function TRSWalkerV2.MakePointVisible(p: TPoint): Boolean;
-function TRSWalkerV2.MakePointVisible(tpa: TPointArray): Boolean; overload;
+function TWalkerV2.MakePointVisible(p: TPoint): Boolean;
+function TWalkerV2.MakePointVisible(tpa: TPointArray): Boolean; overload;
 ```
 Wrapper function used to attempt to make a Point visible on the MainScreen.
 *)
-function TRSWalkerV2.MakePointVisible(p: TPoint): Boolean;
+function TWalkerV2.MakePointVisible(p: TPoint): Boolean;
 begin
   Result := Minimap.MakePointVisible(Self.PointToMM(Self.Position(), p, Minimap.GetCompassAngle(False)));
 end;
 
-function TRSWalkerV2.MakePointVisible(tpa: TPointArray): Boolean; overload;
+function TWalkerV2.MakePointVisible(tpa: TPointArray): Boolean; overload;
 var
   me, p: TPoint;
 begin

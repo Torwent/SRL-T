@@ -5,7 +5,7 @@ This file contains internal methods used by walker.
 
 {$DEFINE SRL_WALKER_MAP_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 // not a const, allow people to edit.
@@ -18,9 +18,9 @@ var
 
 type
 (*
-## TRSWalkerRegions
+## TWalkerRegions
 ```pascal
-  TRSWalkerRegions = record
+  TWalkerRegions = record
     WORLD:          TBox;
     ZEAH:           TBox;
     EDGEVILLE:      TBox;
@@ -31,9 +31,9 @@ type
     ISLE_OF_SOULS:  TBox;
   end;
 ```
-Collection of pre-made boxes that can be used in TRSWalker.Setup();
+Collection of pre-made boxes that can be used in TWalker.Setup();
 *)
-  TRSWalkerRegions = record
+  TWalkerRegions = record
     WORLD:          TBox;
     ZEAH:           TBox;
     EDGEVILLE:      TBox;
@@ -46,23 +46,23 @@ Collection of pre-made boxes that can be used in TRSWalker.Setup();
 
 (*
 ## RSWalkerLocations
-Collection of pre-made coordinates that can be used in TRSWalker;
+Collection of pre-made coordinates that can be used in TWalker;
 *)
-  TRSWalkerLocations = record
+  TWalkerLocations = record
     GRAND_EXCHANGE: TPoint;
     EDGE_BANKERS:   TPoint;
   end;
 
 var
-  RSWalkerRegions: TRSWalkerRegions;
-  RSWalkerLocations: TRSWalkerLocations;
+  RSWalkerRegions: TWalkerRegions;
+  RSWalkerLocations: TWalkerLocations;
 
 type
 (*
-## type TRSWalkerMap
-TRSWalkerMap is the record responsible for handling map loading for TRSWalker and keep track of regions if there's any.
+## type TWalkerMap
+TWalkerMap is the record responsible for handling map loading for TWalker and keep track of regions if there's any.
 *)
-  TRSWalkerMap = record
+  TWalkerMap = record
     Map: TMufasaBitmap;
     ScaledMap: TMufasaBitmap;
     Regions: TBoxArray;
@@ -70,9 +70,9 @@ TRSWalkerMap is the record responsible for handling map loading for TRSWalker an
   end;
 
 (*
-## TRSWalkerMap.FindMap
+## TWalkerMap.FindMap
 ```pascal
-function TRSWalkerMap.FindMap(Map: String): String; static;
+function TWalkerMap.FindMap(Map: String): String; static;
 ```
 Internal function responsible for finding our map.
 If the **Map** is a path and it exists the function exits.
@@ -81,10 +81,10 @@ You probably will never need to use this directly but if you want to debug thing
 
 Example:
 ```pascal
-WriteLn TRSWalkerMap.FindMap('world');
+WriteLn TWalkerMap.FindMap('world');
 ```
 *)
-function TRSWalkerMap.FindMap(map: String): String; static;
+function TWalkerMap.FindMap(map: String): String; static;
 var
   mask: String = '.png;.bmp;';
   files: TStringArray;
@@ -102,9 +102,9 @@ begin
 end;
 
 (*
-## TRSWalkerMap.InternalLoadMap
+## TWalkerMap.InternalLoadMap
 ```pascal
-function TRSWalkerMap.InternalLoadMap(fileName: String; Region: TBox = []): TMufasaBitmap; static;
+function TWalkerMap.InternalLoadMap(fileName: String; Region: TBox = []): TMufasaBitmap; static;
 ```
 Internal function responsible for loading our map.
 If a "Region" is specified, that region is cropped from the the image file and returned, otherwise the whole file is returned as a TMufasaBitmap.
@@ -112,10 +112,10 @@ You probably will never need to use this directly, but consider the following ex
 
 Example:
 ```pascal
-TRSWalkerMap.InternalLoadMap('world', RSWalkerRegions.GRAND_EXCHANGE).Debug();
+TWalkerMap.InternalLoadMap('world', RSWalkerRegions.GRAND_EXCHANGE).Debug();
 ```
 *)
-function TRSWalkerMap.InternalLoadMap(fileName: String; aRegion: TBox = []): TMufasaBitmap; static;
+function TWalkerMap.InternalLoadMap(fileName: String; aRegion: TBox = []): TMufasaBitmap; static;
 var
   path, cacheName: String;
 begin
@@ -128,11 +128,11 @@ begin
     if not FileExists(cacheName) then
     begin
       if not ForceDirectories(path) then
-        TerminateScript('Failed to create TRSWalker cache directories.');
+        TerminateScript('Failed to create TWalker cache directories.');
 
       WriteLn('Caching ' + ExtractfileName(fileName) + ' this can take ~10 seconds.');
 
-      Result.LoadFromFile(TRSWalkerMap.FindMap(fileName));
+      Result.LoadFromFile(TWalkerMap.FindMap(fileName));
       Result.SaveToFile(cacheName);
 
       if (aRegion <> []) then
@@ -151,14 +151,14 @@ begin
 end;
 
 (*
-## TRSWalkerMap.Free
+## TWalkerMap.Free
 ```pascal
-procedure TRSWalkerMap.Free();
+procedure TWalkerMap.Free();
 ```
-Internal function responsible for releasing TRSWalkerMap from memory.
+Internal function responsible for releasing TWalkerMap from memory.
 You probably will never need to use this directly. It's automatically called on script termination.
 *)
-procedure TRSWalkerMap.Free();
+procedure TWalkerMap.Free();
 begin
   if Assigned(Self.Map) then
   begin
@@ -174,23 +174,23 @@ begin
 end;
 
 (*
-## TRSWalkerMap.Load
+## TWalkerMap.Load
 ```pascal
-procedure TRSWalkerMap.Load(fileName: String; scaling: Int32); overload;
-procedure TRSWalkerMap.Load(fileName: String; aRegions: TBoxArray; scaling: Int32; Padding: Int32 = 50); overload;
-procedure TRSWalkerMap.Load(fileName: String; aRegion: TBox; scaling: Int32; padding: Int32 = 50); overload;
-procedure TRSWalkerMap.Load(fileName: String; start: TPoint; scaling: Int32; out aRegion: TBox; padding: Int32 = 50); overload;
+procedure TWalkerMap.Load(fileName: String; scaling: Int32); overload;
+procedure TWalkerMap.Load(fileName: String; aRegions: TBoxArray; scaling: Int32; Padding: Int32 = 50); overload;
+procedure TWalkerMap.Load(fileName: String; aRegion: TBox; scaling: Int32; padding: Int32 = 50); overload;
+procedure TWalkerMap.Load(fileName: String; start: TPoint; scaling: Int32; out aRegion: TBox; padding: Int32 = 50); overload;
 ```
-Internal function responsible for setting up TRSWalkerMap.
-This is where we load our bitmaps and store them in a TRSWalkerMap variable.
+Internal function responsible for setting up TWalkerMap.
+This is where we load our bitmaps and store them in a TWalkerMap variable.
 It's also where we downsample our map for faster searches.
-TRSWalkerMap.Map contains the full sized map image while TRSWalkerMap.ScaledMap contains the downsampled map.
+TWalkerMap.Map contains the full sized map image while TWalkerMap.ScaledMap contains the downsampled map.
 You probably will never need to use this directly but consider the following example for debugging purposes.
 
 Example:
 ```pascal
 var
-  map: TRSWalkerMap;
+  map: TWalkerMap;
 begin
   map.Load('world', 8);
   map.Map.Debug();
@@ -199,7 +199,7 @@ begin
 end;
 ```
 *)
-procedure TRSWalkerMap.Load(fileName: String; scaling: Int32);
+procedure TWalkerMap.Load(fileName: String; scaling: Int32);
 begin
   Self.ScaledMap.Init();
   Self.Map := Self.InternalLoadMap(fileName);
@@ -210,7 +210,7 @@ begin
   Self.RegionOffsets := [[0, 0]];
 end;
 
-procedure TRSWalkerMap.Load(fileName: String; aRegions: TBoxArray; scaling: Int32; padding: Int32 = 50); overload;
+procedure TWalkerMap.Load(fileName: String; aRegions: TBoxArray; scaling: Int32; padding: Int32 = 50); overload;
 var
   bitmaps: TMufasaBitmapArray;
   i: Int32;
@@ -250,7 +250,7 @@ begin
     bitmaps[i].Free();
 end;
 
-procedure TRSWalkerMap.Load(fileName: String; aRegion: TBox; scaling: Int32; padding: Int32 = 50); overload;
+procedure TWalkerMap.Load(fileName: String; aRegion: TBox; scaling: Int32; padding: Int32 = 50); overload;
 var
   bitmaps: TMufasaBitmapArray;
   bitmap: TMufasaBitmap;
@@ -295,7 +295,7 @@ begin
     bitmaps[i].Free();
 end;
 
-procedure TRSWalkerMap.Load(fileName: String; start: TPoint; scaling: Int32; out aRegion: TBox; padding: Int32 = 50); overload;
+procedure TWalkerMap.Load(fileName: String; start: TPoint; scaling: Int32; out aRegion: TBox; padding: Int32 = 50); overload;
 var
   bitmaps: TMufasaBitmapArray;
   bitmap: TMufasaBitmap;
@@ -340,14 +340,14 @@ end;
 
 
 (*
-## TRSWalkerMap.RegionIndexFromPoint
+## TWalkerMap.RegionIndexFromPoint
 ```pascal
-function TRSWalkerMap.RegionIndexFromPoint(P: TPoint): Int32;
+function TWalkerMap.RegionIndexFromPoint(P: TPoint): Int32;
 ```
-Internal TRSWalkerMap function used to return the region **p** belongs to.
+Internal TWalkerMap function used to return the region **p** belongs to.
 You probably don't need to ever call this but can be useful for debugging.
 *)
-function TRSWalkerMap.RegionIndexFromPoint(p: TPoint): Int32;
+function TWalkerMap.RegionIndexFromPoint(p: TPoint): Int32;
 var
   i: Int32;
 begin
@@ -359,15 +359,15 @@ begin
 end;
 
 (*
-## TRSWalkerMap.RegionToGlobal
+## TWalkerMap.RegionToGlobal
 ```pascal
-function TRSWalkerMap.RegionToGlobal(p: TPoint): TPoint;
+function TWalkerMap.RegionToGlobal(p: TPoint): TPoint;
 ```
-Internal TRSWalkerMap function used to convert a region point **p** to a global point.
+Internal TWalkerMap function used to convert a region point **p** to a global point.
 This is responsible for converting WalkerMap region point to the coordinates of that same point in the original map file the regions were cropped from.
 You probably don't need to ever call this but can be useful for debugging.
 *)
-function TRSWalkerMap.RegionToGlobal(p: TPoint): TPoint;
+function TWalkerMap.RegionToGlobal(p: TPoint): TPoint;
 var
   i: Int32;
 begin
@@ -381,15 +381,15 @@ begin
 end;
 
 (*
-## TRSWalkerMap.GlobalToRegion
+## TWalkerMap.GlobalToRegion
 ```pascal
-function TRSWalkerMap.GlobalToRegion(RegionIndex: Int32; P: TPoint): TPoint;
+function TWalkerMap.GlobalToRegion(RegionIndex: Int32; P: TPoint): TPoint;
 ```
-Internal TRSWalkerMap function used to convert a global point **p** to a region point.
-This is literally the inverse of TRSWalkerMap.RegionToGlobal().
+Internal TWalkerMap function used to convert a global point **p** to a region point.
+This is literally the inverse of TWalkerMap.RegionToGlobal().
 You probably don't need to ever call this but can be useful for debugging.
 *)
-function TRSWalkerMap.GlobalToRegion(RegionIndex: Int32; P: TPoint): TPoint;
+function TWalkerMap.GlobalToRegion(RegionIndex: Int32; P: TPoint): TPoint;
 begin
   Result := P;
   if (RegionIndex > -1) then

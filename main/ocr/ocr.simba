@@ -1,6 +1,6 @@
 {$DEFINE SRL_OCR_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 {$loadlib ../../plugins/libsimpleocr/libsimpleocr}

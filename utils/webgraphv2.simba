@@ -14,18 +14,18 @@ differently to handle more complex scenarios.
 
 type
   ERSDoorType = (UNKNOWN, NORMAL, WIDE);
-  TRSDoor = record
+  TDoor = record
     Before, After, Center, Direction: TPoint;
     DoorType: ERSDoorType;
     SEPARATING: Boolean;
   end;
 
-  TRSDoorArray = array of TRSDoor;
+  TDoorArray = array of TDoor;
 
 //This is the number of degrees you need to face the compass to face the door directly.
 //It works by selecting the cardinal direction that gives the highest inner product
 //with the vector from the tile before the door to the door center.
-function TRSDoor.GetDoorAngle(): Single;
+function TDoor.GetDoorAngle(): Single;
 const
   NORTH:  TPoint = [0,-1];
   EAST:   TPoint = [1,0];
@@ -56,7 +56,7 @@ end;
 
 //Does as the name states. Doesn't support diagonal doors yet
 //Might add small randomness to this later (i.e. do doorangle + Random(-10,10) or something similar)
-function TRSDoor.GetVisibleAngle(angle: Double; randomness: Integer = 75; allowBackwardsAngle: Boolean = True): Double;
+function TDoor.GetVisibleAngle(angle: Double; randomness: Integer = 75; allowBackwardsAngle: Boolean = True): Double;
 begin
   Result := Self.GetDoorAngle();
 
@@ -69,7 +69,7 @@ begin
   Result := FixD(Result);
 end;
 
-function TRSDoor.GetCorners(corners: TPointArray; doorAngle: Single; compass: Single = $FFFF): TPointArray; static;
+function TDoor.GetCorners(corners: TPointArray; doorAngle: Single; compass: Single = $FFFF): TPointArray; static;
 var
   diff: Double;
 begin
@@ -85,9 +85,9 @@ begin
 end;
 
 //draw doors on bitmap
-procedure TRSDoorArray.Draw(bmp: TMufasaBitmap);
+procedure TDoorArray.Draw(bmp: TMufasaBitmap);
 var
-  door: TRSDoor;
+  door: TDoor;
 begin
   for door in Self do
     case door.DoorType of
@@ -107,7 +107,7 @@ type
     Paths: T2DIntArray;
     Names: TStringArray;
 
-    Doors: TRSDoorArray;
+    Doors: TDoorArray;
 
     Blocking: TIntegerArray;
 

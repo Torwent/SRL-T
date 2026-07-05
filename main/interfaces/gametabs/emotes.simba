@@ -1,6 +1,6 @@
 {$DEFINE SRL_EMOTES_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -10,18 +10,18 @@ type
     PANIC, RASPBERRY, CLAP, SALUTE
   );
 
-  TRSEmotes = record(TRSInterface)
+  TEmotes = record(TInterface)
     Area: TBox;
     Slots: TBoxArray;
   end;
 
-procedure TRSEmotes.Setup(); override;
+procedure TEmotes.Setup(); override;
 begin
   inherited;
   Self.Name := 'Emotes';
 end;
 
-function TRSEmotes.GetEmoteUpText(emote: ERSEmote): String;
+function TEmotes.GetEmoteUpText(emote: ERSEmote): String;
 begin
   case emote of
     ERSEmote.YES: Result := 'Yes';
@@ -52,9 +52,9 @@ begin
 end;
 
 
-procedure TRSEmotes.SetupAlignment(); overload;
+procedure TEmotes.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
   i: Int32;
 begin
   alignment.Left   := GameTab.Bounds.X1;
@@ -73,23 +73,23 @@ begin
 end;
 
 
-function TRSEmotes.IsOpen(): Boolean;
+function TEmotes.IsOpen(): Boolean;
 begin
   Result := GameTabs.GetCurrentTab() = ERSGameTab.Emotes;
 end;
 
-function TRSEmotes.Open(): Boolean;
+function TEmotes.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.Emotes);
 end;
 
 
-function TRSEmotes._GetOffset(): Int32;
+function TEmotes._GetOffset(): Int32;
 begin
   Result := -Round(Self.GetScrollPosition() * 4.3);
 end;
 
-function TRSEmotes.GetSlots(): TBoxArray;
+function TEmotes.GetSlots(): TBoxArray;
 var
   i: Int32;
 begin
@@ -109,7 +109,7 @@ begin
 end;
 
 
-function TRSEmotes.Find(emote: ERSEmote; out bounds: TBox): Boolean;
+function TEmotes.Find(emote: ERSEmote; out bounds: TBox): Boolean;
 begin
   bounds := Self.GetSlots[emote];
   Result := Self.Area.Contains([bounds.X1, bounds.Y1]) or
@@ -118,14 +118,14 @@ begin
   if Result then bounds.LimitTo(Self.Area);
 end;
 
-function TRSEmotes.Contains(emote: ERSEmote): Boolean;
+function TEmotes.Contains(emote: ERSEmote): Boolean;
 var
   b: TBox;
 begin
   Result := Self.Find(emote, b);
 end;
 
-function TRSEmotes.UseEmote(emote: ERSEmote): Boolean;
+function TEmotes.UseEmote(emote: ERSEmote): Boolean;
 var
   b: TBox;
   emoteText: String;
@@ -163,7 +163,7 @@ begin
 end;
 
 var
-  Emotes: TRSEmotes;
+  Emotes: TEmotes;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

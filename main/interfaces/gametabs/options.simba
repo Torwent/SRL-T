@@ -1,6 +1,6 @@
 {$DEFINE SRL_OPTIONS_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -9,12 +9,12 @@ type
   ERSOptionsButton = (AID, RUN, HOUSE, BOND);
   ERSHouseOptionsButton = (CLOSE, VIEWER, EXPEL, SERVANT, LEAVE);
 
-  TRSOptions = record(TRSInterface)
+  TOptions = record(TInterface)
     Sliders: array [ERSOptionsSlider] of TBox;
     Tabs: array [ERSOptionsTab] of TBox;
   end;
 
-procedure TRSOptions.Setup(); override;
+procedure TOptions.Setup(); override;
 begin
   inherited;
 
@@ -22,9 +22,9 @@ begin
   Self.ButtonColors += CTS1(2369440, 5);
 end;
 
-procedure TRSOptions.SetupAlignment(); overload;
+procedure TOptions.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 var
   boxes: TBoxArray;
   i: Int32;
@@ -53,7 +53,7 @@ begin
 end;
 
 
-function TRSOptions.GetSliderLevel(SliderBounds: TBox; SliderColor: Integer): Integer;
+function TOptions.GetSliderLevel(SliderBounds: TBox; SliderColor: Integer): Integer;
 var
   TPA: TPointArray;
 begin
@@ -65,12 +65,12 @@ begin
   end;
 end;
 
-function TRSOptions.GetZoomLevel(): Integer;
+function TOptions.GetZoomLevel(): Integer;
 begin
   Result := Self.GetSliderLevel(Self.Sliders[ERSOptionsSlider.ZOOM], 2106152);
 end;
 
-function TRSOptions.SetZoomLevel(level: Integer): Boolean;
+function TOptions.SetZoomLevel(level: Integer): Boolean;
 var
   currentLevel: Integer;
   sliderBounds: TBox;
@@ -97,12 +97,12 @@ begin
   Result := WaitUntil(InRange(Self.GetZoomLevel(), level-1, level+1), SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-function TRSOptions.GetBrightnessLevel(): Integer;
+function TOptions.GetBrightnessLevel(): Integer;
 begin
   Result := Self.GetSliderLevel(Self.Sliders[ERSOptionsSlider.BRIGHTNESS], 2040359);
 end;
 
-function TRSOptions.SetMaxBrightness(): Boolean;
+function TOptions.SetMaxBrightness(): Boolean;
 begin
   Result := Self.OpenTab(ERSOptionsTab.DISPLAY);
   if not Result then Exit;
@@ -111,23 +111,23 @@ begin
     Mouse.Click(X2 + Random(3, 5), Random(Y1, Y2), MOUSE_LEFT);
 end;
 
-function TRSOptions.IsOpen(): Boolean;
+function TOptions.IsOpen(): Boolean;
 begin
   Result := GameTabs.GetCurrentTab = ERSGameTab.OPTIONS;
 end;
 
-function TRSOptions.Open(): Boolean;
+function TOptions.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.OPTIONS);
 end;
 
 
-function TRSOptions.GetButtons(): TGameButtonArray;
+function TOptions.GetButtons(): TGameButtonArray;
 begin
   Result := Self.FindButtons([[38,38]]);
 end;
 
-function TRSOptions.GetButton(button: ERSOptionsButton): TGameButton;
+function TOptions.GetButton(button: ERSOptionsButton): TGameButton;
 var
   Buttons: TGameButtonArray := Self.GetButtons;
 begin
@@ -136,12 +136,12 @@ begin
 end;
 
 
-function TRSOptions.GetHouseOptionsButtons(): TGameButtonArray;
+function TOptions.GetHouseOptionsButtons(): TGameButtonArray;
 begin
   Result := Self.FindButtons([[21, 21], [103, 38], [164, 30]]);
 end;
 
-function TRSOptions.GetHouseOptionsButton(button: ERSHouseOptionsButton): TGameButton;
+function TOptions.GetHouseOptionsButton(button: ERSHouseOptionsButton): TGameButton;
 var
   Buttons: TGameButtonArray;
 begin
@@ -150,12 +150,12 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSOptions.IsHouseOptionsOpen(): Boolean;
+function TOptions.IsHouseOptionsOpen(): Boolean;
 begin
   Result := SRL.CountColor(CTS2(4630611, 23, 0.04, 0.79), Self.Bounds) = 148;
 end;
 
-function TRSOptions.OpenHouseOptions(): Boolean;
+function TOptions.OpenHouseOptions(): Boolean;
 begin
   if Self.IsHouseOptionsOpen() then Exit(True);
   if not Self.Open or not Self.OpenTab(ERSOptionsTab.CONTROLS) then Exit;
@@ -165,7 +165,7 @@ begin
   Result := WaitUntil(Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-function TRSOptions.CloseHouseOptions(): Boolean;
+function TOptions.CloseHouseOptions(): Boolean;
 begin
   if not Self.IsHouseOptionsOpen() then Exit(True);
   Self.GetHouseOptionsButton(ERSHouseOptionsButton.CLOSE).Click();
@@ -173,7 +173,7 @@ begin
 end;
 
 
-function TRSOptions.GetCurrentTab(): ERSOptionsTab;
+function TOptions.GetCurrentTab(): ERSOptionsTab;
 var
   tab: ERSOptionsTab;
   count: Integer;
@@ -186,7 +186,7 @@ begin
   end;
 end;
 
-function TRSOptions.OpenTab(tab: ERSOptionsTab): Boolean;
+function TOptions.OpenTab(tab: ERSOptionsTab): Boolean;
 begin
   if not Self.Open() or not Self.CloseHouseOptions() then
     Exit(False);
@@ -198,7 +198,7 @@ begin
   Result := WaitUntil(Self.GetCurrentTab() = tab, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-procedure TRSOptions.Draw(bitmap: TMufasaBitmap); override;
+procedure TOptions.Draw(bitmap: TMufasaBitmap); override;
 var
   buttons: TGameButtonArray;
 begin
@@ -225,9 +225,9 @@ begin
 end;
 
 var
-  Options: TRSOptions;
+  Options: TOptions;
 
-function TRSGameTabs.GetCurrentTab(): ERSGameTab; override;
+function TGameTabs.GetCurrentTab(): ERSGameTab; override;
 begin
   Result := inherited;
 

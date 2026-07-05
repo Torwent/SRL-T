@@ -4,23 +4,23 @@ Methods to interact with the logout tab.
 *)
 {$DEFINE SRL_LOGOUT_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
   ERSLogoutButton = (WORLD_SWITCHER, CLICK_HERE);
   ERSLogoutWorldSwitcherButton = (CLOSE);
-  TRSLogout = type TRSInterface;
+  TLogout = type TInterface;
 
-procedure TRSLogout.Setup(); override;
+procedure TLogout.Setup(); override;
 begin
   inherited;
   Self.Name := 'Logout';
 end;
 
-procedure TRSLogout.SetupAlignment(); overload;
+procedure TLogout.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left := GameTab.Bounds.X1 - 3;
   alignment.Right := GameTab.Bounds.X2 + 3;
@@ -32,7 +32,7 @@ end;
 (*
 ## Logout.IsOpen
 ```pascal
-function TRSLogout.IsOpen(): Boolean;
+function TLogout.IsOpen(): Boolean;
 ```
 Returns true if the logout gametab is open, false if it's not.
 
@@ -41,7 +41,7 @@ Example:
 WriteLn Logout.IsOpen();
 ```
 *)
-function TRSLogout.IsOpen(): Boolean;
+function TLogout.IsOpen(): Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.LOGOUT);
 end;
@@ -49,7 +49,7 @@ end;
 (*
 ## Logout.Open
 ```pascal
-function TRSLogout.Open(): Boolean;
+function TLogout.Open(): Boolean;
 ```
 Attempts to open the logout tab, returns true if it succeeds.
 
@@ -58,7 +58,7 @@ Example:
 WriteLn Logout.Open();
 ```
 *)
-function TRSLogout.Open(): Boolean;
+function TLogout.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.LOGOUT);
 end;
@@ -66,7 +66,7 @@ end;
 (*
 ## Logout.GetButtons
 ```pascal
-function TRSLogout.GetButtons(): TGameButtonArray;
+function TLogout.GetButtons(): TGameButtonArray;
 ```
 Returns the logout and world switcher buttons.
 
@@ -75,7 +75,7 @@ Example:
 Debug(Logout.GetButtons());
 ```
 *)
-function TRSLogout.GetButtons(): TGameButtonArray;
+function TLogout.GetButtons(): TGameButtonArray;
 begin
   Result := Self.FindButtons([[138, 30], [21, 21]]);
 end;
@@ -83,7 +83,7 @@ end;
 (*
 ## Logout.GetButton
 ```pascal
-function TRSLogout.GetButton(button: ERSLogoutButton): TGameButton;
+function TLogout.GetButton(button: ERSLogoutButton): TGameButton;
 ```
 Returns a logout button.
 
@@ -92,7 +92,7 @@ Example:
 Debug([Logout.GetButton(ERSLogoutButton.CLICK_HERE)]);
 ```
 *)
-function TRSLogout.GetButton(button: ERSLogoutButton): TGameButton;
+function TLogout.GetButton(button: ERSLogoutButton): TGameButton;
 var
   buttons: TGameButtonArray;
 begin
@@ -105,7 +105,7 @@ end;
 (*
 ## Logout.GetStarButtons
 ```pascal
-function TRSLogout.GetStarButtons(): TGameButtonArray;
+function TLogout.GetStarButtons(): TGameButtonArray;
 ```
 Returns the rating star buttons.
 
@@ -114,7 +114,7 @@ Example:
 Debug(Logout.GetStarButtons());
 ```
 *)
-function TRSLogout.GetStarButtons(): TGameButtonArray;
+function TLogout.GetStarButtons(): TGameButtonArray;
 begin
   Result := Self.FindButtons([[30, 34]]);
 end;
@@ -122,7 +122,7 @@ end;
 (*
 ## Logout.GetStarButton
 ```pascal
-function TRSLogout.GetStarButton(star: Int32): TGameButton;
+function TLogout.GetStarButton(star: Int32): TGameButton;
 ```
 Returns a star button.
 
@@ -131,7 +131,7 @@ Example:
 Debug([Logout.GetStarButton(3)]);
 ```
 *)
-function TRSLogout.GetStarButton(star: Int32): TGameButton;
+function TLogout.GetStarButton(star: Int32): TGameButton;
 var
   buttons: TGameButtonArray;
 begin
@@ -145,7 +145,7 @@ end;
 (*
 ## Logout.IsRated
 ```pascal
-function TRSLogout.IsRated(): Boolean;
+function TLogout.IsRated(): Boolean;
 ```
 Returns true if a star button was clicked.
 
@@ -154,7 +154,7 @@ Example:
 WriteLn Logout.IsRated();
 ```
 *)
-function TRSLogout.IsRated(): Boolean;
+function TLogout.IsRated(): Boolean;
 var
   button: TGameButton;
 begin
@@ -167,7 +167,7 @@ end;
 (*
 ## Logout.GetWorldSwitcherButtons
 ```pascal
-function TRSLogout.GetWorldSwitcherButtons(): TGameButtonArray;
+function TLogout.GetWorldSwitcherButtons(): TGameButtonArray;
 ```
 Returns world switcher buttons.
 
@@ -176,7 +176,7 @@ Example:
 Debug(Logout.GetWorldSwitcherButtons());
 ```
 *)
-function TRSLogout.GetWorldSwitcherButtons(): TGameButtonArray;
+function TLogout.GetWorldSwitcherButtons(): TGameButtonArray;
 begin
   Result := Self.FindButtons([[21, 21]]);
 end;
@@ -184,7 +184,7 @@ end;
 (*
 ## Logout.GetWorldSwitcherButton
 ```pascal
-function TRSLogout.GetWorldSwitcherButton(button: ERSLogoutWorldSwitcherButton): TGameButton;
+function TLogout.GetWorldSwitcherButton(button: ERSLogoutWorldSwitcherButton): TGameButton;
 ```
 Returns a world switcher button.
 
@@ -193,7 +193,7 @@ Example:
 Debug([Logout.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE)]);
 ```
 *)
-function TRSLogout.GetWorldSwitcherButton(button: ERSLogoutWorldSwitcherButton): TGameButton;
+function TLogout.GetWorldSwitcherButton(button: ERSLogoutWorldSwitcherButton): TGameButton;
 var
   Buttons: TGameButtonArray := Self.GetWorldSwitcherButtons();
 begin
@@ -205,7 +205,7 @@ end;
 (*
 ## Logout.IsWorldSwitcherOpen
 ```pascal
-function TRSLogout.IsWorldSwitcherOpen(): Boolean;
+function TLogout.IsWorldSwitcherOpen(): Boolean;
 ```
 Returns true if the world switcher is open.
 
@@ -214,7 +214,7 @@ Example:
 WriteLn Logout.IsWorldSwitcherOpen();
 ```
 *)
-function TRSLogout.IsWorldSwitcherOpen(): Boolean;
+function TLogout.IsWorldSwitcherOpen(): Boolean;
 begin
   Result := Self.IsOpen() and Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Visible();
 end;
@@ -222,7 +222,7 @@ end;
 (*
 ## Logout.CloseWorldSwitcher
 ```pascal
-function TRSLogout.CloseWorldSwitcher(): Boolean;
+function TLogout.CloseWorldSwitcher(): Boolean;
 ```
 Closes the world switcher.
 
@@ -231,7 +231,7 @@ Example:
 Logout.CloseWorldSwitcher();
 ```
 *)
-function TRSLogout.CloseWorldSwitcher(): Boolean;
+function TLogout.CloseWorldSwitcher(): Boolean;
 begin
   if Self.IsOpen() and (not Self.IsWorldSwitcherOpen()) then
     Exit(True);
@@ -243,7 +243,7 @@ end;
 (*
 ## Logout.ClickLogout
 ```pascal
-function TRSLogout.ClickLogout(attempts: Int32 = 5; time: Int32 = 20000): Boolean;
+function TLogout.ClickLogout(attempts: Int32 = 5; time: Int32 = 20000): Boolean;
 ```
 Clicks the logout button. Returns true if we succesfully logout of the game.
 
@@ -252,7 +252,7 @@ Example:
 WriteLn Logout.ClickLogout();
 ```
 *)
-function TRSLogout.ClickLogout(attempts: Int32 = 5; time: Int32 = 20000): Boolean;
+function TLogout.ClickLogout(attempts: Int32 = 5; time: Int32 = 20000): Boolean;
 var
   i: Int32;
   interval: UInt64;
@@ -270,9 +270,9 @@ end;
 var
 (*
 ## var Logout
-Global TRSLogout variable.
+Global TLogout variable.
 *)
-  Logout: TRSLogout;
+  Logout: TLogout;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

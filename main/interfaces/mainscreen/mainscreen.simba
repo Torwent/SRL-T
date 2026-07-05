@@ -5,17 +5,17 @@ Methods to interact with the game mainscreen.
 
 {$DEFINE SRL_MAINSCREEN_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 {.$DEFINE SRL_DEBUG_MOUSE} // Enable me print uptext recognition
 
 (*
-## TRSObjectFinder
+## TObjectFinder
 
-TRSObjectFinder is the record used in **MainScreen.FindObject**.
+TObjectFinder is the record used in **MainScreen.FindObject**.
 
-* **TRSObjectFinder.Zoom**
+* **TObjectFinder.Zoom**
 
   When designing a object finder you **must** be at **default zoom(50)** in the **fixed** client mode.
   This allows SRL to convert the finder to work at any zoom and client mode once made.
@@ -23,7 +23,7 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   ```{figure} ../../images/zoom.png
   A finder working at different zoom levels producing similar results.
   ```
-* **TRSObjectFinder.Colors**
+* **TObjectFinder.Colors**
 
   An color array which will searched for. Use ACA to acquire color(s).
 
@@ -36,7 +36,7 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
   The two colors above found and merged together.
   ```
 
-* **TRSObjectFinder.ColorClusters**
+* **TObjectFinder.ColorClusters**
 
   An array of "color clusters" which will be merged together. Use ACA to acquire color(s).
 
@@ -55,7 +55,7 @@ CTS2(5526875, 15, 0.19, 0.06), // grey
   The above color cluster found where "brown" is within 2 pixels of "grey".
   ```
 
-* **TRSObjectFinder.Erode**
+* **TObjectFinder.Erode**
 
   The amount to erode before clustering. This is useful for removing small amounts of noise.
 
@@ -67,7 +67,7 @@ CTS2(5526875, 15, 0.19, 0.06), // grey
   Erode before and after.
   ```
 
-* **TRSObjectFinder.Grow**
+* **TObjectFinder.Grow**
 
   The amount to grow **before** eroding. This is useful for filling gaps.
 
@@ -89,7 +89,7 @@ CTS2(5526875, 15, 0.19, 0.06), // grey
   Grow paired with Erode.
   ```
 
-* **TRSObjectFinder.ClusterDistance**
+* **TObjectFinder.ClusterDistance**
 
   The distance to pass to *ClusterTPA*, this is how multiple objects are grouped up. `Distance=5` would mean that points that are closer than or equal to 5 pixels away are considered close enough to merge into a singular group.
 
@@ -109,7 +109,7 @@ CTS2(5526875, 15, 0.19, 0.06), // grey
   Cluster distance **20** produces two sets of chairs
   ```
 
-*  **TRSObjectFinder.MinLongSide, TRSObjectFinder.MaxLongSide, TRSObjectFinder.MinShortSide, TRSObjectFinder.MaxShortSide**
+*  **TObjectFinder.MinLongSide, TObjectFinder.MaxLongSide, TObjectFinder.MinShortSide, TObjectFinder.MaxShortSide**
 
   Any match that exceeds these values will be removed.
   The bounding rectangle is used which has a **long** and a **short** side measured in pixels.
@@ -128,7 +128,7 @@ CTS2(5526875, 15, 0.19, 0.06), // grey
   ```
 *)
 type
-  TRSObjectFinder = record
+  TObjectFinder = record
     Colors: array of TCTS2Color;
     ColorClusters: array of record Primary, Secondary: TCTS2Color; Distance: Int32;end;
     ClusterDistance: Int32;
@@ -138,7 +138,7 @@ type
     MinShortSide, MaxShortSide: Int32;
   end;
 
-  TRSMainScreen = record(TRSInterface)
+  TMainScreen = record(TInterface)
     UpTextBitmapBuffer: TMufasaBitmap;
     UpTextArea: TBox;
     UpTextFilter: TOCRFilter;
@@ -149,7 +149,7 @@ type
 (*
 ## MainScreen.Setup
 ```pascal
-procedure TRSMainScreen.Setup(ClientMode: ERSClientMode);
+procedure TMainScreen.Setup(ClientMode: ERSClientMode);
 ```
 Setups the mainscreen.
 
@@ -157,7 +157,7 @@ Setups the mainscreen.
 This is automatically called on the **MainScreen** variable.
 ```
 *)
-procedure TRSMainScreen.Setup(); override;
+procedure TMainScreen.Setup(); override;
 begin
   inherited;
 
@@ -170,9 +170,9 @@ begin
   AddOnTerminate(@Self.UpTextBitmapBuffer.Free);
 end;
 
-procedure TRSMainScreen.SetupAlignment(); overload;
+procedure TMainScreen.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   case RSClient.Mode of
     ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
@@ -208,7 +208,7 @@ end;
 (*
 ## MainScreen.GetUpText
 ```pascal
-function TRSMainScreen.GetUpText(): String;
+function TMainScreen.GetUpText(): String;
 ```
 Returns the current uptext.
 Uptext is the top left which appears when moving the mouse over a object.
@@ -218,7 +218,7 @@ Example:
 WriteLn(MainScreen.GetUpText());
 ```
 *)
-function TRSMainScreen.GetUpText(): String;
+function TMainScreen.GetUpText(): String;
 begin
   with Self.UpTextArea do
     Self.UpTextBitmapBuffer.CopyClientToBitmap(Client.GetIOManager(), True, X1,Y1,X2,Y2);
@@ -237,8 +237,8 @@ end;
 (*
 ## MainScreen.IsUpText()
 ```pascal
-function TRSMainScreen.IsUpText(Text: TStringArray; Timeout: Int32 = -1): Boolean;
-function TRSMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean; overload;
+function TMainScreen.IsUpText(Text: TStringArray; Timeout: Int32 = -1): Boolean;
+function TMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean; overload;
 ```
 Returns true if the uptext is found **anywhere**.
 If a `TStringArray`is passed as `Text`, any match will result true.
@@ -248,7 +248,7 @@ Example:
 WriteLn(MainScreen.MainScreen.IsUpText(['Chicken', 'Wolf']));
 ```
 *)
-function TRSMainScreen.IsUpText(text: TStringArray; timeout: Int32 = -1): Boolean;
+function TMainScreen.IsUpText(text: TStringArray; timeout: Int32 = -1): Boolean;
 
   function _IsUpText(): Boolean;
   var
@@ -282,7 +282,7 @@ begin
   until GetTickCount() >= t;
 end;
 
-function TRSMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean; overload;
+function TMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean; overload;
 begin
   Result := Self.IsUpText([Text], Timeout);
 end;
@@ -290,7 +290,7 @@ end;
 (*
 ## MainScreen.SetHighestPitch
 ```pascal
-procedure TRSMainScreen.SetHighestPitch();
+procedure TMainScreen.SetHighestPitch();
 ```
 Moves the camera to the highest pitch.
 There is no way to detect the camera pitch reliably using color, this is why SRL only provides this method.
@@ -300,7 +300,7 @@ Example:
 MainScreen.SetHighestPitch();
 ```
 *)
-procedure TRSMainScreen.SetHighestPitch();
+procedure TMainScreen.SetHighestPitch();
 var
   i: Int32;
 begin
@@ -320,7 +320,7 @@ end;
 (*
 ## MainScreen.NormalizeDistance
 ```pascal
-function TRSMainScreen.NormalizeDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
+function TMainScreen.NormalizeDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
 ```
 Converts a distance acquired from the **fixed client* and **default zoom** to the
 current mainscreen.
@@ -331,7 +331,7 @@ Example:
 WriteLn(MainScreen.TranslateDistance(20));
 ```
 *)
-function TRSMainScreen.NormalizeDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
+function TMainScreen.NormalizeDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
 begin
   // Implemented in minimaptoms.simba
 end;
@@ -340,12 +340,12 @@ end;
 (*
 ## MainScreen.GetPlayerBox()
 ```pascal
-function TRSMainScreen.GetPlayerBox(): TBox;
+function TMainScreen.GetPlayerBox(): TBox;
 ```
 Returns a box surrounding our player. Works at any zoom level.
 Implemented in MM2MS: {ref}`MainScreen.GetPlayerBox() override`
 *)
-function TRSMainScreen.GetPlayerBox(): TBox;
+function TMainScreen.GetPlayerBox(): TBox;
 begin
   // Implemented in minimaptoms.simba
 end;
@@ -353,12 +353,12 @@ end;
 (*
 ## MainScreen.FacePoint
 ```pascal
-function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+function TMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
 ```
 Rotates the camera to face point `P`.
 Implemented in MM2MS: {ref}`MainScreen.FacePoint() override`
 *)
-function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+function TMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
 begin
   // Implemented in minimaptoms.simba
 end;
@@ -366,12 +366,12 @@ end;
 (*
 ## Mainscreen.PointToMM
 ```pascal
-function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32 = 0; Accuracy:Double = 0.2): Vector3;
+function TMainScreen.PointToMM(MS: TPoint; Height: Int32 = 0; Accuracy:Double = 0.2): Vector3;
 ```
 Takes a mainscreen point and converts it to a point on the minimap.
 Implemented in MM2MS: {ref}`MainScreen.PointToMM() override`
 *)
-function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32 = 0; Accuracy:Double = 0.2): Vector3;
+function TMainScreen.PointToMM(MS: TPoint; Height: Int32 = 0; Accuracy:Double = 0.2): Vector3;
 begin
   // Implemented in minimaptoms.simba
 end;
@@ -380,17 +380,17 @@ end;
 (*
 ## Mainscreen.FindObject()
 ```pascal
-function TRSMainScreen.FindObject(Finder: TRSObjectFinder; area: TBox): T2DPointArray;
-function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray; overload;
+function TMainScreen.FindObject(Finder: TObjectFinder; area: TBox): T2DPointArray;
+function TMainScreen.FindObject(Finder: TObjectFinder): T2DPointArray; overload;
 ```
-Returns all matches of an TRSObjectFinder in the desired `area`.
+Returns all matches of an TObjectFinder in the desired `area`.
 If no `area` is specified, the whole mainscreen is used.
 
-See the top of this page page for documentation about the TRSObjectFinder record.
+See the top of this page page for documentation about the TObjectFinder record.
 
 Example:
 ```pascal
-var MyFinder: TRSObjectFinder;
+var MyFinder: TObjectFinder;
 begin
   // Some chairs in varrock west bank
   MyFinder.Colors += CTS2(1328725, 6, 0.06, 0.69);
@@ -403,7 +403,7 @@ begin
 end;
 ```
 *)
-function TRSMainScreen.FindObject(Finder: TRSObjectFinder; Area: TBox): T2DPointArray;
+function TMainScreen.FindObject(Finder: TObjectFinder; Area: TBox): T2DPointArray;
 var
   TPA, Primary, Secondary: TPointArray;
   ATPA: T2DPointArray;
@@ -411,7 +411,7 @@ var
   L, S: Int32;
 begin
   if Finder = [] then
-    Self.Fatal('Empty TRSObjectFinder passed');
+    Self.Fatal('Empty TObjectFinder passed');
 
   Area.LimitTo(Self.Bounds);
 
@@ -485,7 +485,7 @@ begin
   end;
 end;
 
-function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray; overload;
+function TMainScreen.FindObject(Finder: TObjectFinder): T2DPointArray; overload;
 begin
   Result := Self.FindObject(Finder, Self.Bounds);
 end;
@@ -494,11 +494,11 @@ end;
 (*
 ## Mainscreen.IsVisible
 ```pascal
-function TRSMainScreen.IsVisible(p: TPoint): Boolean;
-function TRSMainScreen.IsVisible(tpa: TPointArray; useCenter: Boolean = True): Boolean; override;
-function TRSMainScreen.IsVisible(b: TBox; useCenter: Boolean = True): Boolean; overload;
-function TRSMainScreen.IsVisible(rect: TRectangle; useCenter: Boolean = True): Boolean; overload;
-function TRSMainScreen.IsVisible(cuboid: TCuboidEx; useCenter: Boolean = True): Boolean; overload;
+function TMainScreen.IsVisible(p: TPoint): Boolean;
+function TMainScreen.IsVisible(tpa: TPointArray; useCenter: Boolean = True): Boolean; override;
+function TMainScreen.IsVisible(b: TBox; useCenter: Boolean = True): Boolean; overload;
+function TMainScreen.IsVisible(rect: TRectangle; useCenter: Boolean = True): Boolean; overload;
+function TMainScreen.IsVisible(cuboid: TCuboidEx; useCenter: Boolean = True): Boolean; overload;
 ```
 Returns true if the TPoint, TPointArray, TBox, TRectangle or TCuboid is visible (not hidden by any other interfaces)
 on the mainscreen.
@@ -511,7 +511,7 @@ if MainScreen.IsVisible([100, 100]) then
   WriteLn('The point is not behind Chatbox, Minimap or Gametabs.');
 ```
 *)
-function TRSMainScreen.IsVisible(p: TPoint): Boolean;
+function TMainScreen.IsVisible(p: TPoint): Boolean;
 begin
   Result := Self.Bounds.Expand(-10).Contains(p);
 
@@ -528,7 +528,7 @@ begin
     Exit(False);
 end;
 
-function TRSMainScreen.IsVisible(tpa: TPointArray; useCenter: Boolean = True): Boolean; overload;
+function TMainScreen.IsVisible(tpa: TPointArray; useCenter: Boolean = True): Boolean; overload;
 begin
   if useCenter then
     Exit(Self.IsVisible(tpa.Mean()));
@@ -547,17 +547,17 @@ begin
     Exit(False);
 end;
 
-function TRSMainScreen.IsVisible(b: TBox; useCenter: Boolean = True): Boolean; overload;
+function TMainScreen.IsVisible(b: TBox; useCenter: Boolean = True): Boolean; overload;
 begin
   Result := Self.IsVisible(b.ToRectangle().ToTPA(), useCenter);
 end;
 
-function TRSMainScreen.IsVisible(rect: TRectangle; useCenter: Boolean = True): Boolean; overload;
+function TMainScreen.IsVisible(rect: TRectangle; useCenter: Boolean = True): Boolean; overload;
 begin
   Result := Self.IsVisible(rect.ToTPA(), useCenter);
 end;
 
-function TRSMainScreen.IsVisible(cuboid: TCuboidEx; useCenter: Boolean = True): Boolean; overload;
+function TMainScreen.IsVisible(cuboid: TCuboidEx; useCenter: Boolean = True): Boolean; overload;
 begin
   if useCenter then
     Exit(Self.IsVisible(cuboid.Center()));
@@ -568,14 +568,14 @@ end;
 (*
 ## MainScreen.Filter
 ```pascal
-function TRSMainScreen.Filter(arr: TPointArray): TPointArray;
-function TRSMainScreen.Filter(arr: TBoxArray): TBoxArray; overload;
-function TRSMainScreen.Filter(arr: TRectArray): TRectArray; overload;
-function TRSMainScreen.Filter(arr: TPolyArray): TPolyArray; overload;
+function TMainScreen.Filter(arr: TPointArray): TPointArray;
+function TMainScreen.Filter(arr: TBoxArray): TBoxArray; overload;
+function TMainScreen.Filter(arr: TRectArray): TRectArray; overload;
+function TMainScreen.Filter(arr: TPolyArray): TPolyArray; overload;
 ```
 Filters the given TPointArray, TBoxArray, TRectArray or TCuboidArray and returns only those that are visible in the MainScreen.
 *)
-function TRSMainScreen.Filter(arr: TPointArray): TPointArray;
+function TMainScreen.Filter(arr: TPointArray): TPointArray;
 begin
   Result := arr := arr.FilterBox(Self.Bounds);
 
@@ -598,7 +598,7 @@ begin
   Result := Result.Difference(arr);
 end;
 
-function TRSMainScreen.Filter(arr: TBoxArray): TBoxArray; overload;
+function TMainScreen.Filter(arr: TBoxArray): TBoxArray; overload;
 var
   i: Int32;
 begin
@@ -607,7 +607,7 @@ begin
       Result += arr[i];
 end;
 
-function TRSMainScreen.Filter(arr: TRectArray): TRectArray; overload;
+function TMainScreen.Filter(arr: TRectArray): TRectArray; overload;
 var
   i: Int32;
 begin
@@ -616,7 +616,7 @@ begin
       Result += arr[i];
 end;
 
-function TRSMainScreen.Filter(arr: TCuboidExArray): TCuboidExArray; overload;
+function TMainScreen.Filter(arr: TCuboidExArray): TCuboidExArray; overload;
 var
   i: Int32;
 begin
@@ -627,39 +627,39 @@ end;
 
 type
 (*
-(TRSHitsplat)=
-## type TRSHitsplat
+(THitsplat)=
+## type THitsplat
 ```pascal
-TRSHitsplat = record
+THitsplat = record
   Position: TPoint;  // Middle of the found hitsplat
   Hit: Int32;        // Hit amount
   Red: Boolean;      // True if red, false if blue.
 end;
 
-TRSHitsplatArray = array of TRSHitsplat;
+THitsplatArray = array of THitsplat;
 ```
 *)
-  TRSHitsplat = record
+  THitsplat = record
     Position: TPoint;
     Hit: Int32;
     Red: Boolean;
   end;
 
-  TRSHitsplatArray = array of TRSHitsplat;
+  THitsplatArray = array of THitsplat;
 
 (*
 ## Mainscreen.FindHitsplats
 ```pascal
-function TRSMainScreen.FindHitsplats(area: TBox): TRSHitsplatArray;
-function TRSMainScreen.FindHitsplats(): TRSHitsplatArray; overload;
+function TMainScreen.FindHitsplats(area: TBox): THitsplatArray;
+function TMainScreen.FindHitsplats(): THitsplatArray; overload;
 ```
 Finds hitsplats in the desired `area` if specified or the entire mainscreen.
-Returns an array of TRSHitsplat.
+Returns an array of THitsplat.
 
 Example:
 ```pascal
 var
-  splat: TRSHitsplat;
+  splat: THitsplat;
 begin
   for splat in MainScreen.FindHitsplats() do
   begin
@@ -670,7 +670,7 @@ begin
 end;
 ```
 *)
-function TRSMainScreen.FindHitsplats(area: TBox): TRSHitsplatArray;
+function TMainScreen.FindHitsplats(area: TBox): THitsplatArray;
 const
   WHITES: TIntegerArray = [$FFFFFF, $FCFCFC, $C7C7C7];
 
@@ -762,20 +762,20 @@ begin
   end;
 end;
 
-function TRSMainScreen.FindHitsplats(): TRSHitsplatArray; overload;
+function TMainScreen.FindHitsplats(): THitsplatArray; overload;
 begin
   Result := Self.FindHitsplats(Self.Bounds);
 end;
 
 
-procedure TRSHitsplat.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FF00);
+procedure THitsplat.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FF00);
 begin
   bitmap.DrawCircle(Self.Position, 10, color);
 end;
 
-procedure TRSHitsplatArray.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FF00);
+procedure THitsplatArray.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FF00);
 var
-  splat: TRSHitSplat;
+  splat: THitSplat;
 begin
   for splat in Self do
     splat.Draw(bitmap, color);
@@ -783,35 +783,35 @@ end;
 
 
 (*
-(TRSHPBar)=
-## type TRSHPBar
+(THPBar)=
+## type THPBar
 ```pascal
-TRSHPBar = record
+THPBar = record
   Bounds: TBox;       // Bounds of the bar
   Percent: Double;  // Green percent of the bar.
 end;
 ```
 *)
 type
-  TRSHPBar = record
+  THPBar = record
     Bounds: TBox;
     Percent: Double;
   end;
 
-  TRSHPBarArray = array of TRSHPBar;
+  THPBarArray = array of THPBar;
 
 (*
 ## Mainscreen.FindHPBars()
 ```pascal
-function TRSMainScreen.FindHPBars(area: TBox): TRSHPBarArray;
-function TRSMainScreen.FindHPBars(): TRSHPBarArray; overload;
+function TMainScreen.FindHPBars(area: TBox): THPBarArray;
+function TMainScreen.FindHPBars(): THPBarArray; overload;
 ```
-Finds hitpoints bars in the desired area. Returns an array of TRSHPBar.
+Finds hitpoints bars in the desired area. Returns an array of THPBar.
 If no `area` is specified the whole mainscreen is used.
 
 Example:
 ```pascal
-var Bars: TRSHPBarArray;
+var Bars: THPBarArray;
 var I: Int32;
 begin
   Bars := MainScreen.FindHPBars(MainScreen.Bounds());
@@ -820,7 +820,7 @@ begin
 end;
 ```
 *)
-function TRSMainScreen.FindHPBars(area: TBox): TRSHPBarArray;
+function TMainScreen.FindHPBars(area: TBox): THPBarArray;
 const
   COLOR_BARS = [$00FF00, $0000FF];
   COLOR_SPLATS = [$FF4040, $AD0703, $550503, $0000C0, $03037F, $010161, $FFFFFF, $000000];
@@ -842,7 +842,7 @@ var
         Matrix[P.Y][P.X] := 255;
   end;
 
-  procedure Find(var Result: TRSHPBarArray);
+  procedure Find(var Result: THPBarArray);
   var
     W, H, X, Y, YY: Int32;
   label
@@ -875,8 +875,8 @@ var
   Color: Int32;
   TPA, Splats, Temp: TPointArray;
   P: TPoint;
-  Bars: TRSHPBarArray;
-  Bar: TRSHPBar;
+  Bars: THPBarArray;
+  Bar: THPBar;
   Frozen: Boolean;
 begin
   Frozen := Client.GetIOManager().IsFrozen();
@@ -932,20 +932,20 @@ begin
   end;
 end;
 
-function TRSMainScreen.FindHPBars(): TRSHPBarArray; overload;
+function TMainScreen.FindHPBars(): THPBarArray; overload;
 begin
   Result := Self.FindHPBars(Self.Bounds);
 end;
 
 
-procedure TRSHPBar.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FFFF);
+procedure THPBar.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FFFF);
 begin
   bitmap.DrawBox(Self.Bounds, color);
 end;
 
-procedure TRSHPBarArray.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FFFF);
+procedure THPBarArray.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FFFF);
 var
-  bar: TRSHPBar;
+  bar: THPBar;
 begin
   for bar in Self do
     bitmap.DrawBox(bar.Bounds, color);
@@ -958,7 +958,7 @@ type
 (*
 ## Mainscreen.FindClick
 ```pascal
-function TRSMainScreen.FindClick(Area: TBox): ERSClickType;
+function TMainScreen.FindClick(Area: TBox): ERSClickType;
 ```
 
 Finds a click type in the desired area. Will return either:
@@ -973,7 +973,7 @@ if MainScreen.FindClick([50,50,100,100]) = RS_CLICK_RED then
   WriteLn('Found a red click in 50,50,100,100');
 ```
 *)
-function TRSMainScreen.FindClick(area: TBox): ERSClickType;
+function TMainScreen.FindClick(area: TBox): ERSClickType;
 var
   attempt: Int32;
 begin
@@ -995,7 +995,7 @@ end;
 (*
 ## Mainscreen.DidRedClick
 ```pascal
-function TRSMainScreen.DidRedClick(time: UInt32 = 250): Boolean;
+function TMainScreen.DidRedClick(time: UInt32 = 250): Boolean;
 ```
 
 Returns true if a red click happened at the current mouse position.
@@ -1008,7 +1008,7 @@ if MainScreen.DidRedClick() then
   WriteLn('Red click!');
 ```
 *)
-function TRSMainScreen.DidRedClick(time: UInt32 = 250): Boolean;
+function TMainScreen.DidRedClick(time: UInt32 = 250): Boolean;
 var
   area: TBox;
 begin
@@ -1032,7 +1032,7 @@ if MainScreen.DidYellowClick() then
   WriteLn('Yellow click!');
 ```
 *)
-function TRSMainScreen.DidYellowClick(time: UInt32 = 250): Boolean;
+function TMainScreen.DidYellowClick(time: UInt32 = 250): Boolean;
 var
   area: TBox;
 begin
@@ -1041,10 +1041,10 @@ begin
   Result := WaitUntil(SRL.CountColor(CTS1(65535,0), area) > 0, 50, time);
 end;
 
-procedure TRSMainScreen.Draw(bitmap: TMufasaBitmap); override;
+procedure TMainScreen.Draw(bitmap: TMufasaBitmap); override;
 var
-  splats: TRSHitsplatArray;
-  bars: TRSHPBarArray;
+  splats: THitsplatArray;
+  bars: THPBarArray;
 begin
   bitmap.DrawBox(Self.Bounds, $00FFFF);
 
@@ -1056,7 +1056,7 @@ begin
 end;
 
 var
-  MainScreen: TRSMainScreen;
+  MainScreen: TMainScreen;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin
@@ -1079,7 +1079,7 @@ end;
 
 
 
-function TRSItemInterface.InteractSlot(slot: Int32; option: String = ''): Boolean; override;
+function TItemInterface.InteractSlot(slot: Int32; option: String = ''): Boolean; override;
 begin
   if not Self.MouseSlot(slot) then Exit;
 
@@ -1092,7 +1092,7 @@ begin
   Result := ChooseOption.Select(option);
 end;
 
-function TRSItemInterface.InteractItem(item: TRSItem; option: String = ''): Boolean; override;
+function TItemInterface.InteractItem(item: TItem; option: String = ''): Boolean; override;
 begin
   if not Self.MouseItem(item) then Exit;
 
@@ -1106,7 +1106,7 @@ begin
 end;
 
 
-procedure Debug(splat: TRSHitsplat); overload;
+procedure Debug(splat: THitsplat); overload;
 var
   bitmap: TMufasaBitmap;
 begin
@@ -1124,7 +1124,7 @@ begin
   bitmap.Free();
 end;
 
-procedure Debug(splats: TRSHitsplatArray); overload;
+procedure Debug(splats: THitsplatArray); overload;
 var
   bitmap: TMufasaBitmap;
 begin
@@ -1142,7 +1142,7 @@ begin
   bitmap.Free();
 end;
 
-procedure Debug(bar: TRSHPBar); overload;
+procedure Debug(bar: THPBar); overload;
 var
   bitmap: TMufasaBitmap;
 begin
@@ -1160,7 +1160,7 @@ begin
   bitmap.Free();
 end;
 
-procedure Debug(bars: TRSHPBarArray); overload;
+procedure Debug(bars: THPBarArray); overload;
 var
   bitmap: TMufasaBitmap;
 begin

@@ -7,44 +7,44 @@ Use or uncomment {$DEFINE SRL_KEYBINDINGS_DEBUG} to debug already setup FKeys.
 
 {$DEFINE SRL_KEYBINDINGS_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 {.$DEFINE SRL_KEYBINDINGS_DEBUG}
 
 type
 (*
-## type TRSKeyTabPair
+## type TKeyTabPair
 
-TRSKeyTabPair is a record to represent a single pair of gametab/FKey.
+TKeyTabPair is a record to represent a single pair of gametab/FKey.
 *)
 
-  TRSKeyTabPair = record
+  TKeyTabPair = record
     IsSetup: Boolean;
     Tab: ERSGameTab;
     Key: UInt32;
   end;
 
 (*
-## type TRSKeybindings
+## type TKeybindings
 
-TRSKeybindings is a record used to:
+TKeybindings is a record used to:
   - enable/disable the use of keybinds.
   - store our already setup KeyTabPair.
   - figure out which keybinds we have setup if we don't preset them.
   - manage keys we don't know their match yet.
 *)
-  TRSKeybindings = record
+  TKeybindings = record
     UseKeybinds: Boolean;
     RandomizeChecks: Boolean;
-    KeyTabPairs: array of TRSKeyTabPair;
+    KeyTabPairs: array of TKeyTabPair;
     UncheckedKeyArray: TIntegerArray;
   end;
 
 (*
 ## KeyTabPair.Setup
 ```pascal
-procedure TRSKeyTabPair.Setup(Gametab: ERSGameTab);
+procedure TKeyTabPair.Setup(Gametab: ERSGameTab);
 ```
 
 Sets up a single FKey/Gametab pair.
@@ -52,14 +52,14 @@ Sets up a single FKey/Gametab pair.
 Example:
 ```pascal
 var
-  KeyTabPair: TRSKeyTabPair;
+  KeyTabPair: TKeyTabPair;
 
 begin
   KeyTabPair.Setup(ERSGameTab.COMBAT);
 end;
 ```
 *)
-procedure TRSKeyTabPair.Setup(Gametab: ERSGameTab);
+procedure TKeyTabPair.Setup(Gametab: ERSGameTab);
 begin
   if IsSetup then Exit;
   Tab := Gametab;
@@ -69,7 +69,7 @@ end;
 (*
 ## Keybindings.Setup
 ```pascal
-procedure TRSKeybindings.Setup(Keys: TIntegerArray = DEFAULT_FKEYS);
+procedure TKeybindings.Setup(Keys: TIntegerArray = DEFAULT_FKEYS);
 ```
 
 **Keybindings.Setup** is a procedure that is used to setup it's internal variables so it's ready to use.
@@ -85,7 +85,7 @@ Keybindings.Setup([
 ]);
 ```
 *)
-procedure TRSKeybindings.Setup(Keys: TIntegerArray = []);
+procedure TKeybindings.Setup(Keys: TIntegerArray = []);
 var
   i: Int32;
 begin
@@ -111,14 +111,14 @@ end;
 (*
 ## Keybindings.GetKeyIndex
 ```pascal
-function TRSKeybindings.GetKeyIndex(Key: Int32): Int32;
-function TRSKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
+function TKeybindings.GetKeyIndex(Key: Int32): Int32;
+function TKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
 ```
 
 Internal function used to find the index of a **Key** or **Gametab** of an already setup **KeyTabPair** if it already exists otherwise we return **-1** to know the pair does not exist yet.
 
 *)
-function TRSKeybindings.GetKeyIndex(Key: Int32): Int32;
+function TKeybindings.GetKeyIndex(Key: Int32): Int32;
 var
   i: Int32;
 begin
@@ -129,7 +129,7 @@ begin
   Result := -1;
 end;
 
-function TRSKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
+function TKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
 var
   i: Int32;
 begin
@@ -145,12 +145,12 @@ end;
   Global Keybindings variable.
 *)
 var
-  Keybindings: TRSKeybindings;
+  Keybindings: TKeybindings;
 
 (*
 ## GameTabs.FKeyOpen
 ```pascal
-function TRSGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+function TGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
 ```
 
 This function attempts to open a gametab with the help of **Keybindings** global variable.
@@ -180,7 +180,7 @@ Example:
 Gametabs.FKeyOpen(ERSGameTab.COMBAT);
 ```
 *)
-function TRSGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+function TGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
 var
   CurrentTab: ERSGameTab;
   NewTab: ERSGameTab;
@@ -251,7 +251,7 @@ end;
 (*
 ## GameTabs.Open
 ```pascal
-function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+function TGameTabs.Open(Tab: ERSGameTab): Boolean; override;
 ```
 
 Override to open gametabs with **GameTabs.FKeyOpen** if **Keybindings.UseKeybinds** is true.
@@ -261,7 +261,7 @@ Example:
 Gametabs.Open(ERSGameTab.COMBAT);
 ```
 *)
-function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+function TGameTabs.Open(Tab: ERSGameTab): Boolean; override;
 begin
   if Self.GetCurrentTab = Tab then
     Exit(True);

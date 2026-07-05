@@ -1,35 +1,35 @@
 (*
 # Make
 The "Make" menu is the chatbox menu that pops up when you attempt to craft certain items in OldSchool RuneScape.
-TRSMake is the record SRL has to handle it.
+TMake is the record SRL has to handle it.
 *)
 
 {$DEFINE SRL_MAKE_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
-  TRSMakeItem = record
+  TMakeItem = record
     Item: String;
     Index: Int32;
     Quantity: Int32;
   end;
 
-  TRSMake = record(TRSInterface)
-    Items: array of TRSMakeItem;
+  TMake = record(TInterface)
+    Items: array of TMakeItem;
     QUANTITY_ALL: Int32;
   end;
 
 (*
 ## Make.Setup
 ```pascal
-procedure TRSMake.Setup; override;
+procedure TMake.Setup; override;
 ```
 Internal setup method automatically called by SRL on startup.
 You will probably never need to use this directly.
 *)
-procedure TRSMake.Setup; override;
+procedure TMake.Setup; override;
 begin
   inherited;
 
@@ -40,14 +40,14 @@ end;
 (*
 ## Make.SetupAlignment
 ```pascal
-procedure TRSMake.SetupAlignment(); overload;
+procedure TMake.SetupAlignment(); overload;
 ```
 Internal method automatically called by SRL on startup used to setup the interface coordinates.
 You will probably never need to use this directly.
 *)
-procedure TRSMake.SetupAlignment(); overload;
+procedure TMake.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left   := Chat.Bounds.X1;
   alignment.Right  := Chat.Bounds.X2;
@@ -60,7 +60,7 @@ end;
 (*
 ## Make.GetItemButtons
 ```pascal
-function TRSMake.GetItemButtons: TGameButtonArray;
+function TMake.GetItemButtons: TGameButtonArray;
 ```
 Internal method used to get the interface buttons.
 This is used by all other methods that interact with buttons.
@@ -71,7 +71,7 @@ Example:
 Debug(Make.GetItemButtons());
 ```
 *)
-function TRSMake.GetItemButtons(): TGameButtonArray;
+function TMake.GetItemButtons(): TGameButtonArray;
 var
   button: TGameButton;
 begin
@@ -86,7 +86,7 @@ end;
 (*
 ## Make.GetQuantityButtons
 ```pascal
-function TRSMake.GetQuantityButtons(): TGameButtonArray;
+function TMake.GetQuantityButtons(): TGameButtonArray;
 ```
 Internal method used to get the interface quantity buttons.
 This is used by all other methods that interact with the quantity buttons.
@@ -97,7 +97,7 @@ Example:
 Debug(Make.GetQuantityButtons());
 ```
 *)
-function TRSMake.GetQuantityButtons(): TGameButtonArray;
+function TMake.GetQuantityButtons(): TGameButtonArray;
 begin
   Result := Self.FindButtons([[35,30], [30,30]]);
 end;
@@ -106,8 +106,8 @@ end;
 (*
 ## Make.IsOpen
 ```pascal
-function TRSMake.IsOpen(): Boolean;
-function TRSMake.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+function TMake.IsOpen(): Boolean;
+function TMake.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 ```
 Checks if the make interface is open.
 You can optionally specify a **WaitTime** to wait for it to open.
@@ -117,12 +117,12 @@ Example:
 WriteLn Make.IsOpen();
 ```
 *)
-function TRSMake.IsOpen(): Boolean;
+function TMake.IsOpen(): Boolean;
 begin
   Result := Self.GetItemButtons() <> [];
 end;
 
-function TRSMake.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+function TMake.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
   if (Interval = -1) then
     Interval := SRL.TruncatedGauss(50, 1500);
@@ -134,7 +134,7 @@ end;
 (*
 ## Make.FindHint
 ```pascal
-function TRSMake.FindHint(): TPointArray;
+function TMake.FindHint(): TPointArray;
 ```
 Returns the hint tooltip has a TPointArray
 
@@ -143,7 +143,7 @@ Example:
 Debug(Make.FindHint());
 ```
 *)
-function TRSMake.FindHint(): TPointArray;
+function TMake.FindHint(): TPointArray;
 const
   HINT_COLOR = $A0FFFF;
 begin
@@ -153,7 +153,7 @@ end;
 (*
 ## Make.GetFreeSpace
 ```pascal
-function TRSMake.GetFreeSpace(): TPointArray;
+function TMake.GetFreeSpace(): TPointArray;
 ```
 Get a TPointArray of the chatbox that does not have a single point in any of the make item buttons.
 
@@ -162,7 +162,7 @@ Example:
 Debug(Make.GetFreeSpace());
 ```
 *)
-function TRSMake.GetFreeSpace(): TPointArray;
+function TMake.GetFreeSpace(): TPointArray;
 var
   b: TBox;
   tmp: TPointArray;
@@ -179,7 +179,7 @@ end;
 (*
 ## Make.SetQuantity
 ```pascal
-function TRSMake.SetQuantity(Amount: Int32): Boolean;
+function TMake.SetQuantity(Amount: Int32): Boolean;
 ```
 Attempts to set a quantity.
 
@@ -188,7 +188,7 @@ Example:
 WriteLn Make.SetQuantity(Make.QUANTITY_ALL);
 ```
 *)
-function TRSMake.SetQuantity(Amount: Int32): Boolean;
+function TMake.SetQuantity(Amount: Int32): Boolean;
 const
   ENABLED_COLOR = $FFFFFF;
   DISABLED_COLOR = $203040;
@@ -240,14 +240,14 @@ end;
 (*
 ## Make.SelectHelper
 ```pascal
-function TRSMake.SelectHelper(var Item: TRSMakeItem; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
-function TRSMake.SelectHelper(Button: TGameButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+function TMake.SelectHelper(var Item: TMakeItem; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+function TMake.SelectHelper(Button: TGameButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
 ```
 
 Internal helper method that handles selecting a button and quantity with or without the keyboard.
 You probably will never need to use this directly.
 *)
-function TRSMake.SelectHelper(var Item: TRSMakeItem; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+function TMake.SelectHelper(var Item: TMakeItem; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
 var
   buttons: TGameButtonArray;
 begin
@@ -276,7 +276,7 @@ begin
     Mouse.Click(buttons[Item.Index].Bounds, MOUSE_LEFT);
 end;
 
-function TRSMake.SelectHelper(Button: TGameButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+function TMake.SelectHelper(Button: TGameButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
 begin
   Result := Self.SetQuantity(Quantity);
 
@@ -299,8 +299,8 @@ end;
 (*
 ## Make.Select
 ```pascal
-function TRSMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
-function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+function TMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+function TMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
 ```
 Select a **Index** of the available buttons or the button with **Item** text on it when hovered.
 
@@ -309,7 +309,7 @@ Example:
 WriteLn Make.Select('Maple longbow', Make.QUANTITY_ALL, True);
 ```
 *)
-function TRSMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+function TMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
 var
   Buttons: TGameButtonArray;
 begin
@@ -319,7 +319,7 @@ begin
     Result := Self.SelectHelper(Buttons[Index], Quantity, UseKeyboard);
 end;
 
-function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+function TMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
 var
   Buttons: TGameButtonArray;
   TPA: TPointArray;
@@ -356,7 +356,7 @@ end;
 (*
 ## Make.Draw
 ```pascal
-procedure TRSMake.Draw(Bitmap: TMufasaBitmap); override; overload;
+procedure TMake.Draw(Bitmap: TMufasaBitmap); override; overload;
 ```
 Internal debug method. Used by SRL.Debug().
 
@@ -365,7 +365,7 @@ Example:
 SRL.Debug();
 ```
 *)
-procedure TRSMake.Draw(bitmap: TMufasaBitmap); override;
+procedure TMake.Draw(bitmap: TMufasaBitmap); override;
 var
   buttons: TGameButtonArray;
 begin
@@ -386,7 +386,7 @@ end;
 Global Make variable.
 *)
 var
-  Make: TRSMake;
+  Make: TMake;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

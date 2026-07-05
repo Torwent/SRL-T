@@ -1,7 +1,7 @@
 {$DEFINE SRL_USE_REMOTEINPUT}
 {$DEFINE SRL_USE_REMOTEINPUT_DEBUG}
 
-{$I SRL-T/osr.simba}
+{$I SRL-T/main.simba}
 
 begin
   // When `SRL_USE_REMOTEINPUT_DEBUG` is defined all Debug() calls will be drawn on the RS client.

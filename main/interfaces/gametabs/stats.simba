@@ -4,7 +4,7 @@ Methods responsible for dealing with the stats tab.
 *)
 {$DEFINE SRL_STATS_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -72,7 +72,7 @@ const
   ];
 
 type
-  TRSSkillInfo = record
+  TSkillInfo = record
     Level:     Int32;
     XP:        Int32;
     Next:      Int32;
@@ -80,7 +80,7 @@ type
   end;
 
 type
-  TRSStats = record(TRSInterface)
+  TStats = record(TInterface)
     Levels: array [ERSSkill] of Int32;
     SkillBoxes: array [ERSSkill] of TBox;
     OCRFilter: TOCRColorFilter;
@@ -89,11 +89,11 @@ type
 (*
 ## Stats.Setup()
 ```pascal
-procedure TRSStats.Setup(); override;
+procedure TStats.Setup(); override;
 ```
 Internal method automatically called by SRL.Setup()
 *)
-procedure TRSStats.Setup(); override;
+procedure TStats.Setup(); override;
 begin
   inherited;
 
@@ -104,13 +104,13 @@ end;
 (*
 ## Stats.SetupAlignment
 ```pascal
-procedure TRSStats.SetupAlignment(); overload;
+procedure TStats.SetupAlignment(); overload;
 ```
 Internal method automatically called by RSClient.ClientModeChanged()
 *)
-procedure TRSStats.SetupAlignment(); overload;
+procedure TStats.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
   boxes: TBoxArray;
   i: Int32;
 begin
@@ -133,7 +133,7 @@ end;
 (*
 ## Stats.IsOpen
 ```pascal
-function TRSStats.IsOpen(): Boolean;
+function TStats.IsOpen(): Boolean;
 ```
 Returns true/false if the gametab is open or not.
 
@@ -142,7 +142,7 @@ Example:
 WriteLn Stats.IsOpen();
 ```
 *)
-function TRSStats.IsOpen(): Boolean;
+function TStats.IsOpen(): Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.STATS);
 end;
@@ -150,7 +150,7 @@ end;
 (*
 ## Stats.Open
 ```pascal
-function TRSStats.Open(): Boolean;
+function TStats.Open(): Boolean;
 ```
 Attempts to open the gametab.
 
@@ -159,7 +159,7 @@ Example:
 WriteLn Stats.Open();
 ```
 *)
-function TRSStats.Open(): Boolean;
+function TStats.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.STATS);
 end;
@@ -167,7 +167,7 @@ end;
 (*
 ## Stats.MouseOver
 ```pascal
-function TRSStats.MouseOver(skill: ERSSkill): Boolean;
+function TStats.MouseOver(skill: ERSSkill): Boolean;
 ```
 Moves the mouse over to a skill box.
 
@@ -176,7 +176,7 @@ Example:
 WriteLn Stats.MouseOver(ERSSkill.CONSTRUCTION);
 ```
 *)
-function TRSStats.MouseOver(skill: ERSSkill): Boolean;
+function TStats.MouseOver(skill: ERSSkill): Boolean;
 begin
   Result := Self.Open();
   if Result then
@@ -186,7 +186,7 @@ end;
 (*
 ## Stats.GetSkillInfo
 ```pascal
-function TRSStats.GetSkillInfo(skill: ERSSkill; waitTime: Int32 = 1000): TRSSkillInfo;
+function TStats.GetSkillInfo(skill: ERSSkill; waitTime: Int32 = 1000): TSkillInfo;
 ```
 Get the skill information about a skill when you hover it.
 
@@ -195,7 +195,7 @@ Example:
 WriteLn Stats.GetSkillInfo(ERSSkill.CONSTRUCTION);
 ```
 *)
-function TRSStats.GetSkillInfo(skill: ERSSkill; waitTime: Int32 = 1000): TRSSkillInfo;
+function TStats.GetSkillInfo(skill: ERSSkill; waitTime: Int32 = 1000): TSkillInfo;
 var
   TPA: TPointArray;
   Lines: TStringArray;
@@ -240,7 +240,7 @@ end;
 (*
 ## Stats.GetLevel
 ```pascal
-function TRSStats.GetLevel(skill: ERSSkill; useCache: Boolean = True): Int32;
+function TStats.GetLevel(skill: ERSSkill; useCache: Boolean = True): Int32;
 ```
 Get the level of the specified **skill**. By default uses the levels cached in the Stats.Levels array.
 When using the cached methods, it can be used to retrieve the level of a skill while the gametab is open assuming the level is already cached.
@@ -250,7 +250,7 @@ Example:
 WriteLn Stats.GetLevel(ERSSkill.HITPOINTS);
 ```
 *)
-function TRSStats.GetLevel(skill: ERSSkill; useCache: Boolean = True): Int32;
+function TStats.GetLevel(skill: ERSSkill; useCache: Boolean = True): Int32;
 var
   text: String;
   b: TBox;
@@ -277,11 +277,11 @@ end;
 (*
 ## Stats.CacheAll
 ```pascal
-procedure TRSStats.CacheAll();
+procedure TStats.CacheAll();
 ```
 Method to update all cached levels.
 *)
-procedure TRSStats.CacheAll();
+procedure TStats.CacheAll();
 var
   i: Int32;
 begin
@@ -292,7 +292,7 @@ end;
 (*
 ## Stats.IncrementCachedLevel
 ```pascal
-procedure TRSStats.IncrementCachedLevel(skill: ERSSkill);
+procedure TStats.IncrementCachedLevel(skill: ERSSkill);
 ```
 Internal method to update cached levels. This is automatically called by Chat.LeveledUp().
 
@@ -303,14 +303,14 @@ Stats.IncrementLevel(ERSSkill.PRAYER);
 WriteLn Stats.GetCurrentLevel(ERSSkill.PRAYER);
 ```
 *)
-procedure TRSStats.IncrementCachedLevel(skill: ERSSkill);
+procedure TStats.IncrementCachedLevel(skill: ERSSkill);
 begin
   if Self.Levels[skill] > 0 then
     Self.Levels[skill] += 1;
 end;
 
 
-procedure TRSStats.Draw(bitmap: TMufasaBitmap); override;
+procedure TStats.Draw(bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -321,7 +321,7 @@ begin
 end;
 
 var
-  Stats: TRSStats;
+  Stats: TStats;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin
@@ -344,7 +344,7 @@ end;
 (*
 ## Chat.LeveledUp() override
 ```pascal
-function TRSChat.LeveledUp(): Boolean; override;
+function TChat.LeveledUp(): Boolean; override;
 ```
 Returns true if we have the level up message on the chat box and attempts
 to update Stats.Levels
@@ -355,7 +355,7 @@ if Chat.LeveledUp() then
   Chat.ClickContinue(True);
 ```
 *)
-function TRSChat.LeveledUp(): Boolean; override;
+function TChat.LeveledUp(): Boolean; override;
 var
   b: TBox;
   i: Int32;

@@ -6,7 +6,7 @@ Example documentation comment:
 (*
 # Mainscreen.PointToMM
 \`\`\`pascal
-function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3;
+function TMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3;
 \`\`\`
 
 Takes a mainscreen point and converts it to a point on the minimap.

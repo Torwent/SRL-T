@@ -1,6 +1,6 @@
 {$DEFINE SRL_MAPOBJECTARRAY_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -132,12 +132,12 @@ end;
 
 
 type
-  TRSObjectJSONParser = record
+  TObjectJSONParser = record
     Data: TJSONArray;
     Walker: PRSWalkerV2;
   end;
 
-procedure TRSObjectJSONParser.Setup(json: TJSONArray; walker: PRSWalkerV2);
+procedure TObjectJSONParser.Setup(json: TJSONArray; walker: PRSWalkerV2);
 begin
   if Self.Data = nil then
     Self.Data := json
@@ -148,7 +148,7 @@ begin
 end;
 
 
-function TRSObjectJSONParser.Get(obj: Variant): TRSObjectV2;
+function TObjectJSONParser.Get(obj: Variant): TObjectV2;
 var
   i: Int32;
   name: String;
@@ -157,7 +157,7 @@ begin
   begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = obj then
-        Exit(TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+        Exit(TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
     TerminateScript('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
   end;
 
@@ -167,7 +167,7 @@ begin
   begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = obj then
-        Exit(TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+        Exit(TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
     TerminateScript('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
   end;
 
@@ -183,14 +183,14 @@ begin
       Continue;
     end;
 
-    Result := TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+    Result := TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
   end;
 
   if Result.Name = '' then
     TerminateScript('Object ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
 end;
 
-function TRSObjectJSONParser.GetByAction(action: String): TRSObjectV2;
+function TObjectJSONParser.GetByAction(action: String): TObjectV2;
 var
   i, j: Int32;
 begin
@@ -201,31 +201,31 @@ begin
     begin
       if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) <> action then
         Continue;
-      Exit(TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+      Exit(TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
     end;
 end;
 
-function TRSObjectJSONParser.GetByCategory(category: Int32): TRSObjectV2;
+function TObjectJSONParser.GetByCategory(category: Int32): TObjectV2;
 var
   i: Int32;
 begin
   for i := 0 to Self.Data.High() do
     if Self.Data.getJSONObject(i).getInt('category') = category then
-      Exit(TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+      Exit(TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
 end;
 
 
-function TRSObjectJSONParser.GetAll(name: String): TRSObjectV2Array;
+function TObjectJSONParser.GetAll(name: String): TObjectV2Array;
 var
   i: Int32;
 begin
   name := LowerCase(name);
   for i := 0 to Self.Data.High() do
     if LowerCase(Self.Data.getJSONObject(i).getString('name')) = name then
-      Result += TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Result += TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
 end;
 
-function TRSObjectJSONParser.GetAll(names: TStringArray): TRSObjectV2Array; overload;
+function TObjectJSONParser.GetAll(names: TStringArray): TObjectV2Array; overload;
 var
   name: String;
 begin
@@ -233,7 +233,7 @@ begin
     Result += Self.GetAll(name);
 end;
 
-function TRSObjectJSONParser.GetAllByAction(action: String): TRSObjectV2Array;
+function TObjectJSONParser.GetAllByAction(action: String): TObjectV2Array;
 var
   i, j: Int32;
 begin
@@ -244,7 +244,7 @@ begin
     begin
       if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) <> action then
         Continue;
-      Result += TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Result += TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
       Break;
     end;
 
@@ -252,7 +252,7 @@ begin
     Result.Reduce();
 end;
 
-function TRSObjectJSONParser.GetAllByCoordinate(p: TPoint; dist: Int32): TRSObjectV2Array;
+function TObjectJSONParser.GetAllByCoordinate(p: TPoint; dist: Int32): TObjectV2Array;
 var
   i, j: Int32;
   coordJSON: TJSONArray;
@@ -265,7 +265,7 @@ begin
       coord := [coordJSON.getInt(0), coordJSON.getInt(1)];
       if p.DistanceTo(coord) >= dist then
         Continue;
-      Result += TRSObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Result += TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
       Break;
     end;
 
@@ -273,10 +273,10 @@ begin
     Result.Reduce();
 end;
 
-function TRSObjectJSONParser.GetNearest(names: TStringArray; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TRSObjectV2;
+function TObjectJSONParser.GetNearest(names: TStringArray; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TObjectV2;
 var
-  obj: TRSObjectV2;
-  objArr: TRSObjectV2Array;
+  obj: TObjectV2;
+  objArr: TObjectV2Array;
   dist: Double;
   coordinate: TPoint;
   angle: Single;
@@ -311,12 +311,12 @@ begin
   Result.Rotations := [angle];
 end;
 
-function TRSObjectJSONParser.GetNearest(name: String; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TRSObjectV2; overload;
+function TObjectJSONParser.GetNearest(name: String; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TObjectV2; overload;
 begin
   Result := Self.GetNearest([name], point, actions, maxDist);
 end;
 
-procedure TRSObjectJSONParser.Print();
+procedure TObjectJSONParser.Print();
 var
   i, j: Int32;
   actions: TStringArray;
@@ -342,15 +342,15 @@ begin
 end;
 
 var
-  Objects: TRSObjectJSONParser;
+  Objects: TObjectJSONParser;
 
 type
-  TRSNPCJSONParser = record
+  TNPCJSONParser = record
     Data: TJSONArray;
     Walker: PRSWalkerV2;
   end;
 
-procedure TRSNPCJSONParser.Setup(json: TJSONArray; walker: PRSWalkerV2);
+procedure TNPCJSONParser.Setup(json: TJSONArray; walker: PRSWalkerV2);
 begin
   if Self.Data = nil then
     Self.Data := json
@@ -361,7 +361,7 @@ begin
 end;
 
 
-function TRSNPCJSONParser.Get(npc: Variant): TRSNPCV2;
+function TNPCJSONParser.Get(npc: Variant): TNPCV2;
 var
   i: Int32;
   name: String;
@@ -370,7 +370,7 @@ begin
   begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = npc then
-        Exit(TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+        Exit(TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
     TerminateScript('NPC with ID ' + ToStr(npc) + ' doesn''t exist on the loaded maps.');
   end;
 
@@ -380,7 +380,7 @@ begin
   begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = npc then
-        Exit(TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+        Exit(TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
     TerminateScript('NPC with ID ' + ToStr(npc) + ' doesn''t exist on the loaded maps.');
   end;
 
@@ -396,14 +396,14 @@ begin
       Continue;
     end;
 
-    Result := TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+    Result := TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
   end;
 
   if Result.Name = '' then
     TerminateScript('NPC ' + name + ' doesn''t exist on the loaded maps.');
 end;
 
-function TRSNPCJSONParser.GetByAction(action: String): TRSNPCV2;
+function TNPCJSONParser.GetByAction(action: String): TNPCV2;
 var
   i, j: Int32;
 begin
@@ -411,22 +411,22 @@ begin
   for i := 0 to Self.Data.High() do
     for j := 0 to Self.Data.getJSONObject(i).getJSONArray('actions').High() do
       if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) = action then
-        Exit(TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+        Exit(TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
 
   TerminateScript('NPCs with action ' + action + ' don''t exist on the loaded maps.');
 end;
 
-function TRSNPCJSONParser.GetAll(name: String): TRSNPCV2Array;
+function TNPCJSONParser.GetAll(name: String): TNPCV2Array;
 var
   i: Int32;
 begin
   name := LowerCase(name);
   for i := 0 to Self.Data.High() do
     if LowerCase(Self.Data.getJSONObject(i).getString('name')) = name then
-      Result += TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Result += TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
 end;
 
-function TRSNPCJSONParser.GetAll(names: TStringArray): TRSNPCV2Array; overload;
+function TNPCJSONParser.GetAll(names: TStringArray): TNPCV2Array; overload;
 var
   name: String;
 begin
@@ -435,7 +435,7 @@ begin
 end;
 
 
-function TRSNPCJSONParser.GetAllByAction(action: String): TRSNPCV2Array;
+function TNPCJSONParser.GetAllByAction(action: String): TNPCV2Array;
 var
   i, j: Int32;
 begin
@@ -443,13 +443,13 @@ begin
   for i := 0 to Self.Data.High() do
     for j := 0 to Self.Data.getJSONObject(i).getJSONArray('actions').High() do
       if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) = action then
-        Result += TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+        Result += TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
 
   if Result <> [] then
     Result.Reduce();
 end;
 
-function TRSNPCJSONParser.GetAllByCoordinate(p: TPoint; dist: Int32): TRSNPCV2Array;
+function TNPCJSONParser.GetAllByCoordinate(p: TPoint; dist: Int32): TNPCV2Array;
 var
   i, j: Int32;
   coordJSON: TJSONArray;
@@ -462,7 +462,7 @@ begin
       coord := [coordJSON.getInt(0), coordJSON.getInt(1)];
       if p.DistanceTo(coord) >= dist then
         Continue;
-      Result += TRSNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Result += TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
       Break;
     end;
 
@@ -470,10 +470,10 @@ begin
     Result.Reduce();
 end;
 
-function TRSNPCJSONParser.GetNearest(names: TStringArray; point:TPoint): TRSNPCV2;
+function TNPCJSONParser.GetNearest(names: TStringArray; point:TPoint): TNPCV2;
 var
-  NPC: TRSNPCV2;
-  npcArr: TRSNPCV2Array;
+  NPC: TNPCV2;
+  npcArr: TNPCV2Array;
   coordinate: TPoint;
   dist: Double;
   i: Integer;
@@ -493,13 +493,13 @@ begin
   Result.Coordinates := [coordinate];
 end;
 
-function TRSNPCJSONParser.GetNearest(name: String; point:TPoint): TRSNPCV2; overload;
+function TNPCJSONParser.GetNearest(name: String; point:TPoint): TNPCV2; overload;
 begin
   Result := Self.GetNearest([name], point);
 end;
 
 
-procedure TRSNPCJSONParser.Print();
+procedure TNPCJSONParser.Print();
 var
   i, j: Int32;
   actions: TStringArray;
@@ -524,17 +524,17 @@ begin
 end;
 
 var
-  NPCs: TRSNPCJSONParser;
+  NPCs: TNPCJSONParser;
 
 type
-  TRSBanks = record
+  TBanks = record
     MapObjects: PRSMapObjectArray;
 
-    ObjectsCache: TRSObjectV2Array;
-    NPCsCache: TRSNPCV2Array;
+    ObjectsCache: TObjectV2Array;
+    NPCsCache: TNPCV2Array;
   end;
 
-procedure TRSBanks._SetupMapObjects(Objects: TRSObjectJSONParser = Objects; NPCs: TRSNPCJSONParser = NPCs);
+procedure TBanks._SetupMapObjects(Objects: TObjectJSONParser = Objects; NPCs: TNPCJSONParser = NPCs);
 var
   i: Int32;
 begin
@@ -561,22 +561,22 @@ begin
   end;
 
   if Self.MapObjects = [] then
-    TerminateScript('No bank objects nor npcs available in the loaded TRSMap');
+    TerminateScript('No bank objects nor npcs available in the loaded TMap');
 end;
 
-procedure TRSBanks._AddObject(obj: TRSObjectV2);
+procedure TBanks._AddObject(obj: TObjectV2);
 begin
   Self.ObjectsCache += obj;
   Self.MapObjects += @Self.ObjectsCache[High(Self.ObjectsCache)];
 end;
 
-procedure TRSBanks._AddNPC(npc: TRSNPCV2);
+procedure TBanks._AddNPC(npc: TNPCV2);
 begin
   Self.NPCsCache += npc;
   Self.MapObjects += @Self.NPCsCache[High(Self.NPCsCache)];
 end;
 
-procedure TRSBanks._FilterLocation(polygon: TPointArray; inside: Boolean);
+procedure TBanks._FilterLocation(polygon: TPointArray; inside: Boolean);
 begin
   if Self.MapObjects = [] then
     Self._SetupMapObjects();
@@ -584,7 +584,7 @@ begin
   Self.MapObjects.Filter(polygon, inside);
 end;
 
-procedure TRSBanks._FilterLocation(circle: TCircle; inside: Boolean); overload;
+procedure TBanks._FilterLocation(circle: TCircle; inside: Boolean); overload;
 begin
   if Self.MapObjects = [] then
     Self._SetupMapObjects();
@@ -593,7 +593,7 @@ begin
 end;
 
 
-function TRSBanks.GetCoordinates(): TPointArray;
+function TBanks.GetCoordinates(): TPointArray;
 begin
   if Self.MapObjects = [] then
     Self._SetupMapObjects();
@@ -601,7 +601,7 @@ begin
   Result := Self.MapObjects.GetCoordinates();
 end;
 
-procedure TRSBanks.SetOffset(offset: TPoint);
+procedure TBanks.SetOffset(offset: TPoint);
 begin
   if Self.MapObjects = [] then
     Self._SetupMapObjects();
@@ -610,7 +610,7 @@ begin
 end;
 
 
-procedure TRSBanks.Debug();
+procedure TBanks.Debug();
 var
   mapObj: PRSMapObject;
 begin
@@ -625,7 +625,7 @@ begin
 end;
 
 
-function TRSBanks.GetClosest(): PRSMapObject;
+function TBanks.GetClosest(): PRSMapObject;
 begin
   if Self.MapObjects = [] then
     Self._SetupMapObjects();
@@ -634,7 +634,7 @@ begin
 end;
 
 
-function TRSBanks.Hover(mapObj: PRSMapObject = nil): Boolean;
+function TBanks.Hover(mapObj: PRSMapObject = nil): Boolean;
 begin
   if RSInterface.IsOpen() then
     Exit;
@@ -645,7 +645,7 @@ begin
   Result := mapObj^.Hover();
 end;
 
-function TRSBanks.Open(mapObj: PRSMapObject = nil): Boolean;
+function TBanks.Open(mapObj: PRSMapObject = nil): Boolean;
 begin
   if RSInterface.IsOpen() then
   begin
@@ -669,7 +669,7 @@ begin
   Result := WaitUntil(RSInterface.IsOpen(), 300, 3000) and (Bank.IsOpen() or BankPin.IsOpen());
 end;
 
-function TRSBanks.WalkHover(mapObj: PRSMapObject = nil): Boolean;
+function TBanks.WalkHover(mapObj: PRSMapObject = nil): Boolean;
 begin
   if RSInterface.IsOpen() then
     Exit;
@@ -680,7 +680,7 @@ begin
   Result := mapObj^.WalkHover();
 end;
 
-function TRSBanks.WalkOpen(mapObj: PRSMapObject = nil): Boolean;
+function TBanks.WalkOpen(mapObj: PRSMapObject = nil): Boolean;
 begin
   if RSInterface.IsOpen() then
   begin
@@ -705,4 +705,4 @@ begin
 end;
 
 var
-  {$H-}Banks: TRSBanks;{$H+}
+  {$H-}Banks: TBanks;{$H+}

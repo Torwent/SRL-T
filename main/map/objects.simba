@@ -5,13 +5,13 @@ This file is responsible for interacting with map objects.
 
 {$DEFINE SRL_MAPOBJECT_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
   ERSMapObjectType = (OBJ, MMDOT);
 
-  TRSMapObject = record
+  TMapObject = record
     ID: Int32;
     Name: String;
     Category: Int32;
@@ -20,7 +20,7 @@ type
     Size: Vector3;
     Coordinates: TPointArray;
 
-    Finder: TRSObjectFinder;
+    Finder: TObjectFinder;
     Offset: TPoint;
 
     Walker: PRSWalkerV2;
@@ -42,9 +42,9 @@ type
     RedClicked: Boolean;
   end;
 
-  PRSMapObject = ^TRSMapObject;
+  PRSMapObject = ^TMapObject;
 
-function TRSMapObject.Merge(json: TJSONObject): TRSMapObject;
+function TMapObject.Merge(json: TJSONObject): TMapObject;
 var
   i, c, t: Int32;
   h, s: Extended;
@@ -70,7 +70,7 @@ begin
 end;
 
 
-function TRSMapObject.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TRSMapObject; static;
+function TMapObject.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TMapObject; static;
 var
   i: Int32;
   x, y: Single;
@@ -99,7 +99,7 @@ begin
   Result.Finder.ColorClusters := [];
 end;
 
-function TRSMapObject.SameObject(json: TJSONObject): Boolean;
+function TMapObject.SameObject(json: TJSONObject): Boolean;
 var
   i: Int32;
   x, y: Single;
@@ -124,7 +124,7 @@ begin
 end;
 
 
-function TRSMapObject.MapToMM(me: TPoint = [0,0]; angle: Single = $FFFF): TPointArray; constref;
+function TMapObject.MapToMM(me: TPoint = [0,0]; angle: Single = $FFFF): TPointArray; constref;
 var
   coordinates: TPointArray;
 begin
@@ -140,7 +140,7 @@ begin
   Result := Self.Walker^.PointsToMM(me, coordinates, angle);
 end;
 
-function TRSMapObject.MapToMS(me: TPoint = [0,0]; angle: Single = $FFFF): TPointArray; constref;
+function TMapObject.MapToMS(me: TPoint = [0,0]; angle: Single = $FFFF): TPointArray; constref;
 var
   coordinates: TPointArray;
 begin
@@ -158,7 +158,7 @@ begin
   Result := Minimap.PointsToMS(coordinates, angle);
 end;
 
-function TRSMapObject.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref;
+function TMapObject.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref;
 var
   coordinates: TPointArray;
   p: TPoint;
@@ -185,15 +185,15 @@ end;
 
 
 (*
-## TRSMapObject.Find
+## TMapObject.Find
 ```pascal
-function TRSMapObject.Find(cuboidArray: TCuboidArray): T2DPointArray;
+function TMapObject.Find(cuboidArray: TCuboidArray): T2DPointArray;
 ```
-Internal TRSMapObject method responsible for filtering a TCuboidArray by what's visible in the mainscren.
-This is meant to filter TRSMapObject.GetCuboidArray() so targets that are outside of the mainscreen are filtered out.
+Internal TMapObject method responsible for filtering a TCuboidArray by what's visible in the mainscren.
+This is meant to filter TMapObject.GetCuboidArray() so targets that are outside of the mainscreen are filtered out.
 You will probably never need to use this directly.
 *)
-function TRSMapObject.FindOnMainScreen(cuboidArray: TCuboidExArray): T2DPointArray;
+function TMapObject.FindOnMainScreen(cuboidArray: TCuboidExArray): T2DPointArray;
 var
   i: Int32;
   tpa: TPointArray;
@@ -222,14 +222,14 @@ begin
 end;
 
 (*
-## TRSMapObject.Visible
+## TMapObject.Visible
 ```pascal
-function TRSMapObject.Visible(cuboidArray: TCuboidArray): Boolean;
+function TMapObject.Visible(cuboidArray: TCuboidArray): Boolean;
 ```
-Internal TRSMapObject method that returns true or false if we have TCuboids visible on the mainscreen.
+Internal TMapObject method that returns true or false if we have TCuboids visible on the mainscreen.
 You probably don't need to use this directly.
 *)
-function TRSMapObject.OnMainScreen(cuboidArray: TCuboidExArray): Boolean;
+function TMapObject.OnMainScreen(cuboidArray: TCuboidExArray): Boolean;
 var
   i: Int32;
 begin
@@ -244,14 +244,14 @@ begin
 end;
 
 (*
-## TRSMapObject._UpTextCheck
+## TMapObject._UpTextCheck
 ```pascal
-function TRSMapObject._UpTextCheck(out shouldExit: Boolean): Boolean;
+function TMapObject._UpTextCheck(out shouldExit: Boolean): Boolean;
 ```
-Internal TRSMapObject helper method that is used by all hovering methods.
+Internal TMapObject helper method that is used by all hovering methods.
 You probably don't need to use this directly.
 *)
-function TRSMapObject._UpTextCheck(out shouldExit: Boolean): Boolean;
+function TMapObject._UpTextCheck(out shouldExit: Boolean): Boolean;
 var
   strArray: TStringArray;
   upText: String;
@@ -262,13 +262,13 @@ begin
   begin
     strArray += Self.Name;
 
-    if TRSMapObject.CurrentUpText <> strArray then
-      TRSMapObject.CurrentUpText := strArray;
+    if TMapObject.CurrentUpText <> strArray then
+      TMapObject.CurrentUpText := strArray;
   end;
 
   upText := MainScreen.GetUpText();
 
-  if ('>' in upText) and not TRSMapObject.CurrentUpText.Contains('Use') then
+  if ('>' in upText) and not TMapObject.CurrentUpText.Contains('Use') then
   begin
     ChooseOption.Select('Cancel');
     Exit;
@@ -281,14 +281,14 @@ begin
 end;
 
 (*
-## TRSMapObject._WalkUpTextCheck
+## TMapObject._WalkUpTextCheck
 ```pascal
-function TRSMapObject._WalkUpTextCheck(out shouldExit: Boolean): Boolean;
+function TMapObject._WalkUpTextCheck(out shouldExit: Boolean): Boolean;
 ```
-Internal TRSMapObject helper method that is used by all walking hover methods.
+Internal TMapObject helper method that is used by all walking hover methods.
 You probably don't need to use this directly.
 *)
-function TRSMapObject._WalkUpTextCheck(out shouldExit: Boolean): Boolean;
+function TMapObject._WalkUpTextCheck(out shouldExit: Boolean): Boolean;
 var
   upText: String;
   strArray: TStringArray;
@@ -299,42 +299,42 @@ begin
   begin
     strArray += Self.Name;
 
-    if TRSMapObject.CurrentUpText <> strArray then
-      TRSMapObject.CurrentUpText := strArray;
+    if TMapObject.CurrentUpText <> strArray then
+      TMapObject.CurrentUpText := strArray;
   end;
 
   upText := MainScreen.GetUpText();
 
-  if ('>' in upText) and not TRSMapObject.CurrentUpText.Contains('Use') then
+  if ('>' in upText) and not TMapObject.CurrentUpText.Contains('Use') then
   begin
     ChooseOption.Select('Cancel');
     Exit;
   end;
 
-  if TRSMapObject.RedClicked or (Self.Filter.UpText and (Self.Name in upText)) then
+  if TMapObject.RedClicked or (Self.Filter.UpText and (Self.Name in upText)) then
     Exit(True);
 
   shouldExit := False;
 end;
 
 (*
-## TRSMapObject._ClickHelper
+## TMapObject._ClickHelper
 ```pascal
-function TRSMapObject._ClickHelper(leftClick: Boolean): Boolean;
+function TMapObject._ClickHelper(leftClick: Boolean): Boolean;
 ```
-Internal TRSMapObject helper method that is used by other clicking methods.
+Internal TMapObject helper method that is used by other clicking methods.
 You probably don't need to use this directly.
 
 This is what's responsible for deciding if we click a target we are hovering or not.
 *)
-function TRSMapObject._ClickHelper(leftClick: Boolean): Boolean;
+function TMapObject._ClickHelper(leftClick: Boolean): Boolean;
 begin
-  TRSMapObject.CurrentUpText := [];
-  TRSMapObject.CurrentActionUpText := [];
+  TMapObject.CurrentUpText := [];
+  TMapObject.CurrentActionUpText := [];
 
-  if TRSMapObject.RedClicked then
+  if TMapObject.RedClicked then
   begin
-    TRSMapObject.RedClicked := False;
+    TMapObject.RedClicked := False;
     Exit(True);
   end;
 
@@ -356,23 +356,23 @@ begin
 end;
 
 (*
-## TRSMapObject._SelectHelper
+## TMapObject._SelectHelper
 ```pascal
-function TRSMapObject._SelectHelper(action: TStringArray): Boolean;
+function TMapObject._SelectHelper(action: TStringArray): Boolean;
 ```
-Internal TRSMapObject helper method that is used by other select methods.
+Internal TMapObject helper method that is used by other select methods.
 You probably don't need to use this directly.
 
 This is what is responsible for deciding if we just left click a target we are hovering or right click it and choose an option.
 *)
-function TRSMapObject._SelectHelper(action: TStringArray): Boolean;
+function TMapObject._SelectHelper(action: TStringArray): Boolean;
 begin
-  TRSMapObject.CurrentUpText := [];
-  TRSMapObject.CurrentActionUpText := [];
+  TMapObject.CurrentUpText := [];
+  TMapObject.CurrentActionUpText := [];
 
-  if TRSMapObject.RedClicked then
+  if TMapObject.RedClicked then
   begin
-    TRSMapObject.RedClicked := False;
+    TMapObject.RedClicked := False;
     Exit(True);
   end;
 
@@ -428,14 +428,14 @@ begin
 end;
 
 type
-  TRSObjectV2 = record(TRSMapObject)
+  TObjectV2 = record(TMapObject)
     ObjType:  Int32;
     Rotations: TSingleArray;
   end;
 
-  PRSObjectV2 = ^TRSObjectV2;
+  PRSObjectV2 = ^TObjectV2;
 
-function TRSObjectV2.Merge(json: TJSONObject): TRSObjectV2; overload;
+function TObjectV2.Merge(json: TJSONObject): TObjectV2; overload;
 var
   i, c, t: Int32;
   h, s: Extended;
@@ -473,24 +473,24 @@ begin
   Result.Finder.Colors := [CTS2(c, t, h, s)];
 end;
 
-function TRSObjectV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TRSObjectV2; static; overload;
+function TObjectV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TObjectV2; static; overload;
 var
-  mapObj: TRSMapObject;
+  mapObj: TMapObject;
 begin
-  mapObj := TRSMapObject.Setup(pwalker, json);
+  mapObj := TMapObject.Setup(pwalker, json);
   Result := PRSObjectV2(@mapObj)^;
   Result.ObjType := json.getInt('type');
   Result.MapObjectType := ERSMapObjectType.OBJ;
 end;
 
-function TRSObjectV2.SameObject(json: TJSONObject): Boolean; override;
+function TObjectV2.SameObject(json: TJSONObject): Boolean; override;
 begin
   if Self.ObjType <> json.getInt('type') then
     Exit;
   Result := inherited;
 end;
 
-function TRSObjectV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
+function TObjectV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
 var
   Locations: TCoordsAngle;
   p: TPoint;
@@ -523,14 +523,14 @@ end;
 
 
 (*
-## TRSObjectV2.Find
+## TObjectV2.Find
 ```pascal
-function TRSObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
-function TRSObjectV2.Find(out atpa: T2DPointArray): Boolean;
-function TRSObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
+function TObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
+function TObjectV2.Find(out atpa: T2DPointArray): Boolean;
+function TObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
 ```
-TRSObjectV2 method used to find a {ref}`TRSObjectV2`. If found returns true, if not returns false.
-The "extended" method in particular is mostly meant for debugging and is the one used when you call `Debug(TRSMapObject)`.
+TObjectV2 method used to find a {ref}`TObjectV2`. If found returns true, if not returns false.
+The "extended" method in particular is mostly meant for debugging and is the one used when you call `Debug(TMapObject)`.
 
 Example:
 ```pascal
@@ -538,7 +538,7 @@ WriteLn RSObjects.GEBank.Find(atpa); //Be in ge and with a walker setup there.
 Debug(atpa);
 ```
 *)
-function TRSObjectV2.FindEx(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
+function TObjectV2.FindEx(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
 begin
   if Self.Filter.Walker then
   begin
@@ -555,13 +555,13 @@ begin
 end;
 
 (*
-## TRSObjectV2.Draw
+## TObjectV2.Draw
 ```pascal
-procedure TRSMapObject.Draw(out bitmap: TMufasaBitmap);
+procedure TMapObject.Draw(out bitmap: TMufasaBitmap);
 ```
-Helper method to debug TRSMapObjects used in `Debug(TRSMapObject)`.
+Helper method to debug TMapObjects used in `Debug(TMapObject)`.
 *)
-procedure TRSObjectV2.Draw(out bitmap: TMufasaBitmap);
+procedure TObjectV2.Draw(out bitmap: TMufasaBitmap);
 var
   me, p, q: TPoint;
   rect: TRectangle;
@@ -600,20 +600,20 @@ end;
 
 
 type
-  TRSMMDotV2 = record(TRSMapObject)
+  TMMDotV2 = record(TMapObject)
     DotType: ERSMinimapDot;
-    DotFilters: TRSDotFilterArray;
+    DotFilters: TDotFilterArray;
   end;
 
-  PRSMMDotV2 = ^TRSMMDotV2;
+  PRSMMDotV2 = ^TMMDotV2;
 
-  TRSNPCV2 = record(TRSMMDotV2)
+  TNPCV2 = record(TMMDotV2)
     Level: Int32;
   end;
 
-  PRSNPCV2 = ^TRSNPCV2;
+  PRSNPCV2 = ^TNPCV2;
 
-function TRSNPCV2.Merge(json: TJSONObject): TRSNPCV2; overload;
+function TNPCV2.Merge(json: TJSONObject): TNPCV2; overload;
 var
   i, c, t: Int32;
   h, s: Extended;
@@ -638,11 +638,11 @@ begin
   Result.Finder.Colors := [CTS2(c, t, h, s)];
 end;
 
-function TRSNPCV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TRSNPCV2; static; overload;
+function TNPCV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TNPCV2; static; overload;
 var
-  mapObj: TRSMapObject;
+  mapObj: TMapObject;
 begin
-  mapObj := TRSMapObject.Setup(pwalker, json);
+  mapObj := TMapObject.Setup(pwalker, json);
   Result := PRSNPCV2(@mapObj)^;
 
   Result.DotType := ERSMinimapDot.NPC;
@@ -651,12 +651,12 @@ begin
   Result.MapObjectType := ERSMapObjectType.MMDOT;
 end;
 
-function TRSMMDotV2.SameObject(json: TJSONObject): Boolean; override;
+function TMMDotV2.SameObject(json: TJSONObject): Boolean; override;
 begin
   Result := inherited;
 end;
 
-function TRSMMDotV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
+function TMMDotV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
 var
   dots: TPointArray;
   p: TPoint;
@@ -713,14 +713,14 @@ end;
 
 
 (*
-## TRSObjectV2.Find
+## TObjectV2.Find
 ```pascal
-function TRSObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
-function TRSObjectV2.Find(out atpa: T2DPointArray): Boolean;
-function TRSObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
+function TObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
+function TObjectV2.Find(out atpa: T2DPointArray): Boolean;
+function TObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
 ```
-TRSObjectV2 method used to find a {ref}`TRSObjectV2`. If found returns true, if not returns false.
-The "extended" method in particular is mostly meant for debugging and is the one used when you call `Debug(TRSMapObject)`.
+TObjectV2 method used to find a {ref}`TObjectV2`. If found returns true, if not returns false.
+The "extended" method in particular is mostly meant for debugging and is the one used when you call `Debug(TMapObject)`.
 
 Example:
 ```pascal
@@ -728,7 +728,7 @@ WriteLn RSObjects.GEBank.Find(atpa); //Be in ge and with a walker setup there.
 Debug(atpa);
 ```
 *)
-function TRSMMDotV2.FindEx(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
+function TMMDotV2.FindEx(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
 begin
   if Self.Filter.Walker or Self.Filter.Minimap then
   begin
@@ -745,13 +745,13 @@ begin
 end;
 
 (*
-## TRSObjectV2.Draw
+## TObjectV2.Draw
 ```pascal
-procedure TRSMapObject.Draw(out bitmap: TMufasaBitmap);
+procedure TMapObject.Draw(out bitmap: TMufasaBitmap);
 ```
-Helper method to debug TRSMapObjects used in `Debug(TRSMapObject)`.
+Helper method to debug TMapObjects used in `Debug(TMapObject)`.
 *)
-procedure TRSMMDotV2.Draw(out bitmap: TMufasaBitmap);
+procedure TMMDotV2.Draw(out bitmap: TMufasaBitmap);
 var
   me, p, q: TPoint;
   rect: TRectangle;
@@ -788,7 +788,7 @@ end;
 
 
 
-function TRSMapObject._FindExRouter(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
+function TMapObject._FindExRouter(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
 begin
   case Self.MapObjectType of
     ERSMapObjectType.OBJ:   Result := PRSObjectV2(@Self)^.FindEx(cuboids, atpa);
@@ -796,7 +796,7 @@ begin
   end;
 end;
 
-function TRSMapObject._GetCuboidArrayRouter(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray;
+function TMapObject._GetCuboidArrayRouter(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray;
 begin
   case Self.MapObjectType of
     ERSMapObjectType.OBJ:   Result := PRSObjectV2(@Self)^.GetCuboidArray(me, angle);
@@ -806,14 +806,14 @@ end;
 
 
 
-function TRSMapObject.Find(out atpa: T2DPointArray): Boolean;
+function TMapObject.Find(out atpa: T2DPointArray): Boolean;
 var
   cuboids: TCuboidExArray;
 begin
   Result := Self._FindExRouter(cuboids, atpa);
 end;
 
-function TRSMapObject.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
+function TMapObject.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
 var
   cuboidArray: TCuboidExArray;
 begin
@@ -830,18 +830,18 @@ end;
 
 
 (*
-## TRSMapObject.IsVisible
+## TMapObject.IsVisible
 ```pascal
-function TRSMapObject.IsVisible(): Boolean;
+function TMapObject.IsVisible(): Boolean;
 ```
-TRSMapObject method used to find a {ref}`TRSMapObject`. If found returns true, if not returns false.
+TMapObject method used to find a {ref}`TMapObject`. If found returns true, if not returns false.
 
 Example:
 ```pascal
 WriteLn RSObjects.GEBank.IsVisible(); //Be in ge and with a walker setup there.
 ```
 *)
-function TRSMapObject.IsVisible(): Boolean;
+function TMapObject.IsVisible(): Boolean;
 var
   atpa: T2DPointArray;
 begin
@@ -850,14 +850,14 @@ end;
 
 
 (*
-## TRSMapObject._UpdateTarget
+## TMapObject._UpdateTarget
 ```pascal
-procedure TRSMapObject._UpdateTarget(sender: PMouse; var x, y: Double; var done: Boolean);
+procedure TMapObject._UpdateTarget(sender: PMouse; var x, y: Double; var done: Boolean);
 ```
 Internal helper method of TMouseMovingEventEx type used to update the target position while the mouse is moving.
 You should probably not touch this if you don't understand it.
 *)
-procedure TRSMapObject._UpdateTarget(sender: PMouse; var x, y: Double; var done: Boolean);
+procedure TMapObject._UpdateTarget(sender: PMouse; var x, y: Double; var done: Boolean);
 var
   i: Int32;
   atpa: T2DPointArray;
@@ -888,14 +888,14 @@ begin
 end;
 
 (*
-## TRSMapObject._HoverHelper
+## TMapObject._HoverHelper
 ```pascal
-function TRSMapObject._HoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
+function TMapObject._HoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
 ```
-Internal helper method used to hover a TRSMapObject target.
+Internal helper method used to hover a TMapObject target.
 You should not use this directly.
 *)
-function TRSMapObject._HoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
+function TMapObject._HoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
 var
   shouldExit: Boolean;
   attempt: Int32;
@@ -939,16 +939,16 @@ begin
 end;
 
 (*
-## TRSMapObject._WalkHoverHelper
+## TMapObject._WalkHoverHelper
 ```pascal
-function TRSMapObject._WalkHoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
+function TMapObject._WalkHoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
 ```
-Internal helper method used to walk and hover a TRSMapObject target.
+Internal helper method used to walk and hover a TMapObject target.
 You should not use this directly.
 
-This is responsible for deciding wether we should walk to a TRSMapObject target or not before attempting to hover it.
+This is responsible for deciding wether we should walk to a TMapObject target or not before attempting to hover it.
 *)
-function TRSMapObject._WalkHoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
+function TMapObject._WalkHoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
 var
   shouldExit: Boolean;
   attempt: Int32;
@@ -1010,14 +1010,14 @@ end;
 
 
 (*
-## TRSMapObject.PreHoverHelper
+## TMapObject.PreHoverHelper
 ```pascal
-function TRSMapObject.PreHoverHelper(attempts: Int32): Boolean;
+function TMapObject.PreHoverHelper(attempts: Int32): Boolean;
 ```
-Internal helper method used to pre-hover a TRSMapObject target.
+Internal helper method used to pre-hover a TMapObject target.
 You should not use this directly.
 *)
-function TRSMapObject.PreHoverHelper(me: TPoint; attempts: Int32 = 2): Boolean;
+function TMapObject.PreHoverHelper(me: TPoint; attempts: Int32 = 2): Boolean;
 var
   attempt: Int32;
   atpa: T2DPointArray;
@@ -1035,11 +1035,11 @@ begin
 end;
 
 (*
-## TRSMapObject.Hover
+## TMapObject.Hover
 ```pascal
-function TRSMapObject.Hover(attempts: Int32 = 2; trackTarget: Boolean = TRSMapObject.TrackTarget): Boolean;
+function TMapObject.Hover(attempts: Int32 = 2; trackTarget: Boolean = TMapObject.TrackTarget): Boolean;
 ```
-Method used to hover a TRSMapObject target if it's found on the mainscreen.
+Method used to hover a TMapObject target if it's found on the mainscreen.
 It can update the target position while the mouse moves with **trackTarget**.
 
 Example:
@@ -1048,7 +1048,7 @@ RSW.WebWalk(WaspWeb.LOCATION_VARROCK);
 RSObjects.GEBank.Hover(); //Be in GE with a walker setup there.
 ```
 *)
-function TRSMapObject.Hover(attempts: Int32 = 2): Boolean;
+function TMapObject.Hover(attempts: Int32 = 2): Boolean;
 begin
   if ChooseOption.IsOpen() then
   begin
@@ -1064,11 +1064,11 @@ begin
 end;
 
 (*
-## TRSMapObject.WalkHover
+## TMapObject.WalkHover
 ```pascal
-function TRSMapObject.WalkHover(attempts: Int32 = 2; trackTarget: Boolean = TRSMapObject.TrackTarget): Boolean;
+function TMapObject.WalkHover(attempts: Int32 = 2; trackTarget: Boolean = TMapObject.TrackTarget): Boolean;
 ```
-Method used to walk and hover a TRSMapObject target if it's found on the mainscreen after walking.
+Method used to walk and hover a TMapObject target if it's found on the mainscreen after walking.
 It can update the target position while the mouse moves with **trackTarget**.
 
 Example:
@@ -1078,7 +1078,7 @@ RSW.WebWalk(WaspWeb.LOCATION_VARROCK);
 RSObjects.GEBank.WalkHover();
 ```
 *)
-function TRSMapObject.WalkHover(attempts: Int32 = 2): Boolean;
+function TMapObject.WalkHover(attempts: Int32 = 2): Boolean;
 var
   p: TPoint;
 begin
@@ -1093,7 +1093,7 @@ begin
     Exit;
 
   if Self.Filter.UpText then
-    TRSMapObject.CurrentUpText += Self.Name;
+    TMapObject.CurrentUpText += Self.Name;
 
   p := Self.Walker^.GetClosestPoint(Self.Coordinates);
   if not Self.Walker^.MakePointVisible(p) and
@@ -1105,11 +1105,11 @@ end;
 
 
 (*
-## TRSMapObject.Click
+## TMapObject.Click
 ```pascal
-function TRSMapObject.Click(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
+function TMapObject.Click(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
 ```
-Method used to click a TRSMapObject target if it's found on the mainscreen.
+Method used to click a TMapObject target if it's found on the mainscreen.
 
 Example:
 ```pascal
@@ -1117,17 +1117,17 @@ Example:
 WriteLn RSObjects.GEBank.Click();
 ```
 *)
-function TRSMapObject.Click(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
+function TMapObject.Click(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
 begin
   Result := Self.Hover(attempts) and Self._ClickHelper(leftClick);
 end;
 
 (*
-## TRSMapObject.SelectOption
+## TMapObject.SelectOption
 ```pascal
-function TRSMapObject.SelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
+function TMapObject.SelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
 ```
-Method used to select an option on a TRSMapObject target if it's found on the mainscreen.
+Method used to select an option on a TMapObject target if it's found on the mainscreen.
 
 Example:
 ```pascal
@@ -1135,7 +1135,7 @@ Example:
 WriteLn RSObjects.GEBank.SelectOption(['Collect']);
 ```
 *)
-function TRSMapObject.SelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
+function TMapObject.SelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
 begin
   Self.CurrentActionUpText := action;
   Result := Self.Hover(attempts) and Self._SelectHelper(action);
@@ -1144,11 +1144,11 @@ end;
 
 
 (*
-## TRSMapObject.WalkClick
+## TMapObject.WalkClick
 ```pascal
-function TRSMapObject.WalkClick(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
+function TMapObject.WalkClick(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
 ```
-Method used to walk and click a TRSMapObject target if it's found on the mainscreen.
+Method used to walk and click a TMapObject target if it's found on the mainscreen.
 
 Example:
 ```pascal
@@ -1156,17 +1156,17 @@ Example:
 WriteLn RSObjects.GEBank.WalkClick();
 ```
 *)
-function TRSMapObject.WalkClick(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
+function TMapObject.WalkClick(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
 begin
   Result := Self.WalkHover(attempts) and Self._ClickHelper(leftClick);
 end;
 
 (*
-## TRSMapObject.WalkSelectOption
+## TMapObject.WalkSelectOption
 ```pascal
-function TRSMapObject.WalkSelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
+function TMapObject.WalkSelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
 ```
-Method used to walk and select an option on a TRSMapObject target if it's found on the mainscreen.
+Method used to walk and select an option on a TMapObject target if it's found on the mainscreen.
 
 Example:
 ```pascal
@@ -1174,7 +1174,7 @@ Example:
 WriteLn RSObjects.GEBank.WalkSelectOption(['Collect']);
 ```
 *)
-function TRSMapObject.WalkSelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
+function TMapObject.WalkSelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
 begin
   Self.CurrentActionUpText := action;
   Result := Self.WalkHover(attempts) and Self._SelectHelper(action);
@@ -1188,21 +1188,21 @@ end;
 (*
 ## Debug
 ```pascal
-procedure Debug(obj: TRSObjectV2); overload;
-procedure Debug(npc: TRSNPCV2); overload;
+procedure Debug(obj: TObjectV2); overload;
+procedure Debug(npc: TNPCV2); overload;
 ```
-Debugs a TRSMapObject used with the help of it's `.Draw()` method.
+Debugs a TMapObject used with the help of it's `.Draw()` method.
 
 Example:
 ```pascal
-{$I SRL-T/osr.simba}
+{$I SRL-T/main.simba}
 begin
   Map.SetupChunkEx([49,52,49,52]);
   Debug(Objects.Get('clay rocks')); //be in varrock west mine.
 end.
 ```
 *)
-procedure Debug(obj: TRSObjectV2); overload;
+procedure Debug(obj: TObjectV2); overload;
 var
   bitmap: TMufasaBitmap;
 begin
@@ -1212,7 +1212,7 @@ begin
   bitmap.Free();
 end;
 
-procedure Debug(npc: TRSNPCV2); overload;
+procedure Debug(npc: TNPCV2); overload;
 var
   bitmap: TMufasaBitmap;
 begin
@@ -1221,5 +1221,3 @@ begin
   bitmap.Debug();
   bitmap.Free();
 end;
-
-

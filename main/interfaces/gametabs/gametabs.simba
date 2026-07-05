@@ -4,7 +4,7 @@ Methods to interact with the gametabs.
 *)
 {$DEFINE SRL_GAMETABS_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 type
@@ -13,11 +13,11 @@ type
     CLAN, FRIENDS, ACCOUNT, LOGOUT, OPTIONS, EMOTES, MUSIC, UNKNOWN
   );
 
-  TRSGameTabs = record(TRSInterface)
+  TGameTabs = record(TInterface)
     Boxes: TBoxArray;
   end;
 
-function TRSGameTabs.GetCurrentTab(): ERSGametab;
+function TGameTabs.GetCurrentTab(): ERSGametab;
 var
   tab: ERSGameTab;
 begin
@@ -34,7 +34,7 @@ end;
 (*
 ## GameTabs.Open()
 ```pascal
-function TRSGameTabs.Open(tab: ERSGameTab): Boolean;
+function TGameTabs.Open(tab: ERSGameTab): Boolean;
 ```
 Opens the specified `Tab`.
 
@@ -43,7 +43,7 @@ Example:
 WriteLn GameTabs.Open(ERSGameTab.INVENTORY);
 ```
 *)
-function TRSGameTabs.Open(tab: ERSGameTab): Boolean;
+function TGameTabs.Open(tab: ERSGameTab): Boolean;
 var
   i: Int32;
 begin
@@ -58,21 +58,21 @@ begin
   end;
 end;
 
-procedure TRSGameTabs.Draw(Bitmap: TMufasaBitmap); override;
+procedure TGameTabs.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
   Bitmap.DrawBoxes(Self.Boxes, $00FFFF);
 end;
 
-procedure TRSGameTabs.Setup(); override;
+procedure TGameTabs.Setup(); override;
 begin
   inherited;
   Self.Name := 'GameTabs';
 end;
 
-procedure TRSGameTabs.SetupAlignment(); overload;
+procedure TGameTabs.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
   i: Int32;
 begin
   alignment.Bottom := RootInterface.Bounds.Y2;
@@ -136,7 +136,7 @@ begin
 end;
 
 var
-  GameTabs: TRSGameTabs;
+  GameTabs: TGameTabs;
 
 procedure TGameClient.ClientModeChanged(); override;
 begin

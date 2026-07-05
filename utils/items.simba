@@ -4,11 +4,11 @@
 {$ENDIF}
 
 type
-  TRSItem = Variant;
-  TRSItemArray = array of TRSItem;
+  TItem = Variant;
+  TItemArray = array of TItem;
 
 {%codetools off}
-function _ItemSortComparison(constref l, r: TRSItem): Int32;
+function _ItemSortComparison(constref l, r: TItem): Int32;
 var
   left, right: String;
 begin
@@ -21,11 +21,11 @@ end;
 (*
 ## ItemArray.Find
 ```pascal
-function TRSItemArray.Find(const value: TRSItem): Int32; constref;
+function TItemArray.Find(const value: TItem): Int32; constref;
 ```
-Find a TRSItem in a TRSItemArray and return it's index.
+Find a TItem in a TItemArray and return it's index.
 *)
-function TRSItemArray.Find(const value: TRSItem): Int32; constref;
+function TItemArray.Find(const value: TItem): Int32; constref;
 begin
   for Result := 0 to High(Self) do
     if VarToStr(value) = VarToStr(Self[Result]) then
@@ -34,7 +34,7 @@ begin
   Result := -1;
 end;
 
-function TRSItemArray.FindAll(const value: TRSItem): TIntegerArray; constref;
+function TItemArray.FindAll(const value: TItem): TIntegerArray; constref;
 var
   i: UInt32;
 begin
@@ -44,7 +44,7 @@ begin
 end;
 
 
-procedure TRSItemArray.Insert(const value: String; index: Int32);
+procedure TItemArray.Insert(const value: String; index: Int32);
 var
   l: UInt32;
 begin
@@ -60,18 +60,18 @@ begin
   Self[index] := value;
 end;
 
-procedure TRSItemArray.Del(const index: Int32; const count: Int32 = 1);
+procedure TItemArray.Del(const index: Int32; const count: Int32 = 1);
 begin
   Delete(Self, index, count);
 end;
 
 
-function TRSItemArray.Len(): Int32;
+function TItemArray.Len(): Int32;
 begin
   Result := Length(Self);
 end;
 
-procedure TRSItemArray.Remove(const value: TRSItem; const all: Boolean = False);
+procedure TItemArray.Remove(const value: TItem; const all: Boolean = False);
 var
   i: Int32;
   lst: TIntegerArray;
@@ -88,7 +88,7 @@ begin
     Self.Del(lst[i]);
 end;
 
-function TRSItemArray.Pop(): String;
+function TItemArray.Pop(): String;
 var
   h: Int32;
 begin
@@ -97,7 +97,7 @@ begin
   SetLength(Self, h);
 end;
 
-procedure TRSItemArray.Extend(const arr: TRSItemArray);
+procedure TItemArray.Extend(const arr: TItemArray);
 var
   i, len: Int32;
 begin
@@ -111,16 +111,16 @@ end;
 (*
 ## ItemArray.Contains
 ```pascal
-function TRSItemArray.Contains(const value: TRSItem): Boolean; constref;
+function TItemArray.Contains(const value: TItem): Boolean; constref;
 ```
-Find a TRSItem in a TRSItemArray and return true or false.
+Find a TItem in a TItemArray and return true or false.
 *)
-function TRSItemArray.Contains(const value: TRSItem): Boolean; constref;
+function TItemArray.Contains(const value: TItem): Boolean; constref;
 begin
   Result := Self.Find(value) > -1;
 end;
 
-function TRSItemArray.ContainsAny(const values: TRSItemArray): Boolean; constref;
+function TItemArray.ContainsAny(const values: TItemArray): Boolean; constref;
 var
   value: String;
 begin
@@ -129,7 +129,7 @@ begin
       Exit(True);
 end;
 
-function TRSItemArray.ContainsAll(const values: TRSItemArray): Boolean; constref;
+function TItemArray.ContainsAll(const values: TItemArray): Boolean; constref;
 var
   value: String;
 begin
@@ -140,22 +140,22 @@ begin
 end;
 
 
-procedure TRSItemArray.Sort();
+procedure TItemArray.Sort();
 begin
   System.Sort(Self, @_ItemSortComparison);
 end;
 
-function TRSItemArray.Sorted(): TRSItemArray;
+function TItemArray.Sorted(): TItemArray;
 begin
   Result := Copy(Self);
   Result.Sort();
 end;
 
 
-function TRSItemArray.Reversed(): TRSItemArray;
+function TItemArray.Reversed(): TItemArray;
 var
   lo: PtrUInt;
-  p, r: ^TRSItem;
+  p, r: ^TItem;
 begin
   if (Length(Self) = 0) then
     Exit();
@@ -173,10 +173,10 @@ begin
   end;
 end;
 
-procedure TRSItemArray.Reverse();
+procedure TItemArray.Reverse();
 var
-  tmp: TRSItem;
-  lo, hi: ^TRSItem;
+  tmp: TItem;
+  lo, hi: ^TItem;
 begin
   if (Length(Self) = 0) then
     Exit();
@@ -194,7 +194,7 @@ begin
 end;
 
 
-function TRSItemArray.Combine(const arr2: TRSItemArray): TRSItemArray; constref;
+function TItemArray.Combine(const arr2: TItemArray): TItemArray; constref;
 var
   i, j: Int32;
 begin
@@ -212,7 +212,7 @@ begin
   end;
 end;
 
-function TRSItemArray.Equals(other: TRSItemArray): Boolean; constref;
+function TItemArray.Equals(other: TItemArray): Boolean; constref;
 var
   i: Int32;
 begin
@@ -226,25 +226,25 @@ begin
 end;
 
 
-procedure TRSItemArray.ClearDuplicates();
+procedure TItemArray.ClearDuplicates();
 var
   i: Int32;
-  unique: TRSItemArray;
+  unique: TItemArray;
 begin
   for i := 0 to High(Self) do
     if unique.Find(Self[i]) = -1 then
       unique += Self[i];
   Self := unique;
-end; 
+end;
 
-function TRSItemArray.Unique(): TRSItemArray;
+function TItemArray.Unique(): TItemArray;
 begin
   Result := Copy(Self);
   Result.ClearDuplicates();
 end;
 
 
-function TRSItemArray.Count(const value: TRSItem): Int32;
+function TItemArray.Count(const value: TItem): Int32;
 var
   i: Int32;
 begin
@@ -254,10 +254,10 @@ begin
 end;
 
 
-function TRSItemArray.Intersection(other: TRSItemArray; unsorted: Boolean = True): TRSItemArray; constref;
+function TItemArray.Intersection(other: TItemArray; unsorted: Boolean = True): TItemArray; constref;
 var
   i, j, resultIndex: Int32;
-  s1, s2: TRSItemArray;
+  s1, s2: TItemArray;
   a, b: String;
 begin
   s1 := Copy(Self);
@@ -293,9 +293,9 @@ begin
   SetLength(Result, resultIndex);
 end;
 
-function TRSItemArray.Difference(other: TRSItemArray): TRSItemArray; constref;
+function TItemArray.Difference(other: TItemArray): TItemArray; constref;
 var
-  item: TRSItem;
+  item: TItem;
 begin
   for item in Self do
     if other.Find(item) = -1 then
@@ -303,9 +303,9 @@ begin
   Result.ClearDuplicates();
 end;
 
-function TRSItemArray.SymmetricDifference(other: TRSItemArray): TRSItemArray; constref;
+function TItemArray.SymmetricDifference(other: TItemArray): TItemArray; constref;
 var
-  item: TRSItem;
+  item: TItem;
 begin
   for item in Self do
     if other.Find(item) = -1 then
@@ -319,7 +319,7 @@ begin
 end;
 
 
-function TRSItemArray.RandomValue(): TRSItem; constref;
+function TItemArray.RandomValue(): TItem; constref;
 begin
   if Self <> [] then
     Result := Self[System.Random(Low(Self), High(Self))];

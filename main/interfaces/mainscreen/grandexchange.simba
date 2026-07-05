@@ -4,7 +4,7 @@ Methods to interact with the grand exchange.
 *)
 {$DEFINE SRL_GRANDEXCHANGE_INCLUDED}
 {$IFNDEF SRL_OSR}
-  {$I SRL-T/osr.simba}
+  {$I SRL-T/main.simba}
 {$ENDIF}
 
 {$SCOPEDENUMS ON}
@@ -26,9 +26,9 @@ type
 
   ERSGEOfferCreateButton = (BUY, SELL);
 
-  TRSGrandExchange = record(TRSTitledInterface)
-    FINDER_BANKER: TRSObjectFinder;
-    FINDER_CLERK: TRSObjectFinder;
+  TGrandExchange = record(TTitledInterface)
+    FINDER_BANKER: TObjectFinder;
+    FINDER_CLERK: TObjectFinder;
 
     ItemNameBox: TBox;
     OfferSlots, CollectionSlots: TBoxArray;
@@ -36,12 +36,12 @@ type
 
   ERSGEOfferStatus = (ACTIVE, COMPLETE, ABORTED, EMPTY, UNKNOWN);
 
-function TRSGrandExchange.GetSetupOfferButtons: TGameButtonArray;
+function TGrandExchange.GetSetupOfferButtons: TGameButtonArray;
 begin
   Result := Self.FindButtons([[45,18], [40,36], [151, 18],  [192, 18], [35,25], [410, 18], [152, 40]]);
 end;
 
-function TRSGrandExchange.GetSetupOfferButton(Button: ERSGESetupOfferButton): TGameButton;
+function TGrandExchange.GetSetupOfferButton(Button: ERSGESetupOfferButton): TGameButton;
 var
   Buttons: TGameButtonArray := Self.GetSetupOfferButtons();
 begin
@@ -49,12 +49,12 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSGrandExchange.GetOverviewButtons: TGameButtonArray;
+function TGrandExchange.GetOverviewButtons: TGameButtonArray;
 begin
   Result := Self.FindButtons([[45,18], [55,18], [81,18]]);
 end;
 
-function TRSGrandExchange.GetOverviewButton(Button: ERSGEOverviewButton): TGameButton;
+function TGrandExchange.GetOverviewButton(Button: ERSGEOverviewButton): TGameButton;
 var
   I: Int32;
   Buttons: TGameButtonArray := Self.GetOverviewButtons();
@@ -72,12 +72,12 @@ begin
   end;
 end;
 
-function TRSGrandExchange.GetOfferStatusButtons: TGameButtonArray;
+function TGrandExchange.GetOfferStatusButtons: TGameButtonArray;
 begin
   Result := Self.FindButtons([[45,18], [36,32], [40,36],[292,15], [151,18], [192,18], [410,18], [210,18]]);
 end;
 
-function TRSGrandExchange.GetOfferStatusButton(Button: ERSGEOfferStatusButton): TGameButton;
+function TGrandExchange.GetOfferStatusButton(Button: ERSGEOfferStatusButton): TGameButton;
 var
   Buttons: TGameButtonArray := Self.GetOfferStatusButtons();
 begin
@@ -86,12 +86,12 @@ begin
 end;
 
 // Finds the BUY and SELL buttons to create an offer within a given slot
-function TRSGrandExchange.GetOfferCreateButtons(slotNumber : Int32) : TGameButtonArray;
+function TGrandExchange.GetOfferCreateButtons(slotNumber : Int32) : TGameButtonArray;
 begin
   result := self.FindButtons([[46,45]], Self.OfferSlots[slotNumber]);
 end;
 
-function TRSGrandExchange.GetOfferCreateButton(Button : ERSGEOfferCreateButton; slotNumber : Int32) : TGameButton;
+function TGrandExchange.GetOfferCreateButton(Button : ERSGEOfferCreateButton; slotNumber : Int32) : TGameButton;
 var
   Buttons: TGameButtonArray := Self.GetOfferCreateButtons(slotNumber);
 begin
@@ -99,7 +99,7 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSGrandExchange.FindNPC(Finder: TRSObjectFinder): T2DPointArray;
+function TGrandExchange.FindNPC(Finder: TObjectFinder): T2DPointArray;
 var
   TPA: TPointArray;
   P: TPoint;
@@ -136,7 +136,7 @@ begin
   end;
 end;
 
-function TRSGrandExchange.OpenBank(): Boolean;
+function TGrandExchange.OpenBank(): Boolean;
 var
   ATPA: T2DPointArray;
   TPA: TPointArray;
@@ -160,7 +160,7 @@ begin
   end;
 end;
 
-function TRSGrandExchange.Open(): Boolean;
+function TGrandExchange.Open(): Boolean;
 var
   ATPA: T2DPointArray;
   TPA: TPointArray;
@@ -197,7 +197,7 @@ begin
   end;
 end;
 
-function TRSGrandExchange.GetTitleText(): String;
+function TGrandExchange.GetTitleText(): String;
 var
   titleBox : tBox;
 begin
@@ -205,7 +205,7 @@ begin
   result := OCR.Recognize(titleBox, TOCRColorFilter.Create([2070783]), RS_FONT_BOLD_12);
 end;
 
-function TRSGrandExchange.GetCurrentInterface(): ERSGEInterface;
+function TGrandExchange.GetCurrentInterface(): ERSGEInterface;
 var
   title, tabText : String;
 begin
@@ -226,12 +226,12 @@ begin
   end;
 end;
 
-function TRSGrandExchange.IsOpen(): Boolean;
+function TGrandExchange.IsOpen(): Boolean;
 begin
   Result := Self.GetCurrentInterface() <> ERSGEInterface.UNKNOWN;
 end;
 
-function TRSGrandExchange.Close(PressEscape: Boolean = False): Boolean;
+function TGrandExchange.Close(PressEscape: Boolean = False): Boolean;
 begin
   if not Self.IsOpen() then
     Exit(True);
@@ -239,7 +239,7 @@ begin
   Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
 end;
 
-function TRSGrandExchange.Reboot() : Boolean;
+function TGrandExchange.Reboot() : Boolean;
 begin
   if Self.IsOpen() then
     if not Self.Close() then Exit(False);
@@ -248,12 +248,12 @@ begin
   Result := Self.Open();
 end;
 
-procedure TRSGrandExchange.MouseOffSlots();
+procedure TGrandExchange.MouseOffSlots();
 begin
   Mouse.Move(Self.Bounds.Expand(5).NearestEdge(Mouse.Position()));
 end;
 
-function TRSGrandExchange.ChangeTab(toHistory: Boolean = True) : Boolean;
+function TGrandExchange.ChangeTab(toHistory: Boolean = True) : Boolean;
 begin
   if (toHistory and (self.getCurrentInterface() = ERSGEInterface.HISTORY)) or
     ((not toHistory) and (self.getCurrentInterface() = ERSGEInterface.OVERVIEW)) then Exit(True);
@@ -275,7 +275,7 @@ begin
   end;
 end;
 
-function TRSGrandExchange.FindProgressPopup(out b : tBox) : Boolean;
+function TGrandExchange.FindProgressPopup(out b : tBox) : Boolean;
 var
   yellow : tPointArray;
   toolTips : t2DPointArray;
@@ -292,13 +292,13 @@ begin
   end;
 end;
 
-function TRSGrandExchange.FindProgressPopup() : Boolean; overload;
+function TGrandExchange.FindProgressPopup() : Boolean; overload;
 var b : tBox;
 begin
   result := self.FindProgressPopup(b);
 end;
 
-function TRSGrandExchange.GetItemName(): String;
+function TGrandExchange.GetItemName(): String;
 begin
   case Self.GetCurrentInterface() of
     ERSGEInterface.OFFER_SETUP:  Result := OCR.Recognize(Self.ItemNameBox, TOCRColorFilter.Create([2070783]), RS_FONT_BOLD_12);
@@ -306,7 +306,7 @@ begin
   end;
 end;
 
-function TRSGrandExchange.GetItemQuantity: Int32;
+function TGrandExchange.GetItemQuantity: Int32;
 var
   Button: TGameButton;
 begin
@@ -319,7 +319,7 @@ begin
     Result := OCR.RecognizeNumber(Button.Bounds, TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11);
 end;
 
-function TRSGrandExchange.GetItemPrice: Int32;
+function TGrandExchange.GetItemPrice: Int32;
 var
   Button: TGameButton;
 begin
@@ -332,7 +332,7 @@ begin
     Result := OCR.RecognizeNumber(Button.Bounds,  TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11);
 end;
 
-function TRSGrandExchange.GetItemTotalPrice(): Int32;
+function TGrandExchange.GetItemTotalPrice(): Int32;
 var
   Button: TGameButton;
 begin
@@ -345,7 +345,7 @@ begin
     Result := OCR.RecognizeNumber(Button.Bounds,  TOCRColorFilter.Create([$FFFFFF]), RS_FONT_PLAIN_12);
 end;
 
-function TRSGrandExchange.GetItemGuidePrice(): Int32;
+function TGrandExchange.GetItemGuidePrice(): Int32;
 var
   Button: TGameButton;
   B: TBox;
@@ -366,12 +366,12 @@ begin
   end;
 end;
 
-function TRSGrandExchange.IsSearchOpen(): Boolean;
+function TGrandExchange.IsSearchOpen(): Boolean;
 begin
   Result := OCR.LocateText(Chat.Bounds, 'What would you like to buy', RS_FONT_BOLD_12, TOCRColorFilter.Create([$000000]), 1);
 end;
 
-function TRSGrandExchange.OpenSearch(): Boolean;
+function TGrandExchange.OpenSearch(): Boolean;
 begin
   if Self.IsSearchOpen() then
     Exit(True);
@@ -380,12 +380,12 @@ begin
     Result := WaitUntil(Self.IsSearchOpen(), 500, 2500);
 end;
 
-function TRSGrandExchange.GetCurrentSearch(): String;
+function TGrandExchange.GetCurrentSearch(): String;
 begin
   Result := OCR.Recognize(Chat.Bounds,  TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12).StripR('*');
 end;
 
-function TRSGrandExchange.GetPreviousSearch(): String;
+function TGrandExchange.GetPreviousSearch(): String;
 var
   B : tBox;
 begin
@@ -394,7 +394,7 @@ begin
   result := OCR.RecognizeLines(B, TOCRColorFilter.Create([$000000]), RS_FONT_PLAIN_12).Merge(' ');
 end;
 
-function TRSGrandExchange.ClearSearch(): Boolean;
+function TGrandExchange.ClearSearch(): Boolean;
 begin
   while (Self.GetCurrentSearch() <> '') do
     Keyboard.PressKey(VK_BACK);
@@ -402,7 +402,7 @@ begin
   Result := Self.IsOpen() and (Self.GetCurrentSearch() = '');
 end;
 
-function TRSGrandExchange.FindSearch(Item: String; out B: TBox): Boolean;
+function TGrandExchange.FindSearch(Item: String; out B: TBox): Boolean;
   function MatchSearchResult(SearchText : tStringArray; Item: String): Boolean;
   var
     BadChars : String = "'.,-<>?+=()/\*@![]|#_:";
@@ -427,7 +427,7 @@ function TRSGrandExchange.FindSearch(Item: String; out B: TBox): Boolean;
 
         if Result then
         begin
-          //Self.DebugLn('TRSGrandExchange.FindSearch(): WARNING - OCR failure corrected: ' + MergedString);
+          //Self.DebugLn('TGrandExchange.FindSearch(): WARNING - OCR failure corrected: ' + MergedString);
           exit();
         end;
       end;
@@ -448,7 +448,7 @@ begin
     end;
 end;
 
-function TRSGrandExchange.ClickSearch(Item: String): Boolean;
+function TGrandExchange.ClickSearch(Item: String): Boolean;
 var
   B: TBox;
 begin
@@ -457,7 +457,7 @@ begin
     Mouse.Click(B, MOUSE_LEFT);
 end;
 
-function TRSGrandExchange.Search(Item: String; Click: Boolean): Boolean;
+function TGrandExchange.Search(Item: String; Click: Boolean): Boolean;
 var
   B: TBox;
 begin
@@ -486,7 +486,7 @@ end;
 type
   ERSGEOfferType = (EMPTY, BUY, SELL, UNKNOWN);
 
-  TRSGEOfferStatus = record
+  TGEOfferStatus = record
     OfferType: ERSGEOfferType;
     Item: String;
     Quantity: Int32;
@@ -495,7 +495,7 @@ type
     Progress: Int32;
   end;
 
-function TRSGrandExchange.ReturnToMain() : Boolean;
+function TGrandExchange.ReturnToMain() : Boolean;
 
   // Finder for the back arrow
   function findArrow() : tBox;
@@ -531,7 +531,7 @@ begin
   if Result then wait(800,1200); // Previously was returning too quickly and allowing GE lag to interrupt the next functions
 end;
 
-function TRSGrandExchange.nextEmptySlot() : Int32;
+function TGrandExchange.nextEmptySlot() : Int32;
 
   function GetStatus() : array of ERSGEOfferType;
   var i : Int32;
@@ -564,14 +564,14 @@ begin
   exit(-1);
 end;
 
-function TRSGrandExchange.readCash() : Int32;
+function TGrandExchange.readCash() : Int32;
 begin
   // Due to flashing inventory, count stack can fail - this tries several times
   waitUntil((result := Inventory.CountItemStack('Coins')) > 0, 400, 2000);
 end;
 
 
-function TRSGrandExchange.GetProgress(B: TBox; BarSize: Int32): Int32;
+function TGrandExchange.GetProgress(B: TBox; BarSize: Int32): Int32;
 var
   TPA: TPointArray;
 begin
@@ -582,12 +582,12 @@ begin
     Result := -1;
 end;
 
-function TRSGrandExchange.GetProgress(slotNumber : Int32) : Int32; overload;
+function TGrandExchange.GetProgress(slotNumber : Int32) : Int32; overload;
 begin
   result := self.GetProgress(Self.OfferSlots[slotNumber], 105);
 end;
 
-function TRSGrandExchange.GetPreciseProgress(slotNumber : Int32) : Integer;
+function TGrandExchange.GetPreciseProgress(slotNumber : Int32) : Integer;
 var
   slotBox, progressBox : tBox;
   progressText : tStringArray;
@@ -611,7 +611,7 @@ begin
   result := progressText[1].Before('/').ExtractNumber(-1);
 end;
 
-function TRSGrandExchange.GetOfferStatus(Slot: Int32): TRSGEOfferStatus;
+function TGrandExchange.GetOfferStatus(Slot: Int32): TGEOfferStatus;
 begin
   case OCR.Recognize(Self.OfferSlots[Slot], TOCRColorFilter.Create([2070783]), RS_FONT_BOLD_12) of
     'Empty': Result.OfferType := ERSGEOfferType.EMPTY;
@@ -630,12 +630,12 @@ begin
   end;
 end;
 
-function TRSGrandExchange.IsSlotComplete(slotNumber: Int32): Boolean;
+function TGrandExchange.IsSlotComplete(slotNumber: Int32): Boolean;
 begin
   result := SRL.CountColor(18944, Self.OfferSlots[slotNumber]) > 0;
 end;
 
-function TRSGrandExchange.GetStatus(slotNumber : Int32; out status : TRSGEOfferStatus) : ERSGEOfferStatus;
+function TGrandExchange.GetStatus(slotNumber : Int32; out status : TGEOfferStatus) : ERSGEOfferStatus;
 begin
   if Self.GetCurrentInterface() = ERSGEInterface.OFFER_STATUS then exit(self.GetStatus());
 
@@ -658,8 +658,8 @@ begin
   result := ERSGEOfferStatus.ACTIVE;
 end;
 
-function TRSGrandExchange.GetStatus(slotNumber : Int32) : ERSGEOfferStatus; overload
-var Status : TRSGEOfferStatus;
+function TGrandExchange.GetStatus(slotNumber : Int32) : ERSGEOfferStatus; overload
+var Status : TGEOfferStatus;
 begin
   if Self.GetCurrentInterface() = ERSGEInterface.OFFER_STATUS then exit(self.GetStatus());
 
@@ -667,7 +667,7 @@ begin
 end;
 
 // Get the status from the OFFER_STATUS interface
-function TRSGrandExchange.GetStatus() : ERSGEOfferStatus ; overload;
+function TGrandExchange.GetStatus() : ERSGEOfferStatus ; overload;
 begin
   if (self.GetCurrentInterface() <> ERSGEInterface.OFFER_STATUS) then
   begin
@@ -684,7 +684,7 @@ begin
   result := ERSGEOfferStatus.ACTIVE;
 end;
 
-function TRSGrandExchange._EnterQuantity(quantity : Int32) : Boolean;
+function TGrandExchange._EnterQuantity(quantity : Int32) : Boolean;
 var
   button : ERSGESetupOfferButton;
   currentQuantity : Int32;
@@ -717,7 +717,7 @@ begin
     Result := waitUntil((Self.GetItemQuantity() > 0), 200, 2000);
 end;
 
-procedure TRSGrandExchange._EnterPrice(price : String);
+procedure TGrandExchange._EnterPrice(price : String);
 
   // Allows the user to specify "+10" and the PRICE_INCREASE button will be pressed twice
   function calculateClicks(price : String; out button : ERSGESetupOfferButton) : Int32;
@@ -773,7 +773,7 @@ begin
   end;
 end;
 
-function TRSGrandExchange._clickConfirm() : Boolean;
+function TGrandExchange._clickConfirm() : Boolean;
 begin
   if not waitUntil((self.GetCurrentInterface = ERSGEInterface.OFFER_SETUP), 250, 2000) then
     exit();
@@ -784,7 +784,7 @@ begin
     result := waitUntil((self.GetCurrentInterface = ERSGEInterface.OVERVIEW), 250, 2000);
 end;
 
-function TRSGrandExchange.CreateBuyOffer(itemName : String; price : String = '-1'; quantity: Int32 = 1; slotNumber : Int32 = -1) : Boolean;
+function TGrandExchange.CreateBuyOffer(itemName : String; price : String = '-1'; quantity: Int32 = 1; slotNumber : Int32 = -1) : Boolean;
 begin
   if not self.IsOpen() then Exit(False);
 
@@ -793,7 +793,7 @@ begin
 
   if slotNumber = -1 then
   begin
-    self.DebugLn('TRSGrandExchange.createBuyOffer: No empty slots');
+    self.DebugLn('TGrandExchange.createBuyOffer: No empty slots');
     exit(False);
   end;
 
@@ -805,7 +805,7 @@ begin
 
   if not Self.GetOfferCreateButton(ERSGEOfferCreateButton.BUY, slotNumber).Click() then
   begin
-    self.DebugLn('TRSGrandExchange.createBuyOffer: Failed to click buy button');
+    self.DebugLn('TGrandExchange.createBuyOffer: Failed to click buy button');
     exit(False);
   end;
 
@@ -815,7 +815,7 @@ begin
 
   if not Self.Search(itemName, True) then
   begin
-    self.DebugLn('TRSGrandExchange.createBuyOffer: Searching for ' + itemName + ' failed');
+    self.DebugLn('TGrandExchange.createBuyOffer: Searching for ' + itemName + ' failed');
     exit(False);
   end;
 
@@ -831,18 +831,18 @@ begin
       result := waitUntil(self.GetStatus(slotNumber) = ERSGEOfferStatus.ACTIVE, 250, 4000)
     else
     begin
-      self.DebugLn('TRSGrandExchange.createBuyOffer: Failed to click confirm button');
+      self.DebugLn('TGrandExchange.createBuyOffer: Failed to click confirm button');
       exit(False);
     end;
   end else
   begin
-    self.DebugLn('TRSGrandExchange.createBuyOffer: Could not enter Quantity properly');
+    self.DebugLn('TGrandExchange.createBuyOffer: Could not enter Quantity properly');
     exit(False);
   end;
 end;
 
 // Enter -1 for ALL
-function TRSGrandExchange.CreateSellOffer(invSlot : Int32; price : String = '-1'; quantity: Int32 = -1; slotNumber : Int32 = -1; uptextCheck: String = '') : Boolean;
+function TGrandExchange.CreateSellOffer(invSlot : Int32; price : String = '-1'; quantity: Int32 = -1; slotNumber : Int32 = -1; uptextCheck: String = '') : Boolean;
 begin
   if not self.IsOpen() then Exit(False);
 
@@ -856,13 +856,13 @@ begin
 
     if not Self.GetOfferCreateButton(ERSGEOfferCreateButton.SELL, slotNumber).Click() then
     begin
-      self.DebugLn('TRSGrandExchange.createSellOffer: Failed to click sell button');
+      self.DebugLn('TGrandExchange.createSellOffer: Failed to click sell button');
       exit(False);
     end;
 
     if not waitUntil((self.GetCurrentInterface = ERSGEInterface.OFFER_SETUP), 250, 2000) then
     begin
-      self.DebugLn('TRSGrandExchange.createSellOffer: Failed to open interface by clicking button');
+      self.DebugLn('TGrandExchange.createSellOffer: Failed to open interface by clicking button');
       exit(False);
     end;
   end else
@@ -870,7 +870,7 @@ begin
 
   if not Inventory.IsSlotUsed(invSlot) then
   begin
-    self.DebugLn('TRSGrandExchange.createSellOffer: Nothing exists in inventory slot ' + toStr(InvSlot));
+    self.DebugLn('TGrandExchange.createSellOffer: Nothing exists in inventory slot ' + toStr(InvSlot));
     exit(False);
   end;
 
@@ -878,7 +878,7 @@ begin
 
   if not waitUntil((self.GetItemQuantity > 0), 250, 3000) then
   begin
-    self.DebugLn('TRSGrandExchange.createSellOffer: Offer quantity did not show up, retrying');
+    self.DebugLn('TGrandExchange.createSellOffer: Offer quantity did not show up, retrying');
 
     Self.Reboot();
     Mouse.Move(Inventory.GetSlotBox(InvSlot), True);
@@ -886,7 +886,7 @@ begin
 
     if not waitUntil((self.GetItemQuantity > 0), 250, 3000) then
     begin
-      self.DebugLn('TRSGrandExchange.createSellOffer: Offer quantity did not show up, failed to open offer');
+      self.DebugLn('TGrandExchange.createSellOffer: Offer quantity did not show up, failed to open offer');
 
       exit(False);
     end;
@@ -896,7 +896,7 @@ begin
   begin
     if not (stringMatch(LowerCase(uptextCheck), LowerCase(self.GetItemName())) > 0.8) then
     begin
-      self.DebugLn('TRSGrandExchange.createSellOffer: Incorrect item name, detected "' + self.GetItemName() + '"');
+      self.DebugLn('TGrandExchange.createSellOffer: Incorrect item name, detected "' + self.GetItemName() + '"');
       exit(False);
     end;
   end;
@@ -912,7 +912,7 @@ begin
     result := waitUntil(self.GetStatus(slotNumber) = ERSGEOfferStatus.ACTIVE, 250, 4000);
 end;
 
-function TRSGrandExchange.CreateSellOffer(itemName : String; price : String = '-1'; quantity: Int32 = -1; slotNumber : Int32 = -1) : Boolean; overload;
+function TGrandExchange.CreateSellOffer(itemName : String; price : String = '-1'; quantity: Int32 = -1; slotNumber : Int32 = -1) : Boolean; overload;
 var
   invSlot : Int32;
   item : String;
@@ -924,14 +924,14 @@ begin
   else
     if not Inventory.FindItem(item, InvSlot) then
     begin
-      self.DebugLn('TRSGrandExchange.createSellOffer: Cannot find ' + itemName);
+      self.DebugLn('TGrandExchange.createSellOffer: Cannot find ' + itemName);
       exit(False);
     end;
 
   result := self.CreateSellOffer(invSlot, price, quantity, slotNumber, itemName);
 end;
 
-function TRSGrandExchange.OpenActiveOffer(slotNumber: Int32) : Boolean;
+function TGrandExchange.OpenActiveOffer(slotNumber: Int32) : Boolean;
 begin
   if (self.GetCurrentInterface() = ERSGEInterface.OFFER_STATUS) then exit(True);
   if (self.GetStatus(slotNumber) = ERSGEOfferStatus.EMPTY) then exit(False); // Cannot open an empty slot
@@ -944,7 +944,7 @@ begin
 end;
 
 
-function TRSGrandExchange.CountCollectionSlots() : Int32;
+function TGrandExchange.CountCollectionSlots() : Int32;
 var slot : Int32;
 begin
   result := 0;
@@ -952,7 +952,7 @@ begin
     if SRL.CountColor(RS_ITEM_BORDER, Self.CollectionSlots[slot]) then Result += 1;
 end;
 
-function TRSGrandExchange.CollectOffer() : Boolean;
+function TGrandExchange.CollectOffer() : Boolean;
 var tries : Int32;
 begin
   if not (self.GetCurrentInterface() = ERSGEInterface.OVERVIEW) then
@@ -972,7 +972,7 @@ begin
   end;
 end;
 
-function TRSGrandExchange.CollectOffer(slotNumber : Int32) : Boolean; overload;
+function TGrandExchange.CollectOffer(slotNumber : Int32) : Boolean; overload;
 
   function collectSlot(b: tBox) : Boolean;
   var
@@ -1019,7 +1019,7 @@ begin
   result := waitUntil(self.GetCurrentInterface() = ERSGEInterface.OVERVIEW, 200, 2000);
 end;
 
-function TRSGrandExchange._AbortFromMain(slotNumber : Int32) : Boolean;
+function TGrandExchange._AbortFromMain(slotNumber : Int32) : Boolean;
 begin
   Mouse.Move(Self.OfferSlots[slotNumber]);
   ChooseOption.Select('Abort');
@@ -1027,7 +1027,7 @@ begin
   Result := WaitUntil(self.GetStatus(slotNumber) = ERSGEOfferStatus.ABORTED, 100, 2500);
 end;
 
-function TRSGrandExchange._AbortFromSlot() : Boolean;
+function TGrandExchange._AbortFromSlot() : Boolean;
 // Regular TGameButton does not allow CTS2 or circular buttons
   // This is customized based on FindButtons but for this specific circle
   function findAbortButton() : tBox;
@@ -1080,7 +1080,7 @@ begin
   if Result then result := waitUntil((self.CountCollectionSlots() > itemCount), 250, 2000);
 end;
 
-function TRSGrandExchange.AbortOffer(slotNumber : Int32 = -1) : Boolean;
+function TGrandExchange.AbortOffer(slotNumber : Int32 = -1) : Boolean;
 var
 status: ERSGEOfferStatus;
 begin
@@ -1109,10 +1109,10 @@ begin
     result := self._AbortFromMain(slotNumber)
 end;
 
-function TRSGrandExchange.CreateBuyOffer(itemName : String; price : String = '-1'; quantity: Int32 = 1; slotNumber : Int32 = -1; loops : Int32) : Boolean; overload;
+function TGrandExchange.CreateBuyOffer(itemName : String; price : String = '-1'; quantity: Int32 = 1; slotNumber : Int32 = -1; loops : Int32) : Boolean; overload;
 var
   i: Int32;
-  tStatus : tRSGEOfferStatus;
+  tStatus : TGEOfferStatus;
   eStatus : eRSGEOfferStatus;
 begin
   if slotNumber = -1 then
@@ -1120,7 +1120,7 @@ begin
 
   if slotNumber = -1 then
   begin
-    self.DebugLn('TRSGrandExchange.createBuyOffer: No empty slots');
+    self.DebugLn('TGrandExchange.createBuyOffer: No empty slots');
     exit(False);
   end;
 
@@ -1143,17 +1143,17 @@ begin
         continue
       else
       begin
-        self.DebugLn('TRSGrandExchange.createBuyOffer: Offer was aborted on init');
+        self.DebugLn('TGrandExchange.createBuyOffer: Offer was aborted on init');
         exit(False);
       end;
     end;
   end;
 end;
 
-function tRSGrandExchange.CreateSellOffer(invSlot : Int32; price : String = '-1'; quantity: Int32 = -1; slotNumber : Int32 = -1; uptextCheck: String = ''; loops : Int32) : Boolean; overload;
+function TGrandExchange.CreateSellOffer(invSlot : Int32; price : String = '-1'; quantity: Int32 = -1; slotNumber : Int32 = -1; uptextCheck: String = ''; loops : Int32) : Boolean; overload;
 var
   internalSlotNumber, i: Int32;
-  tStatus : tRSGEOfferStatus;
+  tStatus : TGEOfferStatus;
   eStatus : eRSGEOfferStatus;
 begin
   if slotNumber = -1 then
@@ -1178,7 +1178,7 @@ begin
         continue
       else
       begin
-        self.DebugLn('TRSGrandExchange.CreateSellOffer: Offer was aborted on init');
+        self.DebugLn('TGrandExchange.CreateSellOffer: Offer was aborted on init');
         exit(False);
       end;
     end;
@@ -1186,7 +1186,7 @@ begin
 end;
 
 type
-  TRSGEHistoryItem = record
+  TGEHistoryItem = record
     OfferType: String;
     Item: String;
     Quantity: Int32;
@@ -1195,9 +1195,9 @@ type
     PreTax: Int32;
     Bounds: TBox;
   end;
-  TRSGEHistory = array of TRSGEHistoryItem;
+  TGEHistory = array of TGEHistoryItem;
 
-function TRSGrandExchange.GetHistory: TRSGEHistory;
+function TGrandExchange.GetHistory: TGEHistory;
 const
   BG_DARK := CTS1(3621708, 5);
   BG_LIGHT := CTS1(4016466, 6);
@@ -1205,7 +1205,7 @@ var
   RowDark, RowLight: TPointArray;
   Row: TBox;
   Rows, Columns: TBoxArray;
-  Item: TRSGEHistoryItem;
+  Item: TGEHistoryItem;
   tempOfferType : String;
 begin
   SRL.FindColors(RowDark, BG_DARK, Self.Bounds);
@@ -1253,7 +1253,7 @@ begin
   end;
 end;
 
-function TRSGrandExchange.GetHistory(rows: Int32): TRSGEHistory; overload;
+function TGrandExchange.GetHistory(rows: Int32): TGEHistory; overload;
 var
   forceMove : Boolean;
 begin
@@ -1289,7 +1289,7 @@ begin
       delete(result, rows, length(result) - rows); // Delete extra rows
 end;
 
-function TRSGEHistoryItem.equals(cmp : TRSGEHistoryItem) : Boolean;
+function TGEHistoryItem.equals(cmp : TGEHistoryItem) : Boolean;
 begin
   result := True;
 
@@ -1300,7 +1300,7 @@ begin
   if self.PricePerItem <> cmp.PricePerItem then exit(False);
 end;
 
-function TRSGrandExchange.SearchHistory(search : TRSGEHistoryItem; history: TRSGEHistory = []) : Int32;
+function TGrandExchange.SearchHistory(search : TGEHistoryItem; history: TGEHistory = []) : Int32;
 var
   i : Int32;
 begin
@@ -1312,7 +1312,7 @@ begin
   result := -1; // -1 if no match is found
 end;
 
-procedure TRSGrandExchange.Draw(Bitmap: TMufasaBitmap); override;
+procedure TGrandExchange.Draw(Bitmap: TMufasaBitmap); override;
 var
   buttons: TGameButtonArray;
 begin
@@ -1325,7 +1325,7 @@ begin
   buttons.Draw(bitmap);
 end;
 
-procedure TRSGrandExchange.Setup; override;
+procedure TGrandExchange.Setup; override;
 begin
   inherited;
 
@@ -1345,9 +1345,9 @@ begin
   Self.FINDER_CLERK.MinLongSide := 10;
 end;
 
-procedure TRSGrandExchange.SetupAlignment(); overload;
+procedure TGrandExchange.SetupAlignment(); overload;
 var
-  alignment: TRSInterfaceAlignment;
+  alignment: TInterfaceAlignment;
 begin
   alignment.Left := InterfaceArea.Bounds.X1;
   alignment.Right := InterfaceArea.Bounds.X2;
@@ -1374,16 +1374,16 @@ begin
 end;
 
 var
-  GrandExchange: TRSGrandExchange;
+  GrandExchange: TGrandExchange;
 
 (*
 ## Bank.Open() override
 ```pascal
-function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
+function TBank.Open(Location: ERSBankLocation): Boolean; override;
 ```
 Overrides {ref}`Bank.Open()` to support opening the grand exchange.
 *)
-function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
+function TBank.Open(Location: ERSBankLocation): Boolean; override;
 begin
   if (Location = ERSBankLocation.GRAND_EXCHANGE) then
     Result := GrandExchange.OpenBank()
