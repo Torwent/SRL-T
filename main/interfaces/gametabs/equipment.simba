@@ -3,7 +3,7 @@
 Methods to interact with the Equipment tab.
 *)
 {$DEFINE SRL_EQUIPMENT_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

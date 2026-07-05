@@ -6,7 +6,7 @@ Use or uncomment {$DEFINE SRL_KEYBINDINGS_DEBUG} to debug already setup FKeys.
 *)
 
 {$DEFINE SRL_KEYBINDINGS_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

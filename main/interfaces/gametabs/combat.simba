@@ -4,7 +4,7 @@ Methods to interact with the combat tab.
 *)
 
 {$DEFINE SRL_COMBAT_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

@@ -3,7 +3,7 @@
 Methods responsible for dealing with the stats tab.
 *)
 {$DEFINE SRL_STATS_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

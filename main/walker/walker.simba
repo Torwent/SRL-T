@@ -34,7 +34,7 @@ Variables for users to tweak:
 *)
 
 {$DEFINE SRL_WALKER_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

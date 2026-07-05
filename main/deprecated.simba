@@ -1,5 +1,5 @@
 {$DEFINE SRL_DEPRECATED_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 //deprecated SRL-T methods, variables and constants. AVOID USING THEM!

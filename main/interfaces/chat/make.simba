@@ -5,7 +5,7 @@ TMake is the record SRL has to handle it.
 *)
 
 {$DEFINE SRL_MAKE_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

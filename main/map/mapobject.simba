@@ -4,7 +4,7 @@ This file is responsible for interacting with map objects.
 *)
 
 {$DEFINE SRL_MAPOBJECT_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

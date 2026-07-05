@@ -3,7 +3,7 @@
 Methods to interact with the logout tab.
 *)
 {$DEFINE SRL_LOGOUT_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

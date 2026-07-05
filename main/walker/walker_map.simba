@@ -4,7 +4,7 @@ This file contains internal methods used by walker.
 *)
 
 {$DEFINE SRL_WALKER_MAP_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

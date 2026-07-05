@@ -7,7 +7,7 @@ Without them, this wouldn't be possible.
 *)
 
 {$DEFINE SRL_MAP_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

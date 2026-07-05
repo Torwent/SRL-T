@@ -6,7 +6,7 @@ iterations made by Olly.
 *)
 
 {$DEFINE SRL_WALKERV2_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

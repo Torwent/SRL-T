@@ -7,7 +7,7 @@ guaranteed (The same applies the other way around).
 This library along with [WaspLib](https://github.com/Torwent/WaspLib) is the core of [WaspScripts](https://waspscripts.com).
 *)
 
-{$DEFINE SRL_OSR}
+{$DEFINE SRL_MAIN}
 {$I utils.simba}
 
 procedure TSRL.Setup();

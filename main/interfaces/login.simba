@@ -18,7 +18,7 @@ if not Login.LoginPlayer() then
 *)
 
 {$DEFINE SRL_LOGIN_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

@@ -4,7 +4,7 @@ Tool to find item sprites (bitmaps) in boxes.
 *)
 
 {$DEFINE SRL_ITEMFINDER_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

@@ -4,7 +4,7 @@ Methods to interact with the Bank.
 *)
 
 {$DEFINE SRL_BANK_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 

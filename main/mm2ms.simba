@@ -9,7 +9,7 @@ functionality to convert coordinates to & from the minimap to the mainscreen.
 *)
 
 {$DEFINE SRL_MM2MS_INCLUDED}
-{$IFNDEF SRL_OSR}
+{$IFNDEF SRL_MAIN}
   {$I SRL-T/main.simba}
 {$ENDIF}
 
