@@ -20,11 +20,11 @@ nor modify them if you don't quite understand them.
 
 const
 (*
-(RSMAP_PATH)=
-# const RSMAP_PATH
+(MAP_PATH)=
+# const MAP_PATH
 Default path to look for map files.
 *)
-  RSMAP_PATH: String = {$MACRO CURRENT_DIRECTORY};
+  MAP_PATH: String = {$MACRO CURRENT_DIRECTORY};
 
 type
 (*
@@ -131,7 +131,7 @@ begin
     begin
       cacheroot := Self.Cache + 'map' + DirectorySeparator;
       cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
-      zipPath := RSMAP_PATH + 'files' + DirectorySeparator + 'map.zip';
+      zipPath := MAP_PATH + 'files' + DirectorySeparator + 'map.zip';
       zipFile := ToStr(plane) + '/' + chunk + '.png';
     end;
 
@@ -139,7 +139,7 @@ begin
     begin
       cacheroot := Self.Cache + 'heightmap' + DirectorySeparator;
       cachename := cacheroot + '0' + DirectorySeparator + chunk;
-      zipPath := RSMAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip';
+      zipPath := MAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip';
       zipFile := '0/' + chunk + '.png';
     end;
 
@@ -147,7 +147,7 @@ begin
     begin
       cacheroot := Self.Cache + 'collision' + DirectorySeparator;
       cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
-      zipPath := RSMAP_PATH + 'files' + DirectorySeparator + 'collision.zip';
+      zipPath := MAP_PATH + 'files' + DirectorySeparator + 'collision.zip';
       zipFile := ToStr(plane) + '/' + chunk + '.png';
     end;
   end;
@@ -213,7 +213,7 @@ begin
 
   cacheroot := Self.Cache + name + DirectorySeparator;
   cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
-  zipPath := RSMAP_PATH + 'files' + DirectorySeparator + name + '.zip';
+  zipPath := MAP_PATH + 'files' + DirectorySeparator + name + '.zip';
   zipFile := ToStr(plane) + '/' + chunk + '.json';
 
   if not FileExists(cachename + '.json') then
@@ -802,7 +802,7 @@ end;
 function TLegacyMapLoader.FindFiles(filename: String): TStringArray;
 ```
 This is responsible for finding the map file to be loaded.
-Will only find `.png` or `.bmp` files in `RSMAP_PATH`.
+Will only find `.png` or `.bmp` files in `MAP_PATH`.
 ```{note}
 This is an internal method. Don't use it if you don't know what you are doing.
 ```
@@ -814,7 +814,7 @@ begin
   if FileExists(filename) then
     Exit([ExpandfileName(filename)]);
   mask := StringReplace(mask, '.', filename + '.', [rfReplaceAll]);
-  Result := System.FindFile(RSMAP_PATH + 'files' + DirectorySeparator + 'maps' + DirectorySeparator, mask, True, False);
+  Result := System.FindFile(MAP_PATH + 'files' + DirectorySeparator + 'maps' + DirectorySeparator, mask, True, False);
 end;
 
 (*
@@ -1009,11 +1009,11 @@ var
 begin
   Self.Name := 'RSMap.Loader';
   version := SHA1String(
-     SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'map.zip') +
-     SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip') +
-     SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'collision.zip') +
-     SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'objects1400.zip') +
-     SHA1File(RSMAP_PATH + 'files' + DirectorySeparator + 'npcs.zip')
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'map.zip') +
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip') +
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'collision.zip') +
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'objects1400.zip') +
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'npcs.zip')
   );
 
   version := version.SubString(6);
