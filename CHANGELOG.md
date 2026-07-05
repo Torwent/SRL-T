@@ -1,3 +1,12 @@
+## [7.21.52](https://github.com/Torwent/SRL-T/compare/v7.21.51...v7.21.52) (2026-07-05)
+
+
+### Bug Fixes
+
+* more renames ([a4a80f0](https://github.com/Torwent/SRL-T/commit/a4a80f0681242649871b872ae7ab60c788fdc3bc))
+
+
+
 ## [7.21.51](https://github.com/Torwent/SRL-T/compare/v7.21.50...v7.21.51) (2026-07-05)
 
 
@@ -37,15 +46,6 @@
 ### Bug Fixes
 
 * Update depositbox.simba ([1584208](https://github.com/Torwent/SRL-T/commit/1584208ec8d43512822b249b6e9b39fb1297befa))
-
-
-
-## [7.21.47](https://github.com/Torwent/SRL-T/compare/v7.21.46...v7.21.47) (2026-05-27)
-
-
-### Bug Fixes
-
-* Submenu fix ([1a6aefb](https://github.com/Torwent/SRL-T/commit/1a6aefb1e0af572d0dbbfa15d53f2b5e6529d14d))
 
 
 
