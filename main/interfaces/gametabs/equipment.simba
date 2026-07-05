@@ -9,30 +9,30 @@ Methods to interact with the Equipment tab.
 
 type
 (*
-(ERSEquipmentSlot)=
-## type ERSEquipmentSlot
+(EEquipmentSlot)=
+## type EEquipmentSlot
 ```pascal
-ERSEquipmentSlot = (
+EEquipmentSlot = (
   HEAD, SECONDARY_AMMO, CAPE, NECK, AMMO, WEAPON,
   BODY, SHIELD, LEGS, HANDS, FEET, RING
 );
 ```
 Enumerator of the equipment slots.
 *)
-  ERSEquipmentSlot = (
+  EEquipmentSlot = (
     HEAD, SECONDARY_AMMO, CAPE, NECK, AMMO, WEAPON,
     BODY, SHIELD, LEGS, HANDS, FEET, RING
   );
 
 (*
-(ERSEquipmentButton)=
-## type ERSEquipmentButton
+(EEquipmentButton)=
+## type EEquipmentButton
 ```pascal
-ERSEquipmentButton = (STATS, PRICES, DEATH, FOLLOWER);
+EEquipmentButton = (STATS, PRICES, DEATH, FOLLOWER);
 ```
 Enumerator of the equipment buttons.
 *)
-  ERSEquipmentButton = (STATS, PRICES, DEATH, FOLLOWER);
+  EEquipmentButton = (STATS, PRICES, DEATH, FOLLOWER);
 
 (*
 (TEquipment)=
@@ -65,26 +65,26 @@ end;
 (*
 ## Equipment.GetSlotBox
 ```pascal
-function TEquipment.GetSlotBox(slot: ERSEquipmentSlot): TBox;
+function TEquipment.GetSlotBox(slot: EEquipmentSlot): TBox;
 function TEquipment.GetSlotBox(slot: Int32): TBox;
 ```
 Returns the TBox of the specified equipment slot.
 
 Example:
 ```pascal
-WriteLn(Equipment.GetSlotBox(ERSEquipmentSlot.HEAD));
+WriteLn(Equipment.GetSlotBox(EEquipmentSlot.HEAD));
 WriteLn(Equipment.GetSlotBox(0)); // HEAD slot
 ```
 *)
-function TEquipment.GetSlotBox(slot: ERSEquipmentSlot): TBox;
+function TEquipment.GetSlotBox(slot: EEquipmentSlot): TBox;
 begin
-  if InRange(Ord(slot), 0, Ord(High(ERSEquipmentSlot))) then
+  if InRange(Ord(slot), 0, Ord(High(EEquipmentSlot))) then
     Result := Self.GetSlotBoxes()[Ord(slot)];
 end;
 
 function TEquipment.GetSlotBox(slot: Int32): TBox; overload;
 begin
-  if InRange(slot, 0, Ord(High(ERSEquipmentSlot))) then
+  if InRange(slot, 0, Ord(High(EEquipmentSlot))) then
     Result := Self.GetSlotBoxes()[slot];
 end;
 
@@ -174,21 +174,21 @@ end;
 (*
 ## Equipment.GetButton
 ```pascal
-function TEquipment.GetButton(button: ERSEquipmentButton): TGameButton;
+function TEquipment.GetButton(button: EEquipmentButton): TGameButton;
 ```
 Returns a `TGameButton` of the specified equipment button.
 
 Example:
 ```pascal
-Debug([Equipment.GetButton(ERSEquipmentButton.PRICES)]);
+Debug([Equipment.GetButton(EEquipmentButton.PRICES)]);
 ```
 *)
-function TEquipment.GetButton(button: ERSEquipmentButton): TGameButton;
+function TEquipment.GetButton(button: EEquipmentButton): TGameButton;
 var
   buttons: TGameButtonArray;
 begin
   buttons := Self.GetButtons();
-  if Length(buttons) = Length(ERSEquipmentButton) then
+  if Length(buttons) = Length(EEquipmentButton) then
     Result := buttons[button];
 end;
 
@@ -327,7 +327,7 @@ end;
 (*
 ## Equipment.Discover
 ```pascal
-function TEquipment.Discover(slot: ERSEquipmentSlot): TItemArray;
+function TEquipment.Discover(slot: EEquipmentSlot): TItemArray;
 function TInventory.Discover(slot: Int32): TItemArray;
 ```
 Discovers what item is on the specified equipment `slot`.
@@ -338,7 +338,7 @@ if Equipment.Open() then
   WriteLn Equipment.Discover(0);
 ```
 *)
-function TEquipment.Discover(slot: ERSEquipmentSlot): TItemArray;
+function TEquipment.Discover(slot: EEquipmentSlot): TItemArray;
 begin
   if Self.Open() then
     Result := Self.Items.Discover(Ord(slot));
@@ -414,7 +414,7 @@ end;
 ## Equipment.ClickSlot
 ```pascal
 function TEquipment.ClickSlot(slot: Int32; option: String = ''): Boolean;
-function TEquipment.ClickSlot(slot: ERSEquipmentSlot; option: String = ''): Boolean; overload;
+function TEquipment.ClickSlot(slot: EEquipmentSlot; option: String = ''): Boolean; overload;
 ```
 Moves the mouse and clicks on the specified equipment slot. Slot is an Integer corresponding to the equipment slot indices.
 If option is empty, the slot is left clicked. Otherwise, a right click is performed
@@ -422,10 +422,10 @@ and the specified option is selected from the context menu.
 
 Example:
 ```pascal
-if Equipment.ClickSlot(ERSEquipmentSlot.WEAPON) then
+if Equipment.ClickSlot(EEquipmentSlot.WEAPON) then
   WriteLn('Left clicked the weapon slot');
 
-if Equipment.ClickSlot(ERSEquipmentSlot.RING, 'Rub') then
+if Equipment.ClickSlot(EEquipmentSlot.RING, 'Rub') then
   WriteLn('Right clicked and selected "Rub" on the ring slot');
 ```
 *)
@@ -434,7 +434,7 @@ begin
   Result := Self.Open() and Self.Items.InteractSlot(slot, option);
 end;
 
-function TEquipment.ClickSlot(slot: ERSEquipmentSlot; option: String = ''): Boolean; overload;
+function TEquipment.ClickSlot(slot: EEquipmentSlot; option: String = ''): Boolean; overload;
 begin
   Result := Self.ClickSlot(Ord(slot), option);
 end;
@@ -443,13 +443,13 @@ end;
 ## Equipment.IsSlotUsed
 ```pascal
 function TEquipment.IsSlotUsed(b: TBox): Boolean;
-function TEquipment.IsSlotUsed(slot: ERSEquipmentSlot): Boolean; overload;
+function TEquipment.IsSlotUsed(slot: EEquipmentSlot): Boolean; overload;
 ```
 Returns true if a slot is occupied.
 
 Example:
 ```pascal
-WriteLn Equipment.IsSlotUsed(ERSEquipmentSlot.WEAPON);
+WriteLn Equipment.IsSlotUsed(EEquipmentSlot.WEAPON);
 ```
 *)
 function TEquipment.IsSlotUsed(b: TBox): Boolean;
@@ -458,7 +458,7 @@ begin
   Result := SRL.CountColor(CTS1(1118740, 35), b) > 0;
 end;
 
-function TEquipment.IsSlotUsed(slot: ERSEquipmentSlot): Boolean; overload;
+function TEquipment.IsSlotUsed(slot: EEquipmentSlot): Boolean; overload;
 begin
   Result := Self.Open() and Self.Items.SlotUsed(Ord(slot));
 end;

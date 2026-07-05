@@ -49,9 +49,9 @@ begin
 end;
 
 
-function TMainScreen.IsClassicOpen(): Boolean; deprecated 'Use RSInterface.IsOpen(ERSInterfaceType.CLASSIC) instead.';
+function TMainScreen.IsClassicOpen(): Boolean; deprecated 'Use RSInterface.IsOpen(EInterfaceType.CLASSIC) instead.';
 begin
-  Result := RSInterface.IsOpen(ERSInterfaceType.CLASSIC);
+  Result := RSInterface.IsOpen(EInterfaceType.CLASSIC);
 end;
 
 function TMainScreen.HasInterface(): Boolean; deprecated 'Use RSInterface.IsOpen() instead.';

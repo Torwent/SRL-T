@@ -13,10 +13,10 @@ differently to handle more complex scenarios.
 {$SCOPEDENUMS ON}
 
 type
-  ERSDoorType = (UNKNOWN, NORMAL, WIDE);
+  EDoorType = (UNKNOWN, NORMAL, WIDE);
   TDoor = record
     Before, After, Center, Direction: TPoint;
-    DoorType: ERSDoorType;
+    DoorType: EDoorType;
     SEPARATING: Boolean;
   end;
 
@@ -91,13 +91,13 @@ var
 begin
   for door in Self do
     case door.DoorType of
-      ERSDoorType.NORMAL:
+      EDoorType.NORMAL:
         if door.SEPARATING then
           bmp.drawCross(door.Center, 3, $FF)
         else
           bmp.drawCross(door.Center, 3, $FFFF00);
-      ERSDoorType.UNKNOWN: bmp.drawCross(door.Center, 3, $00);
-      ERSDoorType.WIDE: bmp.drawCross(door.Center, 3, $FF00FF);
+      EDoorType.UNKNOWN: bmp.drawCross(door.Center, 3, $00);
+      EDoorType.WIDE: bmp.drawCross(door.Center, 3, $FF00FF);
     end;
 end;
 
@@ -653,7 +653,7 @@ begin
     Self.Doors[i].Direction.X := StrToInt(values[6]);
     Self.Doors[i].Direction.Y := StrToInt(values[7]);
 
-    Self.Doors[i].DoorType := ERSDoorType(StrToInt(values[8]));
+    Self.Doors[i].DoorType := EDoorType(StrToInt(values[8]));
     Self.Doors[i].SEPARATING := Boolean(StrToInt(values[9]));
   end;
 end;

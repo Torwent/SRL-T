@@ -9,7 +9,7 @@ Methods to interact with the deposit box interface.
 {$ENDIF}
 
 type
-  ERSDepositButton = (
+  EDepositButton = (
     LOCK_SETTINGS,
     QUANTITY_1, QUANTITY_5, QUANTITY_10, QUANTITY_CUSTOM, QUANTITY_ALL,
     DEPOSIT_WORN, DEPOSIT_LOOT, DEPOSIT_INVENTORY
@@ -86,7 +86,7 @@ begin
   ];
 end;
 
-function TDepositBox.GetButton(button: ERSDepositButton): TGameButton;
+function TDepositBox.GetButton(button: EDepositButton): TGameButton;
 begin
   Result := Self.Buttons[button];
 end;
@@ -314,7 +314,7 @@ begin
   begin
     if Bank.IsCustomQuantity(Amount) then
     begin
-      Button := Self.Buttons[ERSDepositButton.QUANTITY_CUSTOM];
+      Button := Self.Buttons[EDepositButton.QUANTITY_CUSTOM];
 
       if Button.Enable then
       begin
@@ -331,11 +331,11 @@ begin
     end else
     begin
       case Amount of
-        1:  Button := Self.Buttons[ERSDepositButton.QUANTITY_1];
-        5:  Button := Self.Buttons[ERSDepositButton.QUANTITY_5];
-        10: Button := Self.Buttons[ERSDepositButton.QUANTITY_10];
+        1:  Button := Self.Buttons[EDepositButton.QUANTITY_1];
+        5:  Button := Self.Buttons[EDepositButton.QUANTITY_5];
+        10: Button := Self.Buttons[EDepositButton.QUANTITY_10];
         else
-            Button := Self.Buttons[ERSDepositButton.QUANTITY_ALL]
+            Button := Self.Buttons[EDepositButton.QUANTITY_ALL]
       end;
 
       if Button.Enable then
@@ -397,7 +397,7 @@ end;
 
 function TDepositBox.DepositInventory(): Boolean;
 begin
-  Result := Self.IsOpen() and Self.Buttons[ERSDepositButton.DEPOSIT_INVENTORY].Click();
+  Result := Self.IsOpen() and Self.Buttons[EDepositButton.DEPOSIT_INVENTORY].Click();
 end;
 
 function TDepositBox.DepositAll(): Boolean; deprecated 'Use TDepositBox.DepositInventory().';

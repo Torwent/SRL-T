@@ -9,7 +9,7 @@ Methods to interact with the prayer tab and quick prayers.
 {$ENDIF}
 
 type
-  ERSPrayer = (
+  EPrayer = (
     THICK_SKIN,
     BURST_OF_STRENGTH,
     CLARITY_OF_THOUGHT,
@@ -151,9 +151,9 @@ begin
   Result := Self.IsOpen() or GameTabs.Open(EGameTab.PRAYER);
 end;
 
-function TPrayer.GetPrayerBoxes(prayers: array of ERSPrayer): TBoxArray; overload;
+function TPrayer.GetPrayerBoxes(prayers: array of EPrayer): TBoxArray; overload;
 var
-  prayer: ERSPrayer;
+  prayer: EPrayer;
 begin
   for prayer in prayers do
     Result += Self.PrayerBoxes[prayer];
@@ -175,9 +175,9 @@ WriteLn('Mouse is hovering prayer ', Prayer.PointToPrayer(Mouse.Position));
 *)
 function TPrayer.PointToPrayer(P: TPoint): Int32;
 var
-  prayer: ERSPrayer;
+  prayer: EPrayer;
 begin
-  for prayer := Low(ERSPrayer) to High(ERSPrayer) do
+  for prayer := Low(EPrayer) to High(EPrayer) do
     if Self.PrayerBoxes[prayer].Contains(p) then
       Exit(Ord(prayer));
 
@@ -187,17 +187,17 @@ end;
 (*
 ## Prayer.MouseOver
 ```pascal
-function TPrayer.MouseOver(Prayer: ERSPrayer): Boolean;
+function TPrayer.MouseOver(Prayer: EPrayer): Boolean;
 ```
 
 Hovers the specified prayer.
 
 Example:
 ```pascal
-Prayer.MouseOver(ERSPrayer.PROTECT_FROM_MELEE);
+Prayer.MouseOver(EPrayer.PROTECT_FROM_MELEE);
 ```
 *)
-function TPrayer.MouseOver(prayer: ERSPrayer): Boolean;
+function TPrayer.MouseOver(prayer: EPrayer): Boolean;
 begin
   if not Self.Open() then Exit();
   Result := True;
@@ -207,17 +207,17 @@ end;
 (*
 ## Prayer.CanActivate
 ```pascal
-function TPrayer.CanActivate(Prayer: ERSPrayer): Boolean;
+function TPrayer.CanActivate(Prayer: EPrayer): Boolean;
 ```
 
 Returns true if we have enough level and have unlocked the specified prayer.
 
 Example:
 ```pascal
-WriteLn Prayer.CanActivate(ERSPrayer.PROTECT_FROM_MELEE);
+WriteLn Prayer.CanActivate(EPrayer.PROTECT_FROM_MELEE);
 ```
 *)
-function TPrayer.CanActivate(prayer: ERSPrayer): Boolean;
+function TPrayer.CanActivate(prayer: EPrayer): Boolean;
 begin
   if not Self.IsOpen() then Exit;
   Result := SRL.PeakBrightness(Self.PrayerBoxes[prayer]) > 55;
@@ -226,37 +226,37 @@ end;
 (*
 ## Prayer.GetAvailablePrayers
 ```pascal
-function TPrayer.GetAvailablePrayers: array of ERSPrayer;
+function TPrayer.GetAvailablePrayers: array of EPrayer;
 ```
 
 Returns an array of all available prayers.
 *)
-function TPrayer.GetAvailablePrayers: array of ERSPrayer;
+function TPrayer.GetAvailablePrayers: array of EPrayer;
 var
-  Prayer: ERSPrayer;
+  Prayer: EPrayer;
 begin
   Result := [];
   if not Self.IsOpen() then
     Exit;
 
-  for Prayer := Low(ERSPrayer) to High(ERSPrayer) do
-    if Self.CanActivate(ERSPrayer(Prayer)) then
+  for Prayer := Low(EPrayer) to High(EPrayer) do
+    if Self.CanActivate(EPrayer(Prayer)) then
       Result += Prayer;
 end;
 
 (*
 ## Prayer.IsPrayerActive
 ```pascal
-function TPrayer.IsPrayerActive(Prayer: ERSPrayer): Boolean;
+function TPrayer.IsPrayerActive(Prayer: EPrayer): Boolean;
 ```
 Returns true if the specified prayer is active right now.
 
 Example:
 ```pascal
-WriteLn Prayer.IsPrayerActive(ERSPrayer.SMITE);
+WriteLn Prayer.IsPrayerActive(EPrayer.SMITE);
 ```
 *)
-function TPrayer.IsPrayerActive(prayer: ERSPrayer): Boolean;
+function TPrayer.IsPrayerActive(prayer: EPrayer): Boolean;
 begin
   if not Self.IsOpen() then Exit;
   Result := SRL.CountColor(CTS0(7315120, 27), Self.PrayerBoxes[prayer]) > 10;
@@ -265,11 +265,11 @@ end;
 (*
 ## Prayer.AnyPrayerActive()
 ```pascal
-function TPrayer.AnyPrayerActive(prayers: array of ERSPrayer): Boolean;
+function TPrayer.AnyPrayerActive(prayers: array of EPrayer): Boolean;
 ```
 Returns true if any of the specified prayers is active.
 *)
-function TPrayer.AnyPrayerActive(prayers: array of ERSPrayer): Boolean;
+function TPrayer.AnyPrayerActive(prayers: array of EPrayer): Boolean;
 var
   i: Int32;
 begin
@@ -281,11 +281,11 @@ end;
 (*
 ## Prayer.AllPrayerActive
 ```pascal
-function TPrayer.AllPrayerActive(prayers: array of ERSPrayer): Boolean;
+function TPrayer.AllPrayerActive(prayers: array of EPrayer): Boolean;
 ```
 Returns true if all of the specified prayers is active.
 *)
-function TPrayer.AllPrayerActive(prayers: array of ERSPrayer): Boolean;
+function TPrayer.AllPrayerActive(prayers: array of EPrayer): Boolean;
 var
   i: Int32;
 begin
@@ -299,21 +299,21 @@ end;
 (*
 ## Prayer.GetActivePrayers
 ```pascal
-function TPrayer.GetActivePrayers: array of ERSPrayer;
+function TPrayer.GetActivePrayers: array of EPrayer;
 ```
 
 Returns an array of all active prayers.
 *)
-function TPrayer.GetActivePrayers(): array of ERSPrayer;
+function TPrayer.GetActivePrayers(): array of EPrayer;
 var
-  Prayer: ERSPrayer;
+  Prayer: EPrayer;
 begin
   Result := [];
   if not Self.IsOpen() then
     Exit;
 
-  for Prayer := Low(ERSPrayer) to High(ERSPrayer) do
-    if Self.IsPrayerActive(ERSPrayer(Prayer)) then
+  for Prayer := Low(EPrayer) to High(EPrayer) do
+    if Self.IsPrayerActive(EPrayer(Prayer)) then
       Result += Prayer;
 end;
 
@@ -336,17 +336,17 @@ end;
 (*
 ## Prayer.ActivatePrayer
 ```pascal
-function TPrayer.ActivatePrayer(prayers: array of ERSPrayer): Boolean;
-function TPrayer.ActivatePrayer(prayer: ERSPrayer): Boolean; overload;
+function TPrayer.ActivatePrayer(prayers: array of EPrayer): Boolean;
+function TPrayer.ActivatePrayer(prayer: EPrayer): Boolean; overload;
 ```
 Attempts to activate the specified `prayer`or `prayers`.
 
 Example:
 ```pascal
-Prayer.ActivatePrayer(ERSPrayer.PROTECT_FROM_MELEE);
+Prayer.ActivatePrayer(EPrayer.PROTECT_FROM_MELEE);
 ```
 *)
-function TPrayer.ActivatePrayer(prayers: array of ERSPrayer): Boolean;
+function TPrayer.ActivatePrayer(prayers: array of EPrayer): Boolean;
 var
   i : int32;
   cantActivate: Boolean;
@@ -364,7 +364,7 @@ begin
   Result := not cantActivate and WaitUntil(Self.AllPrayerActive(prayers), 100, 2000);
 end;
 
-function TPrayer.ActivatePrayer(prayer: ERSPrayer): Boolean; overload;
+function TPrayer.ActivatePrayer(prayer: EPrayer): Boolean; overload;
 begin
   Result := Self.ActivatePrayer([prayer]);
 end;
@@ -372,17 +372,17 @@ end;
 (*
 ## Prayer.DisablePrayer
 ```pascal
-function TPrayer.DisablePrayer(prayers: array of ERSPrayer): Boolean;
-function TPrayer.DisablePrayer(prayer: ERSPrayer): Boolean; overload;
+function TPrayer.DisablePrayer(prayers: array of EPrayer): Boolean;
+function TPrayer.DisablePrayer(prayer: EPrayer): Boolean; overload;
 ```
 Attempts to disable the specified `prayer` or `prayers`.
 
 Example:
 ```pascal
-Prayer.DisablePrayer(ERSPrayer.PROTECT_FROM_MELEE);
+Prayer.DisablePrayer(EPrayer.PROTECT_FROM_MELEE);
 ```
 *)
-function TPrayer.DisablePrayer(prayers: array of ERSPrayer): Boolean;
+function TPrayer.DisablePrayer(prayers: array of EPrayer): Boolean;
 var
   i : int32;
 begin
@@ -398,7 +398,7 @@ begin
   Result := WaitUntil(not Self.AnyPrayerActive(prayers), 100, 2000);
 end;
 
-function TPrayer.DisablePrayer(prayer: ERSPrayer): Boolean; overload;
+function TPrayer.DisablePrayer(prayer: EPrayer): Boolean; overload;
 begin
   Result := Self.DisablePrayer([prayer]);
 end;
@@ -543,16 +543,16 @@ end;
 (*
 ## QuickPrayer.IsPrayerSelected
 ```pascal
-function QuickPrayer.IsPrayerSelected(qPrayer: ERSPrayer): Boolean;
+function QuickPrayer.IsPrayerSelected(qPrayer: EPrayer): Boolean;
 ```
 Returns true if the specified quick prayer is selected.
 
 Example:
 ```pascal
-WriteLn QuickPrayers.IsPrayerSelected(ERSPrayer.PROTECT_FROM_MAGIC);
+WriteLn QuickPrayers.IsPrayerSelected(EPrayer.PROTECT_FROM_MAGIC);
 ```
 *)
-function TQuickPrayer.IsPrayerSelected(qPrayer: ERSPrayer): Boolean;
+function TQuickPrayer.IsPrayerSelected(qPrayer: EPrayer): Boolean;
 begin
   if not Self.IsOpen() then  Exit;
   Result := SRL.CountColor(CTS0($080CEF), Prayer.PrayerBoxes[qPrayer]) > 0;
@@ -561,7 +561,7 @@ end;
 (*
 ## QuickPrayer.GetSelectedPrayers
 ```pascal
-function QuickPrayer.GetSelectedPrayers(): array of ERSPrayer;
+function QuickPrayer.GetSelectedPrayers(): array of EPrayer;
 ```
 Returns an array of all selected quick prayers
 
@@ -570,15 +570,15 @@ Example:
 WriteLn QuickPrayers.GetSelectedPrayers;
 ```
 *)
-function TQuickPrayer.GetSelectedPrayers(): array of ERSPrayer;
+function TQuickPrayer.GetSelectedPrayers(): array of EPrayer;
 var
-  qPrayer: ERSPrayer;
+  qPrayer: EPrayer;
 begin
   Result := [];
   if not Self.IsOpen() then
     Exit;
 
-  for qPrayer := Low(ERSPrayer) to High(ERSPrayer) do
+  for qPrayer := Low(EPrayer) to High(EPrayer) do
     if Self.IsPrayerSelected(qPrayer) then
       Result += qPrayer;
 end;
@@ -586,17 +586,17 @@ end;
 (*
 ## QuickPrayer.SelectPrayer
 ```pascal
-function QuickPrayer.SelectPrayer(QPrayer: ERSPrayer): Boolean;
-function QuickPrayer.SelectPrayer(QPrayers: array of ERSPrayer): Boolean; overload;
+function QuickPrayer.SelectPrayer(QPrayer: EPrayer): Boolean;
+function QuickPrayer.SelectPrayer(QPrayers: array of EPrayer): Boolean; overload;
 ```
 Attempts to select the specified quick prayer/prayers.
 
 Example:
 ```pascal
-QuickPrayers.SelectPrayer(ERSPrayer.PROTECT_ITEM);
+QuickPrayers.SelectPrayer(EPrayer.PROTECT_ITEM);
 ```
 *)
-function TQuickPrayer.SelectPrayer(qPrayer: ERSPrayer): Boolean;
+function TQuickPrayer.SelectPrayer(qPrayer: EPrayer): Boolean;
 begin
   if not Self.Open() then Exit;
   if Self.IsPrayerSelected(qPrayer) then Exit(True);
@@ -606,7 +606,7 @@ begin
   Result := WaitUntil(Self.IsPrayerSelected(qPrayer), 50, SRL.TruncatedGauss(1000, 2000));
 end;
 
-function TQuickPrayer.SelectPrayer(qPrayers: array of ERSPrayer): Boolean; overload;
+function TQuickPrayer.SelectPrayer(qPrayers: array of EPrayer): Boolean; overload;
 var
   i : int32;
 begin
@@ -619,17 +619,17 @@ end;
 (*
 ## QuickPrayer.DeselectPrayer
 ```pascal
-function QuickPrayer.DeselectPrayer(QPrayer: ERSPrayer): Boolean;
-function QuickPrayer.DeselectPrayer(QPrayers: array of ERSPrayer): Boolean; overload;
+function QuickPrayer.DeselectPrayer(QPrayer: EPrayer): Boolean;
+function QuickPrayer.DeselectPrayer(QPrayers: array of EPrayer): Boolean; overload;
 ```
 Attempts to Deselect the specified quick prayer/prayers.
 
 Example:
 ```pascal
-QuickPrayers.DeselectPrayer(ERSPrayer.PROTECT_ITEM);
+QuickPrayers.DeselectPrayer(EPrayer.PROTECT_ITEM);
 ```
 *)
-function TQuickPrayer.DeselectPrayer(qPrayer: ERSPrayer): Boolean;
+function TQuickPrayer.DeselectPrayer(qPrayer: EPrayer): Boolean;
 begin
   if not Self.Open then Exit;
   if not Self.IsPrayerSelected(qPrayer) then Exit(True);
@@ -639,7 +639,7 @@ begin
   Result := WaitUntil(not Self.IsPrayerSelected(qPrayer), 50, SRL.TruncatedGauss(1000, 2000));
 end;
 
-function TQuickPrayer.DeselectPrayer(qPrayers: array of ERSPrayer): Boolean; overload;
+function TQuickPrayer.DeselectPrayer(qPrayers: array of EPrayer): Boolean; overload;
 var
   i : int32;
 begin
@@ -684,11 +684,11 @@ end;
 (*
 ## Prayer.CanActivate() override
 ```pascal
-function TPrayer.CanActivate(Prayer: ERSPrayer): Boolean; override;
+function TPrayer.CanActivate(Prayer: EPrayer): Boolean; override;
 ```
 Overrides `Prayer.CanActivate()` to handle quick prayers.
 *)
-function TPrayer.CanActivate(prayer: ERSPrayer): Boolean; override;
+function TPrayer.CanActivate(prayer: EPrayer): Boolean; override;
 begin
   if not Self.IsOpen() and not QuickPrayer.IsOpen() then Exit;
   Result := SRL.PeakBrightness(Self.PrayerBoxes[prayer]) > 55;
@@ -697,20 +697,20 @@ end;
 (*
 ## Prayer.GetAvailablePrayers() override
 ```pascal
-function TPrayer.GetAvailablePrayers(): array of ERSPrayer; override;
+function TPrayer.GetAvailablePrayers(): array of EPrayer; override;
 ```
 Overrides `Prayer.GetAvailablePrayers()` to handle quick prayers.
 *)
-function TPrayer.GetAvailablePrayers(): array of ERSPrayer; override;
+function TPrayer.GetAvailablePrayers(): array of EPrayer; override;
 var
-  Prayer: ERSPrayer;
+  Prayer: EPrayer;
 begin
   Result := [];
   if not Self.IsOpen and not QuickPrayer.IsOpen then
     Exit;
 
-  for Prayer := Low(ERSPrayer) to High(ERSPrayer) do
-    if Self.CanActivate(ERSPrayer(Prayer)) then
+  for Prayer := Low(EPrayer) to High(EPrayer) do
+    if Self.CanActivate(EPrayer(Prayer)) then
       Result += Prayer;
 end;
 

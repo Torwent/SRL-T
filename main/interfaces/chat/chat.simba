@@ -36,7 +36,7 @@ const
   CHAT_INPUT_LINE = 8;
 
 type
-  ERSIronManType = (NONE, IRONMAN, HARDCORE, ULTIMATE, GROUP, HARCORE_GROUP, UNRANKED_GROUP);
+  EIronManType = (NONE, IRONMAN, HARDCORE, ULTIMATE, GROUP, HARCORE_GROUP, UNRANKED_GROUP);
 
   TChat = record(TInterface)
     LineBoxes: TBoxArray;
@@ -130,7 +130,7 @@ begin
   Result := Self.GetDisplayNameBox(colors, c);
 end;
 
-function TChat.GetIronManType() : ERSIronManType;
+function TChat.GetIronManType() : EIronManType;
 const
     NAME_LINE_BOX : TBox := Self.LineBoxes[CHAT_INPUT_LINE];
 begin
@@ -138,18 +138,18 @@ begin
   if SRL.CountColor(CTS2(5262159, 9, 4.91, 0.28), NAME_LINE_BOX) > 1 then
   begin
     if SRL.CountColor(CTS2(1710709, 6, 0.05, 2.15), NAME_LINE_BOX) > 1 then
-      Exit(ERSIronManType.HARCORE_GROUP)
+      Exit(EIronManType.HARCORE_GROUP)
     else if SRL.CountColor(CTS2(8338202, 6, 0.06, 0.18), NAME_LINE_BOX) > 1 then
-      Exit(ERSIronManType.GROUP)
+      Exit(EIronManType.GROUP)
     else if SRL.CountColor(CTS2(5995801, 1, 0.01, 0.01), NAME_LINE_BOX) > 1 then
-      Exit(ERSIronManType.UNRANKED_GROUP);
+      Exit(EIronManType.UNRANKED_GROUP);
 
-    Exit(ERSIronManType.IRONMAN);
+    Exit(EIronManType.IRONMAN);
   end
   else if SRL.CountColor(CTS2(1318997, 6, 0.61, 1.74), NAME_LINE_BOX) > 1 then
-    Exit(ERSIronManType.HARDCORE)
+    Exit(EIronManType.HARDCORE)
   else if SRL.CountColor(CTS2(12566728, 23, 0.83, 0.34), NAME_LINE_BOX) > 1 then
-    Exit(ERSIronManType.ULTIMATE);
+    Exit(EIronManType.ULTIMATE);
 end;
 
 (*

@@ -8,8 +8,8 @@ Methods to interact with the logout tab.
 {$ENDIF}
 
 type
-  ERSLogoutButton = (WORLD_SWITCHER, CLICK_HERE);
-  ERSLogoutWorldSwitcherButton = (CLOSE);
+  ELogoutButton = (WORLD_SWITCHER, CLICK_HERE);
+  ELogoutWorldSwitcherButton = (CLOSE);
   TLogout = type TInterface;
 
 procedure TLogout.Setup(); override;
@@ -83,21 +83,21 @@ end;
 (*
 ## Logout.GetButton
 ```pascal
-function TLogout.GetButton(button: ERSLogoutButton): TGameButton;
+function TLogout.GetButton(button: ELogoutButton): TGameButton;
 ```
 Returns a logout button.
 
 Example:
 ```pascal
-Debug([Logout.GetButton(ERSLogoutButton.CLICK_HERE)]);
+Debug([Logout.GetButton(ELogoutButton.CLICK_HERE)]);
 ```
 *)
-function TLogout.GetButton(button: ERSLogoutButton): TGameButton;
+function TLogout.GetButton(button: ELogoutButton): TGameButton;
 var
   buttons: TGameButtonArray;
 begin
   buttons := Self.GetButtons();
-  if Length(buttons) = Length(ERSLogoutButton) then
+  if Length(buttons) = Length(ELogoutButton) then
     Result := buttons[button];
 end;
 
@@ -184,20 +184,20 @@ end;
 (*
 ## Logout.GetWorldSwitcherButton
 ```pascal
-function TLogout.GetWorldSwitcherButton(button: ERSLogoutWorldSwitcherButton): TGameButton;
+function TLogout.GetWorldSwitcherButton(button: ELogoutWorldSwitcherButton): TGameButton;
 ```
 Returns a world switcher button.
 
 Example:
 ```pascal
-Debug([Logout.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE)]);
+Debug([Logout.GetWorldSwitcherButton(ELogoutWorldSwitcherButton.CLOSE)]);
 ```
 *)
-function TLogout.GetWorldSwitcherButton(button: ERSLogoutWorldSwitcherButton): TGameButton;
+function TLogout.GetWorldSwitcherButton(button: ELogoutWorldSwitcherButton): TGameButton;
 var
   Buttons: TGameButtonArray := Self.GetWorldSwitcherButtons();
 begin
-  if Length(Buttons) = Length(ERSLogoutWorldSwitcherButton) then
+  if Length(Buttons) = Length(ELogoutWorldSwitcherButton) then
     Result := Buttons[Button];
 end;
 
@@ -216,7 +216,7 @@ WriteLn Logout.IsWorldSwitcherOpen();
 *)
 function TLogout.IsWorldSwitcherOpen(): Boolean;
 begin
-  Result := Self.IsOpen() and Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Visible();
+  Result := Self.IsOpen() and Self.GetWorldSwitcherButton(ELogoutWorldSwitcherButton.CLOSE).Visible();
 end;
 
 (*
@@ -236,7 +236,7 @@ begin
   if Self.IsOpen() and (not Self.IsWorldSwitcherOpen()) then
     Exit(True);
 
-  Result := Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Click() and WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 5000);
+  Result := Self.GetWorldSwitcherButton(ELogoutWorldSwitcherButton.CLOSE).Click() and WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 5000);
 end;
 
 
@@ -263,7 +263,7 @@ begin
   interval := time div attempts;
 
   for i := 1 to attempts do
-    if Self.GetButton(ERSLogoutButton.CLICK_HERE).Click() and WaitUntil(not GameClient.IsLoggedIn(), 500, Interval + SRL.NormalRange(-2000, 2000)) then
+    if Self.GetButton(ELogoutButton.CLICK_HERE).Click() and WaitUntil(not GameClient.IsLoggedIn(), 500, Interval + SRL.NormalRange(-2000, 2000)) then
       Exit(True);
 end;
 

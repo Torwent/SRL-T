@@ -4,7 +4,7 @@
 {$ENDIF}
 
 type
-  ERSInterfaceType = (CLASSIC, SCROLL, ANY);
+  EInterfaceType = (CLASSIC, SCROLL, ANY);
 
   TInterfaceArea = record(TInterface)
     EscapeEnabled: Boolean;
@@ -13,16 +13,16 @@ type
 (*
 ## TInterfaceArea.IsOpen
 ```pascal
-function TInterfaceArea.IsOpen(interfaceType: ERSInterfaceType = ERSInterfaceType.ANY): Boolean;
+function TInterfaceArea.IsOpen(interfaceType: EInterfaceType = EInterfaceType.ANY): Boolean;
 ```
 Returns True/False if any interface is found open.
 *)
-function TInterfaceArea.IsOpen(interfaceType: ERSInterfaceType = ERSInterfaceType.ANY): Boolean;
+function TInterfaceArea.IsOpen(interfaceType: EInterfaceType = EInterfaceType.ANY): Boolean;
 begin
   case interfaceType of
-    ERSInterfaceType.CLASSIC: Result := SRL.CountColor(CTS0(3358536, 2), Self.Bounds) > 10000;
-    ERSInterfaceType.SCROLL:  Result := SRL.CountColor(CTS2(8693433, 5, 0.10, 1.17), Self.Bounds) > 35000;
-    ERSInterfaceType.ANY:     Result := Self.IsOpen(ERSInterfaceType.CLASSIC) or Self.IsOpen(ERSInterfaceType.SCROLL)
+    EInterfaceType.CLASSIC: Result := SRL.CountColor(CTS0(3358536, 2), Self.Bounds) > 10000;
+    EInterfaceType.SCROLL:  Result := SRL.CountColor(CTS2(8693433, 5, 0.10, 1.17), Self.Bounds) > 35000;
+    EInterfaceType.ANY:     Result := Self.IsOpen(EInterfaceType.CLASSIC) or Self.IsOpen(EInterfaceType.SCROLL)
   end;
 end;
 

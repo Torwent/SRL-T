@@ -1190,7 +1190,7 @@ var
   rect: TRectangle;
   tpa: TPointArray;
 begin
-  if door.DoorType = ERSDoorType.UNKNOWN then
+  if door.DoorType = EDoorType.UNKNOWN then
     Exit;
 
   angle := door.GetVisibleAngle(Minimap.GetCompassAngle() , 0 , False);

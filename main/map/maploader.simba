@@ -375,12 +375,12 @@ function TChunkLoader._BuildGraph(map: TMufasaBitmap; white, red: TPointArray): 
       begin
         Result[i].Direction := direction;
         case Length(doorATPA[i]) of
-          4: Result[i].DoorType := ERSDoorType.NORMAL;
-          8: Result[i].DoorType := ERSDoorType.WIDE;
+          4: Result[i].DoorType := EDoorType.NORMAL;
+          8: Result[i].DoorType := EDoorType.WIDE;
         end;
       end;
 
-      if Result[i].DoorType = ERSDoorType.WIDE then
+      if Result[i].DoorType = EDoorType.WIDE then
         case Result[i].Direction of
           [0,1]: Result[i].Center.X -= 2;
           [1,0]: Result[i].Center.Y -= 2;
@@ -423,7 +423,7 @@ begin
       Self.DebugLn('Adding doors to graph: '  + ToStr(i) + '/' + ToStr(hi));
     door := doors[i];
 
-    if (door.DoorType = ERSDoorType.UNKNOWN) or atpa.InSameTPA(door.Before, door.After) then
+    if (door.DoorType = EDoorType.UNKNOWN) or atpa.InSameTPA(door.Before, door.After) then
     begin
       nonSepDoors += 1;
       Continue;
