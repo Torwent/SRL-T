@@ -1355,10 +1355,10 @@ begin
   alignment.MaxWidth := 484;
   alignment.MaxHeight := 304;
 
-  case RSClient.Mode of
-    ERSClientMode.FIXED:
+  case GameClient.Mode of
+    EClientMode.FIXED:
       alignment.Top := InterfaceArea.Bounds.Y1;
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
+    EClientMode.RESIZABLE_CLASSIC, EClientMode.RESIZABLE_MODERN:
       alignment.Top := InterfaceArea.Bounds.Y1 - 1;
   end;
 

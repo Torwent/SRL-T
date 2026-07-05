@@ -737,10 +737,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    Self.DrawPath(RSClient.Image(), index, playerPoint);
+    GameClient.Image().Clear();
+    Self.DrawPath(GameClient.Image(), index, playerPoint);
     Exit;
   end;
   {$ENDIF}
@@ -933,8 +933,8 @@ begin
   // recent addition, shift 3/5 of the way towards the bottom instead of in the middle
   // potential addition for more randomness: make tpa from line and grow by 1
   {$IFDEF DEBUG_WALKERV2}
-  RSClient.Image.Clear(MainScreen.Bounds);
-  RSClient.Image.DrawRect(rect, $FFFF00);
+  GameClient.Image.Clear(MainScreen.Bounds);
+  GameClient.Image.DrawRect(rect, $FFFF00);
   {$ENDIF}
 
   tpa := TDoor.GetCorners(rect.ToTPA(), door.GetDoorAngle(), compass);

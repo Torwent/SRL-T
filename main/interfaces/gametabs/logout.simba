@@ -263,7 +263,7 @@ begin
   interval := time div attempts;
 
   for i := 1 to attempts do
-    if Self.GetButton(ERSLogoutButton.CLICK_HERE).Click() and WaitUntil(not RSClient.IsLoggedIn(), 500, Interval + SRL.NormalRange(-2000, 2000)) then
+    if Self.GetButton(ERSLogoutButton.CLICK_HERE).Click() and WaitUntil(not GameClient.IsLoggedIn(), 500, Interval + SRL.NormalRange(-2000, 2000)) then
       Exit(True);
 end;
 

@@ -16,8 +16,8 @@ procedure TGameTab.SetupAlignment(); overload;
 var
   alignment: TInterfaceAlignment;
 begin
-  case RSClient.Mode of
-    ERSClientMode.FIXED:
+  case GameClient.Mode of
+    EClientMode.FIXED:
     begin
       alignment.Left   := RootInterface.Bounds.X2 - 214;
       alignment.Right  := RootInterface.Bounds.X2 - 31;
@@ -25,7 +25,7 @@ begin
       alignment.Bottom := RootInterface.Bounds.Y2 - 37;
     end;
 
-    ERSClientMode.RESIZABLE_CLASSIC:
+    EClientMode.RESIZABLE_CLASSIC:
     begin
       alignment.Left   := RootInterface.Bounds.X2 - 212;
       alignment.Right  := RootInterface.Bounds.X2 - 29;
@@ -33,7 +33,7 @@ begin
       alignment.Bottom := RootInterface.Bounds.Y2 - 37;
     end;
 
-    ERSClientMode.RESIZABLE_MODERN:
+    EClientMode.RESIZABLE_MODERN:
     begin
       alignment.Left   := RootInterface.Bounds.X2 - 193;
       alignment.Right  := RootInterface.Bounds.X2 - 10;

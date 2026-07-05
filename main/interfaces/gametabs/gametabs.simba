@@ -21,7 +21,7 @@ function TGameTabs.GetCurrentTab(): ERSGametab;
 var
   tab: ERSGameTab;
 begin
-  if (RSClient.Mode = ERSClientMode.RESIZABLE_MODERN) and (SRL.CountColor(8639715, Self.Boxes[ERSGameTab.LOGOUT]) > 0) then
+  if (GameClient.Mode = EClientMode.RESIZABLE_MODERN) and (SRL.CountColor(8639715, Self.Boxes[ERSGameTab.LOGOUT]) > 0) then
     Exit(ERSGameTab.LOGOUT);
 
   for tab := Low(ERSGameTab) to ERSGameTab.MUSIC do
@@ -77,22 +77,22 @@ var
 begin
   alignment.Bottom := RootInterface.Bounds.Y2;
 
-  case RSClient.Mode of
-    ERSClientMode.FIXED:
+  case GameClient.Mode of
+    EClientMode.FIXED:
     begin
       alignment.Left  := RootInterface.Bounds.X2 - 242;
       alignment.Right := RootInterface.Bounds.X2 - 2;
       alignment.Top   := RootInterface.Bounds.Y2 - 334;
     end;
 
-    ERSClientMode.RESIZABLE_CLASSIC:
+    EClientMode.RESIZABLE_CLASSIC:
     begin
       alignment.Left  := RootInterface.Bounds.X2 - 240;
       alignment.Right := RootInterface.Bounds.X2;
       alignment.Top   := RootInterface.Bounds.Y2 - 334;
     end;
 
-    ERSClientMode.RESIZABLE_MODERN:
+    EClientMode.RESIZABLE_MODERN:
     begin
       alignment.Right := RootInterface.Bounds.X2;
 
@@ -112,11 +112,11 @@ begin
 
   Self.SetupAlignment(alignment);
 
-  case RSClient.Mode of
-    ERSClientMode.FIXED, ERSClientMode.RESIZABLE_CLASSIC:
+  case GameClient.Mode of
+    EClientMode.FIXED, EClientMode.RESIZABLE_CLASSIC:
       Self.Boxes := Grid(7, 2, 30, 33, [3, 265], [Self.Bounds.X1 + 6, Self.Bounds.Y1 + 1]);
 
-    ERSClientMode.RESIZABLE_MODERN:
+    EClientMode.RESIZABLE_MODERN:
       begin
         // One row
         if RootInterface.Width >= 948 then

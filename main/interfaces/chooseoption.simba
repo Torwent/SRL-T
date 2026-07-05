@@ -80,7 +80,7 @@ begin
 
   p.Y += Self.BitmapHeight;
 
-  if FindColors(tpa, 0, P.X, P.Y, RSClient.Bounds.X2, RSClient.Bounds.Y2) then
+  if FindColors(tpa, 0, P.X, P.Y, GameClient.Bounds.X2, GameClient.Bounds.Y2) then
   begin
     atpa := tpa.Cluster(1, 1);
     atpa.SortByIndex(p, 0);
@@ -358,7 +358,7 @@ var
 begin
   Result := [0,0,-1,-1];
 
-  SRL.FindColors(tpa, 0, RSClient.Bounds);
+  SRL.FindColors(tpa, 0, GameClient.Bounds);
   atpa := tpa.NRCluster(1);
   atpa := atpa.SortFrom(Mouse.Position);
 

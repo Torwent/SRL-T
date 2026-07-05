@@ -262,7 +262,7 @@ begin
     begin
       Self.DebugLn('SetCompassAngle timed out.');
 
-      if not RSClient.IsLoggedIn() then
+      if not GameClient.IsLoggedIn() then
         Login.LoginPlayer()
       else
         Self.DebugLn('Make sure the setting "Middle mouse button controls the camera" is enabled in the game settings.');
@@ -366,8 +366,8 @@ procedure TMinimap.SetupAlignment(); overload;
 var
   alignment: TInterfaceAlignment;
 begin
-  case RSClient.Mode of
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
+  case GameClient.Mode of
+    EClientMode.RESIZABLE_CLASSIC, EClientMode.RESIZABLE_MODERN:
     begin
       alignment.Left := RootInterface.Bounds.X2 - 157;
       alignment.Right := RootInterface.Bounds.X2 - 6;
@@ -375,7 +375,7 @@ begin
       alignment.Bottom := RootInterface.Bounds.Y1 + 159;
     end;
 
-    ERSClientMode.FIXED:
+    EClientMode.FIXED:
     begin
       alignment.Left := RootInterface.Bounds.X2 - 195;
       alignment.Right := RootInterface.Bounds.X2 - 50;
@@ -388,8 +388,8 @@ begin
 
   SetLength(Self.Orbs, Ord(High(ERSMinimapOrb))+1);
 
-  case RSClient.Mode of
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
+  case GameClient.Mode of
+    EClientMode.RESIZABLE_CLASSIC, EClientMode.RESIZABLE_MODERN:
     begin
       Self.Orbs[ERSMinimapOrb.COMPASS]        := [Self.Bounds.X1 - 2,  Self.Bounds.Y1 + 14,  17];
       Self.Orbs[ERSMinimapOrb.EXPERIENCE]     := [Self.Bounds.X1 - 40, Self.Bounds.Y1 + 32,  11];
@@ -400,7 +400,7 @@ begin
       Self.Polygon := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
     end;
 
-    ERSClientMode.FIXED:
+    EClientMode.FIXED:
     begin
       Self.Orbs[ERSMinimapOrb.COMPASS]        := [Self.Bounds.X1 - 8,  Self.Bounds.Y1 + 12,  17];
       Self.Orbs[ERSMinimapOrb.EXPERIENCE]     := [Self.Bounds.X1 - 40, Self.Bounds.Y1 + 26,  11];
@@ -1216,7 +1216,7 @@ begin
   tmp := bitmap.Copy();
 
   p := tmp.GetCenter();
-  if RSClient.Mode = ERSClientMode.FIXED then
+  if GameClient.Mode = EClientMode.FIXED then
     p := p.Offset(0, -8).Rotate(-Self.GetCompassAngle(False), p); // fixed
 
   tmp.DrawCircleFilled(p.X, p.Y, radius, True, 0);

@@ -114,20 +114,20 @@ begin
   alignment.Top  := MainScreen.Bounds.Y1;
   alignment.Left := MainScreen.Bounds.X1;
 
-  case RSClient.Mode of
-    ERSClientMode.FIXED:
+  case GameClient.Mode of
+    EClientMode.FIXED:
     begin
       alignment.Right  := MainScreen.Bounds.X2;
       alignment.Bottom := MainScreen.Bounds.Y2;
     end;
 
-    ERSClientMode.RESIZABLE_CLASSIC:
+    EClientMode.RESIZABLE_CLASSIC:
     begin
       alignment.Right  := GameTabs.Bounds.X1 - 10;
       alignment.Bottom := Chat.Bounds.Y1;
     end;
 
-    ERSClientMode.RESIZABLE_MODERN:
+    EClientMode.RESIZABLE_MODERN:
     begin
       alignment.Right  := GameTab.Bounds.X1 - 22;
       alignment.Bottom := Chat.Bounds.Y1;

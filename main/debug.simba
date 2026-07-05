@@ -10,11 +10,11 @@ var
   i: Int32;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
+    GameClient.Image().Clear();
     for i := 0 to High(atpa) do
-      RSClient.Image().DrawTPA(atpa[i], DEBUG_COLORS[i mod Length(DEBUG_COLORS)]);
+      GameClient.Image().DrawTPA(atpa[i], DEBUG_COLORS[i mod Length(DEBUG_COLORS)]);
     Exit;
   end;
   {$ENDIF}
@@ -38,10 +38,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    RSClient.Image().DrawCross(p, 4, color);
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCross(p, 4, color);
     Exit;
   end;
   {$ENDIF}
@@ -105,10 +105,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    RSClient.Image().DrawCuboid(cuboid, color);
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCuboid(cuboid, color);
     Exit;
   end;
   {$ENDIF}
@@ -124,10 +124,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    RSClient.Image().DrawCuboidArray(cuboids, color);
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCuboidArray(cuboids, color);
     Exit;
   end;
   {$ENDIF}
@@ -142,10 +142,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    RSClient.Image().DrawCuboid(cuboid, color);
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCuboid(cuboid, color);
     Exit;
   end;
   {$ENDIF}
@@ -160,10 +160,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    RSClient.Image().DrawCuboidArray(cuboids, color);
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCuboidArray(cuboids, color);
     Exit;
   end;
   {$ENDIF}
@@ -273,10 +273,10 @@ begin
   Freeze();
 
   try
-    if RSClient.DebugOnClient then
+    if GameClient.DebugOnClient then
     begin
-      RSClient.Image().Clear();
-      Self.Debug(RSClient.Image());
+      GameClient.Image().Clear();
+      Self.Debug(GameClient.Image());
       Exit;
     end;
 

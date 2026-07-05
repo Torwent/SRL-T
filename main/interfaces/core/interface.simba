@@ -531,10 +531,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    buttons.Draw(RSClient.Image());
+    GameClient.Image().Clear();
+    buttons.Draw(GameClient.Image());
     Exit;
   end;
   {$ENDIF}
@@ -549,10 +549,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    scroll.Draw(RSClient.Image());
+    GameClient.Image().Clear();
+    scroll.Draw(GameClient.Image());
     Exit;
   end;
   {$ENDIF}

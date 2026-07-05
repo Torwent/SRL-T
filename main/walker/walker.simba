@@ -1094,7 +1094,7 @@ begin
   MinimapBitmap := Minimap.ScaleMinimap(Minimap.GetCleanMinimap(), 1);
 
   P := MinimapBitmap.GetCenter();
-  if RSClient.Mode = ERSClientMode.FIXED then
+  if GameClient.Mode = EClientMode.FIXED then
     P := P.Offset(0, 8).Rotate(-Minimap.GetCompassAngle(False), P);
 
   MinimapBitmap.DrawBoxFilled([P.X - 1, P.Y - 1, P.X + 1, P.Y + 1], False, $FFFFFF);

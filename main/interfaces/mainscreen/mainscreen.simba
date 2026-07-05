@@ -149,7 +149,7 @@ type
 (*
 ## MainScreen.Setup
 ```pascal
-procedure TMainScreen.Setup(ClientMode: ERSClientMode);
+procedure TMainScreen.Setup(ClientMode: EClientMode);
 ```
 Setups the mainscreen.
 
@@ -174,8 +174,8 @@ procedure TMainScreen.SetupAlignment(); overload;
 var
   alignment: TInterfaceAlignment;
 begin
-  case RSClient.Mode of
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
+  case GameClient.Mode of
+    EClientMode.RESIZABLE_CLASSIC, EClientMode.RESIZABLE_MODERN:
     begin
       alignment.Left := RootInterface.Bounds.X1;
       alignment.Right := RootInterface.Bounds.X2;
@@ -183,7 +183,7 @@ begin
       alignment.Bottom := RootInterface.Bounds.Y2;
     end;
 
-    ERSClientMode.FIXED:
+    EClientMode.FIXED:
     begin
       alignment.Left := RootInterface.Bounds.X1 + 4;
       alignment.Right := RootInterface.Bounds.X1 + 515;
@@ -196,9 +196,9 @@ begin
 
   Self.UpTextArea := [Self.Bounds.X1 + 3, Self.Bounds.Y1 + 3, Self.Bounds.X1 + 500, Self.Bounds.Y1 + 21];
 
-  if RSClient.Client = ERSClient.OFFICIAL then
+  if GameClient.Client = EClient.OFFICIAL then
   begin
-    if RSClient.Mode = ERSClientMode.FIXED then
+    if GameClient.Mode = EClientMode.FIXED then
       Self.UpTextArea := Self.UpTextArea.Offset([-2,-2])
     else
       Self.UpTextArea := Self.UpTextArea.Offset([0,2]);
@@ -515,7 +515,7 @@ function TMainScreen.IsVisible(p: TPoint): Boolean;
 begin
   Result := Self.Bounds.Expand(-10).Contains(p);
 
-  if not Result or (RSClient.Mode = ERSClientMode.FIXED) then
+  if not Result or (GameClient.Mode = EClientMode.FIXED) then
     Exit;
 
   if Chat.Bounds.Expand(5).Contains(p) and Chat.IsOpen() then
@@ -534,7 +534,7 @@ begin
     Exit(Self.IsVisible(tpa.Mean()));
   Result := Self.Bounds.Expand(-10).ContainsAll(tpa);
 
-  if not Result or (RSClient.Mode = ERSClientMode.FIXED) then
+  if not Result or (GameClient.Mode = EClientMode.FIXED) then
     Exit;
 
   if Chat.Bounds.Expand(5).ContainsAll(tpa) and Chat.IsOpen() then
@@ -579,7 +579,7 @@ function TMainScreen.Filter(arr: TPointArray): TPointArray;
 begin
   Result := arr := arr.FilterBox(Self.Bounds);
 
-  if (Result = []) or (RSClient.Mode = ERSClientMode.FIXED) then
+  if (Result = []) or (GameClient.Mode = EClientMode.FIXED) then
     Exit;
 
   if Chat.IsOpen() then
@@ -1111,10 +1111,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    splat.Draw(RSClient.Image());
+    GameClient.Image().Clear();
+    splat.Draw(GameClient.Image());
     Exit;
   end;
   {$ENDIF}
@@ -1129,10 +1129,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    splats.Draw(RSClient.Image());
+    GameClient.Image().Clear();
+    splats.Draw(GameClient.Image());
     Exit;
   end;
   {$ENDIF}
@@ -1147,10 +1147,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    bar.Draw(RSClient.Image());
+    GameClient.Image().Clear();
+    bar.Draw(GameClient.Image());
     Exit;
   end;
   {$ENDIF}
@@ -1165,10 +1165,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    bars.Draw(RSClient.Image());
+    GameClient.Image().Clear();
+    bars.Draw(GameClient.Image());
     Exit;
   end;
   {$ENDIF}

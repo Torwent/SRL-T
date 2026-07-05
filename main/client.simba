@@ -1,5 +1,5 @@
 (*
-# RSClient
+# GameClient
 Methods relating to targeting the RS client and detecting client states.
 
 if `SRL_DISABLE_REMOTEINPUT` is defined. RemoteInput plugin will not be loaded.
@@ -21,9 +21,9 @@ if `SRL_USE_REMOTEINPUT_DEBUG` is defined. Debug() calls will drawn on the RS cl
 {$SCOPEDENUMS ON}
 
 (*
-## ERSClientMode
+## EClientMode
 ```pascal
-ERSClientMode = (
+EClientMode = (
     UNKNOWN,            // Unable to detect mode (likely not logged in yet)
     FIXED,              // Fixed mode
     RESIZABLE_CLASSIC,  // Resizable with "classic" gametabs or "fixed mode gametabs"
@@ -33,12 +33,12 @@ ERSClientMode = (
 The modes of the client.
 *)
 type
-  ERSClient = (UNKNOWN, LEGACY, RUNELITE, OFFICIAL);
-  ERSClientMode = (UNKNOWN, FIXED, RESIZABLE_CLASSIC, RESIZABLE_MODERN);
+  EClient = (UNKNOWN, LEGACY, RUNELITE, OFFICIAL);
+  EClientMode = (UNKNOWN, FIXED, RESIZABLE_CLASSIC, RESIZABLE_MODERN);
 
   TGameClient = record(TSRLBaseRecord)
-    Client: ERSClient;
-    Mode: ERSClientMode;
+    Client: EClient;
+    Mode: EClientMode;
 
     Bounds: TBox;
     Height, Width: Int32;
@@ -62,7 +62,7 @@ end;
 {$H+}
 
 
-function TGameClient.OfficialClientMode(width, height: Int32; update: Boolean = False): ERSClientMode;
+function TGameClient.OfficialClientMode(width, height: Int32; update: Boolean = False): EClientMode;
 var
   half, n,c: Int32;
   bmp: TMufasaBitmap;
@@ -77,14 +77,14 @@ begin
   begin
     if Update then
     begin
-      Self.Mode := ERSClientMode.UNKNOWN;
+      Self.Mode := EClientMode.UNKNOWN;
       Self.Width := width;
       Self.Height := height;
       Self.Bounds := Box(0, 0, Max(0, width-1), Max(0, height-1));
     end;
 
     bmp.Free();
-    Exit(ERSClientMode.UNKNOWN);
+    Exit(EClientMode.UNKNOWN);
   end;
 
   c := bmp.GetPixel(0,0);
@@ -92,7 +92,7 @@ begin
   begin
     if Update then
     begin
-      Self.Mode := ERSClientMode.FIXED;
+      Self.Mode := EClientMode.FIXED;
       Self.Width := 765;
       Self.Height := 503;
 
@@ -112,24 +112,24 @@ begin
     end;
 
     bmp.Free();
-    Exit(ERSClientMode.FIXED);
+    Exit(EClientMode.FIXED);
   end;
 
   if bmp.GetPixel(width-5, height-36) = $010000 then
-    Result := ERSClientMode.RESIZABLE_MODERN
+    Result := EClientMode.RESIZABLE_MODERN
   else if bmp.GetPixel(width-47, height-36) = $010000 then
   begin
-    Result := ERSClientMode.RESIZABLE_MODERN;
+    Result := EClientMode.RESIZABLE_MODERN;
     width -= 42;
   end
   else
-    Result := ERSClientMode.RESIZABLE_CLASSIC;
+    Result := EClientMode.RESIZABLE_CLASSIC;
 
   bmp.Free();
 
   if Update then
   begin
-    Self.Mode := ERSClientMode.UNKNOWN;
+    Self.Mode := EClientMode.UNKNOWN;
     Self.Width := width;
     Self.Height := height;
     Self.Bounds := Box(0, 0, Max(0, Self.Width-1), Max(0, Self.Height-1));
@@ -138,15 +138,15 @@ end;
 
 
 (*
-## RSClient.DetectClientMode()
+## GameClient.DetectClientMode()
 ```pascal
-function TGameClient.DetectClientMode(Update: Boolean): ERSClientMode;
+function TGameClient.DetectClientMode(Update: Boolean): EClientMode;
 ```
 Detects the client mode. If **Update** is True ClientModeChanged will be called.
 Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
 Are there any other cases where music tab won't be visible?
 *)
-function TGameClient.DetectClientMode(update: Boolean = False): ERSClientMode;
+function TGameClient.DetectClientMode(update: Boolean = False): EClientMode;
 var
   width, height: Int32;
   pid: UInt32;
@@ -169,15 +169,15 @@ begin
     Self.Fatal('Please refocus the client!' + LineEnding + GetExceptionMessage());
   end;
 
-  if Self.Client = ERSClient.OFFICIAL then
+  if Self.Client = EClient.OFFICIAL then
     Exit(Self.OfficialClientMode(width, height, update));
 
   // Music tab in each mode there are different colors at W-4, H-21
   // Two colors each because tab can be active(red) or not(grey)
   case GetColor(width-4, height-21) of
-    2435372, 658467: Result := ERSClientMode.FIXED;
-    3555653, 922425: Result := ERSClientMode.RESIZABLE_MODERN;
-    2896180, 790059: Result := ERSClientMode.RESIZABLE_CLASSIC;
+    2435372, 658467: Result := EClientMode.FIXED;
+    3555653, 922425: Result := EClientMode.RESIZABLE_MODERN;
+    2896180, 790059: Result := EClientMode.RESIZABLE_CLASSIC;
   end;
 
   if update then
@@ -190,7 +190,7 @@ begin
 end;
 
 (*
-## RSClient.ClientModeChanged()
+## GameClient.ClientModeChanged()
 ```pascal
 procedure TGameClient.ClientModeChanged();
 ```
@@ -202,7 +202,7 @@ begin
 end;
 
 (*
-## RSClient.IsLoggedIn()
+## GameClient.IsLoggedIn()
 ```pascal
 function TGameClient.IsLoggedIn(): Boolean;
 function TGameClient.IsLoggedIn(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
@@ -211,21 +211,21 @@ Returns true/false whether there's a player logged in or not.
 
 Example:
 ```pascal
-WriteLn RSClient.IsLoggedIn();
+WriteLn GameClient.IsLoggedIn();
 ```
 *)
 function TGameClient.IsLoggedIn(): Boolean;
 var
-  clientMode: ERSClientMode;
+  clientMode: EClientMode;
 begin
   clientMode := Self.DetectClientMode();
-  if (clientMode <> ERSClientMode.UNKNOWN) and (clientMode <> Self.Mode) then
+  if (clientMode <> EClientMode.UNKNOWN) and (clientMode <> Self.Mode) then
   begin
     Self.Mode := clientMode;
     Self.ClientModeChanged();
   end;
 
-  Result := clientMode <> ERSClientMode.UNKNOWN;
+  Result := clientMode <> EClientMode.UNKNOWN;
 end;
 
 function TGameClient.IsLoggedIn(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
@@ -243,7 +243,7 @@ begin
 end;
 
 (*
-## RSClient.LoseFocus()
+## GameClient.LoseFocus()
 ```pascal
 procedure TGameClient.LoseFocus();
 procedure TGameClient.LoseFocus(delay: Int32);
@@ -270,7 +270,7 @@ begin
   Self.LoseFocus();
 end;
 
-function TGameClient.GetCurrentClient(): ERSClient;
+function TGameClient.GetCurrentClient(): EClient;
 var
   win: TOSWindow;
   title: String;
@@ -278,14 +278,14 @@ begin
   win := GetSimbaTargetWindow();
 
   case win.GetClassName() of
-    'JagRenderView', 'JagWindow': Exit(ERSClient.OFFICIAL);
+    'JagRenderView', 'JagWindow': Exit(EClient.OFFICIAL);
   end;
 
   title := win.GetRootWindow().GetTitle();
   if title.Contains('Old School R') then
-    Exit(ERSClient.LEGACY);
+    Exit(EClient.LEGACY);
   if title.Contains('RuneLite') then
-    Exit(ERSClient.RUNELITE);
+    Exit(EClient.RUNELITE);
 end;
 
 function TGameClient.Revalidate(): Boolean;
@@ -327,19 +327,19 @@ begin
 end;
 
 (*
-## RSClient.Setup()
+## GameClient.Setup()
 ```pascal
 procedure TGameClient.Setup();
 ```
-RSClient setup method.
+GameClient setup method.
 
 ```{note}
-This is automatically called on the **RSClient** variable.
+This is automatically called on the **GameClient** variable.
 ```
 *)
 procedure TGameClient.Setup();
 begin
-  Self.Name := 'RSClient';
+  Self.Name := 'GameClient';
 
   if not Self.Revalidate() then TerminateScript('Please refocus the client!');
 
@@ -352,18 +352,18 @@ begin
   {$ENDIF}
 
   Self.Mode := Self.DetectClientMode(True);
-  if Self.Mode = ERSClientMode.UNKNOWN then
-    Self.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
+  if Self.Mode = EClientMode.UNKNOWN then
+    Self.Mode := EClientMode.FIXED; // Fixed as default so we can login if needed
   Self.ClientModeChanged();
 end;
 
 var
-  RSClient: TGameClient;
+  GameClient: TGameClient;
 
 procedure TSRL.Setup(); override;
 begin
   inherited;
-  RSClient.Setup();
+  GameClient.Setup();
 end;
 
 {$IFNDEF SRL_DISABLE_REMOTEINPUT}
@@ -377,21 +377,21 @@ begin
   begin
     GetClientDimensions(w, h);
 
-    if (RSClient.Width = w) and (RSClient.Height = h) then Exit;
+    if (GameClient.Width = w) and (GameClient.Height = h) then Exit;
 
-    RSClient.DebugLn('RSClient.Bounds changed after RemoteInput injection.');
+    GameClient.DebugLn('GameClient.Bounds changed after RemoteInput injection.');
 
     case GetColor(w-4, h-21) of
-      2435372, 658467: RSClient.Mode := ERSClientMode.FIXED;
-      3555653, 922425: RSClient.Mode := ERSClientMode.RESIZABLE_MODERN;
-      2896180, 790059: RSClient.Mode := ERSClientMode.RESIZABLE_CLASSIC;
+      2435372, 658467: GameClient.Mode := EClientMode.FIXED;
+      3555653, 922425: GameClient.Mode := EClientMode.RESIZABLE_MODERN;
+      2896180, 790059: GameClient.Mode := EClientMode.RESIZABLE_CLASSIC;
     end;
 
-    RSClient.Width := w;
-    RSClient.Height := h;
-    RSClient.Bounds := Box(0, 0, Max(0, w-1), Max(0, h-1));
+    GameClient.Width := w;
+    GameClient.Height := h;
+    GameClient.Bounds := Box(0, 0, Max(0, w-1), Max(0, h-1));
 
-    RSClient.ClientModeChanged();
+    GameClient.ClientModeChanged();
   end;
 end;
 {$ENDIF}

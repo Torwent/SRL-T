@@ -607,10 +607,10 @@ begin
   failsafe := current + Random(5000, 7000);
   Self.DebugLn('Handling lobby screen.');
 
-  while not RSClient.IsLoggedIn() do
+  while not GameClient.IsLoggedIn() do
   begin
     if Self.ClickText('CLICK HERE TO PLAY') then
-      if RSClient.IsLoggedIn(5000) then exit(True);
+      if GameClient.IsLoggedIn(5000) then exit(True);
 
     current := GetTickCount();
     if (current > timeout) then
@@ -619,7 +619,7 @@ begin
       Exit;
     end;
 
-    if RSClient.IsLoggedIn() then
+    if GameClient.IsLoggedIn() then
       Exit(True);
 
     if current > failsafe then
@@ -628,7 +628,7 @@ begin
     Wait(300, 600);
   end;
 
-  Result := RSClient.IsLoggedIn(5000);
+  Result := GameClient.IsLoggedIn(5000);
 end;
 
 (*

@@ -57,12 +57,12 @@ begin
     Self.DebugLn('Current zoom level: ' + ToString(Self.ZoomLevel));
   end;
 
-  case RSClient.Mode of
-    ERSClientMode.FIXED:
+  case GameClient.Mode of
+    EClientMode.FIXED:
       Projector := MM2MS_PROJECTOR_FIXED;
 
-    ERSClientMode.RESIZABLE_MODERN,
-    ERSClientMode.RESIZABLE_CLASSIC:
+    EClientMode.RESIZABLE_MODERN,
+    EClientMode.RESIZABLE_CLASSIC:
       Projector := MM2MS_PROJECTOR_RESIZABLE;
   end;
 

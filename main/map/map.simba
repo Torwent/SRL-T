@@ -1283,7 +1283,7 @@ begin
   cleanMinimap := Minimap.ScaleMinimap(Minimap.GetCleanMinimap(), 1);
 
   p := cleanMinimap.GetCenter();
-  if RSClient.Mode = ERSClientMode.FIXED then
+  if GameClient.Mode = EClientMode.FIXED then
     p := p.Offset(0, 8).Rotate(-Minimap.GetCompassAngle(False), p);
 
   cleanMinimap.DrawBoxFilled([p.X - 1, p.Y - 1, p.X + 1, p.Y + 1], False, $FFFFFF);

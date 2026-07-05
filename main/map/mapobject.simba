@@ -250,7 +250,7 @@ var
 begin
   shouldExit := True;
 
-  if (RSClient.Mode = ERSClientMode.FIXED) and RSInterface.IsOpen() then
+  if (GameClient.Mode = EClientMode.FIXED) and RSInterface.IsOpen() then
     Exit;
 
   if Self.Filter.UpText and Self.Filter.Walker then
@@ -291,7 +291,7 @@ begin
     TerminateScript(SRL.TimeStamp() + ':[TMapObject]:[Fatal]: ' + Self.Name + ' has no walker pointer set.');
   shouldExit := True;
 
-  if (RSClient.Mode = ERSClientMode.FIXED) and RSInterface.IsOpen() then
+  if (GameClient.Mode = EClientMode.FIXED) and RSInterface.IsOpen() then
     Exit;
   if Self.Filter.UpText then Self.Walker^.TargetUpText := Copy(Self.UpText);
 
@@ -1471,10 +1471,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    obj._DrawRouter(RSClient.Image());
+    GameClient.Image().Clear();
+    obj._DrawRouter(GameClient.Image());
     Exit;
   end;
   {$ENDIF}
@@ -1490,10 +1490,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    npc.Draw(RSClient.Image());
+    GameClient.Image().Clear();
+    npc.Draw(GameClient.Image());
     Exit;
   end;
   {$ENDIF}
@@ -1509,10 +1509,10 @@ var
   bitmap: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RSClient.DebugOnClient then
+  if GameClient.DebugOnClient then
   begin
-    RSClient.Image().Clear();
-    mapObj^._DrawRouter(RSClient.Image());
+    GameClient.Image().Clear();
+    mapObj^._DrawRouter(GameClient.Image());
     Exit;
   end;
   {$ENDIF}

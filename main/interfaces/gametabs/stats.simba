@@ -106,7 +106,7 @@ end;
 ```pascal
 procedure TStats.SetupAlignment(); overload;
 ```
-Internal method automatically called by RSClient.ClientModeChanged()
+Internal method automatically called by GameClient.ClientModeChanged()
 *)
 procedure TStats.SetupAlignment(); overload;
 var

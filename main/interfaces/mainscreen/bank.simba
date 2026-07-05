@@ -469,10 +469,10 @@ begin
   alignment.MaxWidth := 488;
   alignment.MaxHeight := 800;
 
-  case RSClient.Mode of
-    ERSClientMode.FIXED:
+  case GameClient.Mode of
+    EClientMode.FIXED:
       alignment.Bottom := InterfaceArea.Bounds.Y2 - 1;
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
+    EClientMode.RESIZABLE_CLASSIC, EClientMode.RESIZABLE_MODERN:
       alignment.Bottom := InterfaceArea.Bounds.Y2 - 2;
   end;
 
@@ -1594,7 +1594,7 @@ function TMainScreen.IsVisible(p: TPoint): Boolean; override;
 begin
   Result := inherited;
 
-  if not Result or (RSClient.Mode = ERSClientMode.FIXED) then
+  if not Result or (GameClient.Mode = EClientMode.FIXED) then
     Exit;
 
   if Bank.Bounds.Expand(5).Contains(p) and Bank.IsOpen() then
@@ -1608,7 +1608,7 @@ begin
   if Result and useCenter then
     Exit;
 
-  if not Result or (RSClient.Mode = ERSClientMode.FIXED) then
+  if not Result or (GameClient.Mode = EClientMode.FIXED) then
     Exit;
 
   if Bank.Bounds.Expand(5).ContainsAll(tpa) and Bank.IsOpen() then
@@ -1619,7 +1619,7 @@ function TMainScreen.Filter(arr: TPointArray): TPointArray; override;
 begin
   Result := inherited;
 
-  if (Result = []) or (RSClient.Mode = ERSClientMode.FIXED) then
+  if (Result = []) or (GameClient.Mode = EClientMode.FIXED) then
     Exit;
 
   if Bank.IsOpen() then

@@ -362,7 +362,7 @@ var
   Task: PAntibanTask;
   ActiveTasks: array of PAntibanTask;
 begin
-  if not RSClient.IsLoggedIn() or Self.Checking then
+  if not GameClient.IsLoggedIn() or Self.Checking then
     Exit;
 
   Self.Checking := True;
@@ -504,12 +504,12 @@ end;
 
 procedure TAntiban.LoseFocus();
 begin
-  RSClient.LoseFocus();
+  GameClient.LoseFocus();
 end;
 
 procedure TAntiban.LoseFocus(idle: Int32); overload;
 begin
-  RSClient.LoseFocus();
+  GameClient.LoseFocus();
 
   Wait(Idle);
 end;

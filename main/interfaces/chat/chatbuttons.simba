@@ -112,7 +112,7 @@ end;
 
 function TChatButtons.Close: Boolean;
 begin
-  if RSClient.Mode = ERSClientMode.FIXED then
+  if GameClient.Mode = EClientMode.FIXED then
     Exit(False);
 
   if Self.GetActive = ERSChatButton.CLOSED then
