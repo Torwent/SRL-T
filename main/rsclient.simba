@@ -1,0 +1,395 @@
+(*
+# RSClient
+Methods relating to targeting the RS client and detecting client states.
+
+if `SRL_DISABLE_REMOTEINPUT` is defined. RemoteInput plugin will not be loaded.
+if `SRL_USE_REMOTEINPUT` is defined. RemoteInput will be automatically setup.
+if `SRL_USE_REMOTEINPUT_DEBUG` is defined. Debug() calls will drawn on the RS client.
+*)
+
+{$DEFINE SRL_RSCLIENT_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL-T/osr.simba}
+{$ENDIF}
+
+{$IFDEF SRL_DISABLE_REMOTEINPUT}
+  {$UNDEF SRL_USE_REMOTEINPUT}
+{$ELSE}
+  {$I remoteinput.simba}
+{$ENDIF}
+
+{$SCOPEDENUMS ON}
+
+(*
+## ERSClientMode
+```pascal
+ERSClientMode = (
+    UNKNOWN,            // Unable to detect mode (likely not logged in yet)
+    FIXED,              // Fixed mode
+    RESIZABLE_CLASSIC,  // Resizable with "classic" gametabs or "fixed mode gametabs"
+    RESIZABLE_MODERN    // Resizable with gametabs being grouped together at the bottom
+  );
+```
+The modes of the client.
+*)
+type
+  ERSClient = (UNKNOWN, LEGACY, RUNELITE, OFFICIAL);
+  ERSClientMode = (UNKNOWN, FIXED, RESIZABLE_CLASSIC, RESIZABLE_MODERN);
+
+  TGameClient = record(TSRLBaseRecord)
+    Client: ERSClient;
+    Mode: ERSClientMode;
+
+    Bounds: TBox;
+    Height, Width: Int32;
+
+    {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+    RemoteInput: TRemoteInput;
+    DebugOnClient: Boolean;
+    {$ENDIF}
+  end;
+
+{$H-}
+function TGameClient.Image(): TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if RemoteInput.IsSetup() then
+    Exit(RemoteInput.GetImage());
+  {$ENDIF}
+
+  Self.Fatal('Unable to draw on this client');
+end;
+{$H+}
+
+
+function TGameClient.OfficialClientMode(width, height: Int32; update: Boolean = False): ERSClientMode;
+var
+  half, n,c: Int32;
+  bmp: TMufasaBitmap;
+begin
+  if (width < 765) or (height < 503) then
+    Self.Fatal('Please resize the window to be larger, your client can''t be less than 765x503 pixels.');
+
+  half := width div 2;
+  bmp.FromClient([0,0,width-1,height-1]);
+
+  if bmp.GetPixel(half - 330, 399) = $00FFFF then //'Fullscreen?' in loginscreen
+  begin
+    if Update then
+    begin
+      Self.Mode := ERSClientMode.UNKNOWN;
+      Self.Width := width;
+      Self.Height := height;
+      Self.Bounds := Box(0, 0, Max(0, width-1), Max(0, height-1));
+    end;
+
+    bmp.Free();
+    Exit(ERSClientMode.UNKNOWN);
+  end;
+
+  c := bmp.GetPixel(0,0);
+  if (c = 0) or (c = $051319) then
+  begin
+    if Update then
+    begin
+      Self.Mode := ERSClientMode.FIXED;
+      Self.Width := 765;
+      Self.Height := 503;
+
+      if c = $051319 then
+        Self.Bounds := Box(0, 0, 764, 502)
+      else
+      begin
+        half := Self.Width div 2; //no point going further than half of the client
+        for n := 1 to half do
+          if bmp.GetPixel(n,0) = $051319 then
+            Break;
+
+
+        if n = half then Self.Fatal('Can''t find the start of the client.');
+        Self.Bounds := Box(n, 0, n+764, 502);
+      end;
+    end;
+
+    bmp.Free();
+    Exit(ERSClientMode.FIXED);
+  end;
+
+  if bmp.GetPixel(width-5, height-36) = $010000 then
+    Result := ERSClientMode.RESIZABLE_MODERN
+  else if bmp.GetPixel(width-47, height-36) = $010000 then
+  begin
+    Result := ERSClientMode.RESIZABLE_MODERN;
+    width -= 42;
+  end
+  else
+    Result := ERSClientMode.RESIZABLE_CLASSIC;
+
+  bmp.Free();
+
+  if Update then
+  begin
+    Self.Mode := ERSClientMode.UNKNOWN;
+    Self.Width := width;
+    Self.Height := height;
+    Self.Bounds := Box(0, 0, Max(0, Self.Width-1), Max(0, Self.Height-1));
+  end;
+end;
+
+
+(*
+## RSClient.DetectClientMode()
+```pascal
+function TGameClient.DetectClientMode(Update: Boolean): ERSClientMode;
+```
+Detects the client mode. If **Update** is True ClientModeChanged will be called.
+Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
+Are there any other cases where music tab won't be visible?
+*)
+function TGameClient.DetectClientMode(update: Boolean = False): ERSClientMode;
+var
+  width, height: Int32;
+  pid: UInt32;
+  win: TOSWindow;
+  proc: TSysProc;
+begin
+  try
+    GetClientDimensions(width, height);
+  except
+    pid := GetSimbaTargetPID();
+
+    for win in GetWindows() do
+      if win.GetPID() = pid then
+        Break;
+
+    for proc in {$H-}GetProcesses(){$H+} do
+      if proc.PID = pid then
+        Break;
+
+    Self.Fatal('Please refocus the client!' + LineEnding + GetExceptionMessage());
+  end;
+
+  if Self.Client = ERSClient.OFFICIAL then
+    Exit(Self.OfficialClientMode(width, height, update));
+
+  // Music tab in each mode there are different colors at W-4, H-21
+  // Two colors each because tab can be active(red) or not(grey)
+  case GetColor(width-4, height-21) of
+    2435372, 658467: Result := ERSClientMode.FIXED;
+    3555653, 922425: Result := ERSClientMode.RESIZABLE_MODERN;
+    2896180, 790059: Result := ERSClientMode.RESIZABLE_CLASSIC;
+  end;
+
+  if update then
+  begin
+    Self.Mode := Result;
+    Self.Width := width;
+    Self.Height := height;
+    Self.Bounds := Box(0, 0, Max(0, width-1), Max(0, height-1));
+  end;
+end;
+
+(*
+## RSClient.ClientModeChanged()
+```pascal
+procedure TGameClient.ClientModeChanged();
+```
+Anything that needs an alert when the client mode changes should override this.
+*)
+procedure TGameClient.ClientModeChanged();
+begin
+  Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
+end;
+
+(*
+## RSClient.IsLoggedIn()
+```pascal
+function TGameClient.IsLoggedIn(): Boolean;
+function TGameClient.IsLoggedIn(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
+```
+Returns true/false whether there's a player logged in or not.
+
+Example:
+```pascal
+WriteLn RSClient.IsLoggedIn();
+```
+*)
+function TGameClient.IsLoggedIn(): Boolean;
+var
+  clientMode: ERSClientMode;
+begin
+  clientMode := Self.DetectClientMode();
+  if (clientMode <> ERSClientMode.UNKNOWN) and (clientMode <> Self.Mode) then
+  begin
+    Self.Mode := clientMode;
+    Self.ClientModeChanged();
+  end;
+
+  Result := clientMode <> ERSClientMode.UNKNOWN;
+end;
+
+function TGameClient.IsLoggedIn(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
+begin
+  if interval = -1 then
+    interval := SRL.TruncatedGauss(50, 1500);
+  Result := WaitUntil(Self.IsLoggedIn(), interval, waitTime);
+end;
+
+
+procedure TGameClient.UpdateState();
+begin
+  Self.DetectClientMode(True);
+  Self.ClientModeChanged();
+end;
+
+(*
+## RSClient.LoseFocus()
+```pascal
+procedure TGameClient.LoseFocus();
+procedure TGameClient.LoseFocus(delay: Int32);
+```
+Loses focus if available. Maybe useful for antiban.
+You can optionally delay losing focus by passing in a `delay`.
+*)
+procedure TGameClient.LoseFocus();
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if RemoteInput.IsSetup() then
+  begin
+    RemoteInput.LoseFocus();
+    Exit;
+  end;
+  {$ENDIF}
+
+  Self.DebugLn('Lose focus not yet implemented for this target!');
+end;
+
+procedure TGameClient.LoseFocus(delay: Int32); overload;
+begin
+  Wait(delay);
+  Self.LoseFocus();
+end;
+
+function TGameClient.GetCurrentClient(): ERSClient;
+var
+  win: TOSWindow;
+begin
+  win := GetSimbaTargetWindow();
+
+  case win.GetClassName() of
+    'JagRenderView', 'JagWindow': Exit(ERSClient.OFFICIAL);
+  end;
+
+  case win.GetRootWindow().GetTitle() of
+    'Old School RuneScape': Result := ERSClient.LEGACY;
+    'RuneLite': Result := ERSClient.RUNELITE;
+  end;
+end;
+
+function TGameClient.Revalidate(): Boolean;
+var
+  pid: PtrUInt;
+  wins: TOSWindowArray;
+  win: TOSWindow;
+  proc: TSysProc;
+  b: TBox;
+begin
+  if IsTargetValid() then Exit(True);
+
+  pid := GetSimbaTargetPID();
+  wins := GetWindows().GetByClass('SunAwtCanvas');
+
+  for win in wins do
+  begin
+    if win.GetPID() <> pid then Continue;
+
+    wins := win.GetRootWindow().GetChildren(True).GetByClass('SunAwtCanvas');
+    for win in wins do
+      if Length(win.GetChildren(True)) = 0 then
+        Break(2);
+  end;
+
+  for proc in {$H-}GetProcesses(){$H+} do
+  begin
+    if proc.PID <> pid then Continue;
+    b := win.GetBounds();
+    proc.Handle := win;
+    proc.Height := b.Height();
+    proc.Width := b.Width();
+
+    SetTarget(proc);
+    Break;
+  end;
+
+  Result := IsTargetValid();
+end;
+
+(*
+## RSClient.Setup()
+```pascal
+procedure TGameClient.Setup();
+```
+RSClient setup method.
+
+```{note}
+This is automatically called on the **RSClient** variable.
+```
+*)
+procedure TGameClient.Setup();
+begin
+  Self.Name := 'RSClient';
+
+  if not Self.Revalidate() then TerminateScript('Please refocus the client!');
+
+  {$IFNDEF SIMBAHEADLESS}
+  Self.Client := Self.GetCurrentClient();
+  {$ENDIF}
+
+  {$IFDEF SRL_USE_REMOTEINPUT}
+  Self.RemoteInput.Setup();
+  {$ENDIF}
+
+  Self.Mode := Self.DetectClientMode(True);
+  if Self.Mode = ERSClientMode.UNKNOWN then
+    Self.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
+  Self.ClientModeChanged();
+end;
+
+var
+  RSClient: TGameClient;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  RSClient.Setup();
+end;
+
+{$IFNDEF SRL_DISABLE_REMOTEINPUT}
+procedure TRemoteInput.Setup(); override;
+var
+  w, h: Int32;
+begin
+  inherited;
+
+  if SRL.IsSetup then
+  begin
+    GetClientDimensions(w, h);
+
+    if (RSClient.Width = w) and (RSClient.Height = h) then Exit;
+
+    RSClient.DebugLn('RSClient.Bounds changed after RemoteInput injection.');
+
+    case GetColor(w-4, h-21) of
+      2435372, 658467: RSClient.Mode := ERSClientMode.FIXED;
+      3555653, 922425: RSClient.Mode := ERSClientMode.RESIZABLE_MODERN;
+      2896180, 790059: RSClient.Mode := ERSClientMode.RESIZABLE_CLASSIC;
+    end;
+
+    RSClient.Width := w;
+    RSClient.Height := h;
+    RSClient.Bounds := Box(0, 0, Max(0, w-1), Max(0, h-1));
+
+    RSClient.ClientModeChanged();
+  end;
+end;
+{$ENDIF}
