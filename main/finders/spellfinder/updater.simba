@@ -6,7 +6,7 @@ type
   TMufasaBitmapArray = array of TMufasaBitmap;
 
   //Copied from the spellfinder file!
-  ERSSpell = (
+  ESpell = (
     UNKNOWN,
     // Standard
     LUMBRIDGE_HOME_TELEPORT,
@@ -239,14 +239,14 @@ type
   );
 
 const
-  FIRST_SPELL : ERSSpell = ERSSPell.LUMBRIDGE_HOME_TELEPORT;
-  LAST_SPELL : ERSSPell = ERSSpell.SINISTER_OFFERING;
+  FIRST_SPELL : ESpell = ESpell.LUMBRIDGE_HOME_TELEPORT;
+  LAST_SPELL : ESpell = ESpell.SINISTER_OFFERING;
   UPDATED_SPELL_DIRECTORY : string = {$MACRO CURRENT_DIRECTORY} + "images" + DirectorySeparator;
   ZIPPED_DUMP_DIRECTORY : string = {$MACRO CURRENT_DIRECTORY} + '..' + DirectorySeparator + "sprites.zip";
   DUMP_OUTPUT_DIRECTORY : string = {$MACRO CURRENT_DIRECTORY} + "current" + DirectorySeparator;
 var
   dumpImages : TMufasaBitmapArray;
-  SpellImageMapping : array [ERSSpell] of TStringArray;
+  SpellImageMapping : array [ESpell] of TStringArray;
 
 procedure TMufasaBitmapArray.Free();
 var
@@ -288,7 +288,7 @@ begin
   end;
 end;
 
-procedure GenerateSpellLookup(spellMapping : array [ERSSpell] of TStringArray);
+procedure GenerateSpellLookup(spellMapping : array [ESpell] of TStringArray);
 const
   LOOKUP_FILE_PATH : string = {$MACRO CURRENT_DIRECTORY} + DirectorySeparator + "SpriteLookup.simba";
 var
@@ -304,19 +304,19 @@ begin
 
   //  CreateFile(LOOKUP_FILE_PAH);
 
-  fileContents += "function GetSpellMapping(spell : ERSSpell) : TStringArray;" + STR_NEW_LINE;
+  fileContents += "function GetSpellMapping(spell : ESpell) : TStringArray;" + STR_NEW_LINE;
   fileContents += "begin" + STR_NEW_LINE;
   fileContents += #9 + "case spell of" + STR_NEW_LINE;
 
   for i := Ord(FIRST_SPELL) to Ord(LAST_SPELL) do
   begin
-    if spellMapping[ERSSpell(i)] = nil then
+    if spellMapping[ESpell(i)] = nil then
     begin
-      Writeln("SPELL: ", ToStr(ERSSpell(i)), " WAS EMPTY");
+      Writeln("SPELL: ", ToStr(ESpell(i)), " WAS EMPTY");
       continue;
     end;
 
-    fileContents += #9#9 + "ERSSpell." + ToStr(ERSSpell(i)) + " : Exit([" + spellMapping[ERSSpell(i)].CustomFormat() + "]);" + STR_NEW_LINE;
+    fileContents += #9#9 + "ESpell." + ToStr(ESpell(i)) + " : Exit([" + spellMapping[ESpell(i)].CustomFormat() + "]);" + STR_NEW_LINE;
   end;
 
   fileContents += #9#9 + "else Exit(['None']);" + STR_NEW_LINE;
@@ -357,7 +357,7 @@ begin
 end;
 
 //Basically the spellfinder look up but I wanted to better control the image frees.
-function GetSpellImages(spell: ERSSpell): TMufasaBitmapArray;
+function GetSpellImages(spell: ESpell): TMufasaBitmapArray;
 const
   SIZES: TStringArray = ['_large.png', '_small.png'];
 
@@ -425,7 +425,7 @@ begin
   for i := Ord(FIRST_SPELL) to Ord(LAST_SPELL) do
   begin
 
-    currentImages := GetSpellImages(ERSSpell(i));
+    currentImages := GetSpellImages(ESpell(i));
 
     if Length(currentImages) < 1 then
       continue;
@@ -446,16 +446,16 @@ begin
       if dumpMatchIndex <> -1 then
       begin
 
-        if SpellImageMapping[ERSSpell(i)] = [] then
+        if SpellImageMapping[ESpell(i)] = [] then
         begin
-          SetLength(SpellImageMapping[ERSSpell(i)], 2);
-          SpellImageMapping[ERSSpell(i)] := ["nil", "nil"];
+          SetLength(SpellImageMapping[ESpell(i)], 2);
+          SpellImageMapping[ESpell(i)] := ["nil", "nil"];
         end;
 
         if currentImages[j].getName().Contains("_small") then
-          SpellImageMapping[ERSSpell(i)][0] := dumpImages[dumpMatchIndex].getName()
+          SpellImageMapping[ESpell(i)][0] := dumpImages[dumpMatchIndex].getName()
         else
-          SpellImageMapping[ERSSpell(i)][1] := dumpImages[dumpMatchIndex].getName();
+          SpellImageMapping[ESpell(i)][1] := dumpImages[dumpMatchIndex].getName();
 
         continue;
       end;
@@ -471,197 +471,197 @@ begin
 end;
 
 //First sprite is small, second is large.
-function GetSpellMapping(spell : ERSSpell) : TStringArray;
+function GetSpellMapping(spell : ESpell) : TStringArray;
 begin
 	case spell of
-		ERSSpell.LUMBRIDGE_HOME_TELEPORT : Exit(['356-0', '1802-0']);
-		ERSSpell.WIND_STRIKE : Exit(['15-0', '0-0']);
-		ERSSpell.CONFUSE : Exit(['16-0', '1782-0']);
-		ERSSpell.ENCHANT_CROSSBOW_BOLT : Exit(['358-0', '1797-0']);
-		ERSSpell.WATER_STRIKE : Exit(['17-0', '1-0']);
-		ERSSpell.JEWELLERY_ENCHANTMENTS : Exit(['366-0', '1803-0']);
-		ERSSpell.BACK : Exit(['4737-0', '5585-0']);
-		ERSSpell.LVL1_ENCHANT : Exit(['18-0', '1765-0']);
-		ERSSpell.LVL2_ENCHANT : Exit(['28-0', '1766-0']);
-		ERSSpell.LVL3_ENCHANT : Exit(['39-0', '1767-0']);
-		ERSSpell.LVL4_ENCHANT : Exit(['43-0', '1768-0']);
-		ERSSpell.LVL5_ENCHANT : Exit(['50-0', '1769-0']);
-		ERSSpell.LVL6_ENCHANT : Exit(['353-0', '1770-0']);
-		ERSSpell.LVL7_ENCHANT : Exit(['361-0', '1771-0']);
-		ERSSpell.EARTH_STRIKE : Exit(['19-0', '2-0']);
-		ERSSpell.WEAKEN : Exit(['20-0', '1783-0']);
-		ERSSpell.FIRE_STRIKE : Exit(['21-0', '3-0']);
-		ERSSpell.BONES_TO_BANANAS : Exit(['22-0', '1777-0']);
-		ERSSpell.WIND_BOLT : Exit(['23-0', '5-0']);
-		ERSSpell.CURSE : Exit(['24-0', '1784-0']);
-		ERSSpell.BIND : Exit(['319-0', '1788-0']);
-		ERSSpell.LOW_LEVEL_ALCHEMY : Exit(['25-0', '1780-0']);
-		ERSSpell.WATER_BOLT : Exit(['26-0', '6-0']);
-		ERSSpell.VARROCK_TELEPORT : Exit(['27-0', '1752-0']);
-		ERSSpell.EARTH_BOLT : Exit(['29-0', '7-0']);
-		ERSSpell.LUMBRIDGE_TELEPORT : Exit(['30-0', '1753-0']);
-		ERSSpell.TELEKINETIC_GRAB : Exit(['31-0', '1778-0']);
-		ERSSpell.FIRE_BOLT : Exit(['32-0', '8-0']);
-		ERSSpell.FALADOR_TELEPORT : Exit(['33-0', '1754-0']);
-		ERSSpell.CRUMBLE_UNDEAD : Exit(['34-0', '1779-0']);
-		ERSSpell.TELEPORT_TO_HOUSE : Exit(['355-0', '1755-0']);
-		ERSSpell.WIND_BLAST : Exit(['35-0', '9-0']);
-		ERSSpell.SUPERHEAT_ITEM : Exit(['36-0', '1800-0']);
-		ERSSpell.CAMELOT_TELEPORT : Exit(['37-0', '1756-0']);
-		ERSSpell.WATER_BLAST : Exit(['38-0', '10-0']);
-		ERSSpell.IBAN_BLAST : Exit(['53-0', '1772-0']);
-		ERSSpell.SNARE : Exit(['320-0', '1789-0']);
-		ERSSpell.MAGIC_DART : Exit(['324-0', '1878-0']);
-		ERSSpell.ARDOUGNE_TELEPORT : Exit(['54-0', '1757-0']);
-		ERSSpell.EARTH_BLAST : Exit(['40-0', '11-0']);
-		ERSSpell.CIVITAS_ILLA_FORTIS_TELEPORT : Exit(['367-0', '1804-0']);
-		ERSSpell.HIGH_LEVEL_ALCHEMY : Exit(['41-0', '1781-0']);
-		ERSSpell.CHARGE_WATER_ORB : Exit(['42-0', '1793-0']);
-		ERSSpell.WATCHTOWER_TELEPORT : Exit(['55-0', '1758-0']);
-		ERSSpell.FIRE_BLAST : Exit(['44-0', '13-0']);
-		ERSSpell.CHARGE_EARTH_ORB : Exit(['45-0', '1794-0']);
-		ERSSpell.BONES_TO_PEACHES : Exit(['354-0', '1801-0']);
-		ERSSpell.SARADOMIN_STRIKE : Exit(['61-0', '1775-0']);
-		ERSSpell.CLAWS_OF_GUTHIX : Exit(['60-0', '1774-0']);
-		ERSSpell.FLAMES_OF_ZAMORAK : Exit(['59-0', '1773-0']);
-		ERSSpell.TROLLHEIM_TELEPORT : Exit(['323-0', '1759-0']);
-		ERSSpell.WIND_WAVE : Exit(['46-0', '14-0']);
-		ERSSpell.CHARGE_FIRE_ORB : Exit(['47-0', '1795-0']);
-		ERSSpell.TELEPORT_TO_APE_ATOLL : Exit(['357-0', '1760-0']);
-		ERSSpell.WATER_WAVE : Exit(['48-0', '305-0']);
-		ERSSpell.CHARGE_AIR_ORB : Exit(['49-0', '1796-0']);
-		ERSSpell.VULNERABILITY : Exit(['56-0', '1785-0']);
-		ERSSpell.TELEPORT_TO_KOUREND : Exit(['360-0', '1761-0']);
-		ERSSpell.EARTH_WAVE : Exit(['51-0', '306-0']);
-		ERSSpell.ENFEEBLE : Exit(['57-0', '1786-0']);
-		ERSSpell.TELEOTHER_LUMBRIDGE : Exit(['349-0', '1762-0']);
-		ERSSpell.FIRE_WAVE : Exit(['52-0', '307-0']);
-		ERSSpell.ENTANGLE : Exit(['321-0', '1790-0']);
-		ERSSpell.STUN : Exit(['58-0', '1787-0']);
-		ERSSpell.CHARGE : Exit(['322-0', '1776-0']);
-		ERSSpell.WIND_SURGE : Exit(['362-0', '1098-0']);
-		ERSSpell.TELEOTHER_FALADOR : Exit(['350-0', '1763-0']);
-		ERSSpell.WATER_SURGE : Exit(['363-0', '1099-0']);
-		ERSSpell.TELE_BLOCK : Exit(['352-0', '1792-0']);
-		ERSSpell.STANDARD_TARGET_TELEPORT : Exit(['359-0', '1799-0']);
-		ERSSpell.TELEOTHER_CAMELOT : Exit(['351-0', '1764-0']);
-		ERSSpell.EARTH_SURGE : Exit(['364-0', '1100-0']);
-		ERSSpell.FIRE_SURGE : Exit(['365-0', '1751-0']);
-		ERSSpell.EDGEVILLE_HOME_TELEPORT : Exit(['356-0', '1802-0']);
-		ERSSpell.SMOKE_RUSH : Exit(['329-0', '1896-0']);
-		ERSSpell.SHADOW_RUSH : Exit(['337-0', '1904-0']);
-		ERSSpell.PADDEWWA_TELEPORT : Exit(['341-0', '1908-0']);
-		ERSSpell.BLOOD_RUSH : Exit(['333-0', '1900-0']);
-		ERSSpell.ICE_RUSH : Exit(['325-0', '1892-0']);
-		ERSSpell.SENNTISTEN_TELEPORT : Exit(['342-0', '1909-0']);
-		ERSSpell.SMOKE_BURST : Exit(['330-0', '1897-0']);
-		ERSSpell.SHADOW_BURST : Exit(['338-0', '1905-0']);
-		ERSSpell.KHARYRLL_TELEPORT : Exit(['343-0', '1910-0']);
-		ERSSpell.BLOOD_BURST : Exit(['334-0', '1901-0']);
-		ERSSpell.ICE_BURST : Exit(['326-0', '1893-0']);
-		ERSSpell.LASSAR_TELEPORT : Exit(['344-0', '1911-0']);
-		ERSSpell.SMOKE_BLITZ : Exit(['331-0', '1898-0']);
-		ERSSpell.SHADOW_BLITZ : Exit(['339-0', '1906-0']);
-		ERSSpell.DAREEYAK_TELEPORT : Exit(['345-0', '1912-0']);
-		ERSSpell.BLOOD_BLITZ : Exit(['335-0', '1902-0']);
-		ERSSpell.ICE_BLITZ : Exit(['327-0', '1894-0']);
-		ERSSpell.CARRALLANGAR_TELEPORT : Exit(['346-0', '1913-0']);
-		ERSSpell.ANCIENT_TARGET_TELEPORT : Exit(['359-0', '1799-0']);
-		ERSSpell.SMOKE_BARRAGE : Exit(['332-0', '1899-0']);
-		ERSSpell.SHADOW_BARRAGE : Exit(['340-0', '1907-0']);
-		ERSSpell.ANNAKARL_TELEPORT : Exit(['347-0', '1914-0']);
-		ERSSpell.BLOOD_BARRAGE : Exit(['336-0', '1903-0']);
-		ERSSpell.ICE_BARRAGE : Exit(['328-0', '1895-0']);
-		ERSSpell.GHORROCK_TELEPORT : Exit(['348-0', '1915-0']);
-		ERSSpell.LUNAR_HOME_TELEPORT : Exit(['356-0', '1802-0']);
-		ERSSpell.BAKE_PIE : Exit(['543-0', '1952-0']);
-		ERSSpell.GEOMANCY : Exit(['563-0', '1967-0']);
-		ERSSpell.CURE_PLANT : Exit(['567-0', '1968-0']);
-		ERSSpell.MONSTER_EXAMINE : Exit(['577-0', '1971-0']);
-		ERSSpell.NPC_CONTACT : Exit(['568-0', '1969-0']);
-		ERSSpell.CURE_OTHER : Exit(['559-0', '1962-0']);
-		ERSSpell.HUMIDIFY : Exit(['578-0', '1972-0']);
-		ERSSpell.MOONCLAN_TELEPORT : Exit(['544-0', '1980-0']);
-		ERSSpell.TELE_GROUP_MOONCLAN : Exit(['569-0', '1988-0']);
-		ERSSpell.CURE_ME : Exit(['562-0', '1964-0']);
-		ERSSpell.OURANIA_TELEPORT : Exit(['586-0', '1981-0']);
-		ERSSpell.HUNTER_KIT : Exit(['579-0', '1973-0']);
-		ERSSpell.WATERBIRTH_TELEPORT : Exit(['545-0', '1982-0']);
-		ERSSpell.TELE_GROUP_WATERBIRTH : Exit(['570-0', '1989-0']);
-		ERSSpell.CURE_GROUP : Exit(['565-0', '1965-0']);
-		ERSSpell.STAT_SPY : Exit(['576-0', '1970-0']);
-		ERSSpell.BARBARIAN_TELEPORT : Exit(['547-0', '1983-0']);
-		ERSSpell.TELE_GROUP_BARBARIAN : Exit(['571-0', '1990-0']);
-		ERSSpell.SPIN_FLAX : Exit(['585-0', '1979-0']);
-		ERSSpell.SUPERGLASS_MAKE : Exit(['548-0', '1953-0']);
-		ERSSpell.TAN_LEATHER : Exit(['583-0', '1977-0']);
-		ERSSpell.KHAZARD_TELEPORT : Exit(['549-0', '1984-0']);
-		ERSSpell.TELE_GROUP_KHAZARD : Exit(['572-0', '1991-0']);
-		ERSSpell.DREAM : Exit(['580-0', '1974-0']);
-		ERSSpell.STRING_JEWELLERY : Exit(['550-0', '1954-0']);
-		ERSSpell.STAT_RESTORE_POT_SHARE : Exit(['554-0', '1956-0']);
-		ERSSpell.MAGIC_IMBUE : Exit(['552-0', '1957-0']);
-		ERSSpell.FERTILE_SOIL : Exit(['553-0', '1958-0']);
-		ERSSpell.BOOST_POTION_SHARE : Exit(['551-0', '1955-0']);
-		ERSSpell.FISHING_GUILD_TELEPORT : Exit(['555-0', '1985-0']);
-		ERSSpell.BOUNTY_TELEPORT : Exit(['359-0', '1799-0']);
-		ERSSpell.TELE_GROUP_FISHING_GUILD : Exit(['573-0', '1992-0']);
-		ERSSpell.PLANK_MAKE : Exit(['581-0', '1975-0']);
-		ERSSpell.CATHERBY_TELEPORT : Exit(['556-0', '1986-0']);
-		ERSSpell.TELE_GROUP_CATHERBY : Exit(['574-0', '1993-0']);
-		ERSSpell.RECHARGE_DRAGONSTONE : Exit(['584-0', '1978-0']);
-		ERSSpell.ICE_PLATEU_TELEPORT : Exit(['557-0', '1987-0']);
-		ERSSpell.TELE_GROUP_ICE_PLATEU : Exit(['575-0', '1994-0']);
-		ERSSpell.ENERGY_TRANSFER : Exit(['558-0', '1959-0']);
-		ERSSpell.HEAL_OTHER : Exit(['560-0', '1963-0']);
-		ERSSpell.VENGEANCE_OTHER : Exit(['561-0', '1960-0']);
-		ERSSpell.VENGEANCE : Exit(['564-0', '1961-0']);
-		ERSSpell.HEAL_GROUP : Exit(['566-0', '1966-0']);
-		ERSSpell.SPELLBOOK_SWAP : Exit(['582-0', '1976-0']);
-		ERSSpell.ARCEUUS_HOME_TELEPORT : Exit(['1251-0', '2056-0']);
-		ERSSpell.ARCEUUS_LIBRARY_TELEPORT : Exit(['1252-0', '2057-0']);
-		ERSSpell.BASIC_REANIMATION : Exit(['1247-0', '2052-0']);
-		ERSSpell.DRAYNOR_MANOR_TELEPORT : Exit(['1253-0', '2058-0']);
-		ERSSpell.BATTLEFRONT_TELEPORT : Exit(['1255-0', '2060-0']);
-		ERSSpell.MIND_ALTAR_TELEPORT : Exit(['1256-0', '2061-0']);
-		ERSSpell.RESPAWN_TELEPORT : Exit(['1257-0', '2062-0']);
-		ERSSpell.GHOSTLY_GRASP : Exit(['1267-0', '2072-0']);
-		ERSSpell.RESURRECT_LESSER_GHOST : Exit(['1270-0', '2075-0']);
-		ERSSpell.RESURRECT_LESSER_SKELETON : Exit(['1271-0', '2076-0']);
-		ERSSpell.RESURRECT_LESSER_ZOMBIE : Exit(['1300-0', '2077-0']);
-		ERSSpell.SALVE_GRAVEYARD_TELEPORT : Exit(['1258-0', '2063-0']);
-		ERSSpell.ADEPT_REANIMATION : Exit(['1248-0', '2053-0']);
-		ERSSpell.INFERIOR_DEMONBANE : Exit(['1302-0', '2079-0']);
-		ERSSpell.SHADOW_VEIL : Exit(['1315-0', '2991-0']);
-		ERSSpell.FENKENSTRAINS_CASTLE_TELEPORT : Exit(['1259-0', '2064-0']);
-		ERSSpell.DARK_LURE : Exit(['1316-0', '2992-0']);
-		ERSSpell.SKELETAL_GRASP : Exit(['1268-0', '2073-0']);
-		ERSSpell.RESURRECT_SUPERIOR_GHOST : Exit(['2979-0', '2995-0']);
-		ERSSpell.RESURRECT_SUPERIOR_SKELETON : Exit(['2981-0', '2997-0']);
-		ERSSpell.RESURRECT_SUPERIOR_ZOMBIE : Exit(['2983-0', '2999-0']);
-		ERSSpell.MARK_OF_DARKNESS : Exit(['1305-0', '2082-0']);
-		ERSSpell.WEST_ARDOUGNE_TELEPORT : Exit(['1260-0', '2065-0']);
-		ERSSpell.SUPERIOR_DEMONBANE : Exit(['1303-0', '2080-0']);
-		ERSSpell.LESSER_CORRUPTION : Exit(['1307-0', '2084-0']);
-		ERSSpell.HARMONY_ISLAND_TELEPORT : Exit(['1261-0', '2066-0']);
-		ERSSpell.VILE_VIGOUR : Exit(['1317-0', '2993-0']);
-		ERSSpell.DEGRIME : Exit(['1318-0', '2994-0']);
-		ERSSpell.CEMETERY_TELEPORT : Exit(['1264-0', '2069-0']);
-		ERSSpell.EXPERT_REANIMATION : Exit(['1249-0', '2054-0']);
-		ERSSpell.WARD_OF_ARCEUUS : Exit(['1306-0', '2083-0']);
-		ERSSpell.RESURRECT_GREATER_GHOST : Exit(['2980-0', '2996-0']);
-		ERSSpell.RESURRECT_GREATER_SKELETON : Exit(['2982-0', '2998-0']);
-		ERSSpell.RESURRECT_GREATER_ZOMBIE : Exit(['2984-0', '3000-0']);
-		ERSSpell.RESURRECT_CROPS : Exit(['1266-0', '2071-0']);
-		ERSSpell.UNDEAD_GRASP : Exit(['1269-0', '2074-0']);
-		ERSSpell.DEATH_CHARGE : Exit(['1310-0', '2087-0']);
-		ERSSpell.DARK_DEMONBANE : Exit(['1304-0', '2081-0']);
-		ERSSpell.BARROWS_TELEPORT : Exit(['1262-0', '2067-0']);
-		ERSSpell.DEMONIC_OFFERING : Exit(['1311-0', '2088-0']);
-		ERSSpell.GREATER_CORRUPTION : Exit(['1308-0', '2085-0']);
-		ERSSpell.MASTER_REANIMATION : Exit(['1250-0', '2055-0']);
-		ERSSpell.APE_ATOLL_TELEPORT : Exit(['1263-0', '2068-0']);
-		ERSSpell.SINISTER_OFFERING : Exit(['1312-0', '2089-0']);
+		ESpell.LUMBRIDGE_HOME_TELEPORT : Exit(['356-0', '1802-0']);
+		ESpell.WIND_STRIKE : Exit(['15-0', '0-0']);
+		ESpell.CONFUSE : Exit(['16-0', '1782-0']);
+		ESpell.ENCHANT_CROSSBOW_BOLT : Exit(['358-0', '1797-0']);
+		ESpell.WATER_STRIKE : Exit(['17-0', '1-0']);
+		ESpell.JEWELLERY_ENCHANTMENTS : Exit(['366-0', '1803-0']);
+		ESpell.BACK : Exit(['4737-0', '5585-0']);
+		ESpell.LVL1_ENCHANT : Exit(['18-0', '1765-0']);
+		ESpell.LVL2_ENCHANT : Exit(['28-0', '1766-0']);
+		ESpell.LVL3_ENCHANT : Exit(['39-0', '1767-0']);
+		ESpell.LVL4_ENCHANT : Exit(['43-0', '1768-0']);
+		ESpell.LVL5_ENCHANT : Exit(['50-0', '1769-0']);
+		ESpell.LVL6_ENCHANT : Exit(['353-0', '1770-0']);
+		ESpell.LVL7_ENCHANT : Exit(['361-0', '1771-0']);
+		ESpell.EARTH_STRIKE : Exit(['19-0', '2-0']);
+		ESpell.WEAKEN : Exit(['20-0', '1783-0']);
+		ESpell.FIRE_STRIKE : Exit(['21-0', '3-0']);
+		ESpell.BONES_TO_BANANAS : Exit(['22-0', '1777-0']);
+		ESpell.WIND_BOLT : Exit(['23-0', '5-0']);
+		ESpell.CURSE : Exit(['24-0', '1784-0']);
+		ESpell.BIND : Exit(['319-0', '1788-0']);
+		ESpell.LOW_LEVEL_ALCHEMY : Exit(['25-0', '1780-0']);
+		ESpell.WATER_BOLT : Exit(['26-0', '6-0']);
+		ESpell.VARROCK_TELEPORT : Exit(['27-0', '1752-0']);
+		ESpell.EARTH_BOLT : Exit(['29-0', '7-0']);
+		ESpell.LUMBRIDGE_TELEPORT : Exit(['30-0', '1753-0']);
+		ESpell.TELEKINETIC_GRAB : Exit(['31-0', '1778-0']);
+		ESpell.FIRE_BOLT : Exit(['32-0', '8-0']);
+		ESpell.FALADOR_TELEPORT : Exit(['33-0', '1754-0']);
+		ESpell.CRUMBLE_UNDEAD : Exit(['34-0', '1779-0']);
+		ESpell.TELEPORT_TO_HOUSE : Exit(['355-0', '1755-0']);
+		ESpell.WIND_BLAST : Exit(['35-0', '9-0']);
+		ESpell.SUPERHEAT_ITEM : Exit(['36-0', '1800-0']);
+		ESpell.CAMELOT_TELEPORT : Exit(['37-0', '1756-0']);
+		ESpell.WATER_BLAST : Exit(['38-0', '10-0']);
+		ESpell.IBAN_BLAST : Exit(['53-0', '1772-0']);
+		ESpell.SNARE : Exit(['320-0', '1789-0']);
+		ESpell.MAGIC_DART : Exit(['324-0', '1878-0']);
+		ESpell.ARDOUGNE_TELEPORT : Exit(['54-0', '1757-0']);
+		ESpell.EARTH_BLAST : Exit(['40-0', '11-0']);
+		ESpell.CIVITAS_ILLA_FORTIS_TELEPORT : Exit(['367-0', '1804-0']);
+		ESpell.HIGH_LEVEL_ALCHEMY : Exit(['41-0', '1781-0']);
+		ESpell.CHARGE_WATER_ORB : Exit(['42-0', '1793-0']);
+		ESpell.WATCHTOWER_TELEPORT : Exit(['55-0', '1758-0']);
+		ESpell.FIRE_BLAST : Exit(['44-0', '13-0']);
+		ESpell.CHARGE_EARTH_ORB : Exit(['45-0', '1794-0']);
+		ESpell.BONES_TO_PEACHES : Exit(['354-0', '1801-0']);
+		ESpell.SARADOMIN_STRIKE : Exit(['61-0', '1775-0']);
+		ESpell.CLAWS_OF_GUTHIX : Exit(['60-0', '1774-0']);
+		ESpell.FLAMES_OF_ZAMORAK : Exit(['59-0', '1773-0']);
+		ESpell.TROLLHEIM_TELEPORT : Exit(['323-0', '1759-0']);
+		ESpell.WIND_WAVE : Exit(['46-0', '14-0']);
+		ESpell.CHARGE_FIRE_ORB : Exit(['47-0', '1795-0']);
+		ESpell.TELEPORT_TO_APE_ATOLL : Exit(['357-0', '1760-0']);
+		ESpell.WATER_WAVE : Exit(['48-0', '305-0']);
+		ESpell.CHARGE_AIR_ORB : Exit(['49-0', '1796-0']);
+		ESpell.VULNERABILITY : Exit(['56-0', '1785-0']);
+		ESpell.TELEPORT_TO_KOUREND : Exit(['360-0', '1761-0']);
+		ESpell.EARTH_WAVE : Exit(['51-0', '306-0']);
+		ESpell.ENFEEBLE : Exit(['57-0', '1786-0']);
+		ESpell.TELEOTHER_LUMBRIDGE : Exit(['349-0', '1762-0']);
+		ESpell.FIRE_WAVE : Exit(['52-0', '307-0']);
+		ESpell.ENTANGLE : Exit(['321-0', '1790-0']);
+		ESpell.STUN : Exit(['58-0', '1787-0']);
+		ESpell.CHARGE : Exit(['322-0', '1776-0']);
+		ESpell.WIND_SURGE : Exit(['362-0', '1098-0']);
+		ESpell.TELEOTHER_FALADOR : Exit(['350-0', '1763-0']);
+		ESpell.WATER_SURGE : Exit(['363-0', '1099-0']);
+		ESpell.TELE_BLOCK : Exit(['352-0', '1792-0']);
+		ESpell.STANDARD_TARGET_TELEPORT : Exit(['359-0', '1799-0']);
+		ESpell.TELEOTHER_CAMELOT : Exit(['351-0', '1764-0']);
+		ESpell.EARTH_SURGE : Exit(['364-0', '1100-0']);
+		ESpell.FIRE_SURGE : Exit(['365-0', '1751-0']);
+		ESpell.EDGEVILLE_HOME_TELEPORT : Exit(['356-0', '1802-0']);
+		ESpell.SMOKE_RUSH : Exit(['329-0', '1896-0']);
+		ESpell.SHADOW_RUSH : Exit(['337-0', '1904-0']);
+		ESpell.PADDEWWA_TELEPORT : Exit(['341-0', '1908-0']);
+		ESpell.BLOOD_RUSH : Exit(['333-0', '1900-0']);
+		ESpell.ICE_RUSH : Exit(['325-0', '1892-0']);
+		ESpell.SENNTISTEN_TELEPORT : Exit(['342-0', '1909-0']);
+		ESpell.SMOKE_BURST : Exit(['330-0', '1897-0']);
+		ESpell.SHADOW_BURST : Exit(['338-0', '1905-0']);
+		ESpell.KHARYRLL_TELEPORT : Exit(['343-0', '1910-0']);
+		ESpell.BLOOD_BURST : Exit(['334-0', '1901-0']);
+		ESpell.ICE_BURST : Exit(['326-0', '1893-0']);
+		ESpell.LASSAR_TELEPORT : Exit(['344-0', '1911-0']);
+		ESpell.SMOKE_BLITZ : Exit(['331-0', '1898-0']);
+		ESpell.SHADOW_BLITZ : Exit(['339-0', '1906-0']);
+		ESpell.DAREEYAK_TELEPORT : Exit(['345-0', '1912-0']);
+		ESpell.BLOOD_BLITZ : Exit(['335-0', '1902-0']);
+		ESpell.ICE_BLITZ : Exit(['327-0', '1894-0']);
+		ESpell.CARRALLANGAR_TELEPORT : Exit(['346-0', '1913-0']);
+		ESpell.ANCIENT_TARGET_TELEPORT : Exit(['359-0', '1799-0']);
+		ESpell.SMOKE_BARRAGE : Exit(['332-0', '1899-0']);
+		ESpell.SHADOW_BARRAGE : Exit(['340-0', '1907-0']);
+		ESpell.ANNAKARL_TELEPORT : Exit(['347-0', '1914-0']);
+		ESpell.BLOOD_BARRAGE : Exit(['336-0', '1903-0']);
+		ESpell.ICE_BARRAGE : Exit(['328-0', '1895-0']);
+		ESpell.GHORROCK_TELEPORT : Exit(['348-0', '1915-0']);
+		ESpell.LUNAR_HOME_TELEPORT : Exit(['356-0', '1802-0']);
+		ESpell.BAKE_PIE : Exit(['543-0', '1952-0']);
+		ESpell.GEOMANCY : Exit(['563-0', '1967-0']);
+		ESpell.CURE_PLANT : Exit(['567-0', '1968-0']);
+		ESpell.MONSTER_EXAMINE : Exit(['577-0', '1971-0']);
+		ESpell.NPC_CONTACT : Exit(['568-0', '1969-0']);
+		ESpell.CURE_OTHER : Exit(['559-0', '1962-0']);
+		ESpell.HUMIDIFY : Exit(['578-0', '1972-0']);
+		ESpell.MOONCLAN_TELEPORT : Exit(['544-0', '1980-0']);
+		ESpell.TELE_GROUP_MOONCLAN : Exit(['569-0', '1988-0']);
+		ESpell.CURE_ME : Exit(['562-0', '1964-0']);
+		ESpell.OURANIA_TELEPORT : Exit(['586-0', '1981-0']);
+		ESpell.HUNTER_KIT : Exit(['579-0', '1973-0']);
+		ESpell.WATERBIRTH_TELEPORT : Exit(['545-0', '1982-0']);
+		ESpell.TELE_GROUP_WATERBIRTH : Exit(['570-0', '1989-0']);
+		ESpell.CURE_GROUP : Exit(['565-0', '1965-0']);
+		ESpell.STAT_SPY : Exit(['576-0', '1970-0']);
+		ESpell.BARBARIAN_TELEPORT : Exit(['547-0', '1983-0']);
+		ESpell.TELE_GROUP_BARBARIAN : Exit(['571-0', '1990-0']);
+		ESpell.SPIN_FLAX : Exit(['585-0', '1979-0']);
+		ESpell.SUPERGLASS_MAKE : Exit(['548-0', '1953-0']);
+		ESpell.TAN_LEATHER : Exit(['583-0', '1977-0']);
+		ESpell.KHAZARD_TELEPORT : Exit(['549-0', '1984-0']);
+		ESpell.TELE_GROUP_KHAZARD : Exit(['572-0', '1991-0']);
+		ESpell.DREAM : Exit(['580-0', '1974-0']);
+		ESpell.STRING_JEWELLERY : Exit(['550-0', '1954-0']);
+		ESpell.STAT_RESTORE_POT_SHARE : Exit(['554-0', '1956-0']);
+		ESpell.MAGIC_IMBUE : Exit(['552-0', '1957-0']);
+		ESpell.FERTILE_SOIL : Exit(['553-0', '1958-0']);
+		ESpell.BOOST_POTION_SHARE : Exit(['551-0', '1955-0']);
+		ESpell.FISHING_GUILD_TELEPORT : Exit(['555-0', '1985-0']);
+		ESpell.BOUNTY_TELEPORT : Exit(['359-0', '1799-0']);
+		ESpell.TELE_GROUP_FISHING_GUILD : Exit(['573-0', '1992-0']);
+		ESpell.PLANK_MAKE : Exit(['581-0', '1975-0']);
+		ESpell.CATHERBY_TELEPORT : Exit(['556-0', '1986-0']);
+		ESpell.TELE_GROUP_CATHERBY : Exit(['574-0', '1993-0']);
+		ESpell.RECHARGE_DRAGONSTONE : Exit(['584-0', '1978-0']);
+		ESpell.ICE_PLATEU_TELEPORT : Exit(['557-0', '1987-0']);
+		ESpell.TELE_GROUP_ICE_PLATEU : Exit(['575-0', '1994-0']);
+		ESpell.ENERGY_TRANSFER : Exit(['558-0', '1959-0']);
+		ESpell.HEAL_OTHER : Exit(['560-0', '1963-0']);
+		ESpell.VENGEANCE_OTHER : Exit(['561-0', '1960-0']);
+		ESpell.VENGEANCE : Exit(['564-0', '1961-0']);
+		ESpell.HEAL_GROUP : Exit(['566-0', '1966-0']);
+		ESpell.SPELLBOOK_SWAP : Exit(['582-0', '1976-0']);
+		ESpell.ARCEUUS_HOME_TELEPORT : Exit(['1251-0', '2056-0']);
+		ESpell.ARCEUUS_LIBRARY_TELEPORT : Exit(['1252-0', '2057-0']);
+		ESpell.BASIC_REANIMATION : Exit(['1247-0', '2052-0']);
+		ESpell.DRAYNOR_MANOR_TELEPORT : Exit(['1253-0', '2058-0']);
+		ESpell.BATTLEFRONT_TELEPORT : Exit(['1255-0', '2060-0']);
+		ESpell.MIND_ALTAR_TELEPORT : Exit(['1256-0', '2061-0']);
+		ESpell.RESPAWN_TELEPORT : Exit(['1257-0', '2062-0']);
+		ESpell.GHOSTLY_GRASP : Exit(['1267-0', '2072-0']);
+		ESpell.RESURRECT_LESSER_GHOST : Exit(['1270-0', '2075-0']);
+		ESpell.RESURRECT_LESSER_SKELETON : Exit(['1271-0', '2076-0']);
+		ESpell.RESURRECT_LESSER_ZOMBIE : Exit(['1300-0', '2077-0']);
+		ESpell.SALVE_GRAVEYARD_TELEPORT : Exit(['1258-0', '2063-0']);
+		ESpell.ADEPT_REANIMATION : Exit(['1248-0', '2053-0']);
+		ESpell.INFERIOR_DEMONBANE : Exit(['1302-0', '2079-0']);
+		ESpell.SHADOW_VEIL : Exit(['1315-0', '2991-0']);
+		ESpell.FENKENSTRAINS_CASTLE_TELEPORT : Exit(['1259-0', '2064-0']);
+		ESpell.DARK_LURE : Exit(['1316-0', '2992-0']);
+		ESpell.SKELETAL_GRASP : Exit(['1268-0', '2073-0']);
+		ESpell.RESURRECT_SUPERIOR_GHOST : Exit(['2979-0', '2995-0']);
+		ESpell.RESURRECT_SUPERIOR_SKELETON : Exit(['2981-0', '2997-0']);
+		ESpell.RESURRECT_SUPERIOR_ZOMBIE : Exit(['2983-0', '2999-0']);
+		ESpell.MARK_OF_DARKNESS : Exit(['1305-0', '2082-0']);
+		ESpell.WEST_ARDOUGNE_TELEPORT : Exit(['1260-0', '2065-0']);
+		ESpell.SUPERIOR_DEMONBANE : Exit(['1303-0', '2080-0']);
+		ESpell.LESSER_CORRUPTION : Exit(['1307-0', '2084-0']);
+		ESpell.HARMONY_ISLAND_TELEPORT : Exit(['1261-0', '2066-0']);
+		ESpell.VILE_VIGOUR : Exit(['1317-0', '2993-0']);
+		ESpell.DEGRIME : Exit(['1318-0', '2994-0']);
+		ESpell.CEMETERY_TELEPORT : Exit(['1264-0', '2069-0']);
+		ESpell.EXPERT_REANIMATION : Exit(['1249-0', '2054-0']);
+		ESpell.WARD_OF_ARCEUUS : Exit(['1306-0', '2083-0']);
+		ESpell.RESURRECT_GREATER_GHOST : Exit(['2980-0', '2996-0']);
+		ESpell.RESURRECT_GREATER_SKELETON : Exit(['2982-0', '2998-0']);
+		ESpell.RESURRECT_GREATER_ZOMBIE : Exit(['2984-0', '3000-0']);
+		ESpell.RESURRECT_CROPS : Exit(['1266-0', '2071-0']);
+		ESpell.UNDEAD_GRASP : Exit(['1269-0', '2074-0']);
+		ESpell.DEATH_CHARGE : Exit(['1310-0', '2087-0']);
+		ESpell.DARK_DEMONBANE : Exit(['1304-0', '2081-0']);
+		ESpell.BARROWS_TELEPORT : Exit(['1262-0', '2067-0']);
+		ESpell.DEMONIC_OFFERING : Exit(['1311-0', '2088-0']);
+		ESpell.GREATER_CORRUPTION : Exit(['1308-0', '2085-0']);
+		ESpell.MASTER_REANIMATION : Exit(['1250-0', '2055-0']);
+		ESpell.APE_ATOLL_TELEPORT : Exit(['1263-0', '2068-0']);
+		ESpell.SINISTER_OFFERING : Exit(['1312-0', '2089-0']);
 		else Exit(['None']);
 	end;
 end;
@@ -686,7 +686,7 @@ begin
 
   for i := Ord(FIRST_SPELL) to Ord(LAST_SPELL) do
   begin
-    spriteArr := GetSpellMapping(ERSSpell(i));
+    spriteArr := GetSpellMapping(ESpell(i));
 
     if spriteArr[0] = "None" then
       continue;
@@ -708,7 +708,7 @@ begin
 
       tempImage.Init();
       tempImage.LoadFromFile(fileName);
-      tempImage.setName(ToStr(ERSSpell(i)).ToLower);
+      tempImage.setName(ToStr(ESpell(i)).ToLower);
 
       if j = 0 then
         tempImage.setName(tempImage.getName() + "_small.png")

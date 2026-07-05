@@ -144,7 +144,7 @@ WriteLn Stats.IsOpen();
 *)
 function TStats.IsOpen(): Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.STATS);
+  Result := (GameTabs.GetCurrentTab() = EGameTab.STATS);
 end;
 
 (*
@@ -161,7 +161,7 @@ WriteLn Stats.Open();
 *)
 function TStats.Open(): Boolean;
 begin
-  Result := GameTabs.Open(ERSGameTab.STATS);
+  Result := GameTabs.Open(EGameTab.STATS);
 end;
 
 (*

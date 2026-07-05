@@ -8,7 +8,7 @@
 {$ENDIF}
 
 type
-  ERSSpell = (
+  ESpell = (
     UNKNOWN,
     // Standard
     LUMBRIDGE_HOME_TELEPORT,
@@ -245,16 +245,16 @@ type
   TSpellFinder = record(TSRLBaseRecord)
     IMAGES_ZIP: String;
     IMAGES_PATH: String;
-    SpellImages: array [ERSSpell] of TMufasaBitmapArray;
+    SpellImages: array [ESpell] of TMufasaBitmapArray;
     SimTolerance : Extended;
   end;
 
 procedure TSpellFinder.Free();
 var
-  spell: ERSSpell;
+  spell: ESpell;
   i: Int32;
 begin
-  for spell := ERSSpell(0) to ERSSpell(High(ERSSpell)) do
+  for spell := ESpell(0) to ESpell(High(ESpell)) do
     for i := 0 to High(Self.SpellImages[spell]) do
       Self.SpellImages[spell][i].Free();
 end;
@@ -275,7 +275,7 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-function TSpellFinder.GetSpellImages(spell: ERSSpell): TMufasaBitmapArray;
+function TSpellFinder.GetSpellImages(spell: ESpell): TMufasaBitmapArray;
 const
   SIZES: TStringArray = ['_large.png', '_small.png'];
 var
@@ -308,14 +308,14 @@ end;
 
 type
   TSpellFinderMatch = record
-    Spell: ERSSpell;
+    Spell: ESpell;
     Box: TBox;
     Index: Int32;
   end;
   TSpellFinderMatchArray = array of TSpellFinderMatch;
 
 
-function TSpellFinder.FindAll(spells: array of ERSSpell; box: TBox; maxToFind: Integer = 0): TSpellFinderMatchArray;
+function TSpellFinder.FindAll(spells: array of ESpell; box: TBox; maxToFind: Integer = 0): TSpellFinderMatchArray;
 var
   i, j: Int32;
   spellBitmaps: array of TMufasaBitmapArray;
@@ -372,7 +372,7 @@ begin
 end;
 
 
-function TSpellFinder.Find(spells: array of ERSSpell; box: TBox; out match: TSpellFinderMatch): Boolean;
+function TSpellFinder.Find(spells: array of ESpell; box: TBox; out match: TSpellFinderMatch): Boolean;
 var
   matches: TSpellFinderMatchArray;
 begin

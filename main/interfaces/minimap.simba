@@ -9,9 +9,9 @@ Methods to interact with the minimap.
 {$ENDIF}
 
 type
-  ERSMinimapDot = (PLAYER, NPC, ITEM);
-  ERSMinimapDots = set of ERSMinimapDot;
-  ERSMinimapOrb = (COMPASS, EXPERIENCE, HITPOINTS, PRAYER, ENERGY, SPECIAL_ATTACK);
+  EMinimapDot = (PLAYER, NPC, ITEM);
+  EMinimapDots = set of EMinimapDot;
+  EMinimapOrb = (COMPASS, EXPERIENCE, HITPOINTS, PRAYER, ENERGY, SPECIAL_ATTACK);
 
 (*
 (TMinimap)=
@@ -48,7 +48,7 @@ Example:
 WriteLn Minimap.GetLevel(Minimap.GetSpecAttackCircle());
 ```
 *)
-function TMinimap.GetLevel(orb: ERSMinimapOrb): Int32;
+function TMinimap.GetLevel(orb: EMinimapOrb): Int32;
 begin
   Result := OCR.RecognizeNumber([Self.Orbs[orb].X-35, Self.Orbs[orb].Y-1, Self.Orbs[orb].X-15, Self.Orbs[orb].Y+9], TOCRShadowFilter.Create(), FONT_PLAIN_11);
 end;
@@ -67,7 +67,7 @@ WriteLn Minimap.GetRunEnergy();
 *)
 function TMinimap.GetRunEnergy(): Int32;
 begin
-  Result := Self.GetLevel(ERSMinimapOrb.ENERGY);
+  Result := Self.GetLevel(EMinimapOrb.ENERGY);
 end;
 
 (*
@@ -84,7 +84,7 @@ WriteLn Minimap.GetHPLevel();
 *)
 function TMinimap.GetHPLevel(): Int32;
 begin
-  Result := Self.GetLevel(ERSMinimapOrb.HITPOINTS);
+  Result := Self.GetLevel(EMinimapOrb.HITPOINTS);
 end;
 
 (*
@@ -104,7 +104,7 @@ var
   tpa: TPointArray;
   circle: TCircle;
 begin
-  circle := Self.Orbs[ERSMinimapOrb.HITPOINTS];
+  circle := Self.Orbs[EMinimapOrb.HITPOINTS];
   if SRL.FindColors(tpa, CTS1(1250067, 20), circle.Bounds) > 0 then
     tpa := tpa.FilterDist(0, circle.Radius, circle.X, circle.Y);
 
@@ -126,7 +126,7 @@ WriteLn Minimap.GetPrayerLevel();
 *)
 function TMinimap.GetPrayerLevel(): Int32;
 begin
-  Result := Self.GetLevel(ERSMinimapOrb.PRAYER);
+  Result := Self.GetLevel(EMinimapOrb.PRAYER);
 end;
 
 (*
@@ -146,7 +146,7 @@ var
   tpa: TPointArray;
   circle: TCircle;
 begin
-  circle := Self.Orbs[ERSMinimapOrb.PRAYER];
+  circle := Self.Orbs[EMinimapOrb.PRAYER];
   if SRL.FindColors(tpa, CTS2(1250067, 4, 0, 0), circle.Bounds) > 0 then
     tpa := tpa.FilterDist(0, circle.Radius, circle.X, circle.Y);
 
@@ -168,7 +168,7 @@ WriteLn Minimap.GetSpecLevel();
 *)
 function TMinimap.GetSpecLevel(): Int32;
 begin
-  Result := Self.GetLevel(ERSMinimapOrb.SPECIAL_ATTACK);
+  Result := Self.GetLevel(EMinimapOrb.SPECIAL_ATTACK);
 end;
 
 
@@ -193,7 +193,7 @@ var
   dotpts: TPointArray;
   g: T2DPointArray;
 begin
-  with Self.Orbs[ERSMinimapOrb.COMPASS] do
+  with Self.Orbs[EMinimapOrb.COMPASS] do
   begin
     if SRL.FindColors(dotpts, CTS1(2565532, 50), Bounds()) then // red
     begin
@@ -329,17 +329,17 @@ procedure TMinimap.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  with Self.Orbs[ERSMinimapOrb.COMPASS] do
+  with Self.Orbs[EMinimapOrb.COMPASS] do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.Orbs[ERSMinimapOrb.EXPERIENCE] do
+  with Self.Orbs[EMinimapOrb.EXPERIENCE] do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.Orbs[ERSMinimapOrb.HITPOINTS] do
+  with Self.Orbs[EMinimapOrb.HITPOINTS] do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.Orbs[ERSMinimapOrb.PRAYER] do
+  with Self.Orbs[EMinimapOrb.PRAYER] do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.Orbs[ERSMinimapOrb.ENERGY] do
+  with Self.Orbs[EMinimapOrb.ENERGY] do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
-  with Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK] do
+  with Self.Orbs[EMinimapOrb.SPECIAL_ATTACK] do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
 
   Bitmap.DrawPoly(Self.Polygon, $0000FF);
@@ -386,28 +386,28 @@ begin
 
   Self.SetupAlignment(alignment);
 
-  SetLength(Self.Orbs, Ord(High(ERSMinimapOrb))+1);
+  SetLength(Self.Orbs, Ord(High(EMinimapOrb))+1);
 
   case GameClient.Mode of
     EClientMode.RESIZABLE_CLASSIC, EClientMode.RESIZABLE_MODERN:
     begin
-      Self.Orbs[ERSMinimapOrb.COMPASS]        := [Self.Bounds.X1 - 2,  Self.Bounds.Y1 + 14,  17];
-      Self.Orbs[ERSMinimapOrb.EXPERIENCE]     := [Self.Bounds.X1 - 40, Self.Bounds.Y1 + 32,  11];
-      Self.Orbs[ERSMinimapOrb.HITPOINTS]      := [Self.Bounds.X1 - 13, Self.Bounds.Y1 + 55,  12];
-      Self.Orbs[ERSMinimapOrb.PRAYER]         := [Self.Bounds.X1 - 13, Self.Bounds.Y1 + 90,  12];
-      Self.Orbs[ERSMinimapOrb.ENERGY]         := [Self.Bounds.X1 - 3,  Self.Bounds.Y1 + 121, 12];
-      Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK] := [Self.Bounds.X1 + 19, Self.Bounds.Y1 + 148, 12];
+      Self.Orbs[EMinimapOrb.COMPASS]        := [Self.Bounds.X1 - 2,  Self.Bounds.Y1 + 14,  17];
+      Self.Orbs[EMinimapOrb.EXPERIENCE]     := [Self.Bounds.X1 - 40, Self.Bounds.Y1 + 32,  11];
+      Self.Orbs[EMinimapOrb.HITPOINTS]      := [Self.Bounds.X1 - 13, Self.Bounds.Y1 + 55,  12];
+      Self.Orbs[EMinimapOrb.PRAYER]         := [Self.Bounds.X1 - 13, Self.Bounds.Y1 + 90,  12];
+      Self.Orbs[EMinimapOrb.ENERGY]         := [Self.Bounds.X1 - 3,  Self.Bounds.Y1 + 121, 12];
+      Self.Orbs[EMinimapOrb.SPECIAL_ATTACK] := [Self.Bounds.X1 + 19, Self.Bounds.Y1 + 148, 12];
       Self.Polygon := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
     end;
 
     EClientMode.FIXED:
     begin
-      Self.Orbs[ERSMinimapOrb.COMPASS]        := [Self.Bounds.X1 - 8,  Self.Bounds.Y1 + 12,  17];
-      Self.Orbs[ERSMinimapOrb.EXPERIENCE]     := [Self.Bounds.X1 - 40, Self.Bounds.Y1 + 26,  11];
-      Self.Orbs[ERSMinimapOrb.HITPOINTS]      := [Self.Bounds.X1 - 13, Self.Bounds.Y1 + 49,  12];
-      Self.Orbs[ERSMinimapOrb.PRAYER]         := [Self.Bounds.X1 - 13, Self.Bounds.Y1 + 84,  12];
-      Self.Orbs[ERSMinimapOrb.ENERGY]         := [Self.Bounds.X1 - 3,  Self.Bounds.Y1 + 116, 12];
-      Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK] := [Self.Bounds.X1 + 19, Self.Bounds.Y1 + 142, 12];
+      Self.Orbs[EMinimapOrb.COMPASS]        := [Self.Bounds.X1 - 8,  Self.Bounds.Y1 + 12,  17];
+      Self.Orbs[EMinimapOrb.EXPERIENCE]     := [Self.Bounds.X1 - 40, Self.Bounds.Y1 + 26,  11];
+      Self.Orbs[EMinimapOrb.HITPOINTS]      := [Self.Bounds.X1 - 13, Self.Bounds.Y1 + 49,  12];
+      Self.Orbs[EMinimapOrb.PRAYER]         := [Self.Bounds.X1 - 13, Self.Bounds.Y1 + 84,  12];
+      Self.Orbs[EMinimapOrb.ENERGY]         := [Self.Bounds.X1 - 3,  Self.Bounds.Y1 + 116, 12];
+      Self.Orbs[EMinimapOrb.SPECIAL_ATTACK] := [Self.Bounds.X1 + 19, Self.Bounds.Y1 + 142, 12];
       Self.Polygon := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
     end;
   end;
@@ -497,37 +497,37 @@ Writeln Minimap.IsSpecWeapon();
 *)
 function TMinimap.IsPoisoned(): Boolean;
 begin
-  Result := SRL.CountColor(CTS0(16391, 3), Self.Orbs[ERSMinimapOrb.HITPOINTS].Bounds()) > 0;
+  Result := SRL.CountColor(CTS0(16391, 3), Self.Orbs[EMinimapOrb.HITPOINTS].Bounds()) > 0;
 end;
 
 function TMinimap.IsEnvenomed(): Boolean;
 begin
-  Result := SRL.CountColor(CTS0(1515790, 9), Self.Orbs[ERSMinimapOrb.HITPOINTS].Bounds()) > 0;
+  Result := SRL.CountColor(CTS0(1515790, 9), Self.Orbs[EMinimapOrb.HITPOINTS].Bounds()) > 0;
 end;
 
 function TMinimap.IsRunEnabled(): Boolean;
 begin
-  Result := SRL.CountColor(CTS2(4211520, 6, 2.84, 0.14), Self.Orbs[ERSMinimapOrb.ENERGY].Bounds) = 0;
+  Result := SRL.CountColor(CTS2(4211520, 6, 2.84, 0.14), Self.Orbs[EMinimapOrb.ENERGY].Bounds) = 0;
 end;
 
 function TMinimap.IsPrayerEnabled(): Boolean;
 begin
-  Result := SRL.CountColor(CTS0(1168105, 33), Self.Orbs[ERSMinimapOrb.PRAYER].Bounds()) > 20;
+  Result := SRL.CountColor(CTS0(1168105, 33), Self.Orbs[EMinimapOrb.PRAYER].Bounds()) > 20;
 end;
 
 function TMinimap.HasStamina(): Boolean;
 begin
-  Result := SRL.CountColor(CTS0(2709951, 38), Self.Orbs[ERSMinimapOrb.ENERGY].Bounds()) > 0;
+  Result := SRL.CountColor(CTS0(2709951, 38), Self.Orbs[EMinimapOrb.ENERGY].Bounds()) > 0;
 end;
 
 function TMinimap.IsSpecEnabled(): Boolean;
 begin
-  Result := SRL.CountColor(CTS2(8682326, 16, 0.03, 1.15), Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK].Bounds()) > 1;
+  Result := SRL.CountColor(CTS2(8682326, 16, 0.03, 1.15), Self.Orbs[EMinimapOrb.SPECIAL_ATTACK].Bounds()) > 1;
 end;
 
 function TMinimap.IsSpecWeapon(): Boolean;
 begin
-  Result := ((SRL.CountColor(CTS2(8480786, 19, 0.05, 1.36), Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK].Bounds()) > 0) or
+  Result := ((SRL.CountColor(CTS2(8480786, 19, 0.05, 1.36), Self.Orbs[EMinimapOrb.SPECIAL_ATTACK].Bounds()) > 0) or
             Self.IsSpecEnabled());
 end;
 
@@ -551,7 +551,7 @@ var
 begin
   if Self.IsPoisoned() then
   begin
-    Mouse.Click(Self.Orbs[ERSMinimapOrb.HITPOINTS], MOUSE_LEFT);
+    Mouse.Click(Self.Orbs[EMinimapOrb.HITPOINTS], MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do
@@ -582,7 +582,7 @@ var
 begin
   if not Self.IsRunEnabled() then
   begin
-    Mouse.Click(Self.Orbs[ERSMinimapOrb.ENERGY], MOUSE_LEFT);
+    Mouse.Click(Self.Orbs[EMinimapOrb.ENERGY], MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do
@@ -613,7 +613,7 @@ var
 begin
   if Self.IsRunEnabled() then
   begin
-    Mouse.Click(Self.Orbs[ERSMinimapOrb.ENERGY], MOUSE_LEFT);
+    Mouse.Click(Self.Orbs[EMinimapOrb.ENERGY], MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do
@@ -645,7 +645,7 @@ var
 begin
   if not Self.IsPrayerEnabled() then
   begin
-    Mouse.Click(Self.Orbs[ERSMinimapOrb.PRAYER], MOUSE_LEFT);
+    Mouse.Click(Self.Orbs[EMinimapOrb.PRAYER], MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do
@@ -676,7 +676,7 @@ var
 begin
   if Self.IsPrayerEnabled() then
   begin
-    Mouse.Click(Self.Orbs[ERSMinimapOrb.PRAYER], MOUSE_LEFT);
+    Mouse.Click(Self.Orbs[EMinimapOrb.PRAYER], MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do
@@ -706,13 +706,13 @@ function TMinimap.EnableSpec(minSpec: Int32): Boolean;
 var
   T: UInt64;
 begin
-  if not Self.IsSpecWeapon() or (Self.GetLevel(ERSMinimapOrb.SPECIAL_ATTACK) < MinSpec) then
+  if not Self.IsSpecWeapon() or (Self.GetLevel(EMinimapOrb.SPECIAL_ATTACK) < MinSpec) then
     Exit(False);
 
   Result := Self.IsSpecEnabled();
   if not Result then
   begin
-    Mouse.Click(Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK], MOUSE_LEFT);
+    Mouse.Click(Self.Orbs[EMinimapOrb.SPECIAL_ATTACK], MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do
@@ -745,7 +745,7 @@ begin
 
   if Result then
   begin
-    Mouse.Click(Self.Orbs[ERSMinimapOrb.SPECIAL_ATTACK], MOUSE_LEFT);
+    Mouse.Click(Self.Orbs[EMinimapOrb.SPECIAL_ATTACK], MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do
@@ -963,11 +963,11 @@ end;
 (*
 ## Minimap.GetDotsBitmap
 ```pascal
-function TMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
+function TMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: EMinimapDots): TPointArray;
 ```
-Returns the ERSMinimapDots found in a bitmap of the minimap.
+Returns the EMinimapDots found in a bitmap of the minimap.
 *)
-function TMinimap.GetDotsBitmap(bmp: TMufasaBitmap; dots: ERSMinimapDots): TPointArray;
+function TMinimap.GetDotsBitmap(bmp: TMufasaBitmap; dots: EMinimapDots): TPointArray;
 const
   BLACK = 65536;
 var
@@ -1034,7 +1034,7 @@ var
 const
   DOT_COLORS: TIntegerArray = [$FFFFFF, $00FFFF, $0000FF];
 var
-  dot: ERSMinimapDot;
+  dot: EMinimapDot;
 begin
   try
     blacks := Self.FindDotShadows(bmp);
@@ -1043,9 +1043,9 @@ begin
     for dot in dots do
     begin
       case dot of
-        ERSMinimapDot.PLAYER: SetToleranceSpeed2Modifiers(0.001, 0.001);
-        ERSMinimapDot.NPC: SetToleranceSpeed2Modifiers(0.05, 1);
-        ERSMinimapDot.ITEM: SetToleranceSpeed2Modifiers(0.05, 1);
+        EMinimapDot.PLAYER: SetToleranceSpeed2Modifiers(0.001, 0.001);
+        EMinimapDot.NPC: SetToleranceSpeed2Modifiers(0.05, 1);
+        EMinimapDot.ITEM: SetToleranceSpeed2Modifiers(0.05, 1);
       end;
       Result += _FindDots(blacks, DOT_COLORS[Ord(dot)], 25);
     end;
@@ -1058,14 +1058,14 @@ end;
 (*
 ## Minimap.GetDots
 ```pascal
-function TMinimap.GetDots(dots: ERSMinimapDots; box: TBox): TPointArray;
-function TMinimap.GetDots(dots: ERSMinimapDots): TPointArray; overload;
-function TMinimap.GetDots(dot: ERSMinimapDot; box: TBox): TPointArray; overload;
-function TMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
+function TMinimap.GetDots(dots: EMinimapDots; box: TBox): TPointArray;
+function TMinimap.GetDots(dots: EMinimapDots): TPointArray; overload;
+function TMinimap.GetDots(dot: EMinimapDot; box: TBox): TPointArray; overload;
+function TMinimap.GetDots(Dot: EMinimapDot): TPointArray; overload;
 ```
-Returns a TPointArray with the coordinates of the ERSMinimapDots found on the minimap.
+Returns a TPointArray with the coordinates of the EMinimapDots found on the minimap.
 *)
-function TMinimap.GetDots(dots: ERSMinimapDots; box: TBox): TPointArray;
+function TMinimap.GetDots(dots: EMinimapDots; box: TBox): TPointArray;
 var
   bmp: TMufasaBitmap;
 begin
@@ -1078,17 +1078,17 @@ begin
   bmp.Free();
 end;
 
-function TMinimap.GetDots(dots: ERSMinimapDots): TPointArray; overload;
+function TMinimap.GetDots(dots: EMinimapDots): TPointArray; overload;
 begin
   Result := Self.GetDots(dots, Self.Bounds);
 end;
 
-function TMinimap.GetDots(dot: ERSMinimapDot; box: TBox): TPointArray; overload;
+function TMinimap.GetDots(dot: EMinimapDot; box: TBox): TPointArray; overload;
 begin
   Result := Self.GetDots([dot], box);
 end;
 
-function TMinimap.GetDots(dot: ERSMinimapDot): TPointArray; overload;
+function TMinimap.GetDots(dot: EMinimapDot): TPointArray; overload;
 begin
   Result := Self.GetDots([dot], Self.Bounds);
 end;
@@ -1141,7 +1141,7 @@ var
   dot: TPoint;
   tpa: TPointArray;
 begin
-  dots := Self.GetDotsBitmap(bitmap, [ERSMinimapDot.NPC, ERSMinimapDot.ITEM, ERSMinimapDot.PLAYER]);
+  dots := Self.GetDotsBitmap(bitmap, [EMinimapDot.NPC, EMinimapDot.ITEM, EMinimapDot.PLAYER]);
 
   SetColorToleranceSpeed(2);
 

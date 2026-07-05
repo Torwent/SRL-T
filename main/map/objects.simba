@@ -9,7 +9,7 @@ This file is responsible for interacting with map objects.
 {$ENDIF}
 
 type
-  ERSMapObjectType = (OBJ, MMDOT);
+  EGameMapObjectType = (OBJ, MMDOT);
 
   TMapObject = record
     ID: Int32;
@@ -35,7 +35,7 @@ type
       UpText:  Boolean;
     end;
 
-    MapObjectType: ERSMapObjectType;
+    MapObjectType: EGameMapObjectType;
   class var
     CurrentUpText: TStringArray;
     CurrentActionUpText: TStringArray;
@@ -480,7 +480,7 @@ begin
   mapObj := TMapObject.Setup(pwalker, json);
   Result := PRSObjectV2(@mapObj)^;
   Result.ObjType := json.getInt('type');
-  Result.MapObjectType := ERSMapObjectType.OBJ;
+  Result.MapObjectType := EGameMapObjectType.OBJ;
 end;
 
 function TObjectV2.SameObject(json: TJSONObject): Boolean; override;
@@ -601,7 +601,7 @@ end;
 
 type
   TMMDotV2 = record(TMapObject)
-    DotType: ERSMinimapDot;
+    DotType: EMinimapDot;
     DotFilters: TDotFilterArray;
   end;
 
@@ -645,10 +645,10 @@ begin
   mapObj := TMapObject.Setup(pwalker, json);
   Result := PRSNPCV2(@mapObj)^;
 
-  Result.DotType := ERSMinimapDot.NPC;
+  Result.DotType := EMinimapDot.NPC;
   Result.Level := json.getInt('level');
   Result.Filter.Minimap := json.getBoolean('minimapdot');
-  Result.MapObjectType := ERSMapObjectType.MMDOT;
+  Result.MapObjectType := EGameMapObjectType.MMDOT;
 end;
 
 function TMMDotV2.SameObject(json: TJSONObject): Boolean; override;
@@ -791,16 +791,16 @@ end;
 function TMapObject._FindExRouter(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
 begin
   case Self.MapObjectType of
-    ERSMapObjectType.OBJ:   Result := PRSObjectV2(@Self)^.FindEx(cuboids, atpa);
-    ERSMapObjectType.MMDOT: Result := PRSMMDotV2(@Self)^.FindEx(cuboids, atpa);
+    EGameMapObjectType.OBJ:   Result := PRSObjectV2(@Self)^.FindEx(cuboids, atpa);
+    EGameMapObjectType.MMDOT: Result := PRSMMDotV2(@Self)^.FindEx(cuboids, atpa);
   end;
 end;
 
 function TMapObject._GetCuboidArrayRouter(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray;
 begin
   case Self.MapObjectType of
-    ERSMapObjectType.OBJ:   Result := PRSObjectV2(@Self)^.GetCuboidArray(me, angle);
-    ERSMapObjectType.MMDOT: Result := PRSMMDotV2(@Self)^.GetCuboidArray(me, angle);
+    EGameMapObjectType.OBJ:   Result := PRSObjectV2(@Self)^.GetCuboidArray(me, angle);
+    EGameMapObjectType.MMDOT: Result := PRSMMDotV2(@Self)^.GetCuboidArray(me, angle);
   end;
 end;
 

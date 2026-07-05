@@ -43,7 +43,7 @@ WriteLn Logout.IsOpen();
 *)
 function TLogout.IsOpen(): Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.LOGOUT);
+  Result := (GameTabs.GetCurrentTab() = EGameTab.LOGOUT);
 end;
 
 (*
@@ -60,7 +60,7 @@ WriteLn Logout.Open();
 *)
 function TLogout.Open(): Boolean;
 begin
-  Result := GameTabs.Open(ERSGameTab.LOGOUT);
+  Result := GameTabs.Open(EGameTab.LOGOUT);
 end;
 
 (*

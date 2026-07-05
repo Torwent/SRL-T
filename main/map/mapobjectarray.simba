@@ -21,13 +21,13 @@ begin
     tmp := Self[i];
 
     case tmp^.MapObjectType of
-      ERSMapObjectType.OBJ:
+      EGameMapObjectType.OBJ:
       begin
         if meObj = [0,0] then meObj := tmp^.Walker^.Position();
         current := tmp^.Coordinates.NearestPoint(meObj).DistanceTo(meObj);
       end;
 
-      ERSMapObjectType.NPC:
+      EGameMapObjectType.NPC:
       begin
         if meNPC = [0,0] then meNPC := tmp^.Walker^.Position();
         current := tmp^.Coordinates.NearestPoint(meNPC).DistanceTo(meNPC);
@@ -81,7 +81,7 @@ begin
       then
       begin
         Delete(tmp^.Coordinates, j, 1);
-        if tmp^.MapObjectType = ERSMapObjectType.OBJ then
+        if tmp^.MapObjectType = EGameMapObjectType.OBJ then
           Delete(PRSObjectV2(tmp)^.Rotations, j, 1);
       end;
 
@@ -104,7 +104,7 @@ begin
       then
       begin
         Delete(tmp^.Coordinates, j, 1);
-        if tmp^.MapObjectType = ERSMapObjectType.OBJ then
+        if tmp^.MapObjectType = EGameMapObjectType.OBJ then
           Delete(PRSObjectV2(tmp)^.Rotations, j, 1);
       end;
 
@@ -619,8 +619,8 @@ begin
 
   mapObj := Self.MapObjects.GetClosest();
   case mapObj^.MapObjectType of
-    ERSMapObjectType.OBJ: System.Debug(PRSObjectV2(mapObj)^);
-    ERSMapObjectType.NPC: System.Debug(PRSNPCV2(mapObj)^);
+    EGameMapObjectType.OBJ: System.Debug(PRSObjectV2(mapObj)^);
+    EGameMapObjectType.NPC: System.Debug(PRSNPCV2(mapObj)^);
   end;
 end;
 
@@ -658,8 +658,8 @@ begin
     mapObj := Self.GetClosest();
 
   case mapObj^.MapObjectType of
-    ERSMapObjectType.OBJ: Result := mapObj^.Click() or (MainScreen.IsUpText('Banker') and ChooseOption.Select(['Bank B', 'Bank E']));
-    ERSMapObjectType.NPC: Result := mapObj^.SelectOption(['Bank B', 'Bank E']) or (MainScreen.IsUpText('Bank') and ChooseOption.Select(['Bank B', 'Bank E']));
+    EGameMapObjectType.OBJ: Result := mapObj^.Click() or (MainScreen.IsUpText('Banker') and ChooseOption.Select(['Bank B', 'Bank E']));
+    EGameMapObjectType.NPC: Result := mapObj^.SelectOption(['Bank B', 'Bank E']) or (MainScreen.IsUpText('Bank') and ChooseOption.Select(['Bank B', 'Bank E']));
   end;
 
   if not Result then
@@ -693,8 +693,8 @@ begin
     mapObj := Self.GetClosest();
 
   case mapObj^.MapObjectType of
-    ERSMapObjectType.OBJ: Result := mapObj^.WalkClick() or (MainScreen.IsUpText('Banker') and ChooseOption.Select(['Bank B', 'Bank E']));
-    ERSMapObjectType.NPC: Result := mapObj^.WalkSelectOption(['Bank B', 'Bank E']) or (MainScreen.IsUpText('Bank') and ChooseOption.Select(['Bank B', 'Bank E']));
+    EGameMapObjectType.OBJ: Result := mapObj^.WalkClick() or (MainScreen.IsUpText('Banker') and ChooseOption.Select(['Bank B', 'Bank E']));
+    EGameMapObjectType.NPC: Result := mapObj^.WalkSelectOption(['Bank B', 'Bank E']) or (MainScreen.IsUpText('Bank') and ChooseOption.Select(['Bank B', 'Bank E']));
   end;
 
   if not Result then

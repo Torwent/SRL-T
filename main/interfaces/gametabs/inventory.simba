@@ -97,7 +97,7 @@ WriteLn Inventory.IsOpen();
 *)
 function TInventory.IsOpen(): Boolean;
 begin
-  Result := GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY;
+  Result := GameTabs.GetCurrentTab() = EGameTab.INVENTORY;
 end;
 
 (*
@@ -114,7 +114,7 @@ WriteLn Inventory.Open();
 *)
 function TInventory.Open(): Boolean;
 begin
-  Result := GameTabs.Open(ERSGameTab.INVENTORY);
+  Result := GameTabs.Open(EGameTab.INVENTORY);
 end;
 
 

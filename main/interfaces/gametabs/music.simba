@@ -68,12 +68,12 @@ end;
 
 function TMusicPlayer.IsOpen(): Boolean;
 begin
-  Result := GameTabs.GetCurrentTab() = ERSGameTab.MUSIC;  // Assuming the music tab constant is ERSGameTab.MUSIC
+  Result := GameTabs.GetCurrentTab() = EGameTab.MUSIC;  // Assuming the music tab constant is EGameTab.MUSIC
 end;
 
 function TMusicPlayer.Open(): Boolean;
 begin
-  Result := GameTabs.Open(ERSGameTab.MUSIC);
+  Result := GameTabs.Open(EGameTab.MUSIC);
 end;
 
 procedure TMusicPlayer.Scroll(down: Boolean);

@@ -56,24 +56,24 @@ end;
 
 type
 (*
-(ERSMap)=
-## type ERSMap
+(EGameMap)=
+## type EGameMap
 ```pascal
-ERSMap = (NORMAL, HEIGHT, COLLISION);
+EGameMap = (NORMAL, HEIGHT, COLLISION);
 ```
 Enum of map types.
 *)
-  ERSMap = (NORMAL, HEIGHT, COLLISION);
+  EGameMap = (NORMAL, HEIGHT, COLLISION);
 
 (*
-(ERSMapJSON)=
-## type ERSMapJSON
+(EGameMapJSON)=
+## type EGameMapJSON
 ```pascal
-ERSMapJSON = (OBJECTS, NPCS);
+EGameMapJSON = (OBJECTS, NPCS);
 ```
 Enum of map json types.
 *)
-  ERSMapJSON = (OBJECTS, NPCS);
+  EGameMapJSON = (OBJECTS, NPCS);
 
 (*
 (TChunkLoader)=
@@ -108,8 +108,8 @@ end;
 (*
 ## TChunkLoader.GetBitmap
 ```pascal
-function TChunkLoader.GetBitmap(chunk: String; plane: UInt32; map: ERSMap): TMufasaBitmap;
-function TChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap; overload;
+function TChunkLoader.GetBitmap(chunk: String; plane: UInt32; map: EGameMap): TMufasaBitmap;
+function TChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: EGameMap): TMufasaBitmap; overload;
 ```
 Returns a chunk bitmap.
 If possible, it will be loaded from a cached .bmp file.
@@ -119,7 +119,7 @@ The files are cached as .bmp because .bmp is a raw format and simba loads them m
 This are internal methods. Don't use them if you don't know what you are doing.
 ```
 *)
-function TChunkLoader.GetBitmap(chunk: String; plane: UInt32; map: ERSMap): TMufasaBitmap;
+function TChunkLoader.GetBitmap(chunk: String; plane: UInt32; map: EGameMap): TMufasaBitmap;
 var
   cacheroot, cachename, zipFile, zipPath: String;
   created: Boolean;
@@ -127,7 +127,7 @@ begin
   Result.Init();
 
   case map of
-    ERSMap.NORMAL:
+    EGameMap.NORMAL:
     begin
       cacheroot := Self.Cache + 'map' + DirectorySeparator;
       cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
@@ -135,7 +135,7 @@ begin
       zipFile := ToStr(plane) + '/' + chunk + '.png';
     end;
 
-    ERSMap.HEIGHT:
+    EGameMap.HEIGHT:
     begin
       cacheroot := Self.Cache + 'heightmap' + DirectorySeparator;
       cachename := cacheroot + '0' + DirectorySeparator + chunk;
@@ -143,7 +143,7 @@ begin
       zipFile := '0/' + chunk + '.png';
     end;
 
-    ERSMap.COLLISION:
+    EGameMap.COLLISION:
     begin
       cacheroot := Self.Cache + 'collision' + DirectorySeparator;
       cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
@@ -183,7 +183,7 @@ begin
   Result.LoadFromFile(cachename + '.bmp');
 end;
 
-function TChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap; overload;
+function TChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: EGameMap): TMufasaBitmap; overload;
 begin
   Result := Self.GetBitmap(ToStr(chunk.X) + '-' + ToStr(chunk.Y), plane, map);
 end;
@@ -192,8 +192,8 @@ end;
 (*
 ## TChunkLoader.GetJSONFile
 ```pascal
-function TChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: ERSMapJSON): TJSONArray;
-function TChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: ERSMapJSON): TJSONArray; overload;
+function TChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: EGameMapJSON): TJSONArray;
+function TChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: EGameMapJSON): TJSONArray; overload;
 ```
 Returns a chunk json file.
 If possible, it will be loaded from a cached file.
@@ -202,13 +202,13 @@ If no cache file exists, the file is unzipped, loaded and saved into cache for f
 This are an internal methods. Don't use them if you don't know what you are doing.
 ```
 *)
-function TChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: ERSMapJSON): TJSONArray;
+function TChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: EGameMapJSON): TJSONArray;
 var
   name, cacheroot, cachename, zipFile, zipPath, contents: String;
 begin
   case jsonType of
-    ERSMapJSON.OBJECTS: name := 'objects1400';
-    ERSMapJSON.NPCS:    name := 'npcs';
+    EGameMapJSON.OBJECTS: name := 'objects1400';
+    EGameMapJSON.NPCS:    name := 'npcs';
   end;
 
   cacheroot := Self.Cache + name + DirectorySeparator;
@@ -233,7 +233,7 @@ begin
     Result.Init(contents);
 end;
 
-function TChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: ERSMapJSON): TJSONArray; overload;
+function TChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: EGameMapJSON): TJSONArray; overload;
 begin
   Result := Self.GetJSONFile(ToStr(chunk.X) + '-' + ToStr(chunk.Y), plane, jsonType);
 end;
@@ -266,15 +266,15 @@ end;
 (*
 ## TChunkLoader.GetMap
 ```pascal
-function TChunkLoader.GetMap(chunks: TPointArray; plane: UInt32; map: ERSMap): TMufasaBitmap;
-function TChunkLoader.GetMap(start, finish: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap; overload;
+function TChunkLoader.GetMap(chunks: TPointArray; plane: UInt32; map: EGameMap): TMufasaBitmap;
+function TChunkLoader.GetMap(start, finish: TPoint; plane: UInt32; map: EGameMap): TMufasaBitmap; overload;
 ```
 This returns a bitmap of all the `chunks` you pass into it or `start` and `finish` plus everything inbetween.
 ```{note}
 This is an internal method. Don't use it if you don't know what you are doing.
 ```
 *)
-function TChunkLoader.GetMap(chunks: TPointArray; plane: UInt32; map: ERSMap): TMufasaBitmap;
+function TChunkLoader.GetMap(chunks: TPointArray; plane: UInt32; map: EGameMap): TMufasaBitmap;
 var
   i, x, y, n: Int32;
   lo, hi: TPoint;
@@ -314,7 +314,7 @@ begin
   end;
 end;
 
-function TChunkLoader.GetMap(start, finish: TPoint; plane: UInt32; map: ERSMap): TMufasaBitmap; overload;
+function TChunkLoader.GetMap(start, finish: TPoint; plane: UInt32; map: EGameMap): TMufasaBitmap; overload;
 var
   chunks: TPointArray;
 begin
@@ -670,15 +670,15 @@ end;
 (*
 ## TChunkLoader.GetJSON
 ```pascal
-function TChunkLoader.GetJSON(chunks: TPointArray; plane: UInt32; jsonType: ERSMapJSON): TJSONArray;
-function TChunkLoader.GetJSON(start, finish: TPoint; level: UInt32; json: ERSMapJSON): TMufasaBitmap;
+function TChunkLoader.GetJSON(chunks: TPointArray; plane: UInt32; jsonType: EGameMapJSON): TJSONArray;
+function TChunkLoader.GetJSON(start, finish: TPoint; level: UInt32; json: EGameMapJSON): TMufasaBitmap;
 ```
 Returns a merged JSON file of all the jsons of our `chunks` or `start` and `finish` plus everything inbetween.
 ```{note}
 This is an internal method. Don't use it if you don't know what you are doing.
 ```
 *)
-function TChunkLoader.GetJSON(chunks: TPointArray; plane: UInt32; jsonType: ERSMapJSON): TJSONArray;
+function TChunkLoader.GetJSON(chunks: TPointArray; plane: UInt32; jsonType: EGameMapJSON): TJSONArray;
 var
   i, j, n, l, x, y, id: Int32;
   lo, hi: TPoint;
@@ -720,7 +720,7 @@ begin
 
       coords := json.getJSONArray('coordinates');
 
-      if jsonType = ERSMapJSON.OBJECTS then
+      if jsonType = EGameMapJSON.OBJECTS then
       begin
         rotations := json.getJSONArray('rotations');
         if coords.length() <> rotations.length() then
@@ -741,7 +741,7 @@ begin
           for l := 0 to coords.High() do
           begin
             rJSON.getJSONArray('coordinates').Put(coords.Get(l));
-            if jsonType = ERSMapJSON.OBJECTS then
+            if jsonType = EGameMapJSON.OBJECTS then
               rJSON.getJSONArray('rotations').Put(rotations.Get(l));
           end;
           Continue(2);
@@ -752,7 +752,7 @@ begin
     end;
 end;
 
-function TChunkLoader.GetJSON(start, finish: TPoint; level: UInt32; json: ERSMapJSON): TMufasaBitmap; overload;
+function TChunkLoader.GetJSON(start, finish: TPoint; level: UInt32; json: EGameMapJSON): TMufasaBitmap; overload;
 var
   x, y: Int32;
   chunks: TPointArray;
@@ -1290,25 +1290,25 @@ begin
       tmp.X += RSTranslator.MapWidth() * chunks[i].Planes[j]; //easy way to handle upper levels
       Self.Regions[idx].Offset := [tmp.X-padding, tmp.Y - padding];
 
-      bitmaps += Self.Loader.GetMap(s, f, chunks[i].Planes[j], ERSMap.NORMAL);
+      bitmaps += Self.Loader.GetMap(s, f, chunks[i].Planes[j], EGameMap.NORMAL);
       bitmaps[idx].Pad(padding);
 
       if chunks[i].Planes[j] = 0 then
       begin
-        hbitmaps += Self.Loader.GetMap(s, f, 0, ERSMap.HEIGHT);
+        hbitmaps += Self.Loader.GetMap(s, f, 0, EGameMap.HEIGHT);
         hbitmaps[High(hbitmaps)].Pad(padding);
       end;
 
-      cbitmaps += Self.Loader.GetMap(s, f, chunks[i].Planes[j], ERSMap.COLLISION);
+      cbitmaps += Self.Loader.GetMap(s, f, chunks[i].Planes[j], EGameMap.COLLISION);
 
       if not GENERATED_GRAPH.Disabled then
         graphs += Self.SetupGraph(name, idx, chunks[i].Planes[j], padding, cbitmaps[idx]);
 
       cbitmaps[idx].Pad(padding);
 
-      json := Self.Loader.GetJSON(s, f, chunks[i].Planes[j], ERSMapJSON.OBJECTS);
+      json := Self.Loader.GetJSON(s, f, chunks[i].Planes[j], EGameMapJSON.OBJECTS);
       objects += json;
-      json := Self.Loader.GetJSON(s, f, chunks[i].Planes[j], ERSMapJSON.NPCS);
+      json := Self.Loader.GetJSON(s, f, chunks[i].Planes[j], EGameMapJSON.NPCS);
       npcs += json;
 
       Self.Regions[idx].Region := Box(0, 0, bitmaps[idx].GetWidth(), bitmaps[idx].GetHeight());

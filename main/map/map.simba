@@ -1409,14 +1409,14 @@ end;
 (*
 ## TMap.Debug
 ```pascal
-procedure TMap.Debug(map: ERSMapType = ERSMapType.NORMAL; graph: Boolean = False);
+procedure TMap.Debug(map: EGameMapType = EGameMapType.NORMAL; graph: Boolean = False);
 ```
 Displays one of the maps loaded. You can optionally overlay the webgraph on top of you map.
 
 Example:
 ```pascal
 Map.SetupChunks([[18,56,22,60], [42,50, 46, 45]], [0, 1]);
-Map.Debug(ERSMapType.HEIGHT);
+Map.Debug(EGameMapType.HEIGHT);
 ```
 *)
 procedure TMap.Debug(debugPoints: T2DPointArray = []);
@@ -1433,7 +1433,7 @@ begin
   debugger.Debug(@Self, [], npc);
 end;
 
-procedure TMap.DebugObjects(map: ERSMap = ERSMap.NORMAL; rotations: TIntegerArray = [0,1,2,3]; useCorner: Boolean = False);
+procedure TMap.DebugObjects(map: EGameMap = EGameMap.NORMAL; rotations: TIntegerArray = [0,1,2,3]; useCorner: Boolean = False);
 const
   COLORS = [
     clRed, clBlue, clGreen, clLime, clMaroon, clOrange, clYellow, clAqua, clPink, clPurple
@@ -1453,9 +1453,9 @@ var
   end;
 begin
   case map of
-    ERSMap.NORMAL:    bmp := Self.Loader.Map.Copy();
-    ERSMap.HEIGHT:    bmp := Self.Loader.Heightmap.Copy();
-    ERSMap.COLLISION:
+    EGameMap.NORMAL:    bmp := Self.Loader.Map.Copy();
+    EGameMap.HEIGHT:    bmp := Self.Loader.Heightmap.Copy();
+    EGameMap.COLLISION:
     begin
       bmp := Self.Loader.Collision.Copy();
       bmp.FindColors(white, $FFFFFF);

@@ -408,12 +408,12 @@ end;
 var
   DepositBox: TDepositBox;
 
-function TGameTabs.GetCurrentTab(): ERSGametab; override;
+function TGameTabs.GetCurrentTab(): EGameTab; override;
 begin
   Result := inherited;
 
-  if (Result = ERSGameTab.UNKNOWN) and (Bank.IsOpen() or DepositBox.IsOpen()) then
-    Result := ERSGameTab.INVENTORY;
+  if (Result = EGameTab.UNKNOWN) and (Bank.IsOpen() or DepositBox.IsOpen()) then
+    Result := EGameTab.INVENTORY;
 end;
 
 procedure TGameClient.ClientModeChanged(); override;

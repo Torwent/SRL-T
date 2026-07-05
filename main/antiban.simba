@@ -475,7 +475,7 @@ end;
 
 procedure TAntiban.HoverSkill(skill: ESkill; HoverTime: Int32; returnToCurrentTab: Boolean);
 var
-  Tab: ERSGameTab;
+  Tab: EGameTab;
 begin
   Self.DebugLn('Hover skill: ' + ToString(Skill));
 
@@ -522,22 +522,22 @@ begin
   begin
     if Random() < 0.50 then
     begin
-      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(ERSGameTab.COMBAT), Ord(ERSGameTab.MAGIC), 6.0)));
+      GameTabs.Open(EGameTab(SRL.NormalRange(Ord(EGameTab.COMBAT), Ord(EGameTab.MAGIC), 6.0)));
 
       Wait(300, 3000, wdLeft);
     end;
 
-    GameTabs.Open(ERSGameTab(Random(Ord(ERSGameTab.COMBAT), Ord(ERSGameTab.MAGIC))));
+    GameTabs.Open(EGameTab(Random(Ord(EGameTab.COMBAT), Ord(EGameTab.MAGIC))));
   end else
   begin
     if Random() < 0.50 then
     begin
-      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(ERSGameTab.CLAN), Ord(ERSGameTab.MUSIC), 6.0)));
+      GameTabs.Open(EGameTab(SRL.NormalRange(Ord(EGameTab.CLAN), Ord(EGameTab.MUSIC), 6.0)));
 
       Wait(0, 2500, wdLeft);
     end;
 
-    GameTabs.Open(ERSGameTab(Random(Ord(ERSGameTab.CLAN), Ord(ERSGameTab.MUSIC))));
+    GameTabs.Open(EGameTab(Random(Ord(EGameTab.CLAN), Ord(EGameTab.MUSIC))));
   end;
 
   Wait(0, 8000, wdLeft);

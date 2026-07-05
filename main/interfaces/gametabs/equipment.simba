@@ -132,7 +132,7 @@ WriteLn Equipment.IsOpen();
 *)
 function TEquipment.IsOpen(): Boolean;
 begin
-  Result := GameTabs.GetCurrentTab() = ERSGameTab.EQUIPMENT;
+  Result := GameTabs.GetCurrentTab() = EGameTab.EQUIPMENT;
 end;
 
 (*
@@ -150,7 +150,7 @@ WriteLn Equipment.Open();
 *)
 function TEquipment.Open(): Boolean;
 begin
-  Result := GameTabs.Open(ERSGameTab.EQUIPMENT);
+  Result := GameTabs.Open(EGameTab.EQUIPMENT);
 end;
 
 

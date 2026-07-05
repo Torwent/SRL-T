@@ -539,7 +539,7 @@ The following example shows how one could override the function to enable run at
 *)
 procedure TWalker.CheckRunEnergy();
 begin
-  if Minimap.IsRunEnabled() or (Minimap.GetLevel(ERSMinimapOrb.ENERGY) < Self.EnableRunAtEnergy) then
+  if Minimap.IsRunEnabled() or (Minimap.GetLevel(EMinimapOrb.ENERGY) < Self.EnableRunAtEnergy) then
     Exit;
 
   Self.EnableRunAtEnergy := SRL.SkewedRand(40, 10, 100);

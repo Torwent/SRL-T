@@ -129,7 +129,7 @@ WriteLn Combat.IsOpen;
 *)
 function TCombat.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.COMBAT);
+  Result := (GameTabs.GetCurrentTab() = EGameTab.COMBAT);
 end;
 
 (*
@@ -147,7 +147,7 @@ Combat.Open;
 *)
 function TCombat.Open: Boolean;
 begin
-  Result := GameTabs.Open(ERSGameTab.COMBAT);
+  Result := GameTabs.Open(EGameTab.COMBAT);
 end;
 
 (*

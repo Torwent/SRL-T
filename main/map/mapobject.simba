@@ -9,7 +9,7 @@ This file is responsible for interacting with map objects.
 {$ENDIF}
 
 type
-  ERSMapObjectType = (OBJ, NPC);
+  EGameMapObjectType = (OBJ, NPC);
 
   TMapObject = record
     ID: Int32;
@@ -35,7 +35,7 @@ type
       UpText:  Boolean;
     end;
 
-    MapObjectType: ERSMapObjectType;
+    MapObjectType: EGameMapObjectType;
   end;
 
   PRSMapObject = ^TMapObject;
@@ -501,7 +501,7 @@ begin
 
   Result := Result.Merge(json.getJSONArray('coordinates'), json.getJSONArray('rotations'), json.getJSONArray('colors'));
   Result.Finder.ColorClusters := [];
-  Result.MapObjectType := ERSMapObjectType.OBJ;
+  Result.MapObjectType := EGameMapObjectType.OBJ;
 end;
 
 
@@ -684,7 +684,7 @@ end;
 type
   TNPCV2 = record(TMapObject)
     Level: Int32;
-    DotType: ERSMinimapDot;
+    DotType: EMinimapDot;
     DotFilters: TDotFilterArray;
   end;
 
@@ -747,11 +747,11 @@ begin
   Result := Result.Merge(json.getJSONArray('coordinates'), json.getJSONArray('colors'));
   Result.Finder.ColorClusters := [];
 
-  Result.DotType := ERSMinimapDot.NPC;
+  Result.DotType := EMinimapDot.NPC;
   Result.Level := json.getInt('level');
   Result.Filter.Minimap := json.getBoolean('minimapdot');
 
-  Result.MapObjectType := ERSMapObjectType.NPC;
+  Result.MapObjectType := EGameMapObjectType.NPC;
 end;
 
 
@@ -993,24 +993,24 @@ Helper internal router methods that "route" methods to the right type.
 function TMapObject._FindExRouter(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
 begin
   case Self.MapObjectType of
-    ERSMapObjectType.OBJ: Result := PRSObjectV2(@Self)^.FindEx(cuboids, atpa);
-    ERSMapObjectType.NPC: Result := PRSNPCV2(@Self)^.FindEx(cuboids, atpa);
+    EGameMapObjectType.OBJ: Result := PRSObjectV2(@Self)^.FindEx(cuboids, atpa);
+    EGameMapObjectType.NPC: Result := PRSNPCV2(@Self)^.FindEx(cuboids, atpa);
   end;
 end;
 
 function TMapObject._GetCuboidArrayRouter(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray;
 begin
   case Self.MapObjectType of
-    ERSMapObjectType.OBJ: Result := PRSObjectV2(@Self)^.GetCuboidArray(me, angle);
-    ERSMapObjectType.NPC: Result := PRSNPCV2(@Self)^.GetCuboidArray(me, angle);
+    EGameMapObjectType.OBJ: Result := PRSObjectV2(@Self)^.GetCuboidArray(me, angle);
+    EGameMapObjectType.NPC: Result := PRSNPCV2(@Self)^.GetCuboidArray(me, angle);
   end;
 end;
 
 procedure TMapObject._DrawRouter(bitmap: TMufasaBitmap);
 begin
   case Self.MapObjectType of
-    ERSMapObjectType.OBJ: PRSObjectV2(@Self)^.Draw(bitmap);
-    ERSMapObjectType.NPC: PRSNPCV2(@Self)^.Draw(bitmap);
+    EGameMapObjectType.OBJ: PRSObjectV2(@Self)^.Draw(bitmap);
+    EGameMapObjectType.NPC: PRSNPCV2(@Self)^.Draw(bitmap);
   end;
 end;
 
@@ -1590,7 +1590,7 @@ begin
   end;
 
   Self.Filter.Walker := True;
-  Self.MapObjectType := ERSMapObjectType.NPC;
+  Self.MapObjectType := EGameMapObjectType.NPC;
 end;
 
 procedure TNPCV2.SetupEx(radius: Int32; size: Vector3; coordinates: TPointArray);
@@ -1637,8 +1637,8 @@ begin
   Self.Finder.ClusterDistance := 3;
   Self.Finder.Erode := 2;
   Self.Finder.Grow := 4;
-  Self.DotType := ERSMinimapDot.NPC;
-  Self.MapObjectType := ERSMapObjectType.NPC;
+  Self.DotType := EMinimapDot.NPC;
+  Self.MapObjectType := EGameMapObjectType.NPC;
 end;
 
 procedure TNPCV2.SetupUpText(upText: String); overload;

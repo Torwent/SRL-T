@@ -9,15 +9,15 @@ Methods to interact with the Bank.
 {$ENDIF}
 
 type
-  ERSBankLocation = (CASTLE_WARS, FEROX, GRAND_EXCHANGE, FALADOR_EAST);
+  EBankLocation = (CASTLE_WARS, FEROX, GRAND_EXCHANGE, FALADOR_EAST);
 
   {$SCOPEDENUMS ON}
-  ERSBankTitleButton = (SETTINGS, TUTORIAL);
-  ERSBankSideButton = (INCINERATOR, POTION_STORAGE);
-  ERSBankModeButton = (ARRANGEMENT, NOTES);
-  ERSBankQuantityButton = (ONE, FIVE, TEN, CUSTOM, ALL);
-  ERSBankMiscButton = (SEARCH, PLACEHOLDERS);
-  ERSBankDepositButton = (CONTAINERS, INVENTORY, WORN);
+  EBankTitleButton = (SETTINGS, TUTORIAL);
+  EBankSideButton = (INCINERATOR, POTION_STORAGE);
+  EBankModeButton = (ARRANGEMENT, NOTES);
+  EBankQuantityButton = (ONE, FIVE, TEN, CUSTOM, ALL);
+  EBankMiscButton = (SEARCH, PLACEHOLDERS);
+  EBankDepositButton = (CONTAINERS, INVENTORY, WORN);
   {$SCOPEDENUMS OFF}
 
   TBankPosition = record
@@ -138,7 +138,7 @@ begin
 end;
 
 
-function TBank.GetButton(button: ERSBankTitleButton): TGameButton;
+function TBank.GetButton(button: EBankTitleButton): TGameButton;
 var
   buttons: TGameButtonArray;
 begin
@@ -147,7 +147,7 @@ begin
     Result := buttons[button];
 end;
 
-function TBank.GetButton(button: ERSBankSideButton): TGameButton; overload;
+function TBank.GetButton(button: EBankSideButton): TGameButton; overload;
 var
   buttons: TGameButtonArray;
   i: Int32;
@@ -155,11 +155,11 @@ begin
   buttons := Self.FindButtons([[34,34]], Self.SideBar);
 
   case button of
-    ERSBankSideButton.INCINERATOR:
+    EBankSideButton.INCINERATOR:
       for i := 0 to High(buttons) do
         if SRL.CountColor(CTS2(2721742, 7, 0.11, 4.00), buttons[i].Bounds) > 3 then
           Exit(buttons[i]);
-    ERSBankSideButton.POTION_STORAGE:
+    EBankSideButton.POTION_STORAGE:
       for i := 0 to High(buttons) do
         if SRL.CountColor(CTS2(2721742, 7, 0.11, 4.00), buttons[i].Bounds) = 0 then
           Exit(buttons[i]);
@@ -176,7 +176,7 @@ var
   button: TGameButton;
   pt: TPoint;
 begin
-  button := Self.GetButton(ERSBankSideButton.INCINERATOR);
+  button := Self.GetButton(EBankSideButton.INCINERATOR);
   if button = Default(TGameButton) then
     Exit(True);
   if not button.Bounds.Contains(Mouse.Position) then
@@ -262,7 +262,7 @@ end;
 
 
 
-function TBank.GetButton(button: ERSBankModeButton): TGameButton; overload;
+function TBank.GetButton(button: EBankModeButton): TGameButton; overload;
 var
   buttons: TGameButtonArray;
 begin
@@ -271,7 +271,7 @@ begin
     Result := buttons[button];
 end;
 
-function TBank.GetButton(button: ERSBankQuantityButton): TGameButton; overload;
+function TBank.GetButton(button: EBankQuantityButton): TGameButton; overload;
 var
   buttons: TGameButtonArray;
 begin
@@ -280,7 +280,7 @@ begin
     Result := buttons[button];
 end;
 
-function TBank.GetButton(button: ERSBankMiscButton): TGameButton; overload;
+function TBank.GetButton(button: EBankMiscButton): TGameButton; overload;
 var
   buttons: TGameButtonArray;
 begin
@@ -289,7 +289,7 @@ begin
     Result := buttons[button];
 end;
 
-function TBank.GetButton(button: ERSBankDepositButton): TGameButton; overload;
+function TBank.GetButton(button: EBankDepositButton): TGameButton; overload;
 var
   buttons: TGameButtonArray;
   i: Int32;
@@ -297,18 +297,18 @@ begin
   buttons := Self.FindButtons([[34,34]], Self.GetDynamicSection());
 
   case button of
-    ERSBankDepositButton.WORN:
+    EBankDepositButton.WORN:
       for i := 0 to High(buttons) do
         if (SRL.CountColor(CTS2(8885663, 17, 0.09, 0.35), buttons[i].Bounds) > 5)
         or (SRL.CountColor(CTS2(7635336, 12, 0.17, 0.35), buttons[i].Bounds) > 5) then // Different color if hovered
           Exit(buttons[i]);
-    ERSBankDepositButton.INVENTORY:
+    EBankDepositButton.INVENTORY:
       for i := 0 to High(buttons) do
         if (SRL.CountColor(CTS2(997739, 13, 0.10, 1.12), buttons[i].Bounds) > 5)
         or (SRL.CountColor(CTS2(2441311, 10, 0.14, 0.96), buttons[i].Bounds) > 5) then // Different color if hovered
           Exit(buttons[i]);
 
-    ERSBankDepositButton.CONTAINERS:
+    EBankDepositButton.CONTAINERS:
       for i := 0 to High(buttons) do
         if (SRL.CountColor(CTS2(8885663, 17, 0.09, 0.35), buttons[i].Bounds) = 0) and
            (SRL.CountColor(CTS2(997739, 13, 0.10, 1.12), buttons[i].Bounds) = 0)
@@ -521,12 +521,12 @@ end;
 //if you search an item and press enter the button stays enabled while the query is closed.
 function TBank.OpenSearch(waitTime: Int32 = 0): Boolean;
 begin
-  Result := Self.GetButton(ERSBankMiscButton.SEARCH).Click() and Self.IsSearchOpen(waitTime);
+  Result := Self.GetButton(EBankMiscButton.SEARCH).Click() and Self.IsSearchOpen(waitTime);
 end;
 
 function TBank.ClearSearch(): Boolean;
 begin
-  Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankMiscButton.SEARCH).Click();
+  Result := not Self.IsTitle('Showing items:') or Self.GetButton(EBankMiscButton.SEARCH).Click();
 end;
 
 (*
@@ -838,7 +838,7 @@ var
 begin
   if Self.ContainsItem(item) then
   begin
-    if not Self.GetButton(ERSBankMiscButton.SEARCH).Enabled() then //if we found the item and we are not searching anything return the current tab.
+    if not Self.GetButton(EBankMiscButton.SEARCH).Enabled() then //if we found the item and we are not searching anything return the current tab.
       Exit(Self.GetCurrentTab());
 
     Self.OpenSearch(600); //if we found the item and we are searching something, it's better to clear the search and start from scratch.
@@ -905,7 +905,7 @@ var
 begin
   if Self.ContainsItem(item) then
   begin
-    if not Self.GetButton(ERSBankMiscButton.SEARCH).Enabled() then
+    if not Self.GetButton(EBankMiscButton.SEARCH).Enabled() then
       Exit(Self.GetScrollPosition())
     else
     begin
@@ -960,7 +960,7 @@ begin
   Result := -1;
 end;
 
-function TBank.Open(Location: ERSBankLocation): Boolean; overload;
+function TBank.Open(Location: EBankLocation): Boolean; overload;
 var
   ATPA: T2DPointArray;
   TPA: TPointArray;
@@ -970,9 +970,9 @@ begin
     Exit(True);
 
   case Location of
-    ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
-    ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
-    ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
+    EBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
+    EBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
+    EBankLocation.FEROX:          ATPA := Self._FindFerox();
   end;
 
   ATPA.SortBySize();
@@ -990,7 +990,7 @@ begin
   end;
 end;
 
-function TBank.Hover(Location: ERSBankLocation; HoverOption: Boolean): Boolean;
+function TBank.Hover(Location: EBankLocation; HoverOption: Boolean): Boolean;
 var
   ATPA: T2DPointArray;
   TPA: TPointArray;
@@ -1000,9 +1000,9 @@ begin
     Exit(True);
 
   case Location of
-    ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
-    ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
-    ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
+    EBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
+    EBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
+    EBankLocation.FEROX:          ATPA := Self._FindFerox();
   end;
 
   ATPA.SortBySize();
@@ -1050,7 +1050,7 @@ begin
 
   if Self.IsCustomQuantity(amount) then
   begin
-    button := Self.GetButton(ERSBankQuantityButton.CUSTOM);
+    button := Self.GetButton(EBankQuantityButton.CUSTOM);
 
     if not button.Enabled() then
     begin
@@ -1071,10 +1071,10 @@ begin
   end;
 
   case amount of
-    1:   button := Self.GetButton(ERSBankQuantityButton.ONE);
-    5:   button := Self.GetButton(ERSBankQuantityButton.FIVE);
-    10:  button := Self.GetButton(ERSBankQuantityButton.TEN);
-    else button := Self.GetButton(ERSBankQuantityButton.ALL)
+    1:   button := Self.GetButton(EBankQuantityButton.ONE);
+    5:   button := Self.GetButton(EBankQuantityButton.FIVE);
+    10:  button := Self.GetButton(EBankQuantityButton.TEN);
+    else button := Self.GetButton(EBankQuantityButton.ALL)
   end;
 
   if not button.Enabled() then
@@ -1091,7 +1091,7 @@ function TBank.WithdrawHelper(b: TBox; amount: Int32; noted: Boolean; useQuantit
 var
   button: TGameButton;
 begin
-  button := Self.GetButton(ERSBankModeButton.NOTES);
+  button := Self.GetButton(EBankModeButton.NOTES);
   if noted then
   begin
     if not button.Enabled() then
@@ -1125,10 +1125,10 @@ begin
   if not Self.IsCustomQuantity(amount) then
   begin
     case amount of
-      1:   button := Self.GetButton(ERSBankQuantityButton.ONE);
-      5:   button := Self.GetButton(ERSBankQuantityButton.FIVE);
-      10:  button := Self.GetButton(ERSBankQuantityButton.TEN);
-      else button := Self.GetButton(ERSBankQuantityButton.ALL);
+      1:   button := Self.GetButton(EBankQuantityButton.ONE);
+      5:   button := Self.GetButton(EBankQuantityButton.FIVE);
+      10:  button := Self.GetButton(EBankQuantityButton.TEN);
+      else button := Self.GetButton(EBankQuantityButton.ALL);
     end;
 
     if not button.Enabled() then
@@ -1141,7 +1141,7 @@ begin
     Exit(True);
   end;
 
-  button := Self.GetButton(ERSBankQuantityButton.CUSTOM);
+  button := Self.GetButton(EBankQuantityButton.CUSTOM);
 
   if not button.Enabled() then
   begin
@@ -1541,10 +1541,10 @@ begin
   if not Self.IsOpen() then
     Exit;
 
-  btn := Self.GetButton(ERSBankDepositButton.INVENTORY);
+  btn := Self.GetButton(EBankDepositButton.INVENTORY);
   if btn = Default(TGameButton) then
   begin
-    if not WaitUntil(Self.GetButton(ERSBankDepositButton.INVENTORY).Visible , 10 , 5000) then
+    if not WaitUntil(Self.GetButton(EBankDepositButton.INVENTORY).Visible , 10 , 5000) then
     Self.Fatal('This script needs the "Deposit Inventory" button visible!');
   end;
   Result := (Inventory.Count() = 0) or btn.Click();
@@ -1559,7 +1559,7 @@ Depositis your equipment by clicking the deposit equipment button
 *)
 function TBank.DepositEquipment(): Boolean;
 begin
-  Result := Self.IsOpen() and Self.GetButton(ERSBankDepositButton.WORN).Click();
+  Result := Self.IsOpen() and Self.GetButton(EBankDepositButton.WORN).Click();
 end;
 
 var
@@ -1572,15 +1572,15 @@ Global Bank variable.
 (*
 ## GameTabs.Open() override;
 ```pascal
-function TGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+function TGameTabs.Open(Tab: EGameTab): Boolean; override;
 ```
 Overrides {ref}`GameTabs.Open()` to close the bank if the bank open.
 *)
-function TGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+function TGameTabs.Open(Tab: EGameTab): Boolean; override;
 begin
   if Bank.IsOpen(False) then
   begin
-    if (Tab = ERSGameTab.INVENTORY) then
+    if (Tab = EGameTab.INVENTORY) then
       Exit(True);
 
     Bank.Close();

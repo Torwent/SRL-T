@@ -357,7 +357,7 @@ The example below will show you how it could be used to retrieve an accurate pla
 
 Example:
 ```pascal
-P := Minimap.GetDots(ERSMinimapDot.PLAYER)[0];         //find a player dot and returns it's coodinates.
+P := Minimap.GetDots(EMinimapDot.PLAYER)[0];         //find a player dot and returns it's coodinates.
 offset := [2 , 2];                                     //Minimap dots are actually returned with a slight offset of -2, -2 when converting them to the mainscreen.
 Debug(Minimap.GetCuboidMS(P, [1, 1, 7], offset));     //This will draw a polygon around the nearest player.
 ```
@@ -475,7 +475,7 @@ Check if a given point is within our zoom rectangle, in other words, in visible 
 
 Example::
 ```pascal
-p := Minimap.GetDots(ERSMinimapDot.ITEM)[0]; //find an item dot and returns it's coodinates.
+p := Minimap.GetDots(EMinimapDot.ITEM)[0]; //find an item dot and returns it's coodinates.
 WriteLn Minimap.PointInZoomRadius(p);
 ```
 *)
@@ -572,7 +572,7 @@ This function gives us a zoom level where **P** would be visible in the MainScre
 
 Example:
 ```pascal
-p := Minimap.GetDots(ERSMinimapDot.ITEM)[0]; //find an item dot and returns it's coodinates.
+p := Minimap.GetDots(EMinimapDot.ITEM)[0]; //find an item dot and returns it's coodinates.
 Options.SetZoomLevel(Minimap.ZoomToVisiblePoint(p));
 ```
 *)
@@ -857,14 +857,14 @@ begin
 end;
 
 
-procedure TMinimap.DebugTiles(dots: ERSMinimapDots = [ERSMinimapDot.PLAYER, ERSMinimapDot.NPC, ERSMinimapDot.ITEM]);
+procedure TMinimap.DebugTiles(dots: EMinimapDots = [EMinimapDot.PLAYER, EMinimapDot.NPC, EMinimapDot.ITEM]);
 const DOT_COLORS: TIntegerArray = [$FFFFFF, $00FFFF, $0000FF];
 var
   bmp: TMufasaBitmap;
   p: TPoint;
   vector: Vector3;
   rect: TRectangle;
-  dot: ERSMinimapDot;
+  dot: EMinimapDot;
   angle: Single;
   tpa: TPointArray;
 begin

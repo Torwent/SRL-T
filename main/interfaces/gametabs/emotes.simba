@@ -75,12 +75,12 @@ end;
 
 function TEmotes.IsOpen(): Boolean;
 begin
-  Result := GameTabs.GetCurrentTab() = ERSGameTab.Emotes;
+  Result := GameTabs.GetCurrentTab() = EGameTab.Emotes;
 end;
 
 function TEmotes.Open(): Boolean;
 begin
-  Result := GameTabs.Open(ERSGameTab.Emotes);
+  Result := GameTabs.Open(EGameTab.Emotes);
 end;
 
 

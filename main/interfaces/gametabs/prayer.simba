@@ -112,7 +112,7 @@ var
 begin
   Result := -1;
 
-  if (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) then
+  if (GameTabs.GetCurrentTab() = EGameTab.PRAYER) then
   begin
     Text := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$1F98FF]), FONT_PLAIN_12);
 
@@ -130,7 +130,7 @@ Returns true if the Prayer tab is open.
 *)
 function TPrayer.IsOpen(): Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) and (Self.GetPrayerLevel <> -1);
+  Result := (GameTabs.GetCurrentTab() = EGameTab.PRAYER) and (Self.GetPrayerLevel <> -1);
 end;
 
 (*
@@ -148,7 +148,7 @@ Prayer.Open;
 *)
 function TPrayer.Open(): Boolean;
 begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.PRAYER);
+  Result := Self.IsOpen() or GameTabs.Open(EGameTab.PRAYER);
 end;
 
 function TPrayer.GetPrayerBoxes(prayers: array of ERSPrayer): TBoxArray; overload;
@@ -473,7 +473,7 @@ Returns true if the quick prayers are open.
 *)
 function TQuickPrayer.IsOpen(): Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) and (Prayer.GetPrayerLevel = -1);
+  Result := (GameTabs.GetCurrentTab() = EGameTab.PRAYER) and (Prayer.GetPrayerLevel = -1);
 end;
 
 function TQuickPrayer.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
@@ -500,7 +500,7 @@ function TQuickPrayer.Open(): Boolean;
 begin
   if Self.IsOpen then Exit(True);
 
-  Mouse.Move(Minimap.Orbs[ERSMinimapOrb.PRAYER]);
+  Mouse.Move(Minimap.Orbs[EMinimapOrb.PRAYER]);
   ChooseOption.Open;
   if ChooseOption.Select('Setup') then
     Result := Self.IsOpen(2000);
@@ -678,7 +678,7 @@ Overrides **Prayer.Open** to handle quick prayers if they are open.
 *)
 function TPrayer.Open(): Boolean; override;
 begin
-  Result := Self.IsOpen or (GameTabs.Open(ERSGameTab.PRAYER) and QuickPrayer.Close);
+  Result := Self.IsOpen or (GameTabs.Open(EGameTab.PRAYER) and QuickPrayer.Close);
 end;
 
 (*

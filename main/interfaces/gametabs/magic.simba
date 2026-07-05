@@ -9,21 +9,21 @@ Methods to interact with the magic tab.
 {$ENDIF}
 
 type
-  ERSSpellBook = (STANDARD, ANCIENT, LUNAR, ARCEUUS);
-  TSpellSet = set of ERSSpell;
+  ESpellBook = (STANDARD, ANCIENT, LUNAR, ARCEUUS);
+  TSpellSet = set of ESpell;
 
 const
-  STANDARD_SPELL_FIRST = ERSSpell.LUMBRIDGE_HOME_TELEPORT;
-  STANDARD_SPELL_LAST  = ERSSpell.FIRE_SURGE;
+  STANDARD_SPELL_FIRST = ESpell.LUMBRIDGE_HOME_TELEPORT;
+  STANDARD_SPELL_LAST  = ESpell.FIRE_SURGE;
 
-  ANCIENT_SPELL_FIRST  = ERSSpell.EDGEVILLE_HOME_TELEPORT;
-  ANCIENT_SPELL_LAST   = ERSSpell.GHORROCK_TELEPORT;
+  ANCIENT_SPELL_FIRST  = ESpell.EDGEVILLE_HOME_TELEPORT;
+  ANCIENT_SPELL_LAST   = ESpell.GHORROCK_TELEPORT;
 
-  LUNAR_SPELL_FIRST    = ERSSpell.LUNAR_HOME_TELEPORT;
-  LUNAR_SPELL_LAST     = ERSSpell.SPELLBOOK_SWAP;
+  LUNAR_SPELL_FIRST    = ESpell.LUNAR_HOME_TELEPORT;
+  LUNAR_SPELL_LAST     = ESpell.SPELLBOOK_SWAP;
 
-  ARCEUUS_SPELL_FIRST  = ERSSpell.ARCEUUS_HOME_TELEPORT;
-  ARCEUUS_SPELL_LAST   = ERSSpell.SINISTER_OFFERING;
+  ARCEUUS_SPELL_FIRST  = ESpell.ARCEUUS_HOME_TELEPORT;
+  ARCEUUS_SPELL_LAST   = ESpell.SINISTER_OFFERING;
 
   STANDARD_SPELLS = [STANDARD_SPELL_FIRST..STANDARD_SPELL_LAST];
   ANCIENT_SPELLS  = [ANCIENT_SPELL_FIRST..ANCIENT_SPELL_LAST];
@@ -31,54 +31,54 @@ const
   ARCEUUS_SPELLS  = [ARCEUUS_SPELL_FIRST..ARCEUUS_SPELL_LAST];
 
   INSTANT_THROW_SPELLS = TSpellSet([
-    ERSSpell.TELEPORT_TO_HOUSE,
-    ERSSpell.TELEPORT_TO_KOUREND,
-    ERSSpell.TELEPORT_TO_APE_ATOLL,
-    ERSSpell.BOUNTY_TELEPORT,
-    ERSSpell.LASSAR_TELEPORT,
-    ERSSpell.OURANIA_TELEPORT,
-    ERSSpell.RESPAWN_TELEPORT,
-    ERSSpell.VARROCK_TELEPORT,
-    ERSSpell.CAMELOT_TELEPORT,
-    ERSSpell.KHAZARD_TELEPORT,
-    ERSSpell.FALADOR_TELEPORT,
-    ERSSpell.BARROWS_TELEPORT,
-    ERSSpell.MOONCLAN_TELEPORT,
-    ERSSpell.CEMETERY_TELEPORT,
-    ERSSpell.GHORROCK_TELEPORT,
-    ERSSpell.ARDOUGNE_TELEPORT,
-    ERSSpell.PADDEWWA_TELEPORT,
-    ERSSpell.KHARYRLL_TELEPORT,
-    ERSSpell.ANNAKARL_TELEPORT,
-    ERSSpell.CATHERBY_TELEPORT,
-    ERSSpell.APE_ATOLL_TELEPORT,
-    ERSSpell.LUMBRIDGE_TELEPORT,
-    ERSSpell.BARBARIAN_TELEPORT,
-    ERSSpell.TROLLHEIM_TELEPORT,
-    ERSSpell.MIND_ALTAR_TELEPORT,
-    ERSSpell.WATCHTOWER_TELEPORT,
-    ERSSpell.ICE_PLATEU_TELEPORT,
-    ERSSpell.LUNAR_HOME_TELEPORT,
-    ERSSpell.FENKENSTRAINS_CASTLE_TELEPORT,
-    ERSSpell.SALVE_GRAVEYARD_TELEPORT,
-    ERSSpell.ARCEUUS_LIBRARY_TELEPORT,
-    ERSSpell.STANDARD_TARGET_TELEPORT,
-    ERSSpell.HARMONY_ISLAND_TELEPORT,
-    ERSSpell.EDGEVILLE_HOME_TELEPORT,
-    ERSSpell.ANCIENT_TARGET_TELEPORT,
-    ERSSpell.DRAYNOR_MANOR_TELEPORT,
-    ERSSpell.FISHING_GUILD_TELEPORT,
-    ERSSpell.LUMBRIDGE_HOME_TELEPORT,
-    ERSSpell.WEST_ARDOUGNE_TELEPORT,
-    ERSSpell.CARRALLANGAR_TELEPORT,
-    ERSSpell.ARCEUUS_HOME_TELEPORT,
-    ERSSpell.WATERBIRTH_TELEPORT,
-    ERSSpell.SENNTISTEN_TELEPORT
+    ESpell.TELEPORT_TO_HOUSE,
+    ESpell.TELEPORT_TO_KOUREND,
+    ESpell.TELEPORT_TO_APE_ATOLL,
+    ESpell.BOUNTY_TELEPORT,
+    ESpell.LASSAR_TELEPORT,
+    ESpell.OURANIA_TELEPORT,
+    ESpell.RESPAWN_TELEPORT,
+    ESpell.VARROCK_TELEPORT,
+    ESpell.CAMELOT_TELEPORT,
+    ESpell.KHAZARD_TELEPORT,
+    ESpell.FALADOR_TELEPORT,
+    ESpell.BARROWS_TELEPORT,
+    ESpell.MOONCLAN_TELEPORT,
+    ESpell.CEMETERY_TELEPORT,
+    ESpell.GHORROCK_TELEPORT,
+    ESpell.ARDOUGNE_TELEPORT,
+    ESpell.PADDEWWA_TELEPORT,
+    ESpell.KHARYRLL_TELEPORT,
+    ESpell.ANNAKARL_TELEPORT,
+    ESpell.CATHERBY_TELEPORT,
+    ESpell.APE_ATOLL_TELEPORT,
+    ESpell.LUMBRIDGE_TELEPORT,
+    ESpell.BARBARIAN_TELEPORT,
+    ESpell.TROLLHEIM_TELEPORT,
+    ESpell.MIND_ALTAR_TELEPORT,
+    ESpell.WATCHTOWER_TELEPORT,
+    ESpell.ICE_PLATEU_TELEPORT,
+    ESpell.LUNAR_HOME_TELEPORT,
+    ESpell.FENKENSTRAINS_CASTLE_TELEPORT,
+    ESpell.SALVE_GRAVEYARD_TELEPORT,
+    ESpell.ARCEUUS_LIBRARY_TELEPORT,
+    ESpell.STANDARD_TARGET_TELEPORT,
+    ESpell.HARMONY_ISLAND_TELEPORT,
+    ESpell.EDGEVILLE_HOME_TELEPORT,
+    ESpell.ANCIENT_TARGET_TELEPORT,
+    ESpell.DRAYNOR_MANOR_TELEPORT,
+    ESpell.FISHING_GUILD_TELEPORT,
+    ESpell.LUMBRIDGE_HOME_TELEPORT,
+    ESpell.WEST_ARDOUGNE_TELEPORT,
+    ESpell.CARRALLANGAR_TELEPORT,
+    ESpell.ARCEUUS_HOME_TELEPORT,
+    ESpell.WATERBIRTH_TELEPORT,
+    ESpell.SENNTISTEN_TELEPORT
   ]);
 
 type
   TMagic = record(TInterface)
-    SpellCache: array [ERSSpell] of
+    SpellCache: array [ESpell] of
       record
         Box: TBox;
         UpText: String;
@@ -139,7 +139,7 @@ WriteLn Magic.IsOpen();
 *)
 function TMagic.IsOpen(): Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.MAGIC);
+  Result := (GameTabs.GetCurrentTab() = EGameTab.MAGIC);
 end;
 
 (*
@@ -156,13 +156,13 @@ Magic.Open();
 *)
 function TMagic.Open(): Boolean;
 begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.MAGIC);
+  Result := Self.IsOpen() or GameTabs.Open(EGameTab.MAGIC);
 end;
 
 (*
 ## Magic.GetSpellBook
 ```pascal
-function TMagic.GetSpellBook(): ERSSpellBook;
+function TMagic.GetSpellBook(): ESpellBook;
 ```
 Returns the current spell book.
 
@@ -171,7 +171,7 @@ Example:
 WriteLn Magic.GetSpellBook();
 ```
 *)
-function TMagic.GetSpellBook(): ERSSpellBook;
+function TMagic.GetSpellBook(): ESpellBook;
 const
   //Colors of the book on the gametab
   ARCEUUS_COLOR: TCTS1Color = [9801276, 78];
@@ -180,25 +180,25 @@ const
 var
   box: TBox;
 begin
-  box := Gametabs.Boxes[ERSGameTab.MAGIC];
-  if SRL.CountColor(ARCEUUS_COLOR, box) >= 60 then Exit(ERSSpellBook.ARCEUUS);
-  if SRL.CountColor(ANCIENT_COLOR, box) >= 85 then Exit(ERSSpellBook.ANCIENT);
-  if SRL.CountColor(LUNAR_COLOR,   box) >= 85 then Exit(ERSSpellBook.LUNAR);
+  box := Gametabs.Boxes[EGameTab.MAGIC];
+  if SRL.CountColor(ARCEUUS_COLOR, box) >= 60 then Exit(ESpellBook.ARCEUUS);
+  if SRL.CountColor(ANCIENT_COLOR, box) >= 85 then Exit(ESpellBook.ANCIENT);
+  if SRL.CountColor(LUNAR_COLOR,   box) >= 85 then Exit(ESpellBook.LUNAR);
 end;
 
 (*
 ## Magic.IsSpellBook
 ```pascal
-function TMagic.IsSpellBook(book: ERSSpellBook): Boolean;
+function TMagic.IsSpellBook(book: ESpellBook): Boolean;
 ```
 Returns true if we are using the specified spell book.
 
 Example:
 ```pascal
-WriteLn Magic.IsSpellBook(ERSSpellBook.LUNAR);
+WriteLn Magic.IsSpellBook(ESpellBook.LUNAR);
 ```
 *)
-function TMagic.IsSpellBook(book: ERSSpellBook): Boolean;
+function TMagic.IsSpellBook(book: ESpellBook): Boolean;
 begin
   Result := book = Self.GetSpellBook();
 end;
@@ -212,7 +212,7 @@ Returns true if the info black box about a spell is open.
 
 Example:
 ```pascal
-WriteLn Magic.IsSpellBook(ERSSpellBook.LUNAR);
+WriteLn Magic.IsSpellBook(ESpellBook.LUNAR);
 ```
 *)
 function TMagic.InfoIsOpen(): Boolean;
@@ -237,7 +237,7 @@ end;
 ## Magic.CloseInfo
 ```pascal
 function TMagic.CloseInfo(): Boolean;
-function TMagic.CloseInfo(spell: ERSSpell): Boolean; overload;
+function TMagic.CloseInfo(spell: ESpell): Boolean; overload;
 ```
 Returns true if the info black box about a spell is open.
 
@@ -259,7 +259,7 @@ begin
   Result := not Self.InfoIsOpen();
 end;
 
-function TMagic.CloseInfo(spell: ERSSpell): Boolean; overload;
+function TMagic.CloseInfo(spell: ESpell): Boolean; overload;
 var
   p: TPoint;
 begin
@@ -274,11 +274,11 @@ end;
 (*
 ## Magic.FindSpell
 ```pascal
-function TMagic.FindSpell(spell: ERSSpell; out box: TBox): Boolean;
+function TMagic.FindSpell(spell: ESpell; out box: TBox): Boolean;
 ```
 Return true or false wether we found a spell or not and return it's bounds if found.
 *)
-function TMagic.FindSpell(spell: ERSSpell; out b: TBox; attempts: Int32 = 2): Boolean;
+function TMagic.FindSpell(spell: ESpell; out b: TBox; attempts: Int32 = 2): Boolean;
 var
   match: TSpellFinderMatch;
 begin
@@ -309,22 +309,22 @@ begin
 
   if not Result then
   begin
-    if spell in [ERSSpell.LVL1_ENCHANT..ERSSpell.LVL7_ENCHANT] then
+    if spell in [ESpell.LVL1_ENCHANT..ESpell.LVL7_ENCHANT] then
     begin
-      if SpellFinder.Find([ERSSpell.BACK], GameTab.Bounds, match) then
+      if SpellFinder.Find([ESpell.BACK], GameTab.Bounds, match) then
         Exit;
 
-      if SpellFinder.Find([ERSSpell.JEWELLERY_ENCHANTMENTS], GameTab.Bounds, match) then
+      if SpellFinder.Find([ESpell.JEWELLERY_ENCHANTMENTS], GameTab.Bounds, match) then
       begin
         Mouse.CLick(match.Box, MOUSE_LEFT);
-        if WaitUntil(SpellFinder.Find([ERSSpell.BACK], GameTab.Bounds, match), 300, 2000) then
+        if WaitUntil(SpellFinder.Find([ESpell.BACK], GameTab.Bounds, match), 300, 2000) then
           Exit(Self.FindSpell(spell, b, attempts-1));
       end;
     end
-    else if SpellFinder.Find([ERSSpell.BACK], GameTab.Bounds, match) then
+    else if SpellFinder.Find([ESpell.BACK], GameTab.Bounds, match) then
       begin
         Mouse.CLick(match.Box, MOUSE_LEFT);
-        WaitUntil(SpellFinder.Find([ERSSpell.JEWELLERY_ENCHANTMENTS], GameTab.Bounds, match), 300, 2000);
+        WaitUntil(SpellFinder.Find([ESpell.JEWELLERY_ENCHANTMENTS], GameTab.Bounds, match), 300, 2000);
       end;
 
     Result := Self.FindSpell(spell, b, attempts-1);
@@ -335,11 +335,11 @@ end;
 (*
 ## Magic.ContainsSpell
 ```pascal
-function TMagic.ContainsSpell(spell: ERSSpell): Boolean;
+function TMagic.ContainsSpell(spell: ESpell): Boolean;
 ```
 Return true or false wether we found a spell or not.
 *)
-function TMagic.ContainsSpell(spell: ERSSpell): Boolean;
+function TMagic.ContainsSpell(spell: ESpell): Boolean;
 var
   b: TBox;
 begin
@@ -350,16 +350,16 @@ end;
 (*
 ## Magic.MouseSpell
 ```pascal
-function TMagic.MouseSpell(spell: ERSSpell): Boolean;
+function TMagic.MouseSpell(spell: ESpell): Boolean;
 ```
 Used to move the mouse to the specified spell.
 
 Example:
 ```pascal
-Magic.MouseSpell(ERSSpell.HIGH_LEVEL_ALCHEMY);
+Magic.MouseSpell(ESpell.HIGH_LEVEL_ALCHEMY);
 ```
 *)
-function TMagic.MouseSpell(spell: ERSSpell): Boolean;
+function TMagic.MouseSpell(spell: ESpell): Boolean;
 var
   b: TBox;
   upText: String;
@@ -390,16 +390,16 @@ end;
 (*
 ## Magic.ClickSpell
 ```pascal
-function TMagic.ClickSpell(spell: ERSSpell; option: String = ''): Boolean;
+function TMagic.ClickSpell(spell: ESpell; option: String = ''): Boolean;
 ```
 Used to interact with the specified spell.
 
 Example:
 ```pascal
-Magic.ClickSpell(ERSSpell.HIGH_LEVEL_ALCHEMY);
+Magic.ClickSpell(ESpell.HIGH_LEVEL_ALCHEMY);
 ```
 *)
-function TMagic.ClickSpell(spell: ERSSpell; option: String = ''): Boolean;
+function TMagic.ClickSpell(spell: ESpell; option: String = ''): Boolean;
 begin
   if not Self.MouseSpell(spell) then
     Exit;
@@ -488,17 +488,17 @@ end;
 (*
 ## Magic.IsSelected
 ```pascal
-function TMagic.IsSelected(spell: ERSSpell): Boolean;
-function TMagic.IsSelected(spell: ERSSpell; selected: TPointArray): Boolean; overload;
+function TMagic.IsSelected(spell: ESpell): Boolean;
+function TMagic.IsSelected(spell: ESpell; selected: TPointArray): Boolean; overload;
 ```
 Returns true if the specified spell is currently active (with white outline).
 
 Example:
 ```pascal
-WriteLn Magic.IsSpellSelected(ERSSpell.ICE_BARRAGE);
+WriteLn Magic.IsSpellSelected(ESpell.ICE_BARRAGE);
 ```
 *)
-function TMagic.IsSelected(spell: ERSSpell): Boolean;
+function TMagic.IsSelected(spell: ESpell): Boolean;
 var
   box: TBox;
 begin
@@ -508,7 +508,7 @@ begin
   Result := Self.FindSpell(spell, box) and (SRL.CountColor($FFFFFF, box.Expand(2)) > 10);
 end;
 
-function TMagic.IsSelected(spell: ERSSpell; selected: TPointArray): Boolean; overload;
+function TMagic.IsSelected(spell: ESpell; selected: TPointArray): Boolean; overload;
 var
   box: TBox;
 begin
@@ -545,17 +545,17 @@ end;
 (*
 ## Magic.CanActivate
 ```pascal
-function TMagic.CanActivate(spell: ERSSpell): Boolean;
+function TMagic.CanActivate(spell: ESpell): Boolean;
 ```
 
 Returns true if we can activate the spell (we have runes, level and the spell unlocked).
 
 Example:
 ```pascal
-Magic.CanActivate(ERSSpell.HIGH_LEVEL_ALCHEMY);
+Magic.CanActivate(ESpell.HIGH_LEVEL_ALCHEMY);
 ```
 *)
-function TMagic.CanActivate(spell: ERSSpell): Boolean;
+function TMagic.CanActivate(spell: ESpell): Boolean;
 begin
   Result := Self.ContainsSpell(spell);
 end;
@@ -564,16 +564,16 @@ end;
 (*
 ## Magic.SpellWasCast
 ```pascal
-function TMagic.SpellWasCast(spell: ERSSpell): Boolean;
+function TMagic.SpellWasCast(spell: ESpell): Boolean;
 ```
 Returns true if we are in a state that casting a spell would leave you.
 
 Example:
 ```pascal
-Magic.SpellWasCast(ERSSpell.ICE_BARRAGE);
+Magic.SpellWasCast(ESpell.ICE_BARRAGE);
 ```
 *)
-function TMagic.SpellWasCast(spell: ERSSpell): Boolean;
+function TMagic.SpellWasCast(spell: ESpell): Boolean;
 begin
   if spell in INSTANT_THROW_SPELLS then
     Exit(True);
@@ -585,16 +585,16 @@ end;
 (*
 ## Magic.CastSpell
 ```pascal
-function TMagic.CastSpell(spell: ERSSpell): Boolean;
+function TMagic.CastSpell(spell: ESpell): Boolean;
 ```
 Attempts to cast the specified spell.
 
 Example:
 ```pascal
-Magic.CastSpell(ERSSpell.LOW_LEVEL_ALCHEMY);
+Magic.CastSpell(ESpell.LOW_LEVEL_ALCHEMY);
 ```
 *)
-function TMagic.CastSpell(spell: ERSSpell; option: String = ''): Boolean;
+function TMagic.CastSpell(spell: ESpell; option: String = ''): Boolean;
 var
   selected: TPointArray;
 begin
@@ -619,7 +619,7 @@ end;
 
 procedure TMagic.Draw(bitmap: TMufasaBitmap); override;
 var
-  book: ERSSpellBook;
+  book: ESpellBook;
 begin
   if not Self.IsOpen() then Exit;
 
@@ -628,10 +628,10 @@ begin
   book := Self.GetSpellBook();
   bitmap.DrawBox(GameTab.Bounds, $00FFFF);
   case book of
-    ERSSpellBook.STANDARD: bitmap.DrawText('Standard book', GameTab.Bounds, True, $00FFFF);
-    ERSSpellBook.ANCIENT: bitmap.DrawText('Ancient book', GameTab.Bounds, True, $00FFFF);
-    ERSSpellBook.LUNAR: bitmap.DrawText('Lunar book', GameTab.Bounds, True, $00FFFF);
-    ERSSpellBook.ARCEUUS: bitmap.DrawText('Arceuus book', GameTab.Bounds, True, $00FFFF);
+    ESpellBook.STANDARD: bitmap.DrawText('Standard book', GameTab.Bounds, True, $00FFFF);
+    ESpellBook.ANCIENT: bitmap.DrawText('Ancient book', GameTab.Bounds, True, $00FFFF);
+    ESpellBook.LUNAR: bitmap.DrawText('Lunar book', GameTab.Bounds, True, $00FFFF);
+    ESpellBook.ARCEUUS: bitmap.DrawText('Arceuus book', GameTab.Bounds, True, $00FFFF);
   end;
 end;
 

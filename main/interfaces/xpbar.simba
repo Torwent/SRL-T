@@ -91,8 +91,8 @@ function TXPBar.IsEnabled(): Boolean;
 var
   TPA: TPointArray;
 begin
-  if FindColors(TPA, 11592943, Minimap.Orbs[ERSMinimapOrb.EXPERIENCE].Bounds) then
-    Result := Length(Minimap.Orbs[ERSMinimapOrb.EXPERIENCE].Filter(TPA)) > 50;
+  if FindColors(TPA, 11592943, Minimap.Orbs[EMinimapOrb.EXPERIENCE].Bounds) then
+    Result := Length(Minimap.Orbs[EMinimapOrb.EXPERIENCE].Filter(TPA)) > 50;
 end;
 
 (*
@@ -113,7 +113,7 @@ begin
   if Self.IsEnabled() then
     Exit(True);
 
-  Mouse.Click(Minimap.Orbs[ERSMinimapOrb.EXPERIENCE], MOUSE_LEFT);
+  Mouse.Click(Minimap.Orbs[EMinimapOrb.EXPERIENCE], MOUSE_LEFT);
 
   Result := WaitUntil(Self.IsEnabled(), SRL.TruncatedGauss(100, 1000), 3000);
 end;

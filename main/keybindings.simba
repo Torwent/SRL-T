@@ -21,7 +21,7 @@ TKeyTabPair is a record to represent a single pair of gametab/FKey.
 
   TKeyTabPair = record
     IsSetup: Boolean;
-    Tab: ERSGameTab;
+    Tab: EGameTab;
     Key: UInt32;
   end;
 
@@ -44,7 +44,7 @@ TKeybindings is a record used to:
 (*
 ## KeyTabPair.Setup
 ```pascal
-procedure TKeyTabPair.Setup(Gametab: ERSGameTab);
+procedure TKeyTabPair.Setup(Gametab: EGameTab);
 ```
 
 Sets up a single FKey/Gametab pair.
@@ -55,11 +55,11 @@ var
   KeyTabPair: TKeyTabPair;
 
 begin
-  KeyTabPair.Setup(ERSGameTab.COMBAT);
+  KeyTabPair.Setup(EGameTab.COMBAT);
 end;
 ```
 *)
-procedure TKeyTabPair.Setup(Gametab: ERSGameTab);
+procedure TKeyTabPair.Setup(Gametab: EGameTab);
 begin
   if IsSetup then Exit;
   Tab := Gametab;
@@ -104,7 +104,7 @@ begin
   for i := 0 to High(UncheckedKeyArray) do
   begin
     KeyTabPairs[i].Key := UncheckedKeyArray[i];
-    KeyTabPairs[i].Tab := ERSGameTab.UNKNOWN;
+    KeyTabPairs[i].Tab := EGameTab.UNKNOWN;
   end;
 end;
 
@@ -112,7 +112,7 @@ end;
 ## Keybindings.GetKeyIndex
 ```pascal
 function TKeybindings.GetKeyIndex(Key: Int32): Int32;
-function TKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
+function TKeybindings.GetKeyIndex(Gametab: EGameTab): Int32; overload;
 ```
 
 Internal function used to find the index of a **Key** or **Gametab** of an already setup **KeyTabPair** if it already exists otherwise we return **-1** to know the pair does not exist yet.
@@ -129,7 +129,7 @@ begin
   Result := -1;
 end;
 
-function TKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
+function TKeybindings.GetKeyIndex(Gametab: EGameTab): Int32; overload;
 var
   i: Int32;
 begin
@@ -150,7 +150,7 @@ var
 (*
 ## GameTabs.FKeyOpen
 ```pascal
-function TGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+function TGameTabs.FKeyOpen(Tab: EGameTab): Boolean;
 ```
 
 This function attempts to open a gametab with the help of **Keybindings** global variable.
@@ -169,7 +169,7 @@ When called the following happens:
       - If the gametab didn't switch:
         - We check if the currenttab has a pair in **Keybindings.KeyTabPairs** and is setup.
           - If it's not we don't do anything, we can't assume the FKey is a pair to the current tab without being 100% sure.
-          - If it exists and is setup, then we set the FKey we pressed in **Keybindings.KeyTabPairs** as a pair to **ERSGameTab.UNKNOWN** so we know we check it again while also deleting it from **Keybindings.UncheckedKeyArray**.
+          - If it exists and is setup, then we set the FKey we pressed in **Keybindings.KeyTabPairs** as a pair to **EGameTab.UNKNOWN** so we know we check it again while also deleting it from **Keybindings.UncheckedKeyArray**.
 
 ```{note}
 {$DEFINE SRL_KEYBINDINGS_DEBUG} can be used to debug already setup **Keybindings.KeyTabPairs**.
@@ -177,13 +177,13 @@ When called the following happens:
 
 Example:
 ```pascal
-Gametabs.FKeyOpen(ERSGameTab.COMBAT);
+Gametabs.FKeyOpen(EGameTab.COMBAT);
 ```
 *)
-function TGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+function TGameTabs.FKeyOpen(Tab: EGameTab): Boolean;
 var
-  CurrentTab: ERSGameTab;
-  NewTab: ERSGameTab;
+  CurrentTab: EGameTab;
+  NewTab: EGameTab;
   Idx: Int32;
   Idx2: Int32;
   Key: UInt32;
@@ -239,7 +239,7 @@ begin
     Idx2 := Keybindings.GetKeyIndex(CurrentTab);
     if (Idx2 > -1) and Keybindings.KeyTabPairs[Idx2].IsSetup then
     begin
-      Keybindings.KeyTabPairs[Idx].Setup(ERSGameTab.UNKNOWN);
+      Keybindings.KeyTabPairs[Idx].Setup(EGameTab.UNKNOWN);
       Keybindings.UncheckedKeyArray.Del(
                   Keybindings.UncheckedKeyArray.Find(Key));
     end;
@@ -251,17 +251,17 @@ end;
 (*
 ## GameTabs.Open
 ```pascal
-function TGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+function TGameTabs.Open(Tab: EGameTab): Boolean; override;
 ```
 
 Override to open gametabs with **GameTabs.FKeyOpen** if **Keybindings.UseKeybinds** is true.
 
 Example:
 ```pascal
-Gametabs.Open(ERSGameTab.COMBAT);
+Gametabs.Open(EGameTab.COMBAT);
 ```
 *)
-function TGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+function TGameTabs.Open(Tab: EGameTab): Boolean; override;
 begin
   if Self.GetCurrentTab = Tab then
     Exit(True);

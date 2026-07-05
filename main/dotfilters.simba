@@ -1,6 +1,6 @@
 (*
 # DotFilters
-Methods to handle DotFilters. Dot filters are filters that filter in or out ERSMinimapDots.
+Methods to handle DotFilters. Dot filters are filters that filter in or out EMinimapDots.
 *)
 
 {$DEFINE SRL_DOTFILTERS_INCLUDED}
@@ -223,17 +223,17 @@ end;
 (*
 ## TMinimap.GetFilteredDot
 ```pascal
-function TMinimap.GetFilteredDotArray(dot: ERSMinimapDot; dotFilters: TDotFilterArray): TPointArray;
-function TMinimap.GetFilteredDot(dot: ERSMinimapDot; dotFilters: TDotFilterArray): TPoint;
+function TMinimap.GetFilteredDotArray(dot: EMinimapDot; dotFilters: TDotFilterArray): TPointArray;
+function TMinimap.GetFilteredDot(dot: EMinimapDot; dotFilters: TDotFilterArray): TPoint;
 ```
 Retrieves and filters minimap dots according to the specified TDotFilters.
 *)
-function TMinimap.GetFilteredDotArray(dot: ERSMinimapDot; dotFilters: TDotFilterArray): TPointArray;
+function TMinimap.GetFilteredDotArray(dot: EMinimapDot; dotFilters: TDotFilterArray): TPointArray;
 begin
   Result := dotFilters.FilterDots(Self.GetDots(dot));
 end;
 
-function TMinimap.GetFilteredDot(dot: ERSMinimapDot; dotFilters: TDotFilterArray): TPoint;
+function TMinimap.GetFilteredDot(dot: EMinimapDot; dotFilters: TDotFilterArray): TPoint;
 var
   dots: TPointArray;
 begin
