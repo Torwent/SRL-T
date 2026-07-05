@@ -245,7 +245,7 @@ end;
 function TChunkLoader.GetChunks(start, finish: TPoint): TPointArray; static;
 ```
 Simple methods that will return all chunks in between a `start` and `finish` chunks.
-This will also fix their order if required, as osrs chunks are oddly numbered from bottom to top on the Y axis.
+This will also fix their order if required, as game chunks are oddly numbered from bottom to top on the Y axis.
 
 Example:
 ```pascal

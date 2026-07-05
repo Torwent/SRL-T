@@ -1,6 +1,6 @@
 (*
 # ChooseOption
-This file contains types and methods meant to handle the OldSchool RuneScape
+This file contains types and methods meant to handle the game
 context menu that opens on right clicking.
 *)
 {$DEFINE SRL_CHOOSEOPTION_INCLUDED}

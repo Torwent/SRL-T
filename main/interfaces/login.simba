@@ -115,7 +115,7 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
   LOGIN_MESSAGE_MEMBERS = 'You need a members account';
   LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
   LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
-  LOGIN_MESSAGE_UPDATED =  'RuneScape has been updated! Please restart the game to retry';
+  LOGIN_MESSAGE_UPDATED =  'has been updated! Please restart the game to retry';
   LOGIN_MESSAGE_TOO_MANY_ATTEMPTS = 'Too many login attempts from your address';
   LOGIN_MESSAGE_UNABLE_TO_CONNECT = 'Unable to connect';
   LOGIN_MESSAGE_NO_REPLY_LOGINSERVER = 'No reply from login server';
@@ -126,7 +126,7 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
   LOGIN_MESSAGE_SESSION_ERROR = 'There was a problem updating your session';
   LOGIN_MESSAGE_UNEXPECTED_RESPONSE = 'Unexpected server response';
   LOGIN_MESSAGE_NOT_LOGGED_OUT_ALT = 'Your account has not logged out from its last session';
-  LOGIN_MESSAGE_BEING_UPDATED = 'RuneScape is being updated';
+  LOGIN_MESSAGE_BEING_UPDATED = 'is being updated';
   LOGIN_MESSAGE_RELOAD_PAGE = 'Please reload this page';
 
   LOGIN_MESSAGES = [

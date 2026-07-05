@@ -1,6 +1,6 @@
 SRL Resource Library
 ======================
-SRL is a library that provides an API for writing bots in Simba for the game Old School RuneScape.
+SRL is a library that provides an API for writing bots in Simba for a popular MMORPG.
 
 Documentation is available [here](https://torwent.github.io/SRL-T)
 

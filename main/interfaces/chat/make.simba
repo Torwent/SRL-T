@@ -1,6 +1,6 @@
 (*
 # Make
-The "Make" menu is the chatbox menu that pops up when you attempt to craft certain items in OldSchool RuneScape.
+The "Make" menu is the chatbox menu that pops up when you attempt to craft certain items in game.
 TMake is the record SRL has to handle it.
 *)
 

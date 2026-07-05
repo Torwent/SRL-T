@@ -273,6 +273,7 @@ end;
 function TGameClient.GetCurrentClient(): ERSClient;
 var
   win: TOSWindow;
+  title: String;
 begin
   win := GetSimbaTargetWindow();
 
@@ -280,10 +281,11 @@ begin
     'JagRenderView', 'JagWindow': Exit(ERSClient.OFFICIAL);
   end;
 
-  case win.GetRootWindow().GetTitle() of
-    'Old School RuneScape': Result := ERSClient.LEGACY;
-    'RuneLite': Result := ERSClient.RUNELITE;
-  end;
+  title := win.GetRootWindow().GetTitle();
+  if title.Contains('Old School R') then
+    Exit(ERSClient.LEGACY);
+  if title.Contains('RuneLite') then
+    Exit(ERSClient.RUNELITE);
 end;
 
 function TGameClient.Revalidate(): Boolean;

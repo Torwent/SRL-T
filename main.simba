@@ -1,5 +1,5 @@
 (*
-SRL-T is the core library used to bot OldSchool RuneScape with Simba.
+SRL-T is the core library used to bot with Simba.
 It's originally based on [SRL-Development](https://github.com/Villavu/SRL-Development)
 and scripts made with SRL-T may still work with SRL-Development but it's not
 guaranteed (The same applies the other way around).
