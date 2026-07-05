@@ -78,7 +78,7 @@ end;
 
 procedure TRSMusicPlayer.Scroll(down: Boolean);
 var
-  scrollBar: TRSScrollBar;
+  scrollBar: TGameScrollBar;
 begin
   scrollBar := Self.GetScrollBar();
   if not scrollBar.IsVisible() or not Self.CanScroll() then
@@ -211,7 +211,7 @@ end;
 
 procedure TRSInterface.SetScrollPosition_Mouse(value: Int32);
 var
-  scrollBar: TRSScrollBar;
+  scrollBar: TGameScrollBar;
   scrollableHeight, targetY: Int32;
 begin
   value := EnsureRange(value, 0, 100);

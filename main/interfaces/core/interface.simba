@@ -299,13 +299,13 @@ end;
 
 
 type
-  TRSScrollBar = record
+  TGameScrollBar = record
     SliderRegion: TBox;
     Slider: TBox;
     Position: Int32;
   end;
 
-procedure TRSScrollBar.Draw(Bitmap: TMufasaBitmap); constref;
+procedure TGameScrollBar.Draw(Bitmap: TMufasaBitmap); constref;
 begin
   Bitmap.DrawBox(Self.SliderRegion, $00FFFF);
   Bitmap.DrawBox(Self.Slider, $00FFFF);
@@ -315,20 +315,20 @@ begin
     Bitmap.DrawText(ToStr(Self.Position), [Self.SliderRegion.Middle.X - (X div 2), Self.Slider.Middle.Y - (Y div 3)], $00FF00);
 end;
 
-function TRSScrollBar.IsVisible(): Boolean;
+function TGameScrollBar.IsVisible(): Boolean;
 begin
   Result := Self <> [];
 end;
 
 
-function TRSInterface.GetScrollArea(scrollBar: TRSScrollBar): TBox;
+function TRSInterface.GetScrollArea(scrollBar: TGameScrollBar): TBox;
 begin
   if Self.ScrollArea = [] then
     Exit(scrollBar.SliderRegion);
   Result := Self.ScrollArea;
 end;
 
-function TRSInterface.GetScrollBar(): TRSScrollBar;
+function TRSInterface.GetScrollBar(): TGameScrollBar;
 const
   COLOR_ARROW := CTS2(5206147, 15, 0.03, 0.28);
   COLOR_BORDER := 65536;
@@ -366,14 +366,14 @@ end;
 
 function TRSInterface.CanScroll(): Boolean;
 var
-  ScrollBar: TRSScrollBar := Self.GetScrollBar();
+  ScrollBar: TGameScrollBar := Self.GetScrollBar();
 begin
   Result := Scrollbar.IsVisible() and (ScrollBar.Slider <> ScrollBar.SliderRegion);
 end;
 
 function TRSInterface.GetScrollPosition(): Int32;
 var
-  ScrollBar: TRSScrollBar;
+  ScrollBar: TGameScrollBar;
 begin
   Result := -1;
 
@@ -385,7 +385,7 @@ end;
 procedure TRSInterface.SetScrollPosition(value: Int32);
 var
   oldPos: Int32;
-  scrollBar: TRSScrollBar;
+  scrollBar: TGameScrollBar;
   scrollTimeout: TCountdown;
 begin
   value := EnsureRange(value, 0, 100);
@@ -436,7 +436,7 @@ end;
 
 procedure TRSInterface.Draw(Bitmap: TMufasaBitmap);
 var
-  ScrollBar: TRSScrollBar;
+  ScrollBar: TGameScrollBar;
 begin
   WriteLn('Drawing: ', + Self.Name);
   Bitmap.DrawBox(Self.Bounds, $00FFFF);
@@ -544,7 +544,7 @@ begin
   bitmap.Free();
 end;
 
-procedure Debug(scroll: TRSScrollBar); overload;
+procedure Debug(scroll: TGameScrollBar); overload;
 var
   bitmap: TMufasaBitmap;
 begin
