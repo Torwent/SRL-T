@@ -1,3 +1,12 @@
+## [7.21.50](https://github.com/Torwent/SRL-T/compare/v7.21.49...v7.21.50) (2026-07-05)
+
+
+### Bug Fixes
+
+* more renames that were missing ([5da2437](https://github.com/Torwent/SRL-T/commit/5da24376cf2135afa2d094309ab9b9de34de4ade))
+
+
+
 ## [7.21.49](https://github.com/Torwent/SRL-T/compare/v7.21.48...v7.21.49) (2026-07-05)
 
 
@@ -37,15 +46,6 @@
 ### Bug Fixes
 
 * Update interface.simba ([658d4f3](https://github.com/Torwent/SRL-T/commit/658d4f37f9e89087b9d9796432cca72cad9964c9))
-
-
-
-## [7.21.45](https://github.com/Torwent/SRL-T/compare/v7.21.44...v7.21.45) (2026-04-03)
-
-
-### Bug Fixes
-
-* **magic:** lower ARCEUUS_COLOR detection threshold from 81 to 60 ([3327f26](https://github.com/Torwent/SRL-T/commit/3327f26b14e88a0031976e9e4887557ee07b496d))
 
 
 
