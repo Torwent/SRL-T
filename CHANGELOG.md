@@ -1,3 +1,18 @@
+## [7.21.49](https://github.com/Torwent/SRL-T/compare/v7.21.48...v7.21.49) (2026-07-05)
+
+
+### Bug Fixes
+
+* consumables ([1f38eaa](https://github.com/Torwent/SRL-T/commit/1f38eaadf6673c4500e833f9ff571965aa86f7c8))
+* more renames ([bbec03a](https://github.com/Torwent/SRL-T/commit/bbec03a4c471e66b96ebd0601d3abaa8de61f822))
+* more renames ([040fd88](https://github.com/Torwent/SRL-T/commit/040fd883fc954ad517fc1203e4c3fb70d63f81e7))
+* more renames ([acbab8e](https://github.com/Torwent/SRL-T/commit/acbab8e025aa4994e64423c9de86d73ac8be49bf))
+* more renames ([d6e367b](https://github.com/Torwent/SRL-T/commit/d6e367b8454af358266f0c1e1e76000187ae0fec))
+* more renames ([70de1fe](https://github.com/Torwent/SRL-T/commit/70de1feb81004f442f961b600c3bb327b3f41ada))
+* rename files, imports, client and buttons ([20ebc53](https://github.com/Torwent/SRL-T/commit/20ebc53480964eac1504fa6594d29f22041eeb78))
+
+
+
 ## [7.21.48](https://github.com/Torwent/SRL-T/compare/v7.21.47...v7.21.48) (2026-07-01)
 
 
@@ -31,15 +46,6 @@
 ### Bug Fixes
 
 * **magic:** lower ARCEUUS_COLOR detection threshold from 81 to 60 ([3327f26](https://github.com/Torwent/SRL-T/commit/3327f26b14e88a0031976e9e4887557ee07b496d))
-
-
-
-## [7.21.44](https://github.com/Torwent/SRL-T/compare/v7.21.43...v7.21.44) (2026-03-15)
-
-
-### Bug Fixes
-
-* update grandexchange ([d3e33ac](https://github.com/Torwent/SRL-T/commit/d3e33ac28542c9779e4c6826f67495fd9f3a6f69))
 
 
 
