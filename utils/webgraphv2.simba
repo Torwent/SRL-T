@@ -38,7 +38,7 @@ var
 begin
   for cardinal in CARDINALS do
   begin
-    tmp := Self.Center - RSTranslator.NormalizeDoor(Self.After);
+    tmp := Self.Center - Translator.NormalizeDoor(Self.After);
     if cardinal.Dot(tmp) > best then
     begin
       doorDirection := cardinal;
@@ -370,8 +370,8 @@ begin
   if Self.UseCollisionData then
     if not Self.WalkableSpace.Contains(p) or not Self.WalkableSpace.Contains(q) then
     begin
-      p := RSTranslator.NormalizeDoor(p);
-      q := RSTranslator.NormalizeDoor(q);
+      p := Translator.NormalizeDoor(p);
+      q := Translator.NormalizeDoor(q);
 
       if not Self.WalkableSpace.Contains(p) then p := Self.NearestWalkablePoint(p);
       if not Self.WalkableSpace.Contains(q) then q := Self.NearestWalkablePoint(q);

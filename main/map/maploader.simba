@@ -169,7 +169,7 @@ begin
       if not UnZipOneFile(zipPath, zipFile, cacheroot) then
       begin
         created := True;
-        Result.SetSize(RSTranslator.Map.ChunkSide, RSTranslator.Map.ChunkSide);
+        Result.SetSize(Translator.Map.ChunkSide, Translator.Map.ChunkSide);
       end;
     end;
 
@@ -300,7 +300,7 @@ begin
   end;
 
   Result.Init();
-  n := RSTranslator.Map.ChunkSide;
+  n := Translator.Map.ChunkSide;
 
   Result.SetSize((hi.X-lo.X) * n + 1 + n, (hi.Y-lo.Y) * n + 1 + n);
 
@@ -451,7 +451,7 @@ begin
     if i mod divider = 0 then
       Self.DebugLn('Creating webgraph connections for area '  + ToStr(i) + '/' + ToStr(hi));
 
-    if Length(atpa[i]) <= GENERATED_GRAPH.MinimumTiles * RSTranslator.TileArea then Continue; //remove very small spaces
+    if Length(atpa[i]) <= GENERATED_GRAPH.MinimumTiles * Translator.TileArea then Continue; //remove very small spaces
 
     bounds := atpa[i].Bounds();
     if Max(bounds.Width(), bounds.Height()) < GENERATED_GRAPH.NodeRadius then //mark spaces less than NodeRadius with a single node and continue
@@ -730,7 +730,7 @@ begin
       if plane > 0 then
       begin
         for l := 0 to coords.High do
-          coords.getJSONArray(l).Put(0, Integer(coords.getJSONArray(l).GetInt(0) + RSTranslator.MapWidth() * plane));
+          coords.getJSONArray(l).Put(0, Integer(coords.getJSONArray(l).GetInt(0) + Translator.MapWidth() * plane));
       end;
 
       for n := 0 to Result.High() do
@@ -1146,8 +1146,8 @@ begin
     Result.Merge(graphs[i]);
   for i := 0 to High(Result.Doors) do
   begin
-    Result.Doors[i].Before := RSTranslator.Normalize(Result.Doors[i].Before);
-    Result.Doors[i].After  := RSTranslator.Normalize(Result.Doors[i].After);
+    Result.Doors[i].Before := Translator.Normalize(Result.Doors[i].Before);
+    Result.Doors[i].After  := Translator.Normalize(Result.Doors[i].After);
   end;
 
   Result.UseCollisionData := Self.Graph.UseCollisionData;
@@ -1279,15 +1279,15 @@ begin
       idx += 1;
       name := Self._GetChunk(chunks[i].Chunk, s, f);
       Self.Regions[idx].Name :=  ToStr(chunks[i].Planes[j]) + '_' + name;
-      Self.Regions[idx].Original := RSTranslator.Chunk2Coordinate(chunks[i].Chunk);
+      Self.Regions[idx].Original := Translator.Chunk2Coordinate(chunks[i].Chunk);
 
       if chunks[i].Planes[j] > 0 then
-        Self.Regions[idx].Original := Self.Regions[idx].Original.Offset([RSTranslator.MapWidth() * chunks[i].Planes[j], 0]);
+        Self.Regions[idx].Original := Self.Regions[idx].Original.Offset([Translator.MapWidth() * chunks[i].Planes[j], 0]);
 
       Self.Regions[idx].Plane := chunks[i].Planes[j];
 
-      tmp :=  RSTranslator.Chunk2Coordinate(s);
-      tmp.X += RSTranslator.MapWidth() * chunks[i].Planes[j]; //easy way to handle upper levels
+      tmp :=  Translator.Chunk2Coordinate(s);
+      tmp.X += Translator.MapWidth() * chunks[i].Planes[j]; //easy way to handle upper levels
       Self.Regions[idx].Offset := [tmp.X-padding, tmp.Y - padding];
 
       bitmaps += Self.Loader.GetMap(s, f, chunks[i].Planes[j], EGameMap.NORMAL);
@@ -1337,7 +1337,7 @@ var
 begin
   for i := 0 to High(Self.Regions) do
   begin
-    current := Chunk(RSTranslator.Global2Chunk(Self.Regions[i].Original), [Self.Regions[i].Plane]);
+    current := Chunk(Translator.Global2Chunk(Self.Regions[i].Original), [Self.Regions[i].Plane]);
     for j := 0 to High(Self.Regions) do
     begin
       if i = j then Continue;

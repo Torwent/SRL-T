@@ -387,7 +387,7 @@ begin
 
     if Self._DoorHandler.Handling then
     begin
-      if Self.WebGraph^.WalkableClusters.InSameTPA(RSTranslator.NormalizeDoor(position.Current), RSTranslator.NormalizeDoor(Self._DoorHandler.Door.After)) then
+      if Self.WebGraph^.WalkableClusters.InSameTPA(Translator.NormalizeDoor(position.Current), Translator.NormalizeDoor(Self._DoorHandler.Door.After)) then
       begin
         Self._PathIndex := Self._Path.Find(Self._Path.NearestPoint(destination));
         Self._DoorHandler.Handling := False;
@@ -436,7 +436,7 @@ begin
   end;
 
   median := history.Median();
-  if p.DistanceTo(median) > RSTranslator.TileSize then
+  if p.DistanceTo(median) > Translator.TileSize then
   begin
     flag := median + [0,8];
     Result := True;
@@ -593,11 +593,11 @@ begin
     if not walkerPoint.InRange(Self._DoorHandler.Door.After, 4) and not walkerPoint.InRange(playerPoint, 10) then
       if Self.FindFlagMove(flag) then
       begin
-        flag := RSTranslator.NormalizeDoor(flag);
+        flag := Translator.NormalizeDoor(flag);
         flag := Self.WebGraph^.NearestWalkablePoint(flag);
         if not Self.WebGraph^.WalkableClusters.InSameTPA(flag, walkerpoint) then
         begin
-          if Self.WebGraph^.WalkableClusters.InSameTPA(Self.Position(), RSTranslator.NormalizeDoor(Self._DoorHandler.Door.After)) then
+          if Self.WebGraph^.WalkableClusters.InSameTPA(Self.Position(), Translator.NormalizeDoor(Self._DoorHandler.Door.After)) then
             Exit;
 
           if Minimap.IsPlayermoving() then
@@ -891,7 +891,7 @@ begin
     if Self._DoorHandler.FlagMoved then
     begin
       Self._DoorHandler.FlagMoved := False;
-      Exit(Self.WebGraph^.WalkableClusters.InSameTPA(playerPoint, RSTranslator.NormalizeDoor(Self._DoorHandler.Door.After)));
+      Exit(Self.WebGraph^.WalkableClusters.InSameTPA(playerPoint, Translator.NormalizeDoor(Self._DoorHandler.Door.After)));
     end;
 
     fails := Self._WalkPathHelper(index, angle, playerPoint, fails, debug);
@@ -976,7 +976,7 @@ var
 begin
   doorIndex := -1;
   for i := 0 to High(path) do
-    if RSTranslator.Normalize(path[i]) = Self._DoorHandler.Door.Before then
+    if Translator.Normalize(path[i]) = Self._DoorHandler.Door.Before then
     begin
       doorIndex := i; //find the last time the door occurs in the path
       Break;
@@ -994,13 +994,13 @@ begin
     Self.DebugLn('fails: ' + ToStr(fails));
     {$ENDIF}
     playerPoint := Self.Position();
-    if Self.WebGraph^.WalkableClusters.InSameTPA(RSTranslator.NormalizeDoor(playerPoint), RSTranslator.NormalizeDoor(Self._DoorHandler.Door.After)) then
+    if Self.WebGraph^.WalkableClusters.InSameTPA(Translator.NormalizeDoor(playerPoint), Translator.NormalizeDoor(Self._DoorHandler.Door.After)) then
       Exit(True);
 
     if Self._DoorHandler.FlagMoved then
     begin
       Self._DoorHandler.FlagMoved := False;
-      Exit(Self.WebGraph^.WalkableClusters.InSameTPA(RSTranslator.NormalizeDoor(playerPoint), RSTranslator.NormalizeDoor(Self._DoorHandler.Door.After)));
+      Exit(Self.WebGraph^.WalkableClusters.InSameTPA(Translator.NormalizeDoor(playerPoint), Translator.NormalizeDoor(Self._DoorHandler.Door.After)));
     end;
 
     compass := Minimap.GetCompassAngle(False);
@@ -1050,7 +1050,7 @@ begin
             Self._DoorHandler.Skipped := False;
             WaitUntil(Minimap.IsPlayerMoving(), 200, 1200);
             WaitUntil(not Minimap.IsPlayerMoving(), 50, 2000 + 600 * Round(playerPoint.DistanceTo(Self._DoorHandler.Door.Before) / 4)); //max duration it can take to get to a point with a 2 second buffer
-            if Self.WebGraph^.WalkableClusters.InSameTPA(RSTranslator.NormalizeDoor(Self.Position), RSTranslator.NormalizeDoor(Self._DoorHandler.Door.After)) then Exit(True);
+            if Self.WebGraph^.WalkableClusters.InSameTPA(Translator.NormalizeDoor(Self.Position), Translator.NormalizeDoor(Self._DoorHandler.Door.After)) then Exit(True);
             if not Self._DoorHandler.Door.Before.InRange(Self.Position(), 3) then Continue;
           end;
 
@@ -1060,7 +1060,7 @@ begin
           begin
             postDoorIndex := -1;
             for i := 0 to High(path) do
-              if RSTranslator.Normalize(path[i]) = Self._DoorHandler.DoorsOnPath[1].Before then
+              if Translator.Normalize(path[i]) = Self._DoorHandler.DoorsOnPath[1].Before then
               begin
                 postDoorIndex := i;
                 Break;
@@ -1232,8 +1232,8 @@ var
 begin
   for i := 0 to High(path) - 1 do
   begin
-    n1 := RSTranslator.Normalize(path[i]);
-    n2 := RSTranslator.Normalize(path[i+1]);
+    n1 := Translator.Normalize(path[i]);
+    n2 := Translator.Normalize(path[i+1]);
 
     for door in Self.WebGraph^.Doors do
     begin

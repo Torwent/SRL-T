@@ -342,8 +342,8 @@ end;
 
 
 var
-  RSTranslator: TTranslator;
+  Translator: TTranslator;
 
 begin
-  RSTranslator.Setup();
+  Translator.Setup();
 end;

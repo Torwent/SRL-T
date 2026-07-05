@@ -569,7 +569,7 @@ begin
     Result := Self.Loader.GetGlobal(Self.RegionIndex, Result);
 
     if Self.Loader.UsingChunks then
-      Exit(RSTranslator.Normalize(Result))
+      Exit(Translator.Normalize(Result))
     else
       Exit;
   end;
@@ -675,9 +675,9 @@ begin
   for pt in [p, p.Offset(0,1), p.Offset(1,0), p.Offset(1,1)] do
   begin
     if Self.Loader.Heightmap.Bounds().Contains(p) then
-      Result += RSTranslator.Color2Height(Self.Loader.Heightmap.GetPixel(pt))
+      Result += Translator.Color2Height(Self.Loader.Heightmap.GetPixel(pt))
     else
-      Result += RSTranslator.Color2Height(Self.Loader.Heightmap.GetPixel(p));
+      Result += Translator.Color2Height(Self.Loader.Heightmap.GetPixel(p));
   end;
 
   Result := Result/4;
@@ -706,7 +706,7 @@ begin
 
   if c1 = c2 then Exit;
 
-  Result := RSTranslator.Color2Height(c1) - RSTranslator.Color2Height(c2);
+  Result := Translator.Color2Height(c1) - Translator.Color2Height(c2);
 end;
 
 

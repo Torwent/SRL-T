@@ -811,7 +811,7 @@ begin
     for i := 0 to High(dots) do
     begin
       p := Self.Walker^.MMToMap(me, dots[i], angle); // transfer back from minimap grid to map grid
-      p := RSTranslator.NormalizeNearestTile(p) + [2,2]*(Ceil(Max(Self.Size.X, Self.Size.Y))-1); //Go from topleft corner of npc to center
+      p := Translator.NormalizeNearestTile(p) + [2,2]*(Ceil(Max(Self.Size.X, Self.Size.Y))-1); //Go from topleft corner of npc to center
       diff := -(h-Self.Walker^.Height(p))/4;
       vec := Self.Walker^.PointToMMVec(me, p, angle); //translate back to MM space, use vectors to avoid rounding errors
       off := Self.Offset.RotateXY(angle, 0, 0);
