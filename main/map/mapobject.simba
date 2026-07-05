@@ -432,16 +432,16 @@ begin
 end;
 
 type
-  TObjectV2 = record(TMapObject)
+  TGameObjectV2 = record(TMapObject)
     ObjType:  Int32;
     Rotations: TSingleArray;
   end;
 
-  PRSObjectV2 = ^TObjectV2;
+  PRSObjectV2 = ^TGameObjectV2;
 
-  TObjectV2Array = array of TObjectV2;
+  TGameObjectV2Array = array of TGameObjectV2;
 
-function TObjectV2.Merge(coordinatesJSON, rotationsJSON, colorsJSON: TJSONArray): TObjectV2; overload;
+function TGameObjectV2.Merge(coordinatesJSON, rotationsJSON, colorsJSON: TJSONArray): TGameObjectV2; overload;
 var
   i, c, t: Int32;
   h, s: Extended;
@@ -480,12 +480,12 @@ begin
   Result.Finder.Colors += cts;
 end;
 
-function TObjectV2.Merge(json: TJSONObject): TObjectV2; overload;
+function TGameObjectV2.Merge(json: TJSONObject): TGameObjectV2; overload;
 begin
   Result := Self.Merge(json.getJSONArray('coordinates'), json.getJSONArray('rotations'), json.getJSONArray('colors'));
 end;
 
-function TObjectV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TObjectV2; static;
+function TGameObjectV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TGameObjectV2; static;
 begin
   Result.Walker := pwalker;
   Result.Filter := [True, True, True, True];
@@ -505,7 +505,7 @@ begin
 end;
 
 
-function TObjectV2.SameObject(json: TJSONObject): Boolean; override;
+function TGameObjectV2.SameObject(json: TJSONObject): Boolean; override;
 begin
   if Self.ObjType <> json.getInt('type') then
     Exit;
@@ -513,7 +513,7 @@ begin
 end;
 
 
-procedure TObjectV2.AddFilter(polygon: TPointArray; inside: Boolean);
+procedure TGameObjectV2.AddFilter(polygon: TPointArray; inside: Boolean);
 var
   i: Int32;
 begin
@@ -527,7 +527,7 @@ begin
     end;
 end;
 
-procedure TObjectV2.AddFilter(circle: TCircle; inside: Boolean); overload;
+procedure TGameObjectV2.AddFilter(circle: TCircle; inside: Boolean); overload;
 var
   i: Int32;
 begin
@@ -541,7 +541,7 @@ begin
     end;
 end;
 
-function TObjectV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
+function TGameObjectV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
 var
   Locations: TCoordsAngle;
   p: TPoint;
@@ -577,13 +577,13 @@ end;
 
 
 (*
-## TObjectV2.Find
+## TGameObjectV2.Find
 ```pascal
-function TObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
-function TObjectV2.Find(out atpa: T2DPointArray): Boolean;
-function TObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
+function TGameObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
+function TGameObjectV2.Find(out atpa: T2DPointArray): Boolean;
+function TGameObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
 ```
-TObjectV2 method used to find a {ref}`TObjectV2`. If found returns true, if not returns false.
+TGameObjectV2 method used to find a {ref}`TGameObjectV2`. If found returns true, if not returns false.
 The "extended" method in particular is mostly meant for debugging and is the one used when you call `Debug(TMapObject)`.
 
 Example:
@@ -592,7 +592,7 @@ WriteLn RSObjects.GEBank.Find(atpa); //Be in ge and with a walker setup there.
 Debug(atpa);
 ```
 *)
-function TObjectV2.FindEx(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
+function TGameObjectV2.FindEx(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
 begin
   if Self.Filter.Walker then
   begin
@@ -612,13 +612,13 @@ begin
 end;
 
 (*
-## TObjectV2.Draw
+## TGameObjectV2.Draw
 ```pascal
 procedure TMapObject.Draw(out bitmap: TMufasaBitmap);
 ```
 Helper method to debug TMapObjects used in `Debug(TMapObject)`.
 *)
-procedure TObjectV2.Draw(bitmap: TMufasaBitmap);
+procedure TGameObjectV2.Draw(bitmap: TMufasaBitmap);
 var
   me, p, q: TPoint;
   rect: TRectangle;
@@ -659,7 +659,7 @@ begin
 end;
 
 
-procedure TObjectV2Array.Reduce();
+procedure TGameObjectV2Array.Reduce();
 var
   i, j: Int32;
 begin
@@ -877,13 +877,13 @@ end;
 
 
 (*
-## TObjectV2.Find
+## TGameObjectV2.Find
 ```pascal
-function TObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
-function TObjectV2.Find(out atpa: T2DPointArray): Boolean;
-function TObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
+function TGameObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
+function TGameObjectV2.Find(out atpa: T2DPointArray): Boolean;
+function TGameObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
 ```
-TObjectV2 method used to find a {ref}`TObjectV2`. If found returns true, if not returns false.
+TGameObjectV2 method used to find a {ref}`TGameObjectV2`. If found returns true, if not returns false.
 The "extended" method in particular is mostly meant for debugging and is the one used when you call `Debug(TMapObject)`.
 
 Example:
@@ -908,7 +908,7 @@ begin
 end;
 
 (*
-## TObjectV2.Draw
+## TGameObjectV2.Draw
 ```pascal
 procedure TMapObject.Draw(out bitmap: TMufasaBitmap);
 ```
@@ -1452,7 +1452,7 @@ end;
 (*
 ## Debug
 ```pascal
-procedure Debug(obj: TObjectV2); overload;
+procedure Debug(obj: TGameObjectV2); overload;
 procedure Debug(npc: TNPCV2); overload;
 ```
 Debugs a TMapObject used with the help of it's `.Draw()` method.
@@ -1466,7 +1466,7 @@ begin
 end.
 ```
 *)
-procedure Debug(obj: TObjectV2); overload;
+procedure Debug(obj: TGameObjectV2); overload;
 var
   bitmap: TMufasaBitmap;
 begin
@@ -1538,24 +1538,24 @@ begin
 end;
 
 
-procedure TObjectV2.SetupEx(size: Vector3; coordinates: TPointArray);
+procedure TGameObjectV2.SetupEx(size: Vector3; coordinates: TPointArray);
 begin
   Self.SetupCoordinates(coordinates);
   Self.Size := size;
   SetLength(Self.Rotations, Length(Self.Coordinates));
 end;
 
-function TObjectV2.Setup(size, height: Double; coordinates: TPointArray): TObjectV2; static; overload;
+function TGameObjectV2.Setup(size, height: Double; coordinates: TPointArray): TGameObjectV2; static; overload;
 begin
   Result.SetupEx([size, size, height], coordinates);
 end;
 
-function TObjectV2.Setup(height: Double; coordinates: TPointArray): TObjectV2; static; overload;
+function TGameObjectV2.Setup(height: Double; coordinates: TPointArray): TGameObjectV2; static; overload;
 begin
-  Result := TObjectV2.Setup(1, height, coordinates);
+  Result := TGameObjectV2.Setup(1, height, coordinates);
 end;
 
-procedure TObjectV2.SetupUpText(upText: TStringArray);
+procedure TGameObjectV2.SetupUpText(upText: TStringArray);
 begin
   Self._Setup();
 
@@ -1568,7 +1568,7 @@ begin
   Self.Finder.Grow := 4;
 end;
 
-procedure TObjectV2.SetupUpText(upText: String); overload;
+procedure TGameObjectV2.SetupUpText(upText: String); overload;
 begin
   Self.SetupUpText([upText]);
 end;

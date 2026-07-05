@@ -148,7 +148,7 @@ begin
 end;
 
 
-function TObjectJSONParser.Get(obj: Variant): TObjectV2;
+function TObjectJSONParser.Get(obj: Variant): TGameObjectV2;
 var
   i: Int32;
   name: String;
@@ -157,7 +157,7 @@ begin
   begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = obj then
-        Exit(TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+        Exit(TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
     TerminateScript('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
   end;
 
@@ -167,7 +167,7 @@ begin
   begin
     for i := 0 to  Self.Data.High() do
       if Self.Data.getJSONObject(i).getInt('id') = obj then
-        Exit(TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+        Exit(TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
     TerminateScript('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
   end;
 
@@ -183,14 +183,14 @@ begin
       Continue;
     end;
 
-    Result := TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+    Result := TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
   end;
 
   if Result.Name = '' then
     TerminateScript('Object ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
 end;
 
-function TObjectJSONParser.GetByAction(action: String): TObjectV2;
+function TObjectJSONParser.GetByAction(action: String): TGameObjectV2;
 var
   i, j: Int32;
 begin
@@ -201,31 +201,31 @@ begin
     begin
       if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) <> action then
         Continue;
-      Exit(TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+      Exit(TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
     end;
 end;
 
-function TObjectJSONParser.GetByCategory(category: Int32): TObjectV2;
+function TObjectJSONParser.GetByCategory(category: Int32): TGameObjectV2;
 var
   i: Int32;
 begin
   for i := 0 to Self.Data.High() do
     if Self.Data.getJSONObject(i).getInt('category') = category then
-      Exit(TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+      Exit(TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
 end;
 
 
-function TObjectJSONParser.GetAll(name: String): TObjectV2Array;
+function TObjectJSONParser.GetAll(name: String): TGameObjectV2Array;
 var
   i: Int32;
 begin
   name := LowerCase(name);
   for i := 0 to Self.Data.High() do
     if LowerCase(Self.Data.getJSONObject(i).getString('name')) = name then
-      Result += TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Result += TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
 end;
 
-function TObjectJSONParser.GetAll(names: TStringArray): TObjectV2Array; overload;
+function TObjectJSONParser.GetAll(names: TStringArray): TGameObjectV2Array; overload;
 var
   name: String;
 begin
@@ -233,7 +233,7 @@ begin
     Result += Self.GetAll(name);
 end;
 
-function TObjectJSONParser.GetAllByAction(action: String): TObjectV2Array;
+function TObjectJSONParser.GetAllByAction(action: String): TGameObjectV2Array;
 var
   i, j: Int32;
 begin
@@ -244,7 +244,7 @@ begin
     begin
       if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) <> action then
         Continue;
-      Result += TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Result += TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
       Break;
     end;
 
@@ -252,7 +252,7 @@ begin
     Result.Reduce();
 end;
 
-function TObjectJSONParser.GetAllByCoordinate(p: TPoint; dist: Int32): TObjectV2Array;
+function TObjectJSONParser.GetAllByCoordinate(p: TPoint; dist: Int32): TGameObjectV2Array;
 var
   i, j: Int32;
   coordJSON: TJSONArray;
@@ -265,7 +265,7 @@ begin
       coord := [coordJSON.getInt(0), coordJSON.getInt(1)];
       if p.DistanceTo(coord) >= dist then
         Continue;
-      Result += TObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Result += TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
       Break;
     end;
 
@@ -273,10 +273,10 @@ begin
     Result.Reduce();
 end;
 
-function TObjectJSONParser.GetNearest(names: TStringArray; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TObjectV2;
+function TObjectJSONParser.GetNearest(names: TStringArray; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TGameObjectV2;
 var
-  obj: TObjectV2;
-  objArr: TObjectV2Array;
+  obj: TGameObjectV2;
+  objArr: TGameObjectV2Array;
   dist: Double;
   coordinate: TPoint;
   angle: Single;
@@ -311,7 +311,7 @@ begin
   Result.Rotations := [angle];
 end;
 
-function TObjectJSONParser.GetNearest(name: String; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TObjectV2; overload;
+function TObjectJSONParser.GetNearest(name: String; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TGameObjectV2; overload;
 begin
   Result := Self.GetNearest([name], point, actions, maxDist);
 end;
@@ -530,7 +530,7 @@ type
   TBanks = record
     MapObjects: PRSMapObjectArray;
 
-    ObjectsCache: TObjectV2Array;
+    ObjectsCache: TGameObjectV2Array;
     NPCsCache: TNPCV2Array;
   end;
 
@@ -564,7 +564,7 @@ begin
     TerminateScript('No bank objects nor npcs available in the loaded TMap');
 end;
 
-procedure TBanks._AddObject(obj: TObjectV2);
+procedure TBanks._AddObject(obj: TGameObjectV2);
 begin
   Self.ObjectsCache += obj;
   Self.MapObjects += @Self.ObjectsCache[High(Self.ObjectsCache)];
