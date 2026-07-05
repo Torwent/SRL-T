@@ -119,7 +119,7 @@ begin
   if Length(buttons) <> 2 then
     Exit;
 
-  Result := buttons[0].FindText('Not now', RS_FONT_PLAIN_12, [$0000FF]);
+  Result := buttons[0].FindText('Not now', FONT_PLAIN_12, [$0000FF]);
 end;
 
 function TBank.ClosePopUp(): Boolean;
@@ -130,7 +130,7 @@ begin
   if Length(buttons) <> 2 then
     Exit(True);
 
-  if buttons[0].FindText('Not now', RS_FONT_PLAIN_12, [$0000FF]) then
+  if buttons[0].FindText('Not now', FONT_PLAIN_12, [$0000FF]) then
     Result := buttons[0].Click(MOUSE_LEFT);
 
   if Result then
@@ -347,7 +347,7 @@ begin
   Result := ((count1 = 120) and (count2 = 140)) or Self.IsTitle('Bank') or Self.IsTitle('Equip');
 
   if Result and waitForItems then
-    WaitUntil(SRL.CountColor(RS_ITEM_BORDER, Self.SlotsArea) > 0, 50, 1000);
+    WaitUntil(SRL.CountColor(ITEM_BORDER, Self.SlotsArea) > 0, 50, 1000);
 end;
 
 function TBank.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
@@ -416,10 +416,10 @@ var
   b: TBox;
   i: Int32;
 begin
-  if SRL.FindColors(final, RS_ITEM_BORDER, Self.SlotsArea) = 0 then
+  if SRL.FindColors(final, ITEM_BORDER, Self.SlotsArea) = 0 then
     Exit;
 
-  for i in [RS_ITEM_YELLOW_STACK, RS_ITEM_WHITE_STACK, RS_ITEM_GREEN_STACK] do
+  for i in [ITEM_YELLOW_STACK, ITEM_WHITE_STACK, ITEM_GREEN_STACK] do
     if SRL.FindColors(tpa, i, Self.SlotsArea) > 0 then
       final += tpa;
 
@@ -508,7 +508,7 @@ begin
   B.Y2 := B.Y1 + 15;
   B.LimitTo(Self.Bounds);
 
-  Result := OCR.Recognize(B, TOCRThresholdFilter.Create(13), RS_FONT_BOLD_12);
+  Result := OCR.Recognize(B, TOCRThresholdFilter.Create(13), FONT_BOLD_12);
 end;
 
 //should look for the query instead of interface title. Check the comment below for more info.
@@ -890,9 +890,9 @@ begin
   tpa := atpa[0];
 
   //Now we run OCR on the number tpa to find out what number is it and set our result
-  Result := OCR.RecognizeNumber(tpa.Bounds(), TOCRColorFilter.Create([10672356]), RS_FONT_PLAIN_11);
+  Result := OCR.RecognizeNumber(tpa.Bounds(), TOCRColorFilter.Create([10672356]), FONT_PLAIN_11);
   if Result = 0 then
-    Result := OCR.RecognizeNumber(tpa.Bounds(), TOCRColorFilter.Create([16777215]), RS_FONT_PLAIN_11);
+    Result := OCR.RecognizeNumber(tpa.Bounds(), TOCRColorFilter.Create([16777215]), FONT_PLAIN_11);
 
   if (Result > 0) and openTab then
     Self.OpenTab(Result);

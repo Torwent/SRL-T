@@ -9,12 +9,12 @@ Methods responsible for dealing with the stats tab.
 
 type
 (*
-## ERSSkill
+## ESkill
 ```pascal
-ERSSkill = (ATTACK, HITPOINTS, MINING, STRENGTH, AGILITY, SMITHING, DEFENCE, HERBLORE, FISHING, RANGE, THIEVING, COOKING, PRAYER, CRAFTING, FIREMAKING, MAGIC, FLETCHING, WOODCUTTING, RUNECRAFTING, SLAYER, FARMING, CONSTRUCTION, HUNTER, TOTAL);
+ESkill = (ATTACK, HITPOINTS, MINING, STRENGTH, AGILITY, SMITHING, DEFENCE, HERBLORE, FISHING, RANGE, THIEVING, COOKING, PRAYER, CRAFTING, FIREMAKING, MAGIC, FLETCHING, WOODCUTTING, RUNECRAFTING, SLAYER, FARMING, CONSTRUCTION, HUNTER, TOTAL);
 ```
 *)
-  ERSSkill = (
+  ESkill = (
     ATTACK,
     HITPOINTS,
     MINING,
@@ -81,8 +81,8 @@ type
 
 type
   TStats = record(TInterface)
-    Levels: array [ERSSkill] of Int32;
-    SkillBoxes: array [ERSSkill] of TBox;
+    Levels: array [ESkill] of Int32;
+    SkillBoxes: array [ESkill] of TBox;
     OCRFilter: TOCRColorFilter;
   end;
 
@@ -123,8 +123,8 @@ begin
   boxes := Grid(3, 8, 55, 29, [8, 1], [Self.Bounds.X1 + 1, Self.Bounds.Y1 + 3]);
   boxes += Box(Self.Bounds.X1 + 1, Self.Bounds.Y2 - 18, Self.Bounds.X2 - 1, Self.Bounds.Y2 - 1);
 
-  for i := 0 to Ord(High(ERSSkill)) do
-   Self.SkillBoxes[ERSSkill(i)] := boxes[i];
+  for i := 0 to Ord(High(ESkill)) do
+   Self.SkillBoxes[ESkill(i)] := boxes[i];
 
 end;
 
@@ -167,16 +167,16 @@ end;
 (*
 ## Stats.MouseOver
 ```pascal
-function TStats.MouseOver(skill: ERSSkill): Boolean;
+function TStats.MouseOver(skill: ESkill): Boolean;
 ```
 Moves the mouse over to a skill box.
 
 Example:
 ```pascal
-WriteLn Stats.MouseOver(ERSSkill.CONSTRUCTION);
+WriteLn Stats.MouseOver(ESkill.CONSTRUCTION);
 ```
 *)
-function TStats.MouseOver(skill: ERSSkill): Boolean;
+function TStats.MouseOver(skill: ESkill): Boolean;
 begin
   Result := Self.Open();
   if Result then
@@ -186,16 +186,16 @@ end;
 (*
 ## Stats.GetSkillInfo
 ```pascal
-function TStats.GetSkillInfo(skill: ERSSkill; waitTime: Int32 = 1000): TSkillInfo;
+function TStats.GetSkillInfo(skill: ESkill; waitTime: Int32 = 1000): TSkillInfo;
 ```
 Get the skill information about a skill when you hover it.
 
 Example:
 ```pascal
-WriteLn Stats.GetSkillInfo(ERSSkill.CONSTRUCTION);
+WriteLn Stats.GetSkillInfo(ESkill.CONSTRUCTION);
 ```
 *)
-function TStats.GetSkillInfo(skill: ERSSkill; waitTime: Int32 = 1000): TSkillInfo;
+function TStats.GetSkillInfo(skill: ESkill; waitTime: Int32 = 1000): TSkillInfo;
 var
   TPA: TPointArray;
   Lines: TStringArray;
@@ -214,7 +214,7 @@ begin
 
       SetLength(Lines, B.Height div 12);
       for I := 0 to High(Lines) do
-        Lines[I] := OCR.Recognize([B.X1, B.Y1 + (I * 12), B.X2, B.Y1 + ((I+1) * 12) + 3],  TOCRColorFilter.Create([0]), RS_FONT_PLAIN_12);
+        Lines[I] := OCR.Recognize([B.X1, B.Y1 + (I * 12), B.X2, B.Y1 + ((I+1) * 12) + 3],  TOCRColorFilter.Create([0]), FONT_PLAIN_12);
 
       if Length(Lines) = 0 then
         Continue;
@@ -240,17 +240,17 @@ end;
 (*
 ## Stats.GetLevel
 ```pascal
-function TStats.GetLevel(skill: ERSSkill; useCache: Boolean = True): Int32;
+function TStats.GetLevel(skill: ESkill; useCache: Boolean = True): Int32;
 ```
 Get the level of the specified **skill**. By default uses the levels cached in the Stats.Levels array.
 When using the cached methods, it can be used to retrieve the level of a skill while the gametab is open assuming the level is already cached.
 
 Example:
 ```pascal
-WriteLn Stats.GetLevel(ERSSkill.HITPOINTS);
+WriteLn Stats.GetLevel(ESkill.HITPOINTS);
 ```
 *)
-function TStats.GetLevel(skill: ERSSkill; useCache: Boolean = True): Int32;
+function TStats.GetLevel(skill: ESkill; useCache: Boolean = True): Int32;
 var
   text: String;
   b: TBox;
@@ -267,7 +267,7 @@ begin
   b := Self.SkillBoxes[skill];
   b.Y1 := b.Y2 - (b.Height() div 2);
 
-  text := OCR.Recognize(b, Self.OCRFilter, RS_FONT_PLAIN_11);
+  text := OCR.Recognize(b, Self.OCRFilter, FONT_PLAIN_11);
   Result := StrToIntDef(ExtractFromStr(text, Numbers), -1);
 
   if Result > 0 then
@@ -285,25 +285,25 @@ procedure TStats.CacheAll();
 var
   i: Int32;
 begin
-  for i := 0 to Ord(High(ERSSkill)) do
-    Self.GetLevel(ERSSkill(i), False);
+  for i := 0 to Ord(High(ESkill)) do
+    Self.GetLevel(ESkill(i), False);
 end;
 
 (*
 ## Stats.IncrementCachedLevel
 ```pascal
-procedure TStats.IncrementCachedLevel(skill: ERSSkill);
+procedure TStats.IncrementCachedLevel(skill: ESkill);
 ```
 Internal method to update cached levels. This is automatically called by Chat.LeveledUp().
 
 Example:
 ```pascal
-WriteLn Stats.GetCurrentLevel(ERSSkill.PRAYER);
-Stats.IncrementLevel(ERSSkill.PRAYER);
-WriteLn Stats.GetCurrentLevel(ERSSkill.PRAYER);
+WriteLn Stats.GetCurrentLevel(ESkill.PRAYER);
+Stats.IncrementLevel(ESkill.PRAYER);
+WriteLn Stats.GetCurrentLevel(ESkill.PRAYER);
 ```
 *)
-procedure TStats.IncrementCachedLevel(skill: ERSSkill);
+procedure TStats.IncrementCachedLevel(skill: ESkill);
 begin
   if Self.Levels[skill] > 0 then
     Self.Levels[skill] += 1;
@@ -368,15 +368,15 @@ begin
   b.Y1 += 60;
   b.Y2 -= 75;
 
-  skillStr := OCR.Recognize(b, TOCRColorFilter.Create([0]), RS_FONT_QUILL_8);
+  skillStr := OCR.Recognize(b, TOCRColorFilter.Create([0]), FONT_QUILL_8);
   skillStr := Trim(skillStr.After('Your ').Before(' level').Lower());
 
-  for i := 0 to Ord(High(ERSSkill)) do
-    if skillStr in ToStr(ERSSkill(i)).After('ERSSkill.').Lower() then
+  for i := 0 to Ord(High(ESkill)) do
+    if skillStr in ToStr(ESkill(i)).After('ESkill.').Lower() then
       Break;
 
-  if i >= Ord(High(ERSSkill)) then //total never has level ups...
+  if i >= Ord(High(ESkill)) then //total never has level ups...
     Exit;
 
-  Stats.IncrementCachedLevel(ERSSkill(i));
+  Stats.IncrementCachedLevel(ESkill(i));
 end;

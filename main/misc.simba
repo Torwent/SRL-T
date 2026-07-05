@@ -9,12 +9,12 @@ Miscellaneous methods and variables
 {$ENDIF}
 
 const
-  RS_ITEM_SHADOW       = $202030;
-  RS_ITEM_BORDER       = $010000;
+  ITEM_SHADOW       = $202030;
+  ITEM_BORDER       = $010000;
 
-  RS_ITEM_YELLOW_STACK = $00FFFF;
-  RS_ITEM_WHITE_STACK  = $FFFFFF;
-  RS_ITEM_GREEN_STACK  = $80FF00;
+  ITEM_YELLOW_STACK = $00FFFF;
+  ITEM_WHITE_STACK  = $FFFFFF;
+  ITEM_GREEN_STACK  = $80FF00;
 
 (*
 ## SRL.GetXPAtLevel
@@ -75,14 +75,14 @@ get the number of stacked items there are.
 *)
 function TSRL.GetItemAmount(constref area: TBox): Int32; constref;
 begin
-  if SRL.CountColor(RS_ITEM_YELLOW_STACK, area) > 0 then
-    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([RS_ITEM_YELLOW_STACK]), RS_FONT_PLAIN_11)
+  if SRL.CountColor(ITEM_YELLOW_STACK, area) > 0 then
+    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([ITEM_YELLOW_STACK]), FONT_PLAIN_11)
   else
-  if SRL.CountColor(RS_ITEM_WHITE_STACK, area) > 0 then
-    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([RS_ITEM_WHITE_STACK]), RS_FONT_PLAIN_11) * 1000
+  if SRL.CountColor(ITEM_WHITE_STACK, area) > 0 then
+    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([ITEM_WHITE_STACK]), FONT_PLAIN_11) * 1000
   else
-  if SRL.CountColor(RS_ITEM_GREEN_STACK, area) > 0 then
-    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([RS_ITEM_GREEN_STACK]), RS_FONT_PLAIN_11) * 1000000;
+  if SRL.CountColor(ITEM_GREEN_STACK, area) > 0 then
+    Result := OCR.RecognizeNumber(area, TOCRColorFilter.Create([ITEM_GREEN_STACK]), FONT_PLAIN_11) * 1000000;
 end;
 
 (*

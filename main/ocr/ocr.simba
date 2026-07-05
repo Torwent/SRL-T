@@ -6,23 +6,23 @@
 {$loadlib ../../plugins/libsimpleocr/libsimpleocr}
 
 const
-  RS_FONT_PATH = {$macro CURRENT_DIRECTORY} + 'fonts' + DirectorySeparator;
+  FONT_PATH = {$macro CURRENT_DIRECTORY} + 'fonts' + DirectorySeparator;
 
 var
-  RS_FONT_PLAIN_11: TFontSet;
-  RS_FONT_PLAIN_12: TFontSet;
-  RS_FONT_BOLD_12: TFontSet;
-  RS_FONT_BOLD_12_SHADOW: TFontSet;
-  RS_FONT_QUILL_8: TFontSet;
-  RS_FONT_QUILL: TFontSet;
+  FONT_PLAIN_11: TFontSet;
+  FONT_PLAIN_12: TFontSet;
+  FONT_BOLD_12: TFontSet;
+  FONT_BOLD_12_SHADOW: TFontSet;
+  FONT_QUILL_8: TFontSet;
+  FONT_QUILL: TFontSet;
 
   OCR: TSimpleOCR;
 
 begin
-  RS_FONT_PLAIN_11.Load(RS_FONT_PATH + 'Plain 11');
-  RS_FONT_PLAIN_12.Load(RS_FONT_PATH + 'Plain 12');
-  RS_FONT_BOLD_12.Load(RS_FONT_PATH + 'Bold 12');
-  RS_FONT_BOLD_12_SHADOW.Load(RS_FONT_PATH + 'Bold 12 Shadow');
-  RS_FONT_QUILL_8.Load(RS_FONT_PATH + 'Quill 8');
-  RS_FONT_QUILL.Load(RS_FONT_PATH + 'Quill');
+  FONT_PLAIN_11.Load(FONT_PATH + 'Plain 11');
+  FONT_PLAIN_12.Load(FONT_PATH + 'Plain 12');
+  FONT_BOLD_12.Load(FONT_PATH + 'Bold 12');
+  FONT_BOLD_12_SHADOW.Load(FONT_PATH + 'Bold 12 Shadow');
+  FONT_QUILL_8.Load(FONT_PATH + 'Quill 8');
+  FONT_QUILL.Load(FONT_PATH + 'Quill');
 end;

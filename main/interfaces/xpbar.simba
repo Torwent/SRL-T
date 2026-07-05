@@ -146,9 +146,9 @@ begin
   end;
 
   case tpa.Bounds().Height() of
-    8:  Self.Font := RS_FONT_PLAIN_11;
-    11: Self.Font := RS_FONT_PLAIN_12;
-    10: Self.Font := RS_FONT_BOLD_12; //it's actually less tall lol.
+    8:  Self.Font := FONT_PLAIN_11;
+    11: Self.Font := FONT_PLAIN_12;
+    10: Self.Font := FONT_BOLD_12; //it's actually less tall lol.
     else
     begin
       Self.Alignment := [];

@@ -223,16 +223,16 @@ begin
   for Button in Buttons do
   begin
     // Already selected
-    if Button.FindText(Text, RS_FONT_PLAIN_11, ENABLED_COLOR) then
+    if Button.FindText(Text, FONT_PLAIN_11, ENABLED_COLOR) then
       Exit(True);
 
     // Select
-    if Button.FindText(Text, RS_FONT_PLAIN_11, DISABLED_COLOR) then
+    if Button.FindText(Text, FONT_PLAIN_11, DISABLED_COLOR) then
       Exit(Button.Click());
   end;
 
   for Button in Buttons do
-    if Button.FindText('X', RS_FONT_PLAIN_11, DISABLED_COLOR) then
+    if Button.FindText('X', FONT_PLAIN_11, DISABLED_COLOR) then
       Exit(Button.Click() and Chat.AnswerQuery('Enter amount', ToString(Amount), 3000));
 end;
 
@@ -268,7 +268,7 @@ begin
   begin
     buttons[Item.Index].Bounds.Y2 += 15;
 
-    if buttons[Item.Index].FindText('Space', RS_FONT_PLAIN_11) then
+    if buttons[Item.Index].FindText('Space', FONT_PLAIN_11) then
       Keyboard.PressKey(VK_SPACE)
     else
       Keyboard.PressKey(VK_1 + buttons[Item.Index].Index);
@@ -286,7 +286,7 @@ begin
     begin
       Button.Bounds.Y2 += 15;
 
-      if Button.FindText('Space', RS_FONT_PLAIN_11) then
+      if Button.FindText('Space', FONT_PLAIN_11) then
         Keyboard.PressKey(VK_SPACE)
       else
         Keyboard.PressKey(VK_1 + Button.Index);
@@ -342,7 +342,7 @@ begin
     if not WaitUntil((TPA := Self.FindHint()) <> [], SRL.TruncatedGauss(50, 1500), 4000) then
       Continue;
 
-    if SameText(OCR.Recognize(TPA.Bounds(), TOCRColorFilter.Create([0]), RS_FONT_PLAIN_12), Item) then
+    if SameText(OCR.Recognize(TPA.Bounds(), TOCRColorFilter.Create([0]), FONT_PLAIN_12), Item) then
     begin
       Self.Items += [Item, Buttons[I].Index , 0];
 

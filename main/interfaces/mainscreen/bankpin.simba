@@ -63,7 +63,7 @@ begin
 
   for i := 0 to High(buttons) do
   begin
-    digit := OCR.Recognize(buttons[i].Bounds.Expand(5), Self.ButtonFilter, RS_FONT_BOLD_12);
+    digit := OCR.Recognize(buttons[i].Bounds.Expand(5), Self.ButtonFilter, FONT_BOLD_12);
     if DIGITS.Contains(digit) then loaded += True;
     if Length(loaded) > 2 then
       Exit(True);
@@ -120,7 +120,7 @@ begin
 
   for i := 0 to High(buttons) do
   begin
-    if OCR.LocateText(buttons[i].Bounds.Expand(5), digit, RS_FONT_BOLD_12, TOCRColorFilter.Create([$007FFF]), 1) then
+    if OCR.LocateText(buttons[i].Bounds.Expand(5), digit, FONT_BOLD_12, TOCRColorFilter.Create([$007FFF]), 1) then
     begin
       Mouse.Click(buttons[i].Bounds, MOUSE_LEFT);
       Exit(True);
@@ -158,7 +158,7 @@ function TBankPin.Enter(pin: String; attempts: Int32 = 3): Boolean;
     i: Int32;
   begin
     for i := 0 to High(DIGITS) do
-      if OCR.LocateText(Self.Bounds, DIGITS[i],  RS_FONT_BOLD_12, Self.DigitFilter, 1) then
+      if OCR.LocateText(Self.Bounds, DIGITS[i],  FONT_BOLD_12, Self.DigitFilter, 1) then
         Exit(pin[i+1]);
   end;
 

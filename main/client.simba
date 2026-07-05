@@ -143,7 +143,7 @@ end;
 function TGameClient.DetectClientMode(Update: Boolean): EClientMode;
 ```
 Detects the client mode. If **Update** is True ClientModeChanged will be called.
-Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
+Uses the music tab so will return CLIENT_UNKNOWN when not logged in.
 Are there any other cases where music tab won't be visible?
 *)
 function TGameClient.DetectClientMode(update: Boolean = False): EClientMode;

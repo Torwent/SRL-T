@@ -227,7 +227,7 @@ begin
   // replace orange title text with interface background color
   Self.UpTextBitmapBuffer.ReplaceColor($1F98FF, $333E48);
   Self.UpTextBitmapBuffer.ReplaceColor($0C0E0E, $333E48);
-  Result := OCR._RecognizeStatic(Self.UpTextBitmapBuffer.ToMatrix(), Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
+  Result := OCR._RecognizeStatic(Self.UpTextBitmapBuffer.ToMatrix(), Self.UpTextFilter, FONT_BOLD_12_SHADOW);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
   Self.DebugLn('UpText: ' + Result);
@@ -757,7 +757,7 @@ begin
     if not _Find(tpa, b, RED_SPLATS) and not _Find(tpa, b, MAX_SPLATS) then
       Continue;
 
-    hit := OCR.RecognizeNumber(b, TOCRColorFilter.Create([$FFFFFF]), RS_FONT_PLAIN_11);
+    hit := OCR.RecognizeNumber(b, TOCRColorFilter.Create([$FFFFFF]), FONT_PLAIN_11);
     Result += [b.Center(), hit, True];
   end;
 end;
@@ -953,27 +953,27 @@ end;
 
 
 type
-  ERSClickType = (NONE, RED, YELLOW);
+  EClickType = (NONE, RED, YELLOW);
 
 (*
 ## Mainscreen.FindClick
 ```pascal
-function TMainScreen.FindClick(Area: TBox): ERSClickType;
+function TMainScreen.FindClick(Area: TBox): EClickType;
 ```
 
 Finds a click type in the desired area. Will return either:
 
- - RS_CLICK_NONE
- - RS_CLICK_RED
- - RS_CLICK_YELLOW
+ - CLICK_NONE
+ - CLICK_RED
+ - CLICK_YELLOW
 
 Example:
 ```pascal
-if MainScreen.FindClick([50,50,100,100]) = RS_CLICK_RED then
+if MainScreen.FindClick([50,50,100,100]) = CLICK_RED then
   WriteLn('Found a red click in 50,50,100,100');
 ```
 *)
-function TMainScreen.FindClick(area: TBox): ERSClickType;
+function TMainScreen.FindClick(area: TBox): EClickType;
 var
   attempt: Int32;
 begin
@@ -982,10 +982,10 @@ begin
   for attempt := 1 to 2 do
   begin
     if SRL.CountColor(CTS1(65535,0), area) > 0 then
-      Exit(ERSClickType.YELLOW);
+      Exit(EClickType.YELLOW);
 
     if SRL.CountColor(CTS1(255,0), area) + SRL.CountColor(CTS1(262600,0), area) > 0 then
-      Exit(ERSClickType.RED);
+      Exit(EClickType.RED);
 
     if attempt = 1 then // Try again after 50 ms
       Wait(50);

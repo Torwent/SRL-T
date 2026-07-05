@@ -184,7 +184,7 @@ begin
 
     if (b.Y2 > Self.Bounds.Y2) then Exit;
 
-    Result[i].Text := OCR.RecognizeStatic(b, Self.OCRFilter, RS_FONT_BOLD_12_SHADOW);
+    Result[i].Text := OCR.RecognizeStatic(b, Self.OCRFilter, FONT_BOLD_12_SHADOW);
     Result[i].Bounds := b;
     Result[i].OptionIndex := i;
   end;
@@ -411,7 +411,7 @@ begin
 
     if (b.Y2 > subBounds.Y2) then Exit;
 
-    Result[i].Text := OCR.RecognizeStatic(b, Self.OCRFilter, RS_FONT_BOLD_12_SHADOW);
+    Result[i].Text := OCR.RecognizeStatic(b, Self.OCRFilter, FONT_BOLD_12_SHADOW);
     Result[i].Bounds := b;
     Result[i].OptionIndex := i;
   end;

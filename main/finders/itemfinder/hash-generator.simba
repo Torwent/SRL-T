@@ -2,8 +2,8 @@
 
 const
   PATH = {$macro CURRENT_DIRECTORY};
-  RS_ITEM_BORDER = $010000;
-  RS_ITEM_SHADOW = $202030;
+  ITEM_BORDER = $010000;
+  ITEM_SHADOW = $202030;
   CLEANUP = True;
 
 var
@@ -65,12 +65,12 @@ var
   atpa: T2DPointArray;
   noted: Boolean;
 begin
-  if not bmp.FindColors(border, RS_ITEM_BORDER) then
+  if not bmp.FindColors(border, ITEM_BORDER) then
     Exit;
 
   Result := True;
 
-  bmp.FindColors(shadow, RS_ITEM_SHADOW);
+  bmp.FindColors(shadow, ITEM_SHADOW);
   if bmp.FindColors(tpa, $333333) then
     shadow += tpa;
 
@@ -89,7 +89,7 @@ begin
 
   noted := True;
   for i := 0 to High(NOTED_TPA) do
-    if matrix[NOTED_TPA[i].y, NOTED_TPA[i].x] <> RS_ITEM_BORDER then
+    if matrix[NOTED_TPA[i].y, NOTED_TPA[i].x] <> ITEM_BORDER then
     begin
       noted := False;
       Break;
@@ -108,7 +108,7 @@ begin
     for x := b.X1 to b.X2 do
     begin
       case matrix[y,x] of
-        RS_ITEM_BORDER: if Inc(count) > 2 then Continue(2);
+        ITEM_BORDER: if Inc(count) > 2 then Continue(2);
         else if count = 1 then tpa += [x,y];
       end;
     end;
@@ -125,7 +125,7 @@ begin
     for y := b.Y1 to b.Y2 do
     begin
       case matrix[y,x] of
-        RS_ITEM_BORDER: if Inc(count) > 2 then Continue(2);
+        ITEM_BORDER: if Inc(count) > 2 then Continue(2);
         else if count = 1 then tpa += [x,y];
       end;
     end;
@@ -145,7 +145,7 @@ begin
     for x := b.X2 downto b.X1 do
     begin
       case matrix[y,x] of
-        RS_ITEM_BORDER: if Inc(count) > 2 then Continue(2);
+        ITEM_BORDER: if Inc(count) > 2 then Continue(2);
         $00FFFF:
         case count of
          0: matrix[y,x] := $0;
@@ -168,7 +168,7 @@ begin
     for y := b.Y2 downto b.Y1 do
     begin
       case matrix[y,x] of
-        RS_ITEM_BORDER: if Inc(count) > 2 then Continue(2);
+        ITEM_BORDER: if Inc(count) > 2 then Continue(2);
         $00FFFF:
         case count of
          0: matrix[y,x] := $0;

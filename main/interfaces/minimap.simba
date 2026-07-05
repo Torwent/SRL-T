@@ -50,7 +50,7 @@ WriteLn Minimap.GetLevel(Minimap.GetSpecAttackCircle());
 *)
 function TMinimap.GetLevel(orb: ERSMinimapOrb): Int32;
 begin
-  Result := OCR.RecognizeNumber([Self.Orbs[orb].X-35, Self.Orbs[orb].Y-1, Self.Orbs[orb].X-15, Self.Orbs[orb].Y+9], TOCRShadowFilter.Create(), RS_FONT_PLAIN_11);
+  Result := OCR.RecognizeNumber([Self.Orbs[orb].X-35, Self.Orbs[orb].Y-1, Self.Orbs[orb].X-15, Self.Orbs[orb].Y+9], TOCRShadowFilter.Create(), FONT_PLAIN_11);
 end;
 
 (*

@@ -131,7 +131,7 @@ end;
 
 procedure TRemoteInput.Setup();
 const
-  RS_EXECUTABLES: TStringArray = [{$IFDEF WINDOWS}'RuneLite.exe', 'JagexLauncher.exe'{$ELSE}'java'{$ENDIF}];
+  EXECUTABLES: TStringArray = [{$IFDEF WINDOWS}'RuneLite.exe', 'JagexLauncher.exe'{$ELSE}'java'{$ENDIF}];
   BITNESS: String = {$IFDEF CPU386}'32'{$ELSE}'64'{$ENDIF};
   INVERTED_BITNESS: String = {$IFDEF CPU386}'64'{$ELSE}'32'{$ENDIF};
 var
@@ -143,7 +143,7 @@ begin
   if (Self.PID = 0) then
     Self.PID := GetSimbaTargetPID();
   {$ENDIF}
-  
+
   try
     if (Self.PID = 0) then
     begin
@@ -159,7 +159,7 @@ begin
 
       Self.DebugLn('Automatically finding the client may take a few seconds.');
       Self.DebugLn('Finding a RuneLite client may also have unexpected results.');
-      RIInject(RS_EXECUTABLES, Self.PID);
+      RIInject(EXECUTABLES, Self.PID);
     end
     else
       RIInject(Self.PID);

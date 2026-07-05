@@ -143,8 +143,8 @@ procedure TMap.SetupChunksEx(chunks: TBoxArray; levels: TIntegerArray = [0]; dow
 procedure TMap.SetupChunkEx(chunk: TBox; levels: TIntegerArray = [0]; downscale: UInt32 = 8);
 procedure TMap.SetupChunks(chunks: array of TMapChunk; downscale: UInt32 = 8);
 procedure TMap.SetupChunk(chunk: TMapChunk; downscale: UInt32 = 8);
-procedure TMap.SetupChunks(chunks: array of ERSChunk; downscale: UInt32 = 8); overload;
-procedure TMap.SetupChunk(chunk: ERSChunk; downscale: UInt32 = 8); overload;
+procedure TMap.SetupChunks(chunks: array of EChunk; downscale: UInt32 = 8); overload;
+procedure TMap.SetupChunk(chunk: EChunk; downscale: UInt32 = 8); overload;
 ```
 Setup a TMap.
 If for some reason you can't setup all your maps at once, you can later use the `Add` methods.
@@ -248,17 +248,17 @@ begin
   Self.SetupChunksEx([chunk.Chunk], chunk.Planes, downscale);
 end;
 
-procedure TMap.SetupChunks(echunks: set of ERSChunk; downscale: UInt32 = 8); overload;
+procedure TMap.SetupChunks(echunks: set of EChunk; downscale: UInt32 = 8); overload;
 var
   chunks: array of TMapChunk;
-  echunk: ERSChunk;
+  echunk: EChunk;
 begin
   for echunk in echunks do
     chunks += echunk.Get();
   Self.SetupChunks(chunks, downscale);
 end;
 
-procedure TMap.SetupChunk(echunk: ERSChunk; downscale: UInt32 = 8); overload;
+procedure TMap.SetupChunk(echunk: EChunk; downscale: UInt32 = 8); overload;
 var
   chunk: TMapChunk;
 begin
@@ -278,8 +278,8 @@ procedure TMap.AddChunksEx(chunks: TBoxArray; levels: TIntegerArray = [0]; downs
 procedure TMap.AddChunkEx(chunk: TBox; levels: TIntegerArray = [0]; downscale: UInt32 = 8);
 procedure TMap.AddChunks(chunks: array of TMapChunk; downscale: UInt32 = 8);
 procedure TMap.AddChunk(chunk: TMapChunk; downscale: UInt32 = 8);
-procedure TMap.AddChunks(chunks: array of ERSChunk; downscale: UInt32 = 8); overload;
-procedure TMap.AddChunk(chunk: ERSChunk; downscale: UInt32 = 8); overload;
+procedure TMap.AddChunks(chunks: array of EChunk; downscale: UInt32 = 8); overload;
+procedure TMap.AddChunk(chunk: EChunk; downscale: UInt32 = 8); overload;
 ```
 TMap to add maps to an already setup TMap.
 If it's possible to add all your maps during setup, avoid using this,
@@ -379,10 +379,10 @@ begin
   Self.AddChunks([chunk], downscale);
 end;
 
-procedure TMap.AddChunks(echunks: set of ERSChunk; downscale: UInt32 = 8); overload;
+procedure TMap.AddChunks(echunks: set of EChunk; downscale: UInt32 = 8); overload;
 var
   chunk: TMapChunk;
-  echunk: ERSChunk;
+  echunk: EChunk;
   p: Int32;
   boxes: TBoxArray;
   planes: TIntegerArray;
@@ -399,7 +399,7 @@ begin
   Self.AddChunksEx(boxes, planes, downscale);
 end;
 
-procedure TMap.AddChunk(echunk: ERSChunk; downscale: UInt32 = 8); overload;
+procedure TMap.AddChunk(echunk: EChunk; downscale: UInt32 = 8); overload;
 var
   chunk: TMapChunk;
 begin
@@ -951,14 +951,14 @@ begin
   Self.ImageBox.Update();
 end;
 
-procedure TMapDebugger.OnShowWalkableClustersChange(sender: TObject);
+procedure TMapDebugger.OnShowWalkableClustEChange(sender: TObject);
 begin
   Self.ShowWalkableClusters := TCheckBox(sender).getState() = TCheckBoxState.cbChecked;
   Self.ImageBox.BackgroundChanged(True);
   Self.ImageBox.Update();
 end;
 
-procedure TMapDebugger.OnShowObjectClustersChange(sender: TObject);
+procedure TMapDebugger.OnShowObjectClustEChange(sender: TObject);
 begin
   Self.ShowObjectClusters := TCheckBox(sender).getState() = TCheckBoxState.cbChecked;
   Self.ImageBox.BackgroundChanged(True);
@@ -1124,14 +1124,14 @@ begin
     checkbox.setCaption('Show WalkableClusters');
     checkbox.setLeft(_DPI(540, dpi));
     checkbox.SetTop(_DPI(3, dpi));
-    checkbox.setOnChange(@Self.OnShowWalkableClustersChange);
+    checkbox.setOnChange(@Self.OnShowWalkableClustEChange);
 
     checkbox.Init(panel);
     checkbox.SetParent(panel);
     checkbox.setCaption('Show ObjectClusters');
     checkbox.setLeft(_DPI(700, dpi));
     checkbox.SetTop(_DPI(3, dpi));
-    checkbox.setOnChange(@Self.OnShowObjectClustersChange);
+    checkbox.setOnChange(@Self.OnShowObjectClustEChange);
 
     Self.MousePos.Init(panel);
     Self.MousePos.SetParent(panel);

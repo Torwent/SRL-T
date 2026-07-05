@@ -188,10 +188,10 @@ You probably will never to use this directly.
 *)
 function TLogin.FindText(text: String; out b: TBox): Boolean;
 begin
-  Result := (OCR.LocateText(Self.Bounds, text, RS_FONT_BOLD_12,  Self.WhiteOCRFilter, b) = 1) or
-            (OCR.LocateText(Self.Bounds, text, RS_FONT_BOLD_12,  Self.YellowOCRFilter, b) = 1) or
-            (OCR.LocateText(Self.Bounds, text, RS_FONT_PLAIN_12, Self.WhiteOCRFilter, b) = 1) or
-            (OCR.LocateText(Self.Bounds, text, RS_FONT_PLAIN_11, Self.WhiteOCRFilter, b) = 1);
+  Result := (OCR.LocateText(Self.Bounds, text, FONT_BOLD_12,  Self.WhiteOCRFilter, b) = 1) or
+            (OCR.LocateText(Self.Bounds, text, FONT_BOLD_12,  Self.YellowOCRFilter, b) = 1) or
+            (OCR.LocateText(Self.Bounds, text, FONT_PLAIN_12, Self.WhiteOCRFilter, b) = 1) or
+            (OCR.LocateText(Self.Bounds, text, FONT_PLAIN_11, Self.WhiteOCRFilter, b) = 1);
 end;
 
 function TLogin.FindText(text: String): Boolean; overload;
@@ -267,7 +267,7 @@ function TLogin.ClickWorld(World: Int32): Boolean;
 var
   B: TBox;
 begin
-  Result := OCR.LocateText(Self.Bounds, ToString(World), RS_FONT_BOLD_12, TOCRColorFilter.Create([$000000]), B) = 1;
+  Result := OCR.LocateText(Self.Bounds, ToString(World), FONT_BOLD_12, TOCRColorFilter.Create([$000000]), B) = 1;
 
   if Result then
   begin
@@ -373,7 +373,7 @@ begin
   begin
     B.Y1 -= 25;
 
-    Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([$FFFFFF]), RS_FONT_BOLD_12);
+    Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([$FFFFFF]), FONT_BOLD_12);
   end;
 end;
 

@@ -99,7 +99,7 @@ begin
     Exit;
 
   boxes := tpa.Cluster(15, 1).ToTBA();
-  Result:=foundText := OCR.Recognize(boxes[0], TOCRColorFilter.Create([15132220]), RS_FONT_PLAIN_12);
+  Result:=foundText := OCR.Recognize(boxes[0], TOCRColorFilter.Create([15132220]), FONT_PLAIN_12);
 end;
 
 function FindTrackIndex(const trackName: String; const trackList: array of String): Int32;
@@ -152,7 +152,7 @@ begin
       // Loop through found boxes and check if the text matches the trackName
       for i := 0 to High(boxes) do
       begin
-        foundText := OCR.Recognize([boxes[i].X1-5, boxes[i].Y1-3, boxes[i].X2+5, boxes[i].Y2+3], TOCRColorFilter.Create([901389,16777215]), RS_FONT_PLAIN_12);
+        foundText := OCR.Recognize([boxes[i].X1-5, boxes[i].Y1-3, boxes[i].X2+5, boxes[i].Y2+3], TOCRColorFilter.Create([901389,16777215]), FONT_PLAIN_12);
 
         if Pos(trackName, foundText) > 0 then
           Exit(boxes[i]);

@@ -193,7 +193,7 @@ begin
       Continue;
 
     for H := 0 to High(COMBAT_STYLES) do
-      if Buttons[I].FindText(COMBAT_STYLES[H].Replace('l','I'), RS_FONT_PLAIN_11, 2070783) then
+      if Buttons[I].FindText(COMBAT_STYLES[H].Replace('l','I'), FONT_PLAIN_11, 2070783) then
         Exit(COMBAT_STYLES[H]);
   end;
 end;
@@ -222,7 +222,7 @@ begin
 
   Buttons := Self.GetButtons();
   for Button in Buttons do
-    if Button.FindText(style, RS_FONT_PLAIN_11, [2070783]) then
+    if Button.FindText(style, FONT_PLAIN_11, [2070783]) then
       Exit(Button.Enable());
 end;
 
@@ -248,7 +248,7 @@ begin
     Exit;
 
   for button in Self.GetButtons() do
-    if button.FindText('Auto Retaliate', RS_FONT_PLAIN_12, $1F98FF) then
+    if button.FindText('Auto Retaliate', FONT_PLAIN_12, $1F98FF) then
       Exit(button.Enabled());
 end;
 
@@ -274,7 +274,7 @@ begin
     Exit;
 
   for button in Self.GetButtons() do
-    if button.FindText('Auto Retaliate', RS_FONT_PLAIN_12, $1F98FF) then
+    if button.FindText('Auto Retaliate', FONT_PLAIN_12, $1F98FF) then
       Exit((value and button.Enable()) or (not value and button.Disable()));
 end;
 
@@ -302,7 +302,7 @@ begin
   B := Self.Bounds;
   B.Y2 := B.Y1 + 25;
 
-  Result := OCR.Recognize(B, TOCRColorFilter.Create([2070783]), RS_FONT_QUILL_8);
+  Result := OCR.Recognize(B, TOCRColorFilter.Create([2070783]), FONT_QUILL_8);
 end;
 
 (*
@@ -332,7 +332,7 @@ begin
   B.X1 += 20;
   B.X2 -= 20;
 
-  Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([2070783]), RS_FONT_PLAIN_11);
+  Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([2070783]), FONT_PLAIN_11);
 end;
 
 (*

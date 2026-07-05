@@ -171,7 +171,7 @@ var
 begin
   for color in Colors do
   begin
-    Result := OCR.RecognizeStatic(Self.LineBoxes[CHAT_INPUT_LINE], TOCRColorFilter.Create([color]), RS_FONT_PLAIN_12);
+    Result := OCR.RecognizeStatic(Self.LineBoxes[CHAT_INPUT_LINE], TOCRColorFilter.Create([color]), FONT_PLAIN_12);
     if Result <> '' then Break;
   end;
 
@@ -231,7 +231,7 @@ WriteLn Chat.GetQuery;
 *)
 function TChat.GetQuery(): String;
 begin
-  Result := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$000000]), RS_FONT_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$000000]), FONT_BOLD_12);
 end;
 
 (*
@@ -249,7 +249,7 @@ WriteLn Chat.GetQueryAnswer;
 *)
 function TChat.GetQueryAnswer(): String;
 begin
-  Result := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([8388608]), FONT_BOLD_12);
 end;
 
 (*
@@ -320,7 +320,7 @@ var
   Boxes: TBoxArray;
   I, Key: Int32;
 begin
-  Strings := OCR.RecognizeLines(Self.Bounds, TOCRColorFilter.Create(colors), RS_FONT_QUILL_8, Boxes);
+  Strings := OCR.RecognizeLines(Self.Bounds, TOCRColorFilter.Create(colors), FONT_QUILL_8, Boxes);
 
   SetLength(Result, Length(Strings));
   for I := 0 to High(Result) do
@@ -471,7 +471,7 @@ begin
         if (matrix[STATIC_OFFSET, x] = CHAT_COLOR_BLACK) theN
           matrix[STATIC_OFFSET, x] := colors[0];
 
-    Result := OCR._RecognizeStatic(matrix, TOCRColorFilter.Create(colors), RS_FONT_PLAIN_12);
+    Result := OCR._RecognizeStatic(matrix, TOCRColorFilter.Create(colors), FONT_PLAIN_12);
   end;
 end;
 

@@ -50,7 +50,7 @@ type
     Breaks: array of TBreakTask;
     Tasks: array of TAntibanTask;
 
-    Skills: array of ERSSkill;
+    Skills: array of ESkill;
     MinZoom, MaxZoom: Int32;
 
     OnStartSleep: procedure(Task: PSleepTask) of object;
@@ -409,7 +409,7 @@ end;
 procedure TAntiban.SmallRandomMouse;
 procedure TAntiban.RandomMouse;
 procedure TAntiban.RandomRotate;
-procedure TAntiban.HoverSkill(Skill: ERSSkill; HoverTime: Int32; ReturnToCurrentTab: Boolean);
+procedure TAntiban.HoverSkill(Skill: ESkill; HoverTime: Int32; ReturnToCurrentTab: Boolean);
 procedure TAntiban.HoverSkills;
 procedure TAntiban.LoseFocus;
 procedure TAntiban.LoseFocus(Idle: Int32); overload;
@@ -473,7 +473,7 @@ begin
   end;
 end;
 
-procedure TAntiban.HoverSkill(skill: ERSSkill; HoverTime: Int32; returnToCurrentTab: Boolean);
+procedure TAntiban.HoverSkill(skill: ESkill; HoverTime: Int32; returnToCurrentTab: Boolean);
 var
   Tab: ERSGameTab;
 begin
@@ -595,7 +595,7 @@ begin
   begin
     B := Box(MainScreen.Center, 250, 100);
 
-    if OCR.LocateText(B, Name, RS_FONT_BOLD_12, TOCRColorFilter.Create([$00FFFF, 0]), 0.85) then
+    if OCR.LocateText(B, Name, FONT_BOLD_12, TOCRColorFilter.Create([$00FFFF, 0]), 0.85) then
     begin
       if Self.DebugRandoms then
       begin

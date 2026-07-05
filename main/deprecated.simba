@@ -10,7 +10,7 @@ const
   BANK_WITHDRAW_ALL_BUT_ONE = -2;
   MAKE_QUANTITY_ALL = -1;
 
-function TStats.GetCurrentLevel(skill: ERSSkill): Int32; deprecated 'Use Stats.GetLevel() instead.'
+function TStats.GetCurrentLevel(skill: ESkill): Int32; deprecated 'Use Stats.GetLevel() instead.'
 begin
   Result := Self.GetLevel(skill, False);
 end;

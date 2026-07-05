@@ -114,7 +114,7 @@ begin
 
   if (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) then
   begin
-    Text := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$1F98FF]), RS_FONT_PLAIN_12);
+    Text := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$1F98FF]), FONT_PLAIN_12);
 
     Result := Text.Before('/').ExtractNumber();
   end;

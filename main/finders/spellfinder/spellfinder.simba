@@ -299,7 +299,7 @@ begin
     spellImage.Init(Client.GetMBitmaps());
     spellImage.LoadFromFile(fileName);
     spellImage.SetName(ToStr(spell));
-    spellImage.ReplaceColor(RS_ITEM_SHADOW, 0);
+    spellImage.ReplaceColor(ITEM_SHADOW, 0);
     Result += spellImage;
   end;
 
