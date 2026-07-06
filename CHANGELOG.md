@@ -1,3 +1,12 @@
+## [7.21.56](https://github.com/Torwent/SRL-T/compare/v7.21.55...v7.21.56) (2026-07-06)
+
+
+### Bug Fixes
+
+* more renames ([68dd33c](https://github.com/Torwent/SRL-T/commit/68dd33c88448cbae8e4ce1b43db43386ed4097a3))
+
+
+
 ## [7.21.55](https://github.com/Torwent/SRL-T/compare/v7.21.54...v7.21.55) (2026-07-05)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * more renames ([a4a80f0](https://github.com/Torwent/SRL-T/commit/a4a80f0681242649871b872ae7ab60c788fdc3bc))
-
-
-
-## [7.21.51](https://github.com/Torwent/SRL-T/compare/v7.21.50...v7.21.51) (2026-07-05)
-
-
-### Bug Fixes
-
-* more renames ([afce0d6](https://github.com/Torwent/SRL-T/commit/afce0d60a47fd8c4a8421b3c38b4f51bc461793a))
 
 
 
