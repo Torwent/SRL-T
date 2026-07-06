@@ -23,7 +23,7 @@ type
     Finder: TObjectFinder;
     Offset: Vector3;
 
-    Walker: PRSWalkerV2;
+    Walker: PWalkerV2;
     Index: Int32;
 
     TrackTarget: Boolean;
@@ -485,7 +485,7 @@ begin
   Result := Self.Merge(json.getJSONArray('coordinates'), json.getJSONArray('rotations'), json.getJSONArray('colors'));
 end;
 
-function TGameObjectV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TGameObjectV2; static;
+function TGameObjectV2.Setup(pwalker: PWalkerV2; json: TJSONObject): TGameObjectV2; static;
 begin
   Result.Walker := pwalker;
   Result.Filter := [True, True, True, True];
@@ -729,7 +729,7 @@ begin
   Result := Self.Merge(json.getJSONArray('coordinates'), json.getJSONArray('colors'));
 end;
 
-function TNPCV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TNPCV2; static;
+function TNPCV2.Setup(pwalker: PWalkerV2; json: TJSONObject): TNPCV2; static;
 begin
   Result.Walker := pwalker;
   Result.Filter := [True, True, True, True];

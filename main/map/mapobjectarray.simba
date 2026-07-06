@@ -134,10 +134,10 @@ end;
 type
   TObjectJSONParser = record
     Data: TJSONArray;
-    Walker: PRSWalkerV2;
+    Walker: PWalkerV2;
   end;
 
-procedure TObjectJSONParser.Setup(json: TJSONArray; walker: PRSWalkerV2);
+procedure TObjectJSONParser.Setup(json: TJSONArray; walker: PWalkerV2);
 begin
   if Self.Data = nil then
     Self.Data := json
@@ -347,10 +347,10 @@ var
 type
   TNPCJSONParser = record
     Data: TJSONArray;
-    Walker: PRSWalkerV2;
+    Walker: PWalkerV2;
   end;
 
-procedure TNPCJSONParser.Setup(json: TJSONArray; walker: PRSWalkerV2);
+procedure TNPCJSONParser.Setup(json: TJSONArray; walker: PWalkerV2);
 begin
   if Self.Data = nil then
     Self.Data := json

@@ -15,7 +15,7 @@ type
 ## PRSWalkerV2
 TWalkerV2 pointer.
 *)
-  PRSWalkerV2 = ^TWalkerV2;
+  PWalkerV2 = ^TWalkerV2;
 
 (*
 ## TWalker_OnWalkEvent
@@ -36,7 +36,7 @@ begin
 end;
 ```
 *)
-  TWalkerEvent = procedure(walker: PRSWalkerV2; position: TPoint; destination: TPoint) of object;
+  TWalkerEvent = procedure(walker: PWalkerV2; position: TPoint; destination: TPoint) of object;
 
   TWalkerV2 = record(TSRLBaseRecord)
     Position: function (): TPoint of object;
