@@ -28,11 +28,11 @@ Enumerator of the equipment slots.
 (EEquipmentButton)=
 ## type EEquipmentButton
 ```pascal
-EEquipmentButton = (STATS, PRICES, DEATH, FOLLOWER);
+EEquipmentButton = (STATS_BTN, PRICES, DEATH, FOLLOWER);
 ```
 Enumerator of the equipment buttons.
 *)
-  EEquipmentButton = (STATS, PRICES, DEATH, FOLLOWER);
+  EEquipmentButton = (STATS_BTN, PRICES, DEATH, FOLLOWER);
 
 (*
 (TEquipment)=
