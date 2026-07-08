@@ -1,3 +1,12 @@
+# [7.22.0](https://github.com/Torwent/SRL-T/compare/v7.21.56...v7.22.0) (2026-07-08)
+
+
+### Features
+
+* add cache-tools to plugins ([0d704bf](https://github.com/Torwent/SRL-T/commit/0d704bffcdd87d2e31cea152f300a649256197e6))
+
+
+
 ## [7.21.56](https://github.com/Torwent/SRL-T/compare/v7.21.55...v7.21.56) (2026-07-06)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * more renames ([8caa4ef](https://github.com/Torwent/SRL-T/commit/8caa4efdb619c24f0c507083635de50ab0ebff91))
-
-
-
-## [7.21.52](https://github.com/Torwent/SRL-T/compare/v7.21.51...v7.21.52) (2026-07-05)
-
-
-### Bug Fixes
-
-* more renames ([a4a80f0](https://github.com/Torwent/SRL-T/commit/a4a80f0681242649871b872ae7ab60c788fdc3bc))
 
 
 
