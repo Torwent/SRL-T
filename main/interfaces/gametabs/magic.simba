@@ -1,0 +1,661 @@
+(*
+# Magic
+Methods to interact with the magic tab.
+*)
+
+{$DEFINE SRL_MAGIC_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  ESpellBook = (STANDARD, ANCIENT, LUNAR, ARCEUUS);
+  TSpellSet = set of ESpell;
+
+const
+  STANDARD_SPELL_FIRST = ESpell.LUMBRIDGE_HOME_TELEPORT;
+  STANDARD_SPELL_LAST  = ESpell.FIRE_SURGE;
+
+  ANCIENT_SPELL_FIRST  = ESpell.EDGEVILLE_HOME_TELEPORT;
+  ANCIENT_SPELL_LAST   = ESpell.GHORROCK_TELEPORT;
+
+  LUNAR_SPELL_FIRST    = ESpell.LUNAR_HOME_TELEPORT;
+  LUNAR_SPELL_LAST     = ESpell.SPELLBOOK_SWAP;
+
+  ARCEUUS_SPELL_FIRST  = ESpell.ARCEUUS_HOME_TELEPORT;
+  ARCEUUS_SPELL_LAST   = ESpell.SINISTER_OFFERING;
+
+  STANDARD_SPELLS = [STANDARD_SPELL_FIRST..STANDARD_SPELL_LAST];
+  ANCIENT_SPELLS  = [ANCIENT_SPELL_FIRST..ANCIENT_SPELL_LAST];
+  LUNAR_SPELLS    = [LUNAR_SPELL_FIRST..LUNAR_SPELL_LAST];
+  ARCEUUS_SPELLS  = [ARCEUUS_SPELL_FIRST..ARCEUUS_SPELL_LAST];
+
+  INSTANT_THROW_SPELLS = TSpellSet([
+    ESpell.TELEPORT_TO_HOUSE,
+    ESpell.TELEPORT_TO_KOUREND,
+    ESpell.TELEPORT_TO_APE_ATOLL,
+    ESpell.BOUNTY_TELEPORT,
+    ESpell.LASSAR_TELEPORT,
+    ESpell.OURANIA_TELEPORT,
+    ESpell.RESPAWN_TELEPORT,
+    ESpell.VARROCK_TELEPORT,
+    ESpell.CAMELOT_TELEPORT,
+    ESpell.KHAZARD_TELEPORT,
+    ESpell.FALADOR_TELEPORT,
+    ESpell.BARROWS_TELEPORT,
+    ESpell.MOONCLAN_TELEPORT,
+    ESpell.CEMETERY_TELEPORT,
+    ESpell.GHORROCK_TELEPORT,
+    ESpell.ARDOUGNE_TELEPORT,
+    ESpell.PADDEWWA_TELEPORT,
+    ESpell.KHARYRLL_TELEPORT,
+    ESpell.ANNAKARL_TELEPORT,
+    ESpell.CATHERBY_TELEPORT,
+    ESpell.APE_ATOLL_TELEPORT,
+    ESpell.LUMBRIDGE_TELEPORT,
+    ESpell.BARBARIAN_TELEPORT,
+    ESpell.TROLLHEIM_TELEPORT,
+    ESpell.MIND_ALTAR_TELEPORT,
+    ESpell.WATCHTOWER_TELEPORT,
+    ESpell.ICE_PLATEU_TELEPORT,
+    ESpell.LUNAR_HOME_TELEPORT,
+    ESpell.FENKENSTRAINS_CASTLE_TELEPORT,
+    ESpell.SALVE_GRAVEYARD_TELEPORT,
+    ESpell.ARCEUUS_LIBRARY_TELEPORT,
+    ESpell.STANDARD_TARGET_TELEPORT,
+    ESpell.HARMONY_ISLAND_TELEPORT,
+    ESpell.EDGEVILLE_HOME_TELEPORT,
+    ESpell.ANCIENT_TARGET_TELEPORT,
+    ESpell.DRAYNOR_MANOR_TELEPORT,
+    ESpell.FISHING_GUILD_TELEPORT,
+    ESpell.LUMBRIDGE_HOME_TELEPORT,
+    ESpell.WEST_ARDOUGNE_TELEPORT,
+    ESpell.CARRALLANGAR_TELEPORT,
+    ESpell.ARCEUUS_HOME_TELEPORT,
+    ESpell.WATERBIRTH_TELEPORT,
+    ESpell.SENNTISTEN_TELEPORT
+  ]);
+
+type
+  TMagic = record(TInterface)
+    SpellCache: array [ESpell] of
+      record
+        Box: TBox;
+        UpText: String;
+      end;
+  end;
+
+(*
+## Magic.Setup
+```pascal
+procedure TMagic.Setup; override;
+```
+Initializes **Magic** variables.
+
+```{note}
+This is automatically called on the **Magic** variable.
+```
+*)
+procedure TMagic.Setup(); override;
+begin
+  inherited;
+
+  Self.Name := 'Magic';
+end;
+
+(*
+## Magic.SetupAlignment
+```pascal
+procedure TMagic.SetupAlignment(); overload;
+```
+Setups up the interface aligment for the current client mode.
+
+```{note}
+This is automatically called on the **TGameClient.ClientModeChanged** function.
+```
+*)
+procedure TMagic.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left := GameTab.Bounds.X1;
+  alignment.Right := GameTab.Bounds.X2;
+  alignment.Top := GameTab.Bounds.Y1;
+  alignment.Bottom := GameTab.Bounds.Y2;
+  Self.SetupAlignment(alignment);
+end;
+
+(*
+## Magic.IsOpen
+```pascal
+function TMagic.IsOpen(): Boolean;
+```
+Returns true if the Magic tab is open.
+
+Example:
+```pascal
+WriteLn Magic.IsOpen();
+```
+*)
+function TMagic.IsOpen(): Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = EGameTab.MAGIC);
+end;
+
+(*
+## Magic.Open
+```pascal
+function TMagic.Open(): Boolean;
+```
+Attempts to open the magic tab.
+
+Example:
+```pascal
+Magic.Open();
+```
+*)
+function TMagic.Open(): Boolean;
+begin
+  Result := Self.IsOpen() or GameTabs.Open(EGameTab.MAGIC);
+end;
+
+(*
+## Magic.GetSpellBook
+```pascal
+function TMagic.GetSpellBook(): ESpellBook;
+```
+Returns the current spell book.
+
+Example:
+```pascal
+WriteLn Magic.GetSpellBook();
+```
+*)
+function TMagic.GetSpellBook(): ESpellBook;
+const
+  //Colors of the book on the gametab
+  ARCEUUS_COLOR: TCTS1Color = [9801276, 78];
+  ANCIENT_COLOR: TCTS1Color = [8077142, 28];
+  LUNAR_COLOR  : TCTS1Color = [12761525, 27];
+var
+  box: TBox;
+begin
+  box := Gametabs.Boxes[EGameTab.MAGIC];
+  if SRL.CountColor(ARCEUUS_COLOR, box) >= 60 then Exit(ESpellBook.ARCEUUS);
+  if SRL.CountColor(ANCIENT_COLOR, box) >= 85 then Exit(ESpellBook.ANCIENT);
+  if SRL.CountColor(LUNAR_COLOR,   box) >= 85 then Exit(ESpellBook.LUNAR);
+end;
+
+(*
+## Magic.IsSpellBook
+```pascal
+function TMagic.IsSpellBook(book: ESpellBook): Boolean;
+```
+Returns true if we are using the specified spell book.
+
+Example:
+```pascal
+WriteLn Magic.IsSpellBook(ESpellBook.LUNAR);
+```
+*)
+function TMagic.IsSpellBook(book: ESpellBook): Boolean;
+begin
+  Result := book = Self.GetSpellBook();
+end;
+
+(*
+## Magic.InfoIsOpen
+```pascal
+function TMagic.InfoIsOpen(): Boolean;
+```
+Returns true if the info black box about a spell is open.
+
+Example:
+```pascal
+WriteLn Magic.IsSpellBook(ESpellBook.LUNAR);
+```
+*)
+function TMagic.InfoIsOpen(): Boolean;
+begin
+  Result := SRL.CountColor(1731247, GameTab.Bounds) > 0;
+end;
+
+(*
+## Magic._CloseInfoMouseCallback
+```pascal
+procedure TMagic._CloseInfoMouseCallback(sender: PMouse; var x, y: Double; var done: Boolean);
+```
+Mouse movement callback to stop mouse movement when the spell info box closes.
+Do not touch this if you don't understand it.
+*)
+procedure TMagic._CloseInfoMouseCallback({$H-}sender: PMouse; var x, y: Double; var done: Boolean);{$H+}
+begin
+  done := not Self.InfoIsOpen() and SRL.Dice(30);
+end;
+
+(*
+## Magic.CloseInfo
+```pascal
+function TMagic.CloseInfo(): Boolean;
+function TMagic.CloseInfo(spell: ESpell): Boolean; overload;
+```
+Returns true if the info black box about a spell is open.
+
+Example:
+```pascal
+WriteLn Magic.CloseInfo();
+```
+*)
+function TMagic.CloseInfo(): Boolean;
+var
+  p, destination: TPoint;
+begin
+  p := Mouse.Position();
+  destination := GameTab.Bounds.Expand(10).NearestEdge(p);
+  Mouse.OnMovingEx := @Self._CloseInfoMouseCallback;
+  Mouse.Move(destination);
+  Mouse.OnMovingEx := nil;
+
+  Result := not Self.InfoIsOpen();
+end;
+
+function TMagic.CloseInfo(spell: ESpell): Boolean; overload;
+var
+  p: TPoint;
+begin
+  p := Mouse.Position();
+  Mouse.OnMovingEx := @Self._CloseInfoMouseCallback;
+  Mouse.Move(Self.SpellCache[spell].Box);
+  Mouse.OnMovingEx := nil;
+  Result := not Self.InfoIsOpen();
+end;
+
+
+(*
+## Magic.FindSpell
+```pascal
+function TMagic.FindSpell(spell: ESpell; out box: TBox): Boolean;
+```
+Return true or false wether we found a spell or not and return it's bounds if found.
+*)
+function TMagic.FindSpell(spell: ESpell; out b: TBox; attempts: Int32 = 2): Boolean;
+var
+  match: TSpellFinderMatch;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := SpellFinder.Find([spell], GameTab.Bounds, match);
+  if Result then
+  begin
+    b := match.Box.Expand(-1);
+    Self.SpellCache[spell].Box := b;
+    Exit;
+  end;
+
+  if attempts = 0 then
+    Exit;
+
+  if Self.InfoIsOpen() then
+  begin
+    case attempts of
+      2: if Self.CloseInfo(spell) then
+          Result := Self.FindSpell(spell, b, attempts-1);
+
+      1: if Self.CloseInfo() then
+          Result := Self.FindSpell(spell, b, attempts-1);
+    end;
+  end;
+
+  if not Result then
+  begin
+    if spell in [ESpell.LVL1_ENCHANT..ESpell.LVL7_ENCHANT] then
+    begin
+      if SpellFinder.Find([ESpell.BACK], GameTab.Bounds, match) then
+        Exit;
+
+      if SpellFinder.Find([ESpell.JEWELLERY_ENCHANTMENTS], GameTab.Bounds, match) then
+      begin
+        Mouse.CLick(match.Box, MOUSE_LEFT);
+        if WaitUntil(SpellFinder.Find([ESpell.BACK], GameTab.Bounds, match), 300, 2000) then
+          Exit(Self.FindSpell(spell, b, attempts-1));
+      end;
+    end
+    else if SpellFinder.Find([ESpell.BACK], GameTab.Bounds, match) then
+      begin
+        Mouse.CLick(match.Box, MOUSE_LEFT);
+        WaitUntil(SpellFinder.Find([ESpell.JEWELLERY_ENCHANTMENTS], GameTab.Bounds, match), 300, 2000);
+      end;
+
+    Result := Self.FindSpell(spell, b, attempts-1);
+  end;
+end;
+
+
+(*
+## Magic.ContainsSpell
+```pascal
+function TMagic.ContainsSpell(spell: ESpell): Boolean;
+```
+Return true or false wether we found a spell or not.
+*)
+function TMagic.ContainsSpell(spell: ESpell): Boolean;
+var
+  b: TBox;
+begin
+  Result := Self.FindSpell(spell, b);
+end;
+
+
+(*
+## Magic.MouseSpell
+```pascal
+function TMagic.MouseSpell(spell: ESpell): Boolean;
+```
+Used to move the mouse to the specified spell.
+
+Example:
+```pascal
+Magic.MouseSpell(ESpell.HIGH_LEVEL_ALCHEMY);
+```
+*)
+function TMagic.MouseSpell(spell: ESpell): Boolean;
+var
+  b: TBox;
+  upText: String;
+begin
+  if (Self.SpellCache[spell].UpText <> '') and
+     Self.SpellCache[spell].Box.Contains(Mouse.Position()) then
+  begin
+    upText := MainScreen.GetUpText().After('Cast').Before('/').Strip();
+    if (upText = Self.SpellCache[spell].UpText) then
+      Exit(True);
+  end;
+
+  Result := Self.Open() and Self.FindSpell(spell, b);
+
+  if Result then
+  begin
+    Mouse.Move(b);
+
+    if Self.SpellCache[spell].UpText = '' then
+    begin
+      upText := MainScreen.GetUpText().After('Cast').Before('/').Strip();
+      Self.SpellCache[spell].UpText := upText;
+    end;
+  end;
+end;
+
+
+(*
+## Magic.ClickSpell
+```pascal
+function TMagic.ClickSpell(spell: ESpell; option: String = ''): Boolean;
+```
+Used to interact with the specified spell.
+
+Example:
+```pascal
+Magic.ClickSpell(ESpell.HIGH_LEVEL_ALCHEMY);
+```
+*)
+function TMagic.ClickSpell(spell: ESpell; option: String = ''): Boolean;
+begin
+  if not Self.MouseSpell(spell) then
+    Exit;
+
+  if (option = '') or MainScreen.IsUpText(option) then
+  begin
+    Mouse.Click(MOUSE_LEFT);
+    Exit(True);
+  end;
+
+  Result := ChooseOption.Select(option);
+end;
+
+
+(*
+## Magic.FindSelected
+```pascal
+function TMagic.FindSelected(out tpa: TPointArray): Boolean;
+```
+Returns the true if we have a selected spell and returns it's tpa.
+
+Example:
+```pascal
+if Magic.FindSelected(tpa) then
+  Debug(tpa);
+```
+*)
+function TMagic.FindSelected(out tpa: TPointArray): Boolean;
+var
+  searchBox: TBox;
+begin
+  if not Self.IsOpen() then Exit;
+
+  searchBox := GameTab.Bounds;
+  searchBox.Y2 -= 18;
+
+  Result := SRL.FindColors(tpa, $FFFFFF, searchBox) > 10;
+
+  if not Result then
+    Exit;
+
+  for tpa in tpa.Cluster(8) do
+    if tpa.Density < 0.28 then
+      Exit;
+
+  Result := False;
+  tpa := [];
+end;
+
+(*
+## Magic.ContainsSelected
+```pascal
+function TMagic.ContainsSelected(): Boolean;
+```
+Returns the true if we have a selected spell.
+
+Example:
+```pascal
+WriteLn Magic.ContainsSelected();
+```
+*)
+function TMagic.ContainsSelected(openTab: Boolean = False): Boolean;
+var
+  searchBox: TBox;
+  tpa: TPointArray;
+begin
+  if not openTab and not Self.IsOpen() then
+    Exit(MainScreen.IsUpText('Cast'));
+
+  searchBox := GameTab.Bounds;
+  searchBox.Y2 -= 18;
+
+  Result := SRL.FindColors(tpa, $FFFFFF, searchBox) > 10;
+
+  if not Result then
+    Exit;
+
+  for tpa in tpa.Cluster(10) do
+    if tpa.Density < 0.3 then
+      Exit;
+
+  Result := False;
+end;
+
+
+(*
+## Magic.IsSelected
+```pascal
+function TMagic.IsSelected(spell: ESpell): Boolean;
+function TMagic.IsSelected(spell: ESpell; selected: TPointArray): Boolean; overload;
+```
+Returns true if the specified spell is currently active (with white outline).
+
+Example:
+```pascal
+WriteLn Magic.IsSpellSelected(ESpell.ICE_BARRAGE);
+```
+*)
+function TMagic.IsSelected(spell: ESpell): Boolean;
+var
+  box: TBox;
+begin
+  if spell in INSTANT_THROW_SPELLS then
+    Exit;
+
+  Result := Self.FindSpell(spell, box) and (SRL.CountColor($FFFFFF, box.Expand(2)) > 10);
+end;
+
+function TMagic.IsSelected(spell: ESpell; selected: TPointArray): Boolean; overload;
+var
+  box: TBox;
+begin
+  if spell in INSTANT_THROW_SPELLS then
+    Exit;
+
+  if not Self.FindSpell(spell, box) then
+    Exit;
+
+  Result := box.Contains(selected.Mean());
+end;
+
+
+function TMagic.Deselect(spell: TPointArray = []): Boolean;
+begin
+  Result := True;
+
+  if Self.IsOpen() then
+  begin
+    if (spell = []) and not Self.FindSelected(spell) then
+      Exit;
+
+    Mouse.Click(spell.Bounds(), MOUSE_LEFT);
+    Exit(not Self.ContainsSelected());
+  end;
+
+  if MainScreen.IsUpText('Cast') then
+  begin
+    ChooseOption.Open();
+    ChooseOption.Select('Cancel');
+  end;
+end;
+
+(*
+## Magic.CanActivate
+```pascal
+function TMagic.CanActivate(spell: ESpell): Boolean;
+```
+
+Returns true if we can activate the spell (we have runes, level and the spell unlocked).
+
+Example:
+```pascal
+Magic.CanActivate(ESpell.HIGH_LEVEL_ALCHEMY);
+```
+*)
+function TMagic.CanActivate(spell: ESpell): Boolean;
+begin
+  Result := Self.ContainsSpell(spell);
+end;
+
+
+(*
+## Magic.SpellWasCast
+```pascal
+function TMagic.SpellWasCast(spell: ESpell): Boolean;
+```
+Returns true if we are in a state that casting a spell would leave you.
+
+Example:
+```pascal
+Magic.SpellWasCast(ESpell.ICE_BARRAGE);
+```
+*)
+function TMagic.SpellWasCast(spell: ESpell): Boolean;
+begin
+  if spell in INSTANT_THROW_SPELLS then
+    Exit(True);
+
+  //enchant and alch spells open inventory
+  Result := Self.IsSelected(spell) or Inventory.IsOpen();
+end;
+
+(*
+## Magic.CastSpell
+```pascal
+function TMagic.CastSpell(spell: ESpell): Boolean;
+```
+Attempts to cast the specified spell.
+
+Example:
+```pascal
+Magic.CastSpell(ESpell.LOW_LEVEL_ALCHEMY);
+```
+*)
+function TMagic.CastSpell(spell: ESpell; option: String = ''): Boolean;
+var
+  selected: TPointArray;
+begin
+  if not Self.Open() then
+    Exit;
+
+  if Self.FindSelected(selected) then
+  begin
+    if Self.IsSelected(spell, selected) then
+      Exit(True);
+
+    if not Self.Deselect(selected) then
+    begin
+      Self.DebugLn('Failed to deactivate the currently active spell.');
+      Exit;
+    end;
+  end;
+
+  Result := Self.ClickSpell(spell, option) and
+            WaitUntil(Self.SpellWasCast(spell), 300, SRL.TruncatedGauss(1000, 2000));
+end;
+
+procedure TMagic.Draw(bitmap: TMufasaBitmap); override;
+var
+  book: ESpellBook;
+begin
+  if not Self.IsOpen() then Exit;
+
+  inherited();
+
+  book := Self.GetSpellBook();
+  bitmap.DrawBox(GameTab.Bounds, $00FFFF);
+  case book of
+    ESpellBook.STANDARD: bitmap.DrawText('Standard book', GameTab.Bounds, True, $00FFFF);
+    ESpellBook.ANCIENT: bitmap.DrawText('Ancient book', GameTab.Bounds, True, $00FFFF);
+    ESpellBook.LUNAR: bitmap.DrawText('Lunar book', GameTab.Bounds, True, $00FFFF);
+    ESpellBook.ARCEUUS: bitmap.DrawText('Arceuus book', GameTab.Bounds, True, $00FFFF);
+  end;
+end;
+
+(*
+## var Magic
+Global Magic variable.
+*)
+var
+  Magic: TMagic;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Magic.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  Magic.Setup();
+end;
+
+procedure TSRL.Debug(bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  Magic.Draw(bitmap);
+end;

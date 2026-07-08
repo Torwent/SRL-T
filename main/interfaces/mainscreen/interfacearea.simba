@@ -1,0 +1,164 @@
+{$DEFINE SRL_INTERFACEAREA_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  EInterfaceType = (CLASSIC, SCROLL, ANY);
+
+  TInterfaceArea = record(TInterface)
+    EscapeEnabled: Boolean;
+  end;
+
+(*
+## TInterfaceArea.IsOpen
+```pascal
+function TInterfaceArea.IsOpen(interfaceType: EInterfaceType = EInterfaceType.ANY): Boolean;
+```
+Returns True/False if any interface is found open.
+*)
+function TInterfaceArea.IsOpen(interfaceType: EInterfaceType = EInterfaceType.ANY): Boolean;
+begin
+  case interfaceType of
+    EInterfaceType.CLASSIC: Result := SRL.CountColor(CTS0(3358536, 2), Self.Bounds) > 10000;
+    EInterfaceType.SCROLL:  Result := SRL.CountColor(CTS2(8693433, 5, 0.10, 1.17), Self.Bounds) > 35000;
+    EInterfaceType.ANY:     Result := Self.IsOpen(EInterfaceType.CLASSIC) or Self.IsOpen(EInterfaceType.SCROLL)
+  end;
+end;
+
+(*
+## TInterfaceArea.GetCloseButton
+```pascal
+function TInterfaceArea.GetCloseButton(): TGameButton;
+```
+Attempts to close any open interface found.
+*)
+function TInterfaceArea.GetCloseButton(): TGameButton;
+var
+  buttons: TGameButtonArray;
+begin
+  buttons := Self.FindButtons([[21,21], [24,23]]);
+  if buttons <> [] then
+    Result := buttons[High(buttons)];
+end;
+
+(*
+## TInterfaceArea.Close
+```pascal
+function TInterfaceArea.ClickClose(pressEscape: Boolean = False): Boolean;
+function TInterfaceArea.Close(pressEscape: Boolean): Boolean;
+```
+Attempts to close any open interface found.
+*)
+function TInterfaceArea.ClickClose(pressEscape: Boolean = False): Boolean;
+var
+  button: TGameButton;
+begin
+  button := Self.GetCloseButton();
+  Result := button <> [];
+
+  if not Result then
+    Exit;
+
+  if (pressEscape and Self.EscapeEnabled) then
+  begin
+    Keyboard.PressKey(VK_ESCAPE);
+
+    if Keyboard.IsKeyDown(VK_ESCAPE) then
+      Keyboard.KeyUp(VK_ESCAPE);
+
+    Exit;
+  end;
+
+  Result := button.Click();
+end;
+
+function TInterfaceArea.Close(pressEscape: Boolean): Boolean;
+begin
+  if not Self.IsOpen() then
+    Exit(True);
+
+  if Self.ClickClose(pressEscape) then
+    Result := WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
+
+  if (not Result and (pressEscape and Self.EscapeEnabled)) then
+    Self.EscapeEnabled := False;
+end;
+
+
+(*
+## TInterfaceArea.Setup
+```pascal
+procedure TInterfaceArea.Setup(); override;
+```
+Initializes TInterfaceArea. This is called automatically for you.
+*)
+procedure TInterfaceArea.Setup(); override;
+begin
+  inherited;
+  Self.Name := 'InterfaceArea';
+  Self.EscapeEnabled := True;
+end;
+
+(*
+## TInterfaceArea.SetupAlignment
+```pascal
+procedure TInterfaceArea.SetupAlignment(); overload;
+```
+Initializes TInterfaceArea coordinates. This is automatically called for you.
+*)
+procedure TInterfaceArea.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Top  := MainScreen.Bounds.Y1;
+  alignment.Left := MainScreen.Bounds.X1;
+
+  case GameClient.Mode of
+    EClientMode.FIXED:
+    begin
+      alignment.Right  := MainScreen.Bounds.X2;
+      alignment.Bottom := MainScreen.Bounds.Y2;
+    end;
+
+    EClientMode.RESIZABLE_CLASSIC:
+    begin
+      alignment.Right  := GameTabs.Bounds.X1 - 10;
+      alignment.Bottom := Chat.Bounds.Y1;
+    end;
+
+    EClientMode.RESIZABLE_MODERN:
+    begin
+      alignment.Right  := GameTab.Bounds.X1 - 22;
+      alignment.Bottom := Chat.Bounds.Y1;
+    end;
+  end;
+
+  Self.SetupAlignment(alignment);
+end;
+
+var
+  GameInterface, InterfaceArea: TInterfaceArea;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  InterfaceArea.SetupAlignment();
+  GameInterface.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+
+  InterfaceArea.Setup();
+  GameInterface.Setup();
+  GameInterface.Name := 'GameInterface';
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  GameInterface.Draw(Bitmap);
+end;

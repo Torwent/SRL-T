@@ -1,0 +1,735 @@
+//Credits to Canadian James
+//NOT USING SRL-T SO WE DON'T LOAD 900 GLOBALS, we don't need them.
+{$I SRL-T\utils\string.simba}
+
+type
+  TMufasaBitmapArray = array of TMufasaBitmap;
+
+  //Copied from the spellfinder file!
+  ESpell = (
+    UNKNOWN,
+    // Standard
+    LUMBRIDGE_HOME_TELEPORT,
+    WIND_STRIKE,
+    CONFUSE,
+    ENCHANT_CROSSBOW_BOLT,
+    WATER_STRIKE,
+
+    JEWELLERY_ENCHANTMENTS,
+    BACK,
+    LVL1_ENCHANT,
+    LVL2_ENCHANT,
+    LVL3_ENCHANT,
+    LVL4_ENCHANT,
+    LVL5_ENCHANT,
+    LVL6_ENCHANT,
+    LVL7_ENCHANT,
+
+    EARTH_STRIKE,
+
+    WEAKEN,
+    FIRE_STRIKE,
+    BONES_TO_BANANAS,
+    WIND_BOLT,
+    CURSE,
+    BIND,
+    LOW_LEVEL_ALCHEMY,
+
+    WATER_BOLT,
+    VARROCK_TELEPORT,
+
+    EARTH_BOLT,
+    LUMBRIDGE_TELEPORT,
+    TELEKINETIC_GRAB,
+    FIRE_BOLT,
+
+    FALADOR_TELEPORT,
+    CRUMBLE_UNDEAD,
+    TELEPORT_TO_HOUSE,
+    WIND_BLAST,
+    SUPERHEAT_ITEM,
+    CAMELOT_TELEPORT,
+    WATER_BLAST,
+    IBAN_BLAST,
+    SNARE,
+    MAGIC_DART,
+    ARDOUGNE_TELEPORT,
+    EARTH_BLAST,
+    CIVITAS_ILLA_FORTIS_TELEPORT,
+    HIGH_LEVEL_ALCHEMY,
+
+    CHARGE_WATER_ORB,
+    WATCHTOWER_TELEPORT,
+    FIRE_BLAST,
+    CHARGE_EARTH_ORB,
+    BONES_TO_PEACHES,
+    SARADOMIN_STRIKE,
+
+    CLAWS_OF_GUTHIX,
+    FLAMES_OF_ZAMORAK,
+    TROLLHEIM_TELEPORT,
+    WIND_WAVE,
+    CHARGE_FIRE_ORB,
+    TELEPORT_TO_APE_ATOLL,
+    WATER_WAVE,
+
+    CHARGE_AIR_ORB,
+    VULNERABILITY,
+    TELEPORT_TO_KOUREND,
+    EARTH_WAVE,
+    ENFEEBLE,
+    TELEOTHER_LUMBRIDGE,
+
+    FIRE_WAVE,
+    ENTANGLE,
+    STUN,
+    CHARGE,
+    WIND_SURGE,
+    TELEOTHER_FALADOR,
+    WATER_SURGE,
+
+    TELE_BLOCK,
+    STANDARD_TARGET_TELEPORT,
+    TELEOTHER_CAMELOT,
+    EARTH_SURGE,
+    FIRE_SURGE,
+
+    // Ancient
+    EDGEVILLE_HOME_TELEPORT,
+    SMOKE_RUSH,
+    SHADOW_RUSH,
+    PADDEWWA_TELEPORT,
+
+    BLOOD_RUSH,
+    ICE_RUSH,
+    SENNTISTEN_TELEPORT,
+    SMOKE_BURST,
+
+    SHADOW_BURST,
+    KHARYRLL_TELEPORT,
+    BLOOD_BURST,
+    ICE_BURST,
+
+    LASSAR_TELEPORT,
+    SMOKE_BLITZ,
+    SHADOW_BLITZ,
+    DAREEYAK_TELEPORT,
+
+    BLOOD_BLITZ,
+    ICE_BLITZ,
+    CARRALLANGAR_TELEPORT,
+    ANCIENT_TARGET_TELEPORT,
+
+    SMOKE_BARRAGE,
+    SHADOW_BARRAGE,
+    ANNAKARL_TELEPORT,
+    BLOOD_BARRAGE,
+
+    ICE_BARRAGE,
+    GHORROCK_TELEPORT,
+
+    // Lunar
+    LUNAR_HOME_TELEPORT,
+    BAKE_PIE,
+    GEOMANCY,
+    CURE_PLANT,
+    MONSTER_EXAMINE,
+
+    NPC_CONTACT,
+    CURE_OTHER,
+    HUMIDIFY,
+    MOONCLAN_TELEPORT,
+    TELE_GROUP_MOONCLAN,
+
+    CURE_ME,
+    OURANIA_TELEPORT,
+    HUNTER_KIT,
+    WATERBIRTH_TELEPORT,
+    TELE_GROUP_WATERBIRTH,
+
+    CURE_GROUP,
+    STAT_SPY,
+    BARBARIAN_TELEPORT,
+    TELE_GROUP_BARBARIAN,
+    SPIN_FLAX,
+
+    SUPERGLASS_MAKE,
+    TAN_LEATHER,
+    KHAZARD_TELEPORT,
+    TELE_GROUP_KHAZARD,
+    DREAM,
+
+    STRING_JEWELLERY,
+    STAT_RESTORE_POT_SHARE,
+    MAGIC_IMBUE,
+    FERTILE_SOIL,
+    BOOST_POTION_SHARE,
+
+    FISHING_GUILD_TELEPORT,
+    BOUNTY_TELEPORT,
+    TELE_GROUP_FISHING_GUILD,
+    PLANK_MAKE,
+    CATHERBY_TELEPORT,
+
+    TELE_GROUP_CATHERBY,
+    RECHARGE_DRAGONSTONE,
+    ICE_PLATEU_TELEPORT,
+    TELE_GROUP_ICE_PLATEU,
+    ENERGY_TRANSFER,
+
+    HEAL_OTHER,
+    VENGEANCE_OTHER,
+    VENGEANCE,
+    HEAL_GROUP,
+    SPELLBOOK_SWAP,
+
+    // Arceuus
+    ARCEUUS_HOME_TELEPORT,
+    ARCEUUS_LIBRARY_TELEPORT,
+    BASIC_REANIMATION,
+    DRAYNOR_MANOR_TELEPORT,
+    BATTLEFRONT_TELEPORT,
+
+    MIND_ALTAR_TELEPORT,
+    RESPAWN_TELEPORT,
+    GHOSTLY_GRASP,
+    RESURRECT_LESSER_GHOST,
+    RESURRECT_LESSER_SKELETON,
+
+    RESURRECT_LESSER_ZOMBIE,
+    SALVE_GRAVEYARD_TELEPORT,
+    ADEPT_REANIMATION,
+    INFERIOR_DEMONBANE,
+    SHADOW_VEIL,
+
+    FENKENSTRAINS_CASTLE_TELEPORT,
+    DARK_LURE,
+    SKELETAL_GRASP,
+    RESURRECT_SUPERIOR_GHOST,
+    RESURRECT_SUPERIOR_SKELETON,
+
+    RESURRECT_SUPERIOR_ZOMBIE,
+    MARK_OF_DARKNESS,
+    WEST_ARDOUGNE_TELEPORT,
+    SUPERIOR_DEMONBANE,
+    LESSER_CORRUPTION,
+
+    HARMONY_ISLAND_TELEPORT,
+    VILE_VIGOUR,
+    DEGRIME,
+    CEMETERY_TELEPORT,
+    EXPERT_REANIMATION,
+
+    WARD_OF_ARCEUUS,
+    RESURRECT_GREATER_GHOST,
+    RESURRECT_GREATER_SKELETON,
+    RESURRECT_GREATER_ZOMBIE,
+    RESURRECT_CROPS,
+
+    UNDEAD_GRASP,
+    DEATH_CHARGE,
+    DARK_DEMONBANE,
+    BARROWS_TELEPORT,
+    DEMONIC_OFFERING,
+
+    GREATER_CORRUPTION,
+    MASTER_REANIMATION,
+    APE_ATOLL_TELEPORT,
+    SINISTER_OFFERING
+  );
+
+const
+  FIRST_SPELL : ESpell = ESpell.LUMBRIDGE_HOME_TELEPORT;
+  LAST_SPELL : ESpell = ESpell.SINISTER_OFFERING;
+  UPDATED_SPELL_DIRECTORY : string = {$MACRO CURRENT_DIRECTORY} + "images" + DirectorySeparator;
+  ZIPPED_DUMP_DIRECTORY : string = {$MACRO CURRENT_DIRECTORY} + '..' + DirectorySeparator + "sprites.zip";
+  DUMP_OUTPUT_DIRECTORY : string = {$MACRO CURRENT_DIRECTORY} + "current" + DirectorySeparator;
+var
+  dumpImages : TMufasaBitmapArray;
+  SpellImageMapping : array [ESpell] of TStringArray;
+
+procedure TMufasaBitmapArray.Free();
+var
+  i : Int32;
+begin
+  for i := 0 to High(Self) do
+    Self[i].Free();
+end;
+
+function GetImageSimilarity(img1, img2 : TMufasaBitmap) : Single;
+const
+  MAX_DIFF : Int8 = 3;
+var
+  heightDiff, widthDiff : Int8;
+begin
+
+  widthDiff := Abs(img1.getWidth() - img2.getWidth());
+  heightDiff := Abs(img1.getHeight() - img2.getHeight());
+
+  if (widthDiff > MAX_DIFF) or (heightDiff > MAX_DIFF) then
+    Exit;
+
+  try
+    Result := img1.MatchTemplate(img2, ETMFormula.TM_CCORR_NORMED).Mean();
+  except
+  end;
+end;
+
+function TStringArray.CustomFormat() : string;
+var
+  i, max : Int32;
+begin
+  max := High(Self);
+  for i := 0 to max do
+  begin
+    Result += "'" + Self[i] + "'";
+    if i <> max then
+      Result += ", ";
+  end;
+end;
+
+procedure GenerateSpellLookup(spellMapping : array [ESpell] of TStringArray);
+const
+  LOOKUP_FILE_PATH : string = {$MACRO CURRENT_DIRECTORY} + DirectorySeparator + "SpriteLookup.simba";
+var
+  fileContents : string;
+var
+  i : Int32;
+begin
+
+  Writeln("Generating Spell Look Up...");
+
+  if FileExists(LOOKUP_FILE_PATH) then
+    DeleteFile(LOOKUP_FILE_PATH);
+
+  //  CreateFile(LOOKUP_FILE_PAH);
+
+  fileContents += "function GetSpellMapping(spell : ESpell) : TStringArray;" + STR_NEW_LINE;
+  fileContents += "begin" + STR_NEW_LINE;
+  fileContents += #9 + "case spell of" + STR_NEW_LINE;
+
+  for i := Ord(FIRST_SPELL) to Ord(LAST_SPELL) do
+  begin
+    if spellMapping[ESpell(i)] = nil then
+    begin
+      Writeln("SPELL: ", ToStr(ESpell(i)), " WAS EMPTY");
+      continue;
+    end;
+
+    fileContents += #9#9 + "ESpell." + ToStr(ESpell(i)) + " : Exit([" + spellMapping[ESpell(i)].CustomFormat() + "]);" + STR_NEW_LINE;
+  end;
+
+  fileContents += #9#9 + "else Exit(['None']);" + STR_NEW_LINE;
+  fileContents += #9 + "end;" + STR_NEW_LINE;
+  fileContents += "end;" + STR_NEW_LINE;
+
+  if not WriteFileContents(LOOKUP_FILE_PATH, fileContents, false) then
+    Writeln("Spell Look Up failed to generate!");
+
+  Writeln("Done spell loop!");
+end;
+
+//Get best image that's at least the cutoff % of similarity
+function GetMostSimilarImage(img : TMufasaBitmap; arr : TMufasaBitmapArray; cutoff : Single) : Int32;
+var
+  currMatch, bestMatch : Single;
+  i : Int32;
+begin
+
+  bestMatch := -1.0;
+  Result := -1;
+
+  for i := 0 to High(arr) do
+  begin
+
+    currMatch := GetImageSimilarity(img, arr[i]);
+
+    if (currMatch = 1.0) then
+      Exit(i);
+
+    if (currMatch > bestMatch)
+      and (currMatch >= cutoff) then
+    begin
+      Result := i;
+      bestMatch := currMatch;
+    end;
+  end;
+end;
+
+//Basically the spellfinder look up but I wanted to better control the image frees.
+function GetSpellImages(spell: ESpell): TMufasaBitmapArray;
+const
+  SIZES: TStringArray = ['_large.png', '_small.png'];
+
+  IMAGES_ZIP := IncludePath + "SRL-T" + DirectorySeparator + "osr"
+                + DirectorySeparator + "finders" + DirectorySeparator
+                + "spellfinder" + DirectorySeparator + "images.zip";
+
+  IMAGES_PATH := CACHE_DIR + 'spellfinder' + DirectorySeparator +
+                      SHA1File(IMAGES_ZIP).SubString(6) +
+                      DirectorySeparator;
+var
+  fileName, size: String;
+  spellImage: TMufasaBitmap;
+begin
+
+  ForceDirectories(IMAGES_PATH);
+
+  for size in SIZES do
+  begin
+    fileName := ExpandFileName(IMAGES_PATH + LowerCase(ToStr(spell)) + size);
+
+    if not FileExists(fileName) then
+    begin
+      //Writeln('Unzipping spell sprite: ' + ExtractFileName(fileName) + ' this can take a few seconds');
+      if not UnZipOneFile(IMAGES_ZIP, ExtractFileName(fileName), IMAGES_PATH) then
+        TerminateScript('Unknown spell: ' + ToStr(spell));
+    end;
+
+    spellImage.Init();
+    spellImage.LoadFromFile(fileName);
+    spellImage.SetName(fileName);
+    spellImage.ReplaceColor($202030, 0);
+    Result += spellImage;
+  end;
+end;
+
+procedure FixSpellImages();
+var
+  imageNames, missingNames: TStringArray;
+  currentImages : TMufasaBitmapArray;
+  i, j, dumpMatchIndex : Int32;
+begin
+  if not DirectoryExists(DUMP_OUTPUT_DIRECTORY) then
+  begin
+    Writeln("Unzipping sprite dump...");
+    UnZipFile(ZIPPED_DUMP_DIRECTORY, DUMP_OUTPUT_DIRECTORY);
+  end;
+
+  Writeln("Loading dump images...");
+
+  //Get all the dumped sprite images
+  imageNames := GetFiles(DUMP_OUTPUT_DIRECTORY, "png");
+  SetLength(dumpImages, Length(imageNames));
+  for i := 0 to High(dumpImages) do
+  begin
+    dumpImages[i].Init();
+    dumpImages[i].LoadFromFile(DUMP_OUTPUT_DIRECTORY + imageNames[i]);
+    dumpImages[i].setName(ExtractFileName(imageNames[i].Before(".png")));
+    //dumpImages[i].ReplaceColor($202030, 0);
+  end;
+
+  Writeln("Comparing images...");
+
+  //For each spell, get the images it uses currently, match them to the dump, and store the results.
+  for i := Ord(FIRST_SPELL) to Ord(LAST_SPELL) do
+  begin
+
+    currentImages := GetSpellImages(ESpell(i));
+
+    if Length(currentImages) < 1 then
+      continue;
+
+    for j := 0 to High(currentImages) do
+    begin
+      //Some of the existing sprites are the wrong size. These checks fix the formatting and result in NO missing matches.
+       if (currentImages[j].getHeight() = 39)
+        and not currentImages[j].getName().ContainsAny(['degrime', 'ward_of_arceuus']) then
+          currentImages[j].ResizeEx(TBmpResizeMethod.RM_Nearest, currentImages[j].getWidth(), 40);
+
+      //Shadow Rush has a bad magenta color for some reason.
+      if currentImages[j].getName().Contains("shadow_rush_small") then
+        currentImages[j].ReplaceColor(16711935, 0);
+
+      dumpMatchIndex := GetMostSimilarImage(currentImages[j], dumpImages, 0.93);
+
+      if dumpMatchIndex <> -1 then
+      begin
+
+        if SpellImageMapping[ESpell(i)] = [] then
+        begin
+          SetLength(SpellImageMapping[ESpell(i)], 2);
+          SpellImageMapping[ESpell(i)] := ["nil", "nil"];
+        end;
+
+        if currentImages[j].getName().Contains("_small") then
+          SpellImageMapping[ESpell(i)][0] := dumpImages[dumpMatchIndex].getName()
+        else
+          SpellImageMapping[ESpell(i)][1] := dumpImages[dumpMatchIndex].getName();
+
+        continue;
+      end;
+
+      missingNames += currentImages[j].getName();
+    end;
+
+    currentImages.Free();
+  end;
+
+  Writeln("MissingCount: ", Length(missingNames), " ", missingNames);
+  GenerateSpellLookup(SpellImageMapping);
+end;
+
+//First sprite is small, second is large.
+function GetSpellMapping(spell : ESpell) : TStringArray;
+begin
+	case spell of
+		ESpell.LUMBRIDGE_HOME_TELEPORT : Exit(['356-0', '1802-0']);
+		ESpell.WIND_STRIKE : Exit(['15-0', '0-0']);
+		ESpell.CONFUSE : Exit(['16-0', '1782-0']);
+		ESpell.ENCHANT_CROSSBOW_BOLT : Exit(['358-0', '1797-0']);
+		ESpell.WATER_STRIKE : Exit(['17-0', '1-0']);
+		ESpell.JEWELLERY_ENCHANTMENTS : Exit(['366-0', '1803-0']);
+		ESpell.BACK : Exit(['4737-0', '5585-0']);
+		ESpell.LVL1_ENCHANT : Exit(['18-0', '1765-0']);
+		ESpell.LVL2_ENCHANT : Exit(['28-0', '1766-0']);
+		ESpell.LVL3_ENCHANT : Exit(['39-0', '1767-0']);
+		ESpell.LVL4_ENCHANT : Exit(['43-0', '1768-0']);
+		ESpell.LVL5_ENCHANT : Exit(['50-0', '1769-0']);
+		ESpell.LVL6_ENCHANT : Exit(['353-0', '1770-0']);
+		ESpell.LVL7_ENCHANT : Exit(['361-0', '1771-0']);
+		ESpell.EARTH_STRIKE : Exit(['19-0', '2-0']);
+		ESpell.WEAKEN : Exit(['20-0', '1783-0']);
+		ESpell.FIRE_STRIKE : Exit(['21-0', '3-0']);
+		ESpell.BONES_TO_BANANAS : Exit(['22-0', '1777-0']);
+		ESpell.WIND_BOLT : Exit(['23-0', '5-0']);
+		ESpell.CURSE : Exit(['24-0', '1784-0']);
+		ESpell.BIND : Exit(['319-0', '1788-0']);
+		ESpell.LOW_LEVEL_ALCHEMY : Exit(['25-0', '1780-0']);
+		ESpell.WATER_BOLT : Exit(['26-0', '6-0']);
+		ESpell.VARROCK_TELEPORT : Exit(['27-0', '1752-0']);
+		ESpell.EARTH_BOLT : Exit(['29-0', '7-0']);
+		ESpell.LUMBRIDGE_TELEPORT : Exit(['30-0', '1753-0']);
+		ESpell.TELEKINETIC_GRAB : Exit(['31-0', '1778-0']);
+		ESpell.FIRE_BOLT : Exit(['32-0', '8-0']);
+		ESpell.FALADOR_TELEPORT : Exit(['33-0', '1754-0']);
+		ESpell.CRUMBLE_UNDEAD : Exit(['34-0', '1779-0']);
+		ESpell.TELEPORT_TO_HOUSE : Exit(['355-0', '1755-0']);
+		ESpell.WIND_BLAST : Exit(['35-0', '9-0']);
+		ESpell.SUPERHEAT_ITEM : Exit(['36-0', '1800-0']);
+		ESpell.CAMELOT_TELEPORT : Exit(['37-0', '1756-0']);
+		ESpell.WATER_BLAST : Exit(['38-0', '10-0']);
+		ESpell.IBAN_BLAST : Exit(['53-0', '1772-0']);
+		ESpell.SNARE : Exit(['320-0', '1789-0']);
+		ESpell.MAGIC_DART : Exit(['324-0', '1878-0']);
+		ESpell.ARDOUGNE_TELEPORT : Exit(['54-0', '1757-0']);
+		ESpell.EARTH_BLAST : Exit(['40-0', '11-0']);
+		ESpell.CIVITAS_ILLA_FORTIS_TELEPORT : Exit(['367-0', '1804-0']);
+		ESpell.HIGH_LEVEL_ALCHEMY : Exit(['41-0', '1781-0']);
+		ESpell.CHARGE_WATER_ORB : Exit(['42-0', '1793-0']);
+		ESpell.WATCHTOWER_TELEPORT : Exit(['55-0', '1758-0']);
+		ESpell.FIRE_BLAST : Exit(['44-0', '13-0']);
+		ESpell.CHARGE_EARTH_ORB : Exit(['45-0', '1794-0']);
+		ESpell.BONES_TO_PEACHES : Exit(['354-0', '1801-0']);
+		ESpell.SARADOMIN_STRIKE : Exit(['61-0', '1775-0']);
+		ESpell.CLAWS_OF_GUTHIX : Exit(['60-0', '1774-0']);
+		ESpell.FLAMES_OF_ZAMORAK : Exit(['59-0', '1773-0']);
+		ESpell.TROLLHEIM_TELEPORT : Exit(['323-0', '1759-0']);
+		ESpell.WIND_WAVE : Exit(['46-0', '14-0']);
+		ESpell.CHARGE_FIRE_ORB : Exit(['47-0', '1795-0']);
+		ESpell.TELEPORT_TO_APE_ATOLL : Exit(['357-0', '1760-0']);
+		ESpell.WATER_WAVE : Exit(['48-0', '305-0']);
+		ESpell.CHARGE_AIR_ORB : Exit(['49-0', '1796-0']);
+		ESpell.VULNERABILITY : Exit(['56-0', '1785-0']);
+		ESpell.TELEPORT_TO_KOUREND : Exit(['360-0', '1761-0']);
+		ESpell.EARTH_WAVE : Exit(['51-0', '306-0']);
+		ESpell.ENFEEBLE : Exit(['57-0', '1786-0']);
+		ESpell.TELEOTHER_LUMBRIDGE : Exit(['349-0', '1762-0']);
+		ESpell.FIRE_WAVE : Exit(['52-0', '307-0']);
+		ESpell.ENTANGLE : Exit(['321-0', '1790-0']);
+		ESpell.STUN : Exit(['58-0', '1787-0']);
+		ESpell.CHARGE : Exit(['322-0', '1776-0']);
+		ESpell.WIND_SURGE : Exit(['362-0', '1098-0']);
+		ESpell.TELEOTHER_FALADOR : Exit(['350-0', '1763-0']);
+		ESpell.WATER_SURGE : Exit(['363-0', '1099-0']);
+		ESpell.TELE_BLOCK : Exit(['352-0', '1792-0']);
+		ESpell.STANDARD_TARGET_TELEPORT : Exit(['359-0', '1799-0']);
+		ESpell.TELEOTHER_CAMELOT : Exit(['351-0', '1764-0']);
+		ESpell.EARTH_SURGE : Exit(['364-0', '1100-0']);
+		ESpell.FIRE_SURGE : Exit(['365-0', '1751-0']);
+		ESpell.EDGEVILLE_HOME_TELEPORT : Exit(['356-0', '1802-0']);
+		ESpell.SMOKE_RUSH : Exit(['329-0', '1896-0']);
+		ESpell.SHADOW_RUSH : Exit(['337-0', '1904-0']);
+		ESpell.PADDEWWA_TELEPORT : Exit(['341-0', '1908-0']);
+		ESpell.BLOOD_RUSH : Exit(['333-0', '1900-0']);
+		ESpell.ICE_RUSH : Exit(['325-0', '1892-0']);
+		ESpell.SENNTISTEN_TELEPORT : Exit(['342-0', '1909-0']);
+		ESpell.SMOKE_BURST : Exit(['330-0', '1897-0']);
+		ESpell.SHADOW_BURST : Exit(['338-0', '1905-0']);
+		ESpell.KHARYRLL_TELEPORT : Exit(['343-0', '1910-0']);
+		ESpell.BLOOD_BURST : Exit(['334-0', '1901-0']);
+		ESpell.ICE_BURST : Exit(['326-0', '1893-0']);
+		ESpell.LASSAR_TELEPORT : Exit(['344-0', '1911-0']);
+		ESpell.SMOKE_BLITZ : Exit(['331-0', '1898-0']);
+		ESpell.SHADOW_BLITZ : Exit(['339-0', '1906-0']);
+		ESpell.DAREEYAK_TELEPORT : Exit(['345-0', '1912-0']);
+		ESpell.BLOOD_BLITZ : Exit(['335-0', '1902-0']);
+		ESpell.ICE_BLITZ : Exit(['327-0', '1894-0']);
+		ESpell.CARRALLANGAR_TELEPORT : Exit(['346-0', '1913-0']);
+		ESpell.ANCIENT_TARGET_TELEPORT : Exit(['359-0', '1799-0']);
+		ESpell.SMOKE_BARRAGE : Exit(['332-0', '1899-0']);
+		ESpell.SHADOW_BARRAGE : Exit(['340-0', '1907-0']);
+		ESpell.ANNAKARL_TELEPORT : Exit(['347-0', '1914-0']);
+		ESpell.BLOOD_BARRAGE : Exit(['336-0', '1903-0']);
+		ESpell.ICE_BARRAGE : Exit(['328-0', '1895-0']);
+		ESpell.GHORROCK_TELEPORT : Exit(['348-0', '1915-0']);
+		ESpell.LUNAR_HOME_TELEPORT : Exit(['356-0', '1802-0']);
+		ESpell.BAKE_PIE : Exit(['543-0', '1952-0']);
+		ESpell.GEOMANCY : Exit(['563-0', '1967-0']);
+		ESpell.CURE_PLANT : Exit(['567-0', '1968-0']);
+		ESpell.MONSTER_EXAMINE : Exit(['577-0', '1971-0']);
+		ESpell.NPC_CONTACT : Exit(['568-0', '1969-0']);
+		ESpell.CURE_OTHER : Exit(['559-0', '1962-0']);
+		ESpell.HUMIDIFY : Exit(['578-0', '1972-0']);
+		ESpell.MOONCLAN_TELEPORT : Exit(['544-0', '1980-0']);
+		ESpell.TELE_GROUP_MOONCLAN : Exit(['569-0', '1988-0']);
+		ESpell.CURE_ME : Exit(['562-0', '1964-0']);
+		ESpell.OURANIA_TELEPORT : Exit(['586-0', '1981-0']);
+		ESpell.HUNTER_KIT : Exit(['579-0', '1973-0']);
+		ESpell.WATERBIRTH_TELEPORT : Exit(['545-0', '1982-0']);
+		ESpell.TELE_GROUP_WATERBIRTH : Exit(['570-0', '1989-0']);
+		ESpell.CURE_GROUP : Exit(['565-0', '1965-0']);
+		ESpell.STAT_SPY : Exit(['576-0', '1970-0']);
+		ESpell.BARBARIAN_TELEPORT : Exit(['547-0', '1983-0']);
+		ESpell.TELE_GROUP_BARBARIAN : Exit(['571-0', '1990-0']);
+		ESpell.SPIN_FLAX : Exit(['585-0', '1979-0']);
+		ESpell.SUPERGLASS_MAKE : Exit(['548-0', '1953-0']);
+		ESpell.TAN_LEATHER : Exit(['583-0', '1977-0']);
+		ESpell.KHAZARD_TELEPORT : Exit(['549-0', '1984-0']);
+		ESpell.TELE_GROUP_KHAZARD : Exit(['572-0', '1991-0']);
+		ESpell.DREAM : Exit(['580-0', '1974-0']);
+		ESpell.STRING_JEWELLERY : Exit(['550-0', '1954-0']);
+		ESpell.STAT_RESTORE_POT_SHARE : Exit(['554-0', '1956-0']);
+		ESpell.MAGIC_IMBUE : Exit(['552-0', '1957-0']);
+		ESpell.FERTILE_SOIL : Exit(['553-0', '1958-0']);
+		ESpell.BOOST_POTION_SHARE : Exit(['551-0', '1955-0']);
+		ESpell.FISHING_GUILD_TELEPORT : Exit(['555-0', '1985-0']);
+		ESpell.BOUNTY_TELEPORT : Exit(['359-0', '1799-0']);
+		ESpell.TELE_GROUP_FISHING_GUILD : Exit(['573-0', '1992-0']);
+		ESpell.PLANK_MAKE : Exit(['581-0', '1975-0']);
+		ESpell.CATHERBY_TELEPORT : Exit(['556-0', '1986-0']);
+		ESpell.TELE_GROUP_CATHERBY : Exit(['574-0', '1993-0']);
+		ESpell.RECHARGE_DRAGONSTONE : Exit(['584-0', '1978-0']);
+		ESpell.ICE_PLATEU_TELEPORT : Exit(['557-0', '1987-0']);
+		ESpell.TELE_GROUP_ICE_PLATEU : Exit(['575-0', '1994-0']);
+		ESpell.ENERGY_TRANSFER : Exit(['558-0', '1959-0']);
+		ESpell.HEAL_OTHER : Exit(['560-0', '1963-0']);
+		ESpell.VENGEANCE_OTHER : Exit(['561-0', '1960-0']);
+		ESpell.VENGEANCE : Exit(['564-0', '1961-0']);
+		ESpell.HEAL_GROUP : Exit(['566-0', '1966-0']);
+		ESpell.SPELLBOOK_SWAP : Exit(['582-0', '1976-0']);
+		ESpell.ARCEUUS_HOME_TELEPORT : Exit(['1251-0', '2056-0']);
+		ESpell.ARCEUUS_LIBRARY_TELEPORT : Exit(['1252-0', '2057-0']);
+		ESpell.BASIC_REANIMATION : Exit(['1247-0', '2052-0']);
+		ESpell.DRAYNOR_MANOR_TELEPORT : Exit(['1253-0', '2058-0']);
+		ESpell.BATTLEFRONT_TELEPORT : Exit(['1255-0', '2060-0']);
+		ESpell.MIND_ALTAR_TELEPORT : Exit(['1256-0', '2061-0']);
+		ESpell.RESPAWN_TELEPORT : Exit(['1257-0', '2062-0']);
+		ESpell.GHOSTLY_GRASP : Exit(['1267-0', '2072-0']);
+		ESpell.RESURRECT_LESSER_GHOST : Exit(['1270-0', '2075-0']);
+		ESpell.RESURRECT_LESSER_SKELETON : Exit(['1271-0', '2076-0']);
+		ESpell.RESURRECT_LESSER_ZOMBIE : Exit(['1300-0', '2077-0']);
+		ESpell.SALVE_GRAVEYARD_TELEPORT : Exit(['1258-0', '2063-0']);
+		ESpell.ADEPT_REANIMATION : Exit(['1248-0', '2053-0']);
+		ESpell.INFERIOR_DEMONBANE : Exit(['1302-0', '2079-0']);
+		ESpell.SHADOW_VEIL : Exit(['1315-0', '2991-0']);
+		ESpell.FENKENSTRAINS_CASTLE_TELEPORT : Exit(['1259-0', '2064-0']);
+		ESpell.DARK_LURE : Exit(['1316-0', '2992-0']);
+		ESpell.SKELETAL_GRASP : Exit(['1268-0', '2073-0']);
+		ESpell.RESURRECT_SUPERIOR_GHOST : Exit(['2979-0', '2995-0']);
+		ESpell.RESURRECT_SUPERIOR_SKELETON : Exit(['2981-0', '2997-0']);
+		ESpell.RESURRECT_SUPERIOR_ZOMBIE : Exit(['2983-0', '2999-0']);
+		ESpell.MARK_OF_DARKNESS : Exit(['1305-0', '2082-0']);
+		ESpell.WEST_ARDOUGNE_TELEPORT : Exit(['1260-0', '2065-0']);
+		ESpell.SUPERIOR_DEMONBANE : Exit(['1303-0', '2080-0']);
+		ESpell.LESSER_CORRUPTION : Exit(['1307-0', '2084-0']);
+		ESpell.HARMONY_ISLAND_TELEPORT : Exit(['1261-0', '2066-0']);
+		ESpell.VILE_VIGOUR : Exit(['1317-0', '2993-0']);
+		ESpell.DEGRIME : Exit(['1318-0', '2994-0']);
+		ESpell.CEMETERY_TELEPORT : Exit(['1264-0', '2069-0']);
+		ESpell.EXPERT_REANIMATION : Exit(['1249-0', '2054-0']);
+		ESpell.WARD_OF_ARCEUUS : Exit(['1306-0', '2083-0']);
+		ESpell.RESURRECT_GREATER_GHOST : Exit(['2980-0', '2996-0']);
+		ESpell.RESURRECT_GREATER_SKELETON : Exit(['2982-0', '2998-0']);
+		ESpell.RESURRECT_GREATER_ZOMBIE : Exit(['2984-0', '3000-0']);
+		ESpell.RESURRECT_CROPS : Exit(['1266-0', '2071-0']);
+		ESpell.UNDEAD_GRASP : Exit(['1269-0', '2074-0']);
+		ESpell.DEATH_CHARGE : Exit(['1310-0', '2087-0']);
+		ESpell.DARK_DEMONBANE : Exit(['1304-0', '2081-0']);
+		ESpell.BARROWS_TELEPORT : Exit(['1262-0', '2067-0']);
+		ESpell.DEMONIC_OFFERING : Exit(['1311-0', '2088-0']);
+		ESpell.GREATER_CORRUPTION : Exit(['1308-0', '2085-0']);
+		ESpell.MASTER_REANIMATION : Exit(['1250-0', '2055-0']);
+		ESpell.APE_ATOLL_TELEPORT : Exit(['1263-0', '2068-0']);
+		ESpell.SINISTER_OFFERING : Exit(['1312-0', '2089-0']);
+		else Exit(['None']);
+	end;
+end;
+
+procedure ExportSpellImages();
+var
+  i, j : Int32;
+  spriteArr : TStringArray;
+  fileName : string;
+  tempImage : TMufasaBitmap;
+begin
+
+  if not DirectoryExists(DUMP_OUTPUT_DIRECTORY) then
+    CreateDirectory(DUMP_OUTPUT_DIRECTORY);
+
+  if not DirectoryExists(UPDATED_SPELL_DIRECTORY) then
+    CreateDirectory(UPDATED_SPELL_DIRECTORY);
+
+  DeleteDirectory(UPDATED_SPELL_DIRECTORY, true);
+
+  Writeln("Starting spell export...");
+
+  for i := Ord(FIRST_SPELL) to Ord(LAST_SPELL) do
+  begin
+    spriteArr := GetSpellMapping(ESpell(i));
+
+    if spriteArr[0] = "None" then
+      continue;
+
+    //For each sprite download it from the dump and then save it as our spell + large or small.
+    for j := 0 to High(spriteArr) do
+    begin
+      fileName := DUMP_OUTPUT_DIRECTORY + spriteArr[j] + ".png";
+
+      if not FileExists(fileName) then
+      begin
+        //Writeln('Unzipping spell sprite: ' + spriteArr[j] + ' this can take a few seconds');
+        if not UnZipOneFile(ZIPPED_DUMP_DIRECTORY, spriteArr[j] + ".png", DUMP_OUTPUT_DIRECTORY) then
+        begin
+          Writeln("Could not unzip:", spriteArr[j] + ".png", " from ", ZIPPED_DUMP_DIRECTORY);
+          TerminateScript();
+        end;
+      end;
+
+      tempImage.Init();
+      tempImage.LoadFromFile(fileName);
+      tempImage.setName(ToStr(ESpell(i)).ToLower);
+
+      if j = 0 then
+        tempImage.setName(tempImage.getName() + "_small.png")
+      else
+        tempImage.setName(tempImage.getName() + "_large.png");
+
+      tempImage.SaveToFile(UPDATED_SPELL_DIRECTORY + tempImage.getName());
+      tempImage.Free();
+    end;
+  end;
+
+  //Might want to delete afterwards so that the next generation is clean.
+  DeleteDirectory(DUMP_OUTPUT_DIRECTORY, false);
+end;
+
+begin
+  AddOnTerminate(@dumpImages.Free);
+
+  //FixSpellImages handles comparing current images to dumped images to create the look up at the end.
+  //FixSpellImages();
+
+  //Uses the generated look up function to then unzip the spells and save them to a folder for zip and distribution.
+  ExportSpellImages();
+end.

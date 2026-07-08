@@ -1,0 +1,28 @@
+{$DEFINE SRL_OCR_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+{$loadlib ../../plugins/libsimpleocr/libsimpleocr}
+
+const
+  FONT_PATH = {$macro CURRENT_DIRECTORY} + 'fonts' + DirectorySeparator;
+
+var
+  FONT_PLAIN_11: TFontSet;
+  FONT_PLAIN_12: TFontSet;
+  FONT_BOLD_12: TFontSet;
+  FONT_BOLD_12_SHADOW: TFontSet;
+  FONT_QUILL_8: TFontSet;
+  FONT_QUILL: TFontSet;
+
+  OCR: TSimpleOCR;
+
+begin
+  FONT_PLAIN_11.Load(FONT_PATH + 'Plain 11');
+  FONT_PLAIN_12.Load(FONT_PATH + 'Plain 12');
+  FONT_BOLD_12.Load(FONT_PATH + 'Bold 12');
+  FONT_BOLD_12_SHADOW.Load(FONT_PATH + 'Bold 12 Shadow');
+  FONT_QUILL_8.Load(FONT_PATH + 'Quill 8');
+  FONT_QUILL.Load(FONT_PATH + 'Quill');
+end;

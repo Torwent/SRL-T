@@ -1,0 +1,356 @@
+(*
+# XPBar
+Methods to interact with the XP bar.
+*)
+{$DEFINE SRL_XPBAR_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  TXPBar = record(TInterface)
+    Tracker: record
+      Start: Int64;
+      Current: Int64;
+      Previous: Int64;
+      IsSetup: Boolean;
+    end;
+
+    Alignment: TInterfaceAlignment;
+    Alignments: array of TInterfaceAlignment;
+    Font: TFontSet;
+    IsSetup: Boolean;
+  end;
+
+(*
+## XPBar.Setup
+```pascal
+procedure TXPBar.Setup(); override;
+```
+Initializes **XPBar** variables.
+
+```{note}
+This is automatically called on the **XPBar** variable.
+```
+*)
+procedure TXPBar.Setup(); override;
+begin
+  inherited;
+  Self.Name := 'XPBar';
+end;
+
+procedure TXPBar.SetupAlignment(); overload;
+begin
+  SetLength(Self.Alignments, 3);
+
+  with Self.Alignments[0] do
+  begin
+    Left := InterfaceArea.Bounds.X1 + 2;
+    Right := InterfaceArea.Bounds.X1 + 141;
+    Top := InterfaceArea.Bounds.Y1 + 23;
+    Bottom := InterfaceArea.Bounds.Y1 + 51;
+    MaxWidth := 0;
+    MaxHeight := 0;
+  end;
+
+  with Self.Alignments[1] do
+  begin
+    Left   := InterfaceArea.Bounds.X1;
+    Right  := InterfaceArea.Bounds.X2;
+    Top    := InterfaceArea.Bounds.Y1 + 23;
+    Bottom := InterfaceArea.Bounds.Y1 + 51;
+    MaxWidth := 140;
+    MaxHeight := 0;
+  end;
+
+  with Self.Alignments[2] do
+  begin
+    Left := InterfaceArea.Bounds.X2 - 141;
+    Right := InterfaceArea.Bounds.X2 - 2;
+    Top := InterfaceArea.Bounds.Y1;
+    Bottom := InterfaceArea.Bounds.Y1 + 28;
+    MaxWidth := 0;
+    MaxHeight := 0;
+  end;
+end;
+
+
+(*
+## XPBar.IsEnabled
+```pascal
+function TXPBar.IsEnabled(): Boolean;
+```
+Checks if the XPBar circle is enabled.
+
+Example:
+```pascal
+WriteLn XPBar.IsEnabled();
+```
+*)
+function TXPBar.IsEnabled(): Boolean;
+var
+  TPA: TPointArray;
+begin
+  if FindColors(TPA, 11592943, Minimap.Orbs[EMinimapOrb.EXPERIENCE].Bounds) then
+    Result := Length(Minimap.Orbs[EMinimapOrb.EXPERIENCE].Filter(TPA)) > 50;
+end;
+
+(*
+## XPBar.Enable
+```pascal
+function TXPBar.Enable(): Boolean;
+```
+Enables the XPBar by clicking the XPBar circle.
+
+Example:
+```pascal
+if not XPBar.IsEnabled() then
+  WriteLn XPBar.Enable();
+```
+*)
+function TXPBar.Enable(): Boolean;
+begin
+  if Self.IsEnabled() then
+    Exit(True);
+
+  Mouse.Click(Minimap.Orbs[EMinimapOrb.EXPERIENCE], MOUSE_LEFT);
+
+  Result := WaitUntil(Self.IsEnabled(), SRL.TruncatedGauss(100, 1000), 3000);
+end;
+
+(*
+## XPBar._Setup
+```pascal
+procedure TXPBar._Setup();
+```
+Internal method automatically called by SRL once when attempting to read the XPBar.
+*)
+procedure TXPBar._Setup();
+var
+  tpa: TPointArray;
+begin
+  if not Self.Enable() then Exit;
+
+  for Self.Alignment in Self.Alignments do
+  begin
+    Self.SetupAlignment(Self.Alignment);
+    if SRL.FindColors(tpa, $FFFFFF, Self.Bounds) > 0 then
+      Break;
+  end;
+
+  if tpa = [] then
+  begin
+    Self.Alignment := [];
+    Self.Font := [];
+    Exit;
+  end;
+
+  case tpa.Bounds().Height() of
+    8:  Self.Font := FONT_PLAIN_11;
+    11: Self.Font := FONT_PLAIN_12;
+    10: Self.Font := FONT_BOLD_12; //it's actually less tall lol.
+    else
+    begin
+      Self.Alignment := [];
+      Self.Font := [];
+      Exit;
+    end;
+  end;
+
+  Self.IsSetup := True;
+end;
+
+(*
+## XPBar.Read
+```pascal
+function TXPBar.Read(): Int32;
+```
+Reads the XP in the XPBar.
+
+Example:
+```pascal
+WriteLn XPBar.Read();
+```
+*)
+function TXPBar.Read(): Int64;
+var
+  xpStr: String;
+begin
+  if not Self.IsSetup then
+    Self._Setup();
+
+  if not Self.IsSetup or not Self.Enable() then
+    Exit;
+
+  xpStr := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$FFFFFF]), Self.Font);
+  Result := xpStr.ExtractInteger(0);
+
+  Self.Tracker.IsSetup := (Result > 0) and (Result >= Self.Tracker.Current);
+
+  if Self.Tracker.IsSetup then
+  begin
+    if Self.Tracker.Start = 0 then
+      Self.Tracker.Start := Result;
+
+    if (Self.Tracker.Current = 0) or (Result > Self.Tracker.Current) then
+      Self.Tracker.Current := Result;
+  end;
+end;
+
+(*
+## XPBar.EarnedXP
+```pascal
+function TXPBar.EarnedXP(): Boolean;
+```
+Returns True/False if we earned XP since the last time this or XPBar.Read() was called.
+
+Example:
+```pascal
+while True do
+  WriteLn XPBar.EarnedXP();
+```
+*)
+function TXPBar.EarnedXP(): Boolean;
+begin
+  Result := Self.Read() > Self.Tracker.Previous;
+
+  if Result and Self.Tracker.IsSetup then
+    Self.Tracker.Previous := Self.Tracker.Current;
+end;
+
+(*
+## XPBar.WaitXP
+```pascal
+function TXPBar.WaitXP(waitTime: Int32 = 600; interval: Int32 = -1): Boolean;
+```
+Waits a set amount of time until XPBar.EarnedXP() is true.
+*)
+function TXPBar.WaitXP(waitTime: Int32 = 600; interval: Int32 = -1): Boolean;
+begin
+  if (interval = -1) then
+    interval := SRL.TruncatedGauss(50, 200);
+
+  Result := WaitUntil(Self.EarnedXP(), interval, waitTime);
+end;
+
+(*
+## XPBar.TotalEarnedXP
+```pascal
+function TXPBar.TotalEarnedXP(update: Boolean = False): Int32;
+```
+Returns the total amount of earned experience.
+This is pretty reliable but should be taken with a grain of salt since XPBar can be misread
+due to several reasons, like open interfaces.
+*)
+function TXPBar.TotalEarnedXP(update: Boolean = False): Int32;
+begin
+  if update then
+    Self.Read();
+  Result := Self.Tracker.Current - Self.Tracker.Start;
+end;
+
+
+(*
+## XPBar.IsOpen
+```pascal
+function TXPBar.IsOpen(): Boolean;
+```
+Checks if the XPBar is open.
+Keep in mind interfaces and things that cover the xp bar, might make this return false.
+
+Example:
+```pascal
+WriteLn XPBar.IsOpen();
+```
+*)
+function TXPBar.IsOpen(): Boolean; overload;
+begin
+  Result := Self.Read() > 0;
+end;
+
+(*
+## XPBar.Open
+```pascal
+function TXPBar.Open(): Boolean;
+```
+Attempts to open the XPBar if it's not open.
+
+Example:
+```pascal
+if not XPBar.IsOpen() then
+  WriteLn XPBar.Open();
+```
+*)
+function TXPBar.Open(): Boolean;
+begin
+  if Self.IsOpen() then
+    Exit(True);
+
+  Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(100, 1000), 3000);
+
+  if not Result then
+    Self.DebugLn('Something is wrong with your XPBar.');
+end;
+
+procedure TXPBar.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+end;
+
+(*
+## var XPBar
+  Global XPBar variable.
+*)
+var
+  XPBar: TXPBar;
+
+
+function TMainScreen.IsVisible(p: TPoint): Boolean; override;
+begin
+  Result := inherited;
+  if not XPBar.IsSetup then Exit;
+
+  if XPBar.Bounds.Expand(5).Contains(p) then
+    Exit(False);
+end;
+
+function TMainScreen.IsVisible(tpa: TPointArray; useCenter: Boolean = True): Boolean; override;
+begin
+  Result := inherited;
+  if Result and useCenter then Exit;
+  if not XPBar.IsSetup then Exit;
+
+  if XPBar.Bounds.Expand(5).ContainsAll(tpa) then
+    Exit(False);
+end;
+
+function TMainScreen.Filter(arr: TPointArray): TPointArray; override;
+begin
+  Result := inherited;
+  if not XPBar.IsSetup then Exit;
+
+  arr := Result.FilterBox(XPBar.Bounds);
+  Result := Result.Difference(arr);
+end;
+
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  XPBar.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  XPBar.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  XPBar.Draw(Bitmap);
+end;

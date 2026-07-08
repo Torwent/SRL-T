@@ -54,7 +54,7 @@ var
 
 {$IFNDEF SRL_WEBGRAPH_INCLUDED}      {$I utils/webgraph.simba}
 {$IFNDEF SRL_DRAWING_INCLUDED}       {$I utils/drawing.simba}
-{$IFNDEF SRL_RSTRANSLATOR_INCLUDED}  {$I utils/math/translator.simba}
+{$IFNDEF SRL_TRANSLATOR_INCLUDED}    {$I utils/math/translator.simba}
 {$IFNDEF SRL_WEBGRAPHV2_INCLUDED}    {$I utils/webgraphv2.simba}
 
 

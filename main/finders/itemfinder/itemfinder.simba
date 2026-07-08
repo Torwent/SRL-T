@@ -1,0 +1,611 @@
+(*
+# Item Finder
+Tool to find item sprites (bitmaps) in boxes.
+*)
+
+{$DEFINE SRL_ITEMFINDER_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  TItemFinderCustomFilter = procedure(constref image, templ: TMufasaBitmap) of object;
+
+  TItemFinder = record(TSRLBaseRecord)
+    IMAGES_ZIP: String;
+    IMAGES_PATH: String;
+
+    Database: TSimpleDatabase;
+
+    ItemFilters: array of record
+      Name: String;
+      Filter: TItemFinderCustomFilter;
+    end;
+
+    ItemImages: array of record
+      Name: String;
+      Images: array of TMufasaBitmap;
+    end;
+
+    Similarity: Single;
+  end;
+
+procedure TItemFinder.Free();
+var
+  i, j: Int32;
+begin
+  for i := 0 to High(Self.ItemImages) do
+    for j := 0 to High(Self.ItemImages[i].Images) do
+      Self.ItemImages[i].Images[j].Free();
+end;
+
+procedure TItemFinder.Setup();
+begin
+  Self.IMAGES_ZIP  := {$macro CURRENT_DIRECTORY} + 'items-imgs.zip';
+  Self.IMAGES_PATH := CACHE_DIR + 'itemfinder' + DirectorySeparator +
+                      SHA1File(Self.IMAGES_ZIP).SubString(6) +
+                      DirectorySeparator;
+
+  ForceDirectories(Self.IMAGES_PATH);
+
+  Self.Name := 'ItemFinder';
+  Self.Similarity := 0.999;
+
+  Self.Database.Setup('itemfinder',['id', 'item', 'hash'], {$macro CURRENT_DIRECTORY}, Self.IMAGES_PATH);
+  AddOnTerminate(@Self.Free);
+end;
+
+procedure TItemFinder.AddItemName(constref item, id: String);
+begin
+  Self.Database.AddRow([id, item, '']);
+end;
+
+procedure TItemFinder.AddItemNames(constref items: TStringArray; constref id: String);
+var
+  item: String;
+begin
+  for item in items do
+    Self.Database.AddRow([id, item, '']);
+end;
+
+procedure TItemFinder.AddItemFilter(item: String; filter: TItemFinderCustomFilter);
+begin
+  Self.ItemFilters += [item, @filter];
+end;
+
+
+//Thanks to Olly for the original idea.
+//Make sure your bitmap has the top 9 pixels cropped (possible stack number) and is 36 width.
+function TItemFinder.GetHash(bmp: TMufasaBitmap): String;
+var
+  pixels: TIntegerArray;
+  h, i: Int32;
+  str: String;
+begin
+  pixels := bmp.GetColors();
+
+  h := $811C9DC5;
+  for i:=0 to High(pixels) do
+  begin
+    if pixels[i] = $0 then Continue;
+    h := (h * $1000193) xor pixels[i];
+  end;
+
+  str := LowerCase(IntToHex(h, 16));
+  Result := str.SubString(Length(str)-8, Length(str));
+end;
+
+//Attempt to clean an item bmp. Should be
+function TItemFinder.CleanItemBitmap(bmp: TMufasaBitmap): Boolean;
+const
+  NOTED_TPA: TPointArray = [[2,0],[2,1],[2,2],[2,3],[3,4],[4,4],[2,5],[1,6],[1,7],[1,8],[1,9],[1,10],[1,11],[1,12],[1,13],[1,14],[1,15],[1,16],[1,17],[2,18],[3,18],[4,18],[5,18],[6,18],[7,18],[8,18],[9,18],[10,18],[11,18],[12,19],[13,19],[14,19],[15,19],[16,19],[17,19],[18,19],[19,20],[20,20],[21,20],[22,20],[23,20],[24,20],[25,20],[26,20],[27,20],[28,19],[28,18],[28,17],[28,16],[28,15],[28,14],[28,13],[28,12],[28,11],[27,10],[27,9],[27,8],[28,7],[28,6],[28,5],[28,4],[28,3],[28,2],[29,1],[29,0]];
+var
+  border, shadow, tpa, item, corners, bg: TPointArray;
+  count, x, y, i: Int32;
+  p: TPoint;
+  b: TBox;
+  matrix: T2DIntArray;
+  atpa: T2DPointArray;
+  noted: Boolean;
+begin
+  if not bmp.FindColors(border, ITEM_BORDER) then
+    Exit;
+
+  Result := True;
+
+  bmp.FindColors(shadow, ITEM_SHADOW);
+  if bmp.FindColors(tpa, $333333) then
+    shadow += tpa;
+
+  matrix := bmp.ToMatrix();
+
+  corners := [[0,bmp.getHeight()-1], [bmp.getWidth()-1,bmp.getHeight()-1]];
+
+  tpa := border.Invert(bmp.Bounds());
+  atpa := tpa.NRCluster(1);
+  for i := High(atpa) downto 0 do
+    if atpa[i].Contains(corners[0]) or atpa[i].Contains(corners[1]) then
+    begin
+      bg += atpa[i];
+      Delete(atpa, i, 1);
+    end;
+
+  noted := True;
+  for i := 0 to High(NOTED_TPA) do
+    if matrix[NOTED_TPA[i].y, NOTED_TPA[i].x] <> ITEM_BORDER then
+    begin
+      noted := False;
+      Break;
+    end;
+
+  if noted then
+    b := border.Bounds().Expand(-2)
+  else
+    b := border.Bounds();
+
+  for y := b.Y1 to b.Y2 do
+  begin
+    count := 0;
+    tpa := [];
+
+    for x := b.X1 to b.X2 do
+    begin
+      case matrix[y,x] of
+        ITEM_BORDER: if Inc(count) > 2 then Continue(2);
+        else if count = 1 then tpa += [x,y];
+      end;
+    end;
+
+    if (count = 2) and (Length(tpa) > 3) then
+      item += tpa;
+  end;
+
+  for x := b.X1 to b.X2 do
+  begin
+    count := 0;
+    tpa := [];
+
+    for y := b.Y1 to b.Y2 do
+    begin
+      case matrix[y,x] of
+        ITEM_BORDER: if Inc(count) > 2 then Continue(2);
+        else if count = 1 then tpa += [x,y];
+      end;
+    end;
+
+    if (count = 2) and (Length(tpa) > 3) then
+      item += tpa;
+  end;
+
+  for p in item do matrix[p.Y, p.X] := $00FFFF;
+  item := [];
+
+  for y := b.Y2 downto b.Y1 do
+  begin
+    count := 0;
+    tpa := [];
+
+    for x := b.X2 downto b.X1 do
+    begin
+      case matrix[y,x] of
+        ITEM_BORDER: if Inc(count) > 2 then Continue(2);
+        $00FFFF:
+        case count of
+         0: matrix[y,x] := $0;
+         1: Inc(count);
+         2: Continue(2);
+        end;
+        else if count = 1 then tpa += [x,y];
+      end;
+    end;
+
+    if (count = 2) and (Length(tpa) > 3) then
+      item += tpa;
+  end;
+
+  for x := b.X2 downto b.X1 do
+  begin
+    count := 0;
+    tpa := [];
+
+    for y := b.Y2 downto b.Y1 do
+    begin
+      case matrix[y,x] of
+        ITEM_BORDER: if Inc(count) > 2 then Continue(2);
+        $00FFFF:
+        case count of
+         0: matrix[y,x] := $0;
+         1: Inc(count);
+         2: Continue(2);
+        end;
+        else if count = 1 then tpa += [x,y];
+      end;
+    end;
+
+    if (count = 2) and (Length(tpa) > 3) then
+      item += tpa;
+  end;
+
+  for p in shadow do
+  begin
+    p := [p.X-1, p.Y-1];
+    if p.InBox(b) then
+      item += p;
+  end;
+
+  for p in item do matrix[p.Y, p.X] := $00FFFF;
+
+  item := [];
+  for y := 0 to High(matrix) do
+    for x := 0 to High(matrix[y]) do
+      if matrix[y,x] = $00FFFF then
+        item += [x,y];
+
+  item += border;
+
+  for tpa in atpa do
+    for p in item do
+      if tpa.Contains(p) then
+      begin
+        item += tpa;
+        Continue(2);
+      end;
+
+  tpa := item.Invert(bmp.Bounds());
+
+  bmp.DrawTPA(tpa + bg, $0);
+end;
+
+function TItemFinder.GetItemIDs(item: String): TItemArray;
+begin
+  if item.IsDigit() then
+    Exit(Result + item.ExtractNumber());
+  Result := Self.Database.GetAll(item, 'item', 'id');
+end;
+
+function TItemFinder.GetIDItem(item: Int32): String;
+begin
+  Result := Self.Database.Get(ToStr(item), 'id', 'item');
+end;
+
+
+//original concept idea by CanadianJames and Skunks
+function TItemFinder.GetHashIDs(hash: String): TItemArray;
+begin
+  Result := Self.Database.GetAll(hash, 'hash', 'id');
+end;
+
+function TItemFinder.GetHashItems(hash: String): TItemArray;
+begin
+  Result := Self.Database.GetAll(hash, 'hash', 'item');
+end;
+
+
+
+function TItemFinder.GetItemImages(item: String): array of TMufasaBitmap;
+type
+  TMufasaBitmap = TMufasaBitmap;
+
+  function TMufasaBitmap.Equals(Other: TMufasaBitmap): Boolean;
+  begin
+    Result := (Self.GetWidth()  = Other.GetWidth()) and
+              (Self.GetHeight() = Other.GetHeight()) and
+              (CompareMem(Self.GetData()^, Other.GetData()^, Self.GetWidth() * Self.GetHeight() * SizeOf(TRGB32)));
+  end;
+
+var
+  fileName: String;
+  image: TMufasaBitmap;
+  itemID: Int32;
+  i: Int32;
+begin
+  for i := 0 to High(Self.ItemImages) do
+    if (Self.ItemImages[i].Name = item) then
+    begin
+      Result := Self.ItemImages[i].Images;
+      Exit;
+    end;
+
+  for itemID in Self.GetItemIDs(item) do
+  begin
+    fileName := ExpandFileName(Self.IMAGES_PATH + ToString(itemID) + '.png');
+
+    if not FileExists(fileName) then
+    begin
+      Self.DebugLn('Unzipping item sprite: ' + ExtractFileName(fileName) + ' this can take a few seconds');
+      if not UnZipOneFile(Self.IMAGES_ZIP, ExtractFileName(fileName), Self.IMAGES_PATH) then
+        Self.Fatal('Unknown item: ' + ToString(itemID));
+    end;
+
+    image.Init(Client.GetMBitmaps());
+    image.LoadFromFile(fileName);
+    image.SetName(item);
+    image.ReplaceColor(ITEM_SHADOW, 0);
+
+    for i := 0 to High(Result) do
+      if image.Equals(Result[i]) then
+      begin
+        image.Free();
+        image := nil;
+
+        Break;
+      end;
+
+    if (image <> nil) then
+      Result += image;
+  end;
+
+  if (Length(Result) = 0) then
+    Self.Fatal('Unknown item: ' + item);
+
+  Self.ItemImages += [item, Result];
+end;
+
+function TItemFinder.CompareItems(constref image, template: TMufasaBitmap; constref CustomFilter: TItemFinderCustomFilter): Single;
+var
+  imageBorder, templateBorder: TPointArray;
+  tpa, clearTPA: TPointArray;
+  alignedTemplate, alignedImage: TMufasaBitmap;
+  align: TPoint;
+  clearColor: Int32;
+  p: TPoint;
+begin
+  if image.FindColors(imageBorder, ITEM_BORDER) and template.FindColors(templateBorder, ITEM_BORDER) then
+  begin
+    with templateBorder.Bounds() do
+    begin
+      template.Crop(X1, Y1, X2, Y2);
+      templateBorder := templateBorder.Offset(-X1,-Y1);
+    end;
+
+    // Use highest Y point of both images for alignment
+    // TPA is already sorted like this with how FindColors operates.
+    align.X := Max(0, imageBorder[High(imageBorder)].X - templateBorder[High(templateBorder)].X);
+    align.Y := Max(0, imageBorder[High(imageBorder)].Y - templateBorder[High(templateBorder)].Y);
+
+    // Compare borders. Sparkles can modify boundaries.
+    if (@CustomFilter = nil) then
+      for p in templateBorder.Offset(align) do
+      begin
+        if (p.Y <= 8) then // Possible stack number... Don't compare.
+          Continue;
+        if (not PointInTPA(p, imageBorder)) then // Borders don't match. No point going further.
+          Exit;
+      end;
+
+    alignedImage := image.Copy();
+
+    alignedTemplate.Init(Client.GetMBitmaps());
+    alignedTemplate.SetSize(image.GetWidth(), image.GetHeight());
+
+    template.DrawTransparent(align.X, align.Y, alignedTemplate);
+
+    if (@CustomFilter <> nil) then
+      CustomFilter(alignedImage, alignedTemplate);
+
+    // Clear these template colors on both images
+    for clearColor in [ITEM_YELLOW_STACK, ITEM_WHITE_STACK, ITEM_GREEN_STACK, ITEM_BORDER] do
+      if AlignedTemplate.FindColors(tpa, clearColor) then
+        clearTPA += tpa;
+
+    // Clear image background on template
+    if alignedImage.FindColors(tpa, ITEM_BORDER) then
+      clearTPA += tpa;
+    if alignedImage.FindColors(tpa, $0) then
+      clearTPA += tpa;
+    if alignedTemplate.FindColors(tpa, $0) then
+      clearTPA += tpa;
+
+    alignedTemplate.DrawTPA(clearTPA, $0);
+    alignedImage.DrawTPA(clearTPA, $0);
+    Result := alignedImage.MatchTemplate(alignedTemplate, TM_CCORR_NORMED)[0][0]; // IDK why I used CCORR. But it works!
+
+    alignedImage.Free();
+    alignedTemplate.Free();
+  end;
+end;
+
+type
+  TItemFinderMatch = record
+    Item: TItem;
+    Box: TBox;
+    Index: Integer;
+  end;
+  TItemFinderMatchArray = array of TItemFinderMatch;
+
+function TItemFinder.FindAll(items: TItemArray; boxes: TBoxArray; maxToFind: Integer = 0): TItemFinderMatchArray;
+var
+  b: TBox;
+  i, j: Integer;
+  images: TMufasaBitmapArray;
+  template: TMufasaBitmap;
+  filter: TItemFinderCustomFilter;
+  itemsToSearchFor: array of record
+    Image: TMufasaBitmap;
+    Name: TItem;
+    Filter: TItemFinderCustomFilter;
+  end;
+begin
+  for i := 0 to High(items) do
+  begin
+    filter := nil;
+    for j := 0 to High(Self.ItemFilters) do
+    begin
+      if SameText(Self.ItemFilters[j].Name, items[i]) then
+      begin
+        filter := @Self.ItemFilters[j].Filter;
+        Break;
+      end;
+    end;
+
+    images := Self.GetItemImages(items[i]);
+    for j := 0 to High(images) do
+      itemsToSearchFor += [images[j], items[i], @filter];
+  end;
+
+  for i := 0 to High(boxes) do
+  begin
+    b := boxes[i];
+    for j := 0 to High(itemsToSearchFor) do
+    begin
+      if b.Width() < 36 then
+        b.X2 := b.X1 + 36;
+      template.FromClient(b);
+
+      try
+        // Search for item image *ON* the screen image since screen image is never larger than 36x36 item image.
+        if Self.CompareItems(itemsToSearchFor[j].Image, template, @itemsToSearchFor[j].Filter) >= Self.Similarity then
+        begin
+          Result += [itemsToSearchFor[j].Name, boxes[i], i];
+          if Length(Result) = maxToFind then
+            Exit;
+          Break;
+        end;
+      finally
+        template.Free();
+      end;
+    end;
+  end;
+end;
+
+function TItemFinder.Find(Items: TItemArray; Boxes: TBoxArray; out Match: TItemFinderMatch): Boolean;
+var
+  Matches: TItemFinderMatchArray;
+begin
+  Matches := Self.FindAll(Items, Boxes, 1);
+
+  Result := Length(Matches) = 1;
+  if Result then
+    Match := Matches[0];
+end;
+
+
+procedure TItemFinderCustomFilter.ClearSparkles(constref image, templ: TMufasaBitmap); static;
+var
+  I: Int32;
+  ImagePtr, TemplPtr: PRGB32;
+begin
+  ImagePtr := Image.GetData();
+  TemplPtr := Templ.GetData();
+
+  for I := 0 to (Image.GetWidth() * Image.GetHeight())-1 do
+  begin
+    // grey/brightness calculation. Works for magic logs
+    if ((ImagePtr^.R + ImagePtr^.G + ImagePtr^.B) div 3 > 130) or
+       ((TemplPtr^.R + TemplPtr^.G + TemplPtr^.B) div 3 > 130) then
+      ImagePtr^ := TemplPtr^ := Default(TRGB32);
+
+    Inc(ImagePtr);
+    Inc(TemplPtr);
+  end;
+end;
+
+procedure TItemFinderCustomFilter.FireCape(constref image, templ: TMufasaBitmap); static;
+var
+  i: Int32;
+  imgPixel, tmplPixel: TColor;
+  imagePtr, templPtr: PRGB32;
+begin
+  imagePtr := image.GetData();
+  templPtr := templ.GetData();
+
+  for i := 0 to (Image.GetWidth() * Image.GetHeight())-1 do
+  begin
+    imgPixel := RGBtoColor(imagePtr^.R, imagePtr^.G, imagePtr^.B);
+    tmplPixel := RGBtoColor(templPtr^.R, templPtr^.G, templPtr^.B);
+
+    if not (imgPixel in [0, $10435D, ITEM_BORDER]) and
+       not (tmplPixel in [0, $10435D, ITEM_BORDER]) then
+    begin
+      //set any pixel that is not 0, $10435D or ITEMBORDER to red.
+      //basically paint both images red on everything that is not the border and "neck" rope
+      imagePtr^ := [0, 0, 255, 0];
+      templPtr^ := [0, 0, 255, 0];
+    end;
+
+    Inc(imagePtr);
+    Inc(templPtr);
+  end;
+end;
+
+procedure TItemFinderCustomFilter.LavaScales(constref image, templ: TMufasaBitmap); static;
+var
+  I: Int32;
+  ImagePtr, TemplPtr: PRGB32;
+begin
+  ImagePtr := Image.GetData();
+  TemplPtr := Templ.GetData();
+
+  for I := 0 to (Image.GetWidth() * Image.GetHeight())-1 do
+  begin
+    if ((ImagePtr^.R + ImagePtr^.G + ImagePtr^.B) > 235) or
+       ((TemplPtr^.R + TemplPtr^.G + TemplPtr^.B) > 235) then
+      ImagePtr^ := TemplPtr^ := Default(TRGB32);
+
+    Inc(ImagePtr);
+    Inc(TemplPtr);
+  end;
+end;
+
+procedure TItemFinderCustomFilter.DarkEss(constref image, templ: TMufasaBitmap); static;
+var
+  I: Int32;
+  ImagePtr, TemplPtr: PRGB32;
+begin
+  ImagePtr := Image.GetData();
+  TemplPtr := Templ.GetData();
+
+  for I := 0 to (Image.GetWidth() * Image.GetHeight())-1 do
+  begin
+    // grey/brightness calculation. Works for magic logs
+    if ((ImagePtr^.R + ImagePtr^.G + ImagePtr^.B) div 3 > 54) or
+       ((TemplPtr^.R + TemplPtr^.G + TemplPtr^.B) div 3 > 54) then
+      ImagePtr^ := TemplPtr^ := Default(TRGB32);
+
+    Inc(ImagePtr);
+    Inc(TemplPtr);
+  end;
+end;
+
+procedure TItemFinder._SetupHerbSeeds(herbSeed: String);
+const
+  IDS = ['5224', '5225', '5226', '5227'];
+var
+  i: Int32;
+begin
+  for i := 0 to High(IDS) do
+    Self.AddItemName(herbSeed, IDS[i]);
+end;
+
+var
+  ItemFinder: TItemFinder;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+
+  ItemFinder.Setup();
+
+  // We can map some useful things here
+  ItemFinder._SetupHerbSeeds('Marrentill seed');
+  ItemFinder._SetupHerbSeeds('Tarromin seed');
+  ItemFinder._SetupHerbSeeds('Harralander seed');
+  ItemFinder._SetupHerbSeeds('Ranarr seed');
+  ItemFinder._SetupHerbSeeds('Toadflax seed');
+  ItemFinder._SetupHerbSeeds('Irit seed');
+  ItemFinder._SetupHerbSeeds('Avantoe seed');
+  ItemFinder._SetupHerbSeeds('Kwuarm seed');
+  ItemFinder._SetupHerbSeeds('Snapdragon seed');
+  ItemFinder._SetupHerbSeeds('Cadantine seed');
+  ItemFinder._SetupHerbSeeds('Lantadyme seed');
+  ItemFinder._SetupHerbSeeds('Dwarf weed seed');
+  ItemFinder._SetupHerbSeeds('Torstol seed');
+
+  ItemFinder.AddItemFilter('Magic logs', @TItemFinderCustomFilter.ClearSparkles);
+  ItemFinder.AddItemFilter('Magic shortbow (i)', @TItemFinderCustomFilter.ClearSparkles);
+  ItemFinder.AddItemFilter('noted Magic logs', @TItemFinderCustomFilter.ClearSparkles);
+  ItemFinder.AddItemFilter('Fire cape', @TItemFinderCustomFilter.FireCape);
+  ItemFinder.AddItemFilter('Lava scale', @TItemFinderCustomFilter.LavaScales);
+  ItemFinder.AddItemFilter('Lava scale shard', @TItemFinderCustomFilter.LavaScales);
+  ItemFinder.AddItemFilter('Dark essence block', @TItemFinderCustomFilter.DarkEss);
+end;

@@ -1,0 +1,1223 @@
+(*
+# Map Objects
+This file is responsible for interacting with map objects.
+*)
+
+{$DEFINE SRL_MAPOBJECT_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  EGameMapObjectType = (OBJ, MMDOT);
+
+  TMapObject = record
+    ID: Int32;
+    Name: String;
+    Category: Int32;
+    Actions: TStringArray;
+
+    Size: Vector3;
+    Coordinates: TPointArray;
+
+    Finder: TObjectFinder;
+    Offset: TPoint;
+
+    Walker: PRSWalkerV2;
+    Index: Int32;
+
+    TrackTarget: Boolean;
+
+    Filter: record
+      Walker:  Boolean;
+      Minimap: Boolean;
+      Finder:  Boolean;
+      UpText:  Boolean;
+    end;
+
+    MapObjectType: EGameMapObjectType;
+  class var
+    CurrentUpText: TStringArray;
+    CurrentActionUpText: TStringArray;
+    RedClicked: Boolean;
+  end;
+
+  PRSMapObject = ^TMapObject;
+
+function TMapObject.Merge(json: TJSONObject): TMapObject;
+var
+  i, c, t: Int32;
+  h, s: Extended;
+  colors: TIntegerArray;
+begin
+  Result := Self;
+
+  for i := 0 to json.getJSONArray('coordinates').High() do
+    with json.getJSONArray('coordinates').getJSONArray(i) do
+      Result.Coordinates += [getInt(0), getInt(1)];
+
+  with json.getJSONArray('colors') do
+    for i := 0 to High() do
+      colors += getInt(i);
+
+  ACA(colors, 2, c, t, h, s);
+
+  for i := 0 to High(Result.Finder.Colors) do
+    if Result.Finder.Colors[i] = CTS2(c, t, h, s) then
+      Exit;
+
+  Result.Finder.Colors := [CTS2(c, t, h, s)];
+end;
+
+
+function TMapObject.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TMapObject; static;
+var
+  i: Int32;
+  x, y: Single;
+begin
+  Result.Walker := pwalker;
+  Result.Filter := [True, True, True, True];
+
+  Result.ID := json.getInt('id');
+  Result.Name := json.getString('name');
+  Result.Category := json.getInt('category');
+  Result.Offset := [0,0];
+
+  with json.getJSONArray('actions') do
+    for i := 0 to High() do
+      if getString(i) <> 'null' then
+        Result.Actions += getString(i);
+
+  with json.getJSONArray('size') do
+  begin
+    x := getInt(0) * 0.8;
+    y := getInt(1) * 0.8;
+    Result.Size := [x, y, getInt(2) / 40]; //TODO: build this into the JSONs
+  end;
+
+  Result := Result.Merge(json);
+  Result.Finder.ColorClusters := [];
+end;
+
+function TMapObject.SameObject(json: TJSONObject): Boolean;
+var
+  i: Int32;
+  x, y: Single;
+begin
+  if Self.Name <> json.getString('name') then
+    Exit;
+  if Self.Category <> json.getInt('category') then
+    Exit;
+
+  with json.getJSONArray('actions') do
+    for i := 0 to High() do
+      if getString(i) <> 'null' then
+        if not Self.Actions.Contains(getString(i)) then
+          Exit;
+
+  with json.getJSONArray('size') do
+  begin
+    x := getInt(0) * 0.8;
+    y := getInt(1) * 0.8;
+    Result := Self.Size <> [x, y, getInt(2) / 40];
+  end;
+end;
+
+
+function TMapObject.MapToMM(me: TPoint = [0,0]; angle: Single = $FFFF): TPointArray; constref;
+var
+  coordinates: TPointArray;
+begin
+  if me = [0,0] then
+    me := Self.Walker^.Position();
+
+  coordinates := Self.Coordinates.FilterCircle([me.X, me.Y, 85]);
+  coordinates := coordinates.Sorted(me);
+
+  if angle = $FFFF then
+    angle := Minimap.GetCompassAngle(False);
+
+  Result := Self.Walker^.PointsToMM(me, coordinates, angle);
+end;
+
+function TMapObject.MapToMS(me: TPoint = [0,0]; angle: Single = $FFFF): TPointArray; constref;
+var
+  coordinates: TPointArray;
+begin
+  if me = [0,0] then
+    me := Self.Walker^.Position();
+
+  coordinates := Self.Coordinates.FilterCircle([me.X, me.Y, 85]);
+  coordinates := coordinates.Sorted(me);
+
+  if angle = $FFFF then
+    angle := Minimap.GetCompassAngle(False);
+
+  coordinates := Self.Walker^.PointsToMM(me, coordinates, angle);
+
+  Result := Minimap.PointsToMS(coordinates, angle);
+end;
+
+function TMapObject.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref;
+var
+  coordinates: TPointArray;
+  p: TPoint;
+  offset: Vector3;
+  h, diff: Single;
+begin
+  if me = [0,0] then
+    me := Self.Walker^.Position();
+  if angle = $FFFF then
+    angle := Minimap.GetCompassAngle(False);
+
+  h := Self.Walker^.Height(me);
+
+  coordinates := Self.Coordinates.FilterCircle([me.X, me.Y, 85]);
+
+  for p in coordinates.Sorted(me) do
+  begin
+    diff := -(h-Self.Walker^.Height(p));
+    offset := Vec3(Self.Offset.X, Self.Offset.Y, -(h-Self.Walker^.Height(p)));
+    p := Self.Walker^.PointToMM(me, p, angle);
+    Result += Minimap.GetCuboidMS(p + [Round(0.15*diff), Round(0.11*diff)], Self.Size, offset, angle);
+  end;
+end;
+
+
+(*
+## TMapObject.Find
+```pascal
+function TMapObject.Find(cuboidArray: TCuboidArray): T2DPointArray;
+```
+Internal TMapObject method responsible for filtering a TCuboidArray by what's visible in the mainscren.
+This is meant to filter TMapObject.GetCuboidArray() so targets that are outside of the mainscreen are filtered out.
+You will probably never need to use this directly.
+*)
+function TMapObject.FindOnMainScreen(cuboidArray: TCuboidExArray): T2DPointArray;
+var
+  i: Int32;
+  tpa: TPointArray;
+begin
+  cuboidArray := MainScreen.Filter(cuboidArray);
+
+  for i := 0 to High(cuboidArray) do
+  begin
+    if Self.Filter.Finder then
+    begin
+      tpa := MainScreen.FindObject(Self.Finder, cuboidArray[i].Bounds()).Merge();
+      if tpa = [] then
+        Continue;
+
+      tpa := cuboidArray[i].Filter(tpa);
+      if tpa <> [] then
+        Result += tpa;
+
+      Continue;
+    end;
+
+    tpa := cuboidArray[i].ShapeFill();
+    if tpa <> [] then
+      Result += tpa;
+  end;
+end;
+
+(*
+## TMapObject.Visible
+```pascal
+function TMapObject.Visible(cuboidArray: TCuboidArray): Boolean;
+```
+Internal TMapObject method that returns true or false if we have TCuboids visible on the mainscreen.
+You probably don't need to use this directly.
+*)
+function TMapObject.OnMainScreen(cuboidArray: TCuboidExArray): Boolean;
+var
+  i: Int32;
+begin
+  cuboidArray := MainScreen.Filter(cuboidArray);
+
+  if not Self.Filter.Finder then
+    Exit(cuboidArray <> []);
+
+  for i := 0 to High(cuboidArray) do
+    if MainScreen.FindObject(Self.Finder, cuboidArray[i].Bounds()) <> [] then
+      Exit(True);
+end;
+
+(*
+## TMapObject._UpTextCheck
+```pascal
+function TMapObject._UpTextCheck(out shouldExit: Boolean): Boolean;
+```
+Internal TMapObject helper method that is used by all hovering methods.
+You probably don't need to use this directly.
+*)
+function TMapObject._UpTextCheck(out shouldExit: Boolean): Boolean;
+var
+  strArray: TStringArray;
+  upText: String;
+begin
+  shouldExit := True;
+
+  if Self.Filter.UpText then
+  begin
+    strArray += Self.Name;
+
+    if TMapObject.CurrentUpText <> strArray then
+      TMapObject.CurrentUpText := strArray;
+  end;
+
+  upText := MainScreen.GetUpText();
+
+  if ('>' in upText) and not TMapObject.CurrentUpText.Contains('Use') then
+  begin
+    ChooseOption.Select('Cancel');
+    Exit;
+  end;
+
+  if Self.Filter.UpText and (Self.Name in upText) then
+    Exit(True);
+
+  shouldExit := False;
+end;
+
+(*
+## TMapObject._WalkUpTextCheck
+```pascal
+function TMapObject._WalkUpTextCheck(out shouldExit: Boolean): Boolean;
+```
+Internal TMapObject helper method that is used by all walking hover methods.
+You probably don't need to use this directly.
+*)
+function TMapObject._WalkUpTextCheck(out shouldExit: Boolean): Boolean;
+var
+  upText: String;
+  strArray: TStringArray;
+begin
+  shouldExit := True;
+
+  if Self.Filter.UpText then
+  begin
+    strArray += Self.Name;
+
+    if TMapObject.CurrentUpText <> strArray then
+      TMapObject.CurrentUpText := strArray;
+  end;
+
+  upText := MainScreen.GetUpText();
+
+  if ('>' in upText) and not TMapObject.CurrentUpText.Contains('Use') then
+  begin
+    ChooseOption.Select('Cancel');
+    Exit;
+  end;
+
+  if TMapObject.RedClicked or (Self.Filter.UpText and (Self.Name in upText)) then
+    Exit(True);
+
+  shouldExit := False;
+end;
+
+(*
+## TMapObject._ClickHelper
+```pascal
+function TMapObject._ClickHelper(leftClick: Boolean): Boolean;
+```
+Internal TMapObject helper method that is used by other clicking methods.
+You probably don't need to use this directly.
+
+This is what's responsible for deciding if we click a target we are hovering or not.
+*)
+function TMapObject._ClickHelper(leftClick: Boolean): Boolean;
+begin
+  TMapObject.CurrentUpText := [];
+  TMapObject.CurrentActionUpText := [];
+
+  if TMapObject.RedClicked then
+  begin
+    TMapObject.RedClicked := False;
+    Exit(True);
+  end;
+
+  if ChooseOption.IsOpen() then
+  begin
+    if Self.Filter.UpText and ChooseOption.Select(Self.Name) then
+      Exit(True);
+    ChooseOption.Close();
+    Exit;
+  end;
+
+  if leftClick then
+    Mouse.Click(MOUSE_LEFT);
+
+  if MainScreen.DidRedClick() then
+    Exit(True);
+
+  Result := not leftClick and Self.Filter.UpText and ChooseOption.Select(Self.Name);
+end;
+
+(*
+## TMapObject._SelectHelper
+```pascal
+function TMapObject._SelectHelper(action: TStringArray): Boolean;
+```
+Internal TMapObject helper method that is used by other select methods.
+You probably don't need to use this directly.
+
+This is what is responsible for deciding if we just left click a target we are hovering or right click it and choose an option.
+*)
+function TMapObject._SelectHelper(action: TStringArray): Boolean;
+begin
+  TMapObject.CurrentUpText := [];
+  TMapObject.CurrentActionUpText := [];
+
+  if TMapObject.RedClicked then
+  begin
+    TMapObject.RedClicked := False;
+    Exit(True);
+  end;
+
+  if ChooseOption.IsOpen() and ChooseOption.Select(action) then
+    Exit(True);
+
+  if MainScreen.IsUpText(action) then
+  begin
+    Mouse.Click(MOUSE_LEFT);
+    Exit(MainScreen.DidRedClick());
+  end;
+
+  Result := ChooseOption.Select(action);
+end;
+
+
+type
+  TCoordsAngle = record
+    Coordinates: TPointArray;
+    Angles: TSingleArray;
+  end;
+
+procedure TCoordsAngle.FilterCircle(circle: TCircle);
+var
+  i: Int32;
+begin
+  if Length(Self.Coordinates) <> Length(Self.Angles) then
+    TerminateScript('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
+
+  for i := High(Self.Coordinates) downto 0 do
+    if Self.Coordinates[i].DistanceTo(circle.Mean()) > circle.Radius then
+    begin
+      Delete(Self.Coordinates, i, 1);
+      Delete(Self.Angles, i, 1);
+    end;
+end;
+
+procedure TCoordsAngle.Sort(pt: TPoint);
+var
+  len, i: Int32;
+  weights: TIntegerArray;
+begin
+  len := Length(Self.Coordinates);
+  if len <> Length(Self.Angles) then
+    TerminateScript('TCoordsAngle.FilterCircle() requires both arrays to be the same length.');
+
+  SetLength(weights, len);
+  for i := 0 to High(Self.Coordinates) do
+    weights[i] := Sqr(pt.X - Self.Coordinates[i].X) + Sqr(pt.Y - Self.Coordinates[i].Y);
+
+  Self.Coordinates.WeightedSort(weights, 0, len-1, True);
+  Self.Angles.WeightedSort(weights, 0, len-1, True);
+end;
+
+type
+  TObjectV2 = record(TMapObject)
+    ObjType:  Int32;
+    Rotations: TSingleArray;
+  end;
+
+  PRSObjectV2 = ^TObjectV2;
+
+function TObjectV2.Merge(json: TJSONObject): TObjectV2; overload;
+var
+  i, c, t: Int32;
+  h, s: Extended;
+  colors: TIntegerArray;
+begin
+  Result := Self;
+
+  if Result.Size.X <> Result.Size.Y then
+  begin
+    for i := 0 to json.getJSONArray('coordinates').High() do
+    begin
+      with json.getJSONArray('coordinates').getJSONArray(i) do
+        Result.Coordinates += [getInt(0), getInt(1)];
+      Result.Rotations += (90*json.getJSONArray('rotations').getInt(i) * PI)/180;
+    end;
+  end
+  else
+  begin
+    for i := 0 to json.getJSONArray('coordinates').High() do
+      with json.getJSONArray('coordinates').getJSONArray(i) do
+        Result.Coordinates += [getInt(0), getInt(1)];
+    SetLength(Result.Rotations, Length(Result.Coordinates));
+  end;
+
+  with json.getJSONArray('colors') do
+    for i := 0 to High() do
+      colors += getInt(i);
+
+  ACA(colors, 2, c, t, h, s);
+
+  for i := 0 to High(Result.Finder.Colors) do
+    if Result.Finder.Colors[i] = CTS2(c, t, h, s) then
+      Exit;
+
+  Result.Finder.Colors := [CTS2(c, t, h, s)];
+end;
+
+function TObjectV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TObjectV2; static; overload;
+var
+  mapObj: TMapObject;
+begin
+  mapObj := TMapObject.Setup(pwalker, json);
+  Result := PRSObjectV2(@mapObj)^;
+  Result.ObjType := json.getInt('type');
+  Result.MapObjectType := EGameMapObjectType.OBJ;
+end;
+
+function TObjectV2.SameObject(json: TJSONObject): Boolean; override;
+begin
+  if Self.ObjType <> json.getInt('type') then
+    Exit;
+  Result := inherited;
+end;
+
+function TObjectV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
+var
+  Locations: TCoordsAngle;
+  p: TPoint;
+  offset: Vector3;
+  h, diff: Single;
+  i: Int32;
+begin
+  if me = [0,0] then
+    me := Self.Walker^.Position();
+  if angle = $FFFF then
+    angle := Minimap.GetCompassAngle(False);
+
+  h := Self.Walker^.Height(me);
+
+  Locations.Coordinates := Copy(Self.Coordinates);
+  Locations.Angles := Copy(Self.Rotations);
+
+  Locations.FilterCircle([me.X, me.Y, 85]);
+  Locations.Sort(me);
+
+  for i := 0 to High(Locations.Coordinates) do
+  begin
+    p := Locations.Coordinates[i];
+    diff := -(h-Self.Walker^.Height(p));
+    offset := Vec3(Self.Offset.X, Self.Offset.Y, diff);
+    p := Self.Walker^.PointToMM(me, p, angle);
+    Result += Minimap.GetCuboidMS(p + [Round(0.15*diff), Round(0.11*diff)], Self.Size, offset, angle - Locations.Angles[i]);
+  end;
+end;
+
+
+(*
+## TObjectV2.Find
+```pascal
+function TObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
+function TObjectV2.Find(out atpa: T2DPointArray): Boolean;
+function TObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
+```
+TObjectV2 method used to find a {ref}`TObjectV2`. If found returns true, if not returns false.
+The "extended" method in particular is mostly meant for debugging and is the one used when you call `Debug(TMapObject)`.
+
+Example:
+```pascal
+WriteLn RSObjects.GEBank.Find(atpa); //Be in ge and with a walker setup there.
+Debug(atpa);
+```
+*)
+function TObjectV2.FindEx(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
+begin
+  if Self.Filter.Walker then
+  begin
+    cuboids := Self.GetCuboidArray();
+    if cuboids = [] then
+      Exit;
+
+    atpa := Self.FindOnMainScreen(cuboids);
+  end
+  else if Self.Filter.Finder then
+    atpa := MainScreen.FindObject(Self.Finder).SortFrom(MainScreen.GetPlayerBox().Center());
+
+  Result := atpa <> [];
+end;
+
+(*
+## TObjectV2.Draw
+```pascal
+procedure TMapObject.Draw(out bitmap: TMufasaBitmap);
+```
+Helper method to debug TMapObjects used in `Debug(TMapObject)`.
+*)
+procedure TObjectV2.Draw(out bitmap: TMufasaBitmap);
+var
+  me, p, q: TPoint;
+  rect: TRectangle;
+  angle: Single;
+  mmPoints: TPointArray;
+  cuboids: TCuboidExArray;
+  atpa: T2DPointArray;
+  h: Single;
+begin
+  me := Self.Walker^.Position();
+  angle := Minimap.GetCompassAngle(False);
+  h := Self.Walker^.Height(me);
+
+  mmPoints := Self.MapToMM(me, angle);
+
+  for p in mmPoints do
+  begin
+    q := [Round(Self.Size.X * 4 / 2), Round(Self.Size.Y * 4 / 2)];
+    rect.Top := p.Offset(-q.X, -q.Y);
+    rect.Right := p.Offset(q.X, -q.Y);
+    rect.Btm := p.Offset(q.X, q.Y);
+    rect.Left := p.Offset(-q.X, q.Y);
+    bitmap.DrawRect(rect, $FF);
+  end;
+
+  Self.FindEx(cuboids, atpa);
+
+  bitmap.DrawATPA(atpa);
+  if atpa <> [] then
+    bitmap.DrawTPA(atpa[0], $0);
+
+  bitmap.DrawCuboidArray(cuboids, $00FFFF);
+end;
+
+
+
+
+type
+  TMMDotV2 = record(TMapObject)
+    DotType: EMinimapDot;
+    DotFilters: TDotFilterArray;
+  end;
+
+  PRSMMDotV2 = ^TMMDotV2;
+
+  TNPCV2 = record(TMMDotV2)
+    Level: Int32;
+  end;
+
+  PRSNPCV2 = ^TNPCV2;
+
+function TNPCV2.Merge(json: TJSONObject): TNPCV2; overload;
+var
+  i, c, t: Int32;
+  h, s: Extended;
+  colors: TIntegerArray;
+begin
+  Result := Self;
+
+  for i := 0 to json.getJSONArray('coordinates').High() do
+    with json.getJSONArray('coordinates').getJSONArray(i) do
+      Result.Coordinates += [getInt(0), getInt(1)];
+
+  with json.getJSONArray('colors') do
+    for i := 0 to High() do
+      colors += getInt(i);
+
+  ACA(colors, 2, c, t, h, s);
+
+  for i := 0 to High(Result.Finder.Colors) do
+    if Result.Finder.Colors[i] = CTS2(c, t, h, s) then
+      Exit;
+
+  Result.Finder.Colors := [CTS2(c, t, h, s)];
+end;
+
+function TNPCV2.Setup(pwalker: PRSWalkerV2; json: TJSONObject): TNPCV2; static; overload;
+var
+  mapObj: TMapObject;
+begin
+  mapObj := TMapObject.Setup(pwalker, json);
+  Result := PRSNPCV2(@mapObj)^;
+
+  Result.DotType := EMinimapDot.NPC;
+  Result.Level := json.getInt('level');
+  Result.Filter.Minimap := json.getBoolean('minimapdot');
+  Result.MapObjectType := EGameMapObjectType.MMDOT;
+end;
+
+function TMMDotV2.SameObject(json: TJSONObject): Boolean; override;
+begin
+  Result := inherited;
+end;
+
+function TMMDotV2.GetCuboidArray(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray; constref; override;
+var
+  dots: TPointArray;
+  p: TPoint;
+  offset: Vector3;
+  h, diff: Single;
+  i: Int32;
+begin
+  if Self.Filter.Walker and (me = [0,0]) then
+    me := Self.Walker^.Position();
+
+  if angle = $FFFF then
+    angle := Minimap.GetCompassAngle(False);
+
+  if Self.Filter.Walker and Self.Filter.Minimap then
+  begin
+    h := Self.Walker^.Height(me);
+
+    dots := Minimap.GetFilteredDotArray(Self.DotType, Self.Walker^.FiltersToMM(me, Self.DotFilters, angle));
+    if dots = [] then
+      Exit;
+
+    for i := 0 to High(dots) do
+    begin
+      p := dots[i];
+      diff := -(h-Self.Walker^.Height(p));
+      offset := Vec3(Self.Offset.X, Self.Offset.Y, diff);
+      p := Self.Walker^.PointToMM(me, p, angle);
+      Result += Minimap.GetCuboidMS(p + [Round(0.15*diff), Round(0.11*diff)], Self.Size, offset, angle);
+    end;
+  end;
+
+  if Self.Filter.Walker then
+  begin
+    Result := inherited(me, angle);
+    Exit;
+  end;
+
+  dots := Minimap.GetDots(Self.DotType);
+  if dots = [] then
+    Exit;
+
+  dots := dots.SortFrom(Minimap.Center());
+  if dots = [] then
+    Exit;
+
+  for i := 0 to High(dots) do
+  begin
+    p := dots[i];
+    offset := Vec3(Self.Offset.X, Self.Offset.Y, 0);
+    p := Self.Walker^.PointToMM(me, p, angle);
+    Result += Minimap.GetCuboidMS(p, Self.Size, offset, angle);
+  end;
+end;
+
+
+(*
+## TObjectV2.Find
+```pascal
+function TObjectV2.FindEx(out cuboids: TCuboidArray; out atpa: T2DPointArray): Boolean;
+function TObjectV2.Find(out atpa: T2DPointArray): Boolean;
+function TObjectV2.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
+```
+TObjectV2 method used to find a {ref}`TObjectV2`. If found returns true, if not returns false.
+The "extended" method in particular is mostly meant for debugging and is the one used when you call `Debug(TMapObject)`.
+
+Example:
+```pascal
+WriteLn RSObjects.GEBank.Find(atpa); //Be in ge and with a walker setup there.
+Debug(atpa);
+```
+*)
+function TMMDotV2.FindEx(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
+begin
+  if Self.Filter.Walker or Self.Filter.Minimap then
+  begin
+    cuboids := Self.GetCuboidArray();
+    if cuboids = [] then
+      Exit;
+
+    atpa := Self.FindOnMainScreen(cuboids);
+  end
+  else if Self.Filter.Finder then
+    atpa := MainScreen.FindObject(Self.Finder).SortFrom(MainScreen.GetPlayerBox().Center());
+
+  Result := atpa <> [];
+end;
+
+(*
+## TObjectV2.Draw
+```pascal
+procedure TMapObject.Draw(out bitmap: TMufasaBitmap);
+```
+Helper method to debug TMapObjects used in `Debug(TMapObject)`.
+*)
+procedure TMMDotV2.Draw(out bitmap: TMufasaBitmap);
+var
+  me, p, q: TPoint;
+  rect: TRectangle;
+  angle: Single;
+  mmPoints: TPointArray;
+  cuboids: TCuboidExArray;
+  atpa: T2DPointArray;
+  h: Single;
+begin
+  me := Self.Walker^.Position();
+  angle := Minimap.GetCompassAngle(False);
+  h := Self.Walker^.Height(me);
+
+  mmPoints := Self.MapToMM(me, angle);
+
+  for p in mmPoints do
+  begin
+    q := [Round(Self.Size.X * 4 / 2), Round(Self.Size.Y * 4 / 2)];
+    rect.Top := p.Offset(-q.X, -q.Y);
+    rect.Right := p.Offset(q.X, -q.Y);
+    rect.Btm := p.Offset(q.X, q.Y);
+    rect.Left := p.Offset(-q.X, q.Y);
+    bitmap.DrawRect(rect, $FF);
+  end;
+
+  Self.FindEx(cuboids, atpa);
+
+  bitmap.DrawATPA(atpa);
+  if atpa <> [] then
+    bitmap.DrawTPA(atpa[0], $0);
+
+  bitmap.DrawCuboidArray(cuboids, $00FFFF);
+end;
+
+
+
+function TMapObject._FindExRouter(out cuboids: TCuboidExArray; out atpa: T2DPointArray): Boolean;
+begin
+  case Self.MapObjectType of
+    EGameMapObjectType.OBJ:   Result := PRSObjectV2(@Self)^.FindEx(cuboids, atpa);
+    EGameMapObjectType.MMDOT: Result := PRSMMDotV2(@Self)^.FindEx(cuboids, atpa);
+  end;
+end;
+
+function TMapObject._GetCuboidArrayRouter(me: TPoint = [0,0]; angle: Single = $FFFF): TCuboidExArray;
+begin
+  case Self.MapObjectType of
+    EGameMapObjectType.OBJ:   Result := PRSObjectV2(@Self)^.GetCuboidArray(me, angle);
+    EGameMapObjectType.MMDOT: Result := PRSMMDotV2(@Self)^.GetCuboidArray(me, angle);
+  end;
+end;
+
+
+
+function TMapObject.Find(out atpa: T2DPointArray): Boolean;
+var
+  cuboids: TCuboidExArray;
+begin
+  Result := Self._FindExRouter(cuboids, atpa);
+end;
+
+function TMapObject.FindFromPosition(me: TPoint; out atpa: T2DPointArray): Boolean;
+var
+  cuboidArray: TCuboidExArray;
+begin
+  if not Self.Filter.Walker then
+    Exit;
+
+  cuboidArray := Self._GetCuboidArrayRouter(me);
+  if cuboidArray = [] then
+    Exit;
+
+  atpa := Self.FindOnMainScreen(cuboidArray);
+  Result := atpa <> [];
+end;
+
+
+(*
+## TMapObject.IsVisible
+```pascal
+function TMapObject.IsVisible(): Boolean;
+```
+TMapObject method used to find a {ref}`TMapObject`. If found returns true, if not returns false.
+
+Example:
+```pascal
+WriteLn RSObjects.GEBank.IsVisible(); //Be in ge and with a walker setup there.
+```
+*)
+function TMapObject.IsVisible(): Boolean;
+var
+  atpa: T2DPointArray;
+begin
+  Result := Self.Find(atpa);
+end;
+
+
+(*
+## TMapObject._UpdateTarget
+```pascal
+procedure TMapObject._UpdateTarget(sender: PMouse; var x, y: Double; var done: Boolean);
+```
+Internal helper method of TMouseMovingEventEx type used to update the target position while the mouse is moving.
+You should probably not touch this if you don't understand it.
+*)
+procedure TMapObject._UpdateTarget(sender: PMouse; var x, y: Double; var done: Boolean);
+var
+  i: Int32;
+  atpa: T2DPointArray;
+  p, destination: TPoint;
+begin
+  destination := [Round(x), Round(y)];
+  p := sender^.Position();
+  if p.DistanceTo(destination) > 5 then
+    Exit;
+  sender^.OnMovingEx := nil;
+
+  if Self._UpTextCheck(done) then
+    Exit;
+
+  done := not Self.Find(atpa);
+  if done then
+    Exit;
+
+  for i := 0 to High(atpa) do
+  begin
+    if atpa[i].Contains(destination) then
+      Exit;
+  end;
+
+  p := atpa[0].RandomValue();
+  x := p.X;
+  y := p.Y;
+end;
+
+(*
+## TMapObject._HoverHelper
+```pascal
+function TMapObject._HoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
+```
+Internal helper method used to hover a TMapObject target.
+You should not use this directly.
+*)
+function TMapObject._HoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
+var
+  shouldExit: Boolean;
+  attempt: Int32;
+  atpa: T2DPointArray;
+  tpa: TPointArray;
+  angle: Double;
+begin
+  Result := Self._UpTextCheck(shouldExit);
+  if shouldExit then
+    Exit;
+
+  for attempt := 0 to attempts do
+  begin
+    if Self.Find(atpa) then
+    begin
+      if attempt < 2 then
+        tpa := atpa[0] // 0 for the closest one.
+      else if Length(atpa) > (attempt - 2) then
+        tpa := atpa[attempt - 2]
+      else
+        tpa := atpa[Random(0, High(atpa))];
+
+      if trackTarget then
+        Mouse.OnMovingEx := @Self._UpdateTarget;
+      Mouse.Move(tpa[Random(0, High(tpa))]);
+
+      if not Self.Filter.UpText then
+        Exit(True);
+    end;
+
+    if MainScreen.IsUpText(Self.Name) then
+      Exit(True);
+
+    //will rotate the screen for the last attempt if hasn't hovered properly yet
+    if attempt = (attempts - 1) then
+    begin
+      angle := Minimap.GetCompassAngle() + Random(-50, 50);
+      Minimap.SetCompassAngle(angle, 10);
+    end;
+  end;
+end;
+
+(*
+## TMapObject._WalkHoverHelper
+```pascal
+function TMapObject._WalkHoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
+```
+Internal helper method used to walk and hover a TMapObject target.
+You should not use this directly.
+
+This is responsible for deciding wether we should walk to a TMapObject target or not before attempting to hover it.
+*)
+function TMapObject._WalkHoverHelper(attempts: Int32; trackTarget: Boolean): Boolean;
+var
+  shouldExit: Boolean;
+  attempt: Int32;
+  atpa: T2DPointArray;
+  tpa: TPointArray;
+  angle: Double;
+  me, closest: TPoint;
+begin
+  if not Self.Filter.Walker then
+    Exit(Self._HoverHelper(attempts, trackTarget));
+
+  Result := Self._WalkUpTextCheck(shouldExit);
+  if shouldExit then
+    Exit;
+
+  for attempt := 0 to attempts do
+  begin
+    if Self.Find(atpa) then
+    begin
+      if attempt < 2 then
+        tpa := atpa[0]
+      else if Length(atpa) > (attempt - 2) then
+        tpa := atpa[attempt - 2]
+      else
+        tpa := atpa.RandomValue();
+
+      if trackTarget then
+        Mouse.OnMovingEx := @Self._UpdateTarget;
+      Mouse.Move(tpa.RandomValue());
+
+      if not Self.Filter.UpText then
+        Exit(True);
+    end;
+
+    if MainScreen.IsUpText(Self.Name) then
+      Exit(True);
+
+    me := Self.Walker^.Position();
+    closest := Self.Walker^.GetClosestPointEx(me, Self.Coordinates);
+    if not Self.Walker^.InRangeEx(me, closest, 50) then
+    begin
+      Self.Walker^.WebWalkEx(me, closest, 30, 0.15);
+      Continue;
+    end;
+
+    if attempt = (attempts - 1) then
+    begin
+      if not Self.Walker^.InRangeEx(me, closest, 25) then
+      begin
+        Self.Walker^.WebWalkEx(me, closest, 25, 0.15);
+        Continue;
+      end;
+
+      angle := Minimap.GetCompassAngle() + Random(-50, 50);
+      Minimap.SetCompassAngle(angle, 10);
+    end;
+  end;
+end;
+
+
+(*
+## TMapObject.PreHoverHelper
+```pascal
+function TMapObject.PreHoverHelper(attempts: Int32): Boolean;
+```
+Internal helper method used to pre-hover a TMapObject target.
+You should not use this directly.
+*)
+function TMapObject.PreHoverHelper(me: TPoint; attempts: Int32 = 2): Boolean;
+var
+  attempt: Int32;
+  atpa: T2DPointArray;
+  tpa: TPointArray;
+begin
+  for attempt := 0 to attempts do
+  begin
+    if Self.FindFromPosition(me, atpa) then
+    begin
+      tpa := atpa[Random(0, High(atpa))];
+      ASyncMouse.Move(tpa[Random(0, High(tpa))]);
+      Exit(True);
+    end;
+  end;
+end;
+
+(*
+## TMapObject.Hover
+```pascal
+function TMapObject.Hover(attempts: Int32 = 2; trackTarget: Boolean = TMapObject.TrackTarget): Boolean;
+```
+Method used to hover a TMapObject target if it's found on the mainscreen.
+It can update the target position while the mouse moves with **trackTarget**.
+
+Example:
+```pascal
+RSW.WebWalk(WaspWeb.LOCATION_VARROCK);
+RSObjects.GEBank.Hover(); //Be in GE with a walker setup there.
+```
+*)
+function TMapObject.Hover(attempts: Int32 = 2): Boolean;
+begin
+  if ChooseOption.IsOpen() then
+  begin
+    if Self.Filter.UpText and ChooseOption.HasOption(Self.Name) then
+      Exit(True);
+    ChooseOption.Close();
+  end;
+
+  if Self.Filter.Walker and not Self.Walker^.MakePointVisible(Self.Coordinates) then
+    Exit;
+
+  Result := Self._HoverHelper(attempts, Self.TrackTarget);
+end;
+
+(*
+## TMapObject.WalkHover
+```pascal
+function TMapObject.WalkHover(attempts: Int32 = 2; trackTarget: Boolean = TMapObject.TrackTarget): Boolean;
+```
+Method used to walk and hover a TMapObject target if it's found on the mainscreen after walking.
+It can update the target position while the mouse moves with **trackTarget**.
+
+Example:
+```pascal
+//Be in varrock with a varrock map loaded.
+RSW.WebWalk(WaspWeb.LOCATION_VARROCK);
+RSObjects.GEBank.WalkHover();
+```
+*)
+function TMapObject.WalkHover(attempts: Int32 = 2): Boolean;
+var
+  p: TPoint;
+begin
+  if ChooseOption.IsOpen() then
+  begin
+    if Self.Filter.UpText and ChooseOption.HasOption(Self.Name) then
+      Exit(True);
+    ChooseOption.Close();
+  end;
+
+  if not Self.Filter.Walker then
+    Exit;
+
+  if Self.Filter.UpText then
+    TMapObject.CurrentUpText += Self.Name;
+
+  p := Self.Walker^.GetClosestPoint(Self.Coordinates);
+  if not Self.Walker^.MakePointVisible(p) and
+     not Self.Walker^.WebWalk(p, 30, 0.15) then
+      Exit;
+
+  Result := Self._WalkHoverHelper(attempts, Self.TrackTarget);
+end;
+
+
+(*
+## TMapObject.Click
+```pascal
+function TMapObject.Click(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
+```
+Method used to click a TMapObject target if it's found on the mainscreen.
+
+Example:
+```pascal
+//Be in ge with a ge map loaded.
+WriteLn RSObjects.GEBank.Click();
+```
+*)
+function TMapObject.Click(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
+begin
+  Result := Self.Hover(attempts) and Self._ClickHelper(leftClick);
+end;
+
+(*
+## TMapObject.SelectOption
+```pascal
+function TMapObject.SelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
+```
+Method used to select an option on a TMapObject target if it's found on the mainscreen.
+
+Example:
+```pascal
+//Be in ge with a ge map loaded.
+WriteLn RSObjects.GEBank.SelectOption(['Collect']);
+```
+*)
+function TMapObject.SelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
+begin
+  Self.CurrentActionUpText := action;
+  Result := Self.Hover(attempts) and Self._SelectHelper(action);
+  Self.CurrentActionUpText := [];
+end;
+
+
+(*
+## TMapObject.WalkClick
+```pascal
+function TMapObject.WalkClick(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
+```
+Method used to walk and click a TMapObject target if it's found on the mainscreen.
+
+Example:
+```pascal
+//Be in ge with a ge map loaded, preferably far away so it has to walk.
+WriteLn RSObjects.GEBank.WalkClick();
+```
+*)
+function TMapObject.WalkClick(leftClick: Boolean = True; attempts: Int32 = 2): Boolean;
+begin
+  Result := Self.WalkHover(attempts) and Self._ClickHelper(leftClick);
+end;
+
+(*
+## TMapObject.WalkSelectOption
+```pascal
+function TMapObject.WalkSelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
+```
+Method used to walk and select an option on a TMapObject target if it's found on the mainscreen.
+
+Example:
+```pascal
+//Be in ge with a ge map loaded, preferably far away so it has to walk.
+WriteLn RSObjects.GEBank.WalkSelectOption(['Collect']);
+```
+*)
+function TMapObject.WalkSelectOption(action: TStringArray; attempts: Int32 = 2): Boolean;
+begin
+  Self.CurrentActionUpText := action;
+  Result := Self.WalkHover(attempts) and Self._SelectHelper(action);
+  Self.CurrentActionUpText := [];
+end;
+
+
+
+
+
+(*
+## Debug
+```pascal
+procedure Debug(obj: TObjectV2); overload;
+procedure Debug(npc: TNPCV2); overload;
+```
+Debugs a TMapObject used with the help of it's `.Draw()` method.
+
+Example:
+```pascal
+{$I SRL-T/main.simba}
+begin
+  Map.SetupChunkEx([49,52,49,52]);
+  Debug(Objects.Get('clay rocks')); //be in varrock west mine.
+end.
+```
+*)
+procedure Debug(obj: TObjectV2); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  bitmap.FromClient();
+  obj.Draw(bitmap);
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+procedure Debug(npc: TNPCV2); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  bitmap.FromClient();
+  npc.Draw(bitmap);
+  bitmap.Debug();
+  bitmap.Free();
+end;

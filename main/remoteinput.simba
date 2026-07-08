@@ -1,0 +1,258 @@
+{$loadlib ../plugins/libremoteinput/libremoteinput}
+
+function EIOS_GetClientPIDs(): TIntegerArray;
+var
+  I: Int32;
+begin
+  for I := 0 to EIOS_GetClients(True) - 1 do
+    Result += EIOS_GetClientPID(I);
+end;
+
+function EIOS_PairClient(Pid: Int32): Pointer; override;
+begin
+  Result := inherited();
+  if (Result = nil) then
+    raise 'Failed to pair client';
+end;
+
+
+function EIOS_IsInputEnabled(eios: Pointer): Boolean;
+begin
+  Result := EIOS_IsMouseInputEnabled(eios) and EIOS_IsKeyboardInputEnabled(eios);
+end;
+
+procedure EIOS_SetInputEnabled(eios: Pointer; enabled: Boolean);
+begin
+  EIOS_SetMouseInputEnabled(eios, enabled);
+  EIOS_SetKeyboardInputEnabled(eios, enabled);
+end;
+
+
+procedure RIInject(PID: Int32); override;
+var
+  PIDs: TIntegerArray;
+begin
+  inherited();
+
+  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000) and (Pids.Find(Pid) > -1)) then
+    raise 'Failed to inject into pid ' + ToString(pid);
+end;
+
+procedure RIInject(process: String; out PID: Int32); overload;
+var
+  PIDs: TIntegerArray;
+begin
+  RIInject(process);
+
+  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000)) then
+    raise 'Failed to inject into "' + process + '"';
+
+  PID := PIDs[0];
+end;
+
+procedure RIInject(processes: TStringArray; out PID: Int32); overload;
+var
+  i: Int32;
+  PIDs: TIntegerArray;
+begin
+  for i := 0 to High(processes) do
+  begin
+    RIInject(processes[i]);
+
+    if WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000) then
+      Break;
+  end;
+
+  if Length(PIDs := EIOS_GetClientPIDs()) = 0 then
+    raise 'Failed to inject into "' + ToStr(processes) + '"';
+  PID := PIDs[0];
+end;
+
+type
+  TRemoteInput = record(TSRLBaseRecord)
+    Image: TMufasaBitmap;
+    EIOS: Pointer;
+    PID: Int32;
+  end;
+
+function TRemoteInput.IsSetup(): Boolean;
+begin
+  Result := Self.PID > 0;
+end;
+
+
+procedure TRemoteInput.DisableRealInput();
+begin
+  EIOS_SetInputEnabled(Self.EIOS, False);
+end;
+
+procedure TRemoteInput.EnableRealInput();
+begin
+  EIOS_SetInputEnabled(Self.EIOS, True);
+end;
+
+
+procedure TRemoteInput.ReleaseClient();
+begin
+  EIOS_ReleaseClient(Self.EIOS);
+end;
+
+function TRemoteInput.GetImage(): TMufasaBitmap;
+var
+  w,h: Int32;
+begin
+  if (Self.Image = nil) then
+  begin
+    EIOS_SetGraphicsDebugging(Self.EIOS, True);
+
+    Self.Image.Init();
+    Self.Image.SetName('client_image');
+    client.GetIOManager().GetDimensions(w,h);
+    Self.Image.SetPersistentMemory(PtrUInt(EIOS_GetDebugImageBuffer(Self.EIOS)), w, h);
+    Self.Image.Clear();
+  end;
+
+  Result := Self.Image;
+end;
+
+procedure TRemoteInput.Free();
+begin
+  if Self.EIOS = nil then
+    Exit;
+
+  if Self.Image <> nil then
+    Self.Image.DrawClear(0);
+  Self.EnableRealInput();
+  //Self.ReleaseClient();
+  Self.PID := 0;
+  Self.EIOS := nil;
+end;
+
+
+procedure TRemoteInput.Setup();
+const
+  EXECUTABLES: TStringArray = [{$IFDEF WINDOWS}'RuneLite.exe', 'JagexLauncher.exe'{$ELSE}'java'{$ENDIF}];
+  BITNESS: String = {$IFDEF CPU386}'32'{$ELSE}'64'{$ENDIF};
+  INVERTED_BITNESS: String = {$IFDEF CPU386}'64'{$ELSE}'32'{$ENDIF};
+var
+  response: Int32;
+begin
+  Self.Name := 'RemoteInput';
+
+  {$IFNDEF SIMBAHEADLESS}
+  if (Self.PID = 0) then
+    Self.PID := GetSimbaTargetPID();
+  {$ENDIF}
+
+  try
+    if (Self.PID = 0) then
+    begin
+      response := MessageDlg(
+        'SRL Auto Client Target',
+        'Automatically try to find a RS client?' + LineEnding + LineEnding +
+        'Having issues?' + LineEnding + 'Consider manual targetting. ' +
+        'Drag the green crosshair in Simba to the center of your client.',
+        mtConfirmation, [mbYes, mbNo]
+      );
+
+      if response = mrNo then RaiseException('No RS clients found');
+
+      Self.DebugLn('Automatically finding the client may take a few seconds.');
+      Self.DebugLn('Finding a RuneLite client may also have unexpected results.');
+      RIInject(EXECUTABLES, Self.PID);
+    end
+    else
+      RIInject(Self.PID);
+
+    Self.EIOS := EIOS_PairClient(Self.PID);
+    if (Self.EIOS <> nil) then
+      SetEIOSTarget({$libpath ../plugins/libremoteinput/libremoteinput}, ToString(Self.PID));
+  except
+    response := MessageDlg(
+      'Unsupported client!',
+      'This client is not supported or automatic target failed!' + LineEnding +
+      'You are using Simba ' +  BITNESS + ' bits and for it you need a ' +
+      BITNESS + ' bits client.' + LineEnding + LineEnding +
+      'Click "Okay" to try running Simba ' + INVERTED_BITNESS +
+      ' or "Cancel" to exit.',
+      TMsgDlgType.mtError, [mbOk, mbCancel]
+    );
+
+    if response <> mrOK then Self.Fatal(GetExceptionMessage());
+
+    try
+      RunCommand(AppPath + 'Simba' + INVERTED_BITNESS + '.exe', [ScriptFile]);
+    except
+      MessageDlg(
+        'Simba Executable Missing',
+        'Simba' + INVERTED_BITNESS + '.exe is missing.' + LineEnding +
+        'It may have been delete by your anti-virus, otherwise reinstall it.'
+        + LineEnding + 'If it was deleted by your anti-virus make sure you ' +
+        'add it as an exception!',
+        TMsgDlgType.mtError, [mbOk]
+      );
+    end;
+
+    TerminateScript();
+  end;
+  AddOnTerminate(@Self.Free);
+end;
+
+
+procedure TRemoteInput.LoseFocus();
+var
+  Space: TBoxArray;
+begin
+  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
+
+  if (Length(Space) > 0) then
+  begin
+    Mouse.CanIdle := False;
+    Mouse.Click(Space[Random(Length(Space))], MOUSE_LEFT);
+    Mouse.CanIdle := True;
+  end;
+end;
+
+function GetKeyCode(character: Char): Int32; override;
+begin
+  case character of
+    '0'..'9': Result := VK_0 + Ord(Character) - Ord('0');
+    'a'..'z': Result := VK_A + Ord(Character) - Ord('a');
+    'A'..'Z': Result := VK_A + Ord(Character) - Ord('A');
+    ' ': Result := VK_SPACE;
+    '!': Result := VK_1;
+    '"': Result := VK_OEM_7;
+    '#': Result := VK_3;
+    '$': Result := VK_4;
+    '%': Result := VK_5;
+    '&': Result := VK_7;
+    '''': Result := VK_OEM_7;
+    '(': Result := VK_9;
+    ')': Result := VK_0;
+    '*': Result := VK_8;
+    '+': Result := VK_ADD;
+    ',': Result := VK_OEM_COMMA;
+    '-': Result := VK_OEM_MINUS;
+    '.': Result := VK_OEM_PERIOD;
+    '/': Result := VK_OEM_2;
+    ':': Result := VK_OEM_1;
+    ';': Result := VK_OEM_1;
+    '<': Result := VK_OEM_COMMA;
+    '=': Result := VK_ADD;
+    '>': Result := VK_OEM_PERIOD;
+    '?': Result := VK_OEM_2;
+    '@': Result := VK_2;
+    '[': Result := VK_OEM_4;
+    '\': Result := VK_OEM_5;
+    ']': Result := VK_OEM_6;
+    '^': Result := VK_6;
+    '_': Result := VK_OEM_MINUS;
+    '`': Result := VK_OEM_3;
+    '{': Result := VK_OEM_4;
+    '|': Result := VK_OEM_5;
+    '}': Result := VK_OEM_6;
+    '~': Result := VK_OEM_3;
+    else
+      Result := VK_UNKNOWN;
+  end;
+end;

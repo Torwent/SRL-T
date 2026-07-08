@@ -13,19 +13,19 @@ differently to handle more complex scenarios.
 {$SCOPEDENUMS ON}
 
 type
-  ERSDoorType = (UNKNOWN, NORMAL, WIDE);
-  TRSDoor = record
+  EDoorType = (UNKNOWN, NORMAL, WIDE);
+  TDoor = record
     Before, After, Center, Direction: TPoint;
-    DoorType: ERSDoorType;
+    DoorType: EDoorType;
     SEPARATING: Boolean;
   end;
 
-  TRSDoorArray = array of TRSDoor;
+  TDoorArray = array of TDoor;
 
 //This is the number of degrees you need to face the compass to face the door directly.
 //It works by selecting the cardinal direction that gives the highest inner product
 //with the vector from the tile before the door to the door center.
-function TRSDoor.GetDoorAngle(): Single;
+function TDoor.GetDoorAngle(): Single;
 const
   NORTH:  TPoint = [0,-1];
   EAST:   TPoint = [1,0];
@@ -38,7 +38,7 @@ var
 begin
   for cardinal in CARDINALS do
   begin
-    tmp := Self.Center - RSTranslator.NormalizeDoor(Self.After);
+    tmp := Self.Center - Translator.NormalizeDoor(Self.After);
     if cardinal.Dot(tmp) > best then
     begin
       doorDirection := cardinal;
@@ -56,7 +56,7 @@ end;
 
 //Does as the name states. Doesn't support diagonal doors yet
 //Might add small randomness to this later (i.e. do doorangle + Random(-10,10) or something similar)
-function TRSDoor.GetVisibleAngle(angle: Double; randomness: Integer = 75; allowBackwardsAngle: Boolean = True): Double;
+function TDoor.GetVisibleAngle(angle: Double; randomness: Integer = 75; allowBackwardsAngle: Boolean = True): Double;
 begin
   Result := Self.GetDoorAngle();
 
@@ -69,7 +69,7 @@ begin
   Result := FixD(Result);
 end;
 
-function TRSDoor.GetCorners(corners: TPointArray; doorAngle: Single; compass: Single = $FFFF): TPointArray; static;
+function TDoor.GetCorners(corners: TPointArray; doorAngle: Single; compass: Single = $FFFF): TPointArray; static;
 var
   diff: Double;
 begin
@@ -85,19 +85,19 @@ begin
 end;
 
 //draw doors on bitmap
-procedure TRSDoorArray.Draw(bmp: TMufasaBitmap);
+procedure TDoorArray.Draw(bmp: TMufasaBitmap);
 var
-  door: TRSDoor;
+  door: TDoor;
 begin
   for door in Self do
     case door.DoorType of
-      ERSDoorType.NORMAL:
+      EDoorType.NORMAL:
         if door.SEPARATING then
           bmp.drawCross(door.Center, 3, $FF)
         else
           bmp.drawCross(door.Center, 3, $FFFF00);
-      ERSDoorType.UNKNOWN: bmp.drawCross(door.Center, 3, $00);
-      ERSDoorType.WIDE: bmp.drawCross(door.Center, 3, $FF00FF);
+      EDoorType.UNKNOWN: bmp.drawCross(door.Center, 3, $00);
+      EDoorType.WIDE: bmp.drawCross(door.Center, 3, $FF00FF);
     end;
 end;
 
@@ -107,7 +107,7 @@ type
     Paths: T2DIntArray;
     Names: TStringArray;
 
-    Doors: TRSDoorArray;
+    Doors: TDoorArray;
 
     Blocking: TIntegerArray;
 
@@ -370,8 +370,8 @@ begin
   if Self.UseCollisionData then
     if not Self.WalkableSpace.Contains(p) or not Self.WalkableSpace.Contains(q) then
     begin
-      p := RSTranslator.NormalizeDoor(p);
-      q := RSTranslator.NormalizeDoor(q);
+      p := Translator.NormalizeDoor(p);
+      q := Translator.NormalizeDoor(q);
 
       if not Self.WalkableSpace.Contains(p) then p := Self.NearestWalkablePoint(p);
       if not Self.WalkableSpace.Contains(q) then q := Self.NearestWalkablePoint(q);
@@ -653,7 +653,7 @@ begin
     Self.Doors[i].Direction.X := StrToInt(values[6]);
     Self.Doors[i].Direction.Y := StrToInt(values[7]);
 
-    Self.Doors[i].DoorType := ERSDoorType(StrToInt(values[8]));
+    Self.Doors[i].DoorType := EDoorType(StrToInt(values[8]));
     Self.Doors[i].SEPARATING := Boolean(StrToInt(values[9]));
   end;
 end;

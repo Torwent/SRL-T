@@ -1,0 +1,1631 @@
+(*
+# MapLoader
+This file is responsible for loading maps for TMap.
+It was made from scratch by Torwent but heavily inspired in the original
+TWalker by Slacky and it's future iterations made by Olly.
+
+```{note}
+Most things in this file are for internal use only and you shouldn't use them directly
+nor modify them if you don't quite understand them.
+```
+*)
+
+{$DEFINE SRL_MAPLOADER_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+{$I files/maps/map.graph}
+{$SCOPEDENUMS ON}
+
+const
+(*
+(MAP_PATH)=
+# const MAP_PATH
+Default path to look for map files.
+*)
+  MAP_PATH: String = {$MACRO CURRENT_DIRECTORY};
+
+type
+(*
+(TMapChunk)=
+## type TMapChunk
+```pascal
+TMapChunk = record
+  Chunk: TBox;
+  Planes: TIntegerArray;
+end;
+```
+Helper record to store chunk data with a name associated with.
+*)
+  TMapChunk = record
+    Chunk: TBox;
+    Planes: TIntegerArray;
+  end;
+
+function Chunk(b: TBox; planes: TIntegerArray): TMapChunk;
+begin
+  Result.Chunk := b;
+  Result.Planes := planes;
+end;
+
+function Chunk(b: TBox; plane: Int32): TMapChunk; overload;
+begin
+  Result := Chunk(b, [plane]);
+end;
+
+type
+(*
+(EGameMap)=
+## type EGameMap
+```pascal
+EGameMap = (NORMAL, HEIGHT, COLLISION);
+```
+Enum of map types.
+*)
+  EGameMap = (NORMAL, HEIGHT, COLLISION);
+
+(*
+(EGameMapJSON)=
+## type EGameMapJSON
+```pascal
+EGameMapJSON = (OBJECTS, NPCS);
+```
+Enum of map json types.
+*)
+  EGameMapJSON = (OBJECTS, NPCS);
+
+(*
+(TChunkLoader)=
+## type TChunkLoader
+```pascal
+TChunkLoader = record(TSRLBaseRecord)
+  Cache: String;
+end;
+```
+ChunkLoader record, this is what's responsible for loading a "chunks" map.
+*)
+  TChunkLoader = record(TSRLBaseRecord)
+    Cache: String;
+  end;
+
+(*
+## TChunkLoader.Setup
+```pascal
+procedure TChunkLoader.Setup(name, cache: String);
+```
+This is responsible for setting up the TChunkLoader.
+```{note}
+This is an internal method. Don't use it if you don't know what you are doing.
+```
+*)
+procedure TChunkLoader.Setup(name, cache: String);
+begin
+  Self.Name := name;
+  Self.Cache := cache;
+end;
+
+(*
+## TChunkLoader.GetBitmap
+```pascal
+function TChunkLoader.GetBitmap(chunk: String; plane: UInt32; map: EGameMap): TMufasaBitmap;
+function TChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: EGameMap): TMufasaBitmap; overload;
+```
+Returns a chunk bitmap.
+If possible, it will be loaded from a cached .bmp file.
+If no cache file exists, the .png file is unzipped, loaded and saved as a .bmp for future uses.
+The files are cached as .bmp because .bmp is a raw format and simba loads them much faster that way.
+```{note}
+This are internal methods. Don't use them if you don't know what you are doing.
+```
+*)
+function TChunkLoader.GetBitmap(chunk: String; plane: UInt32; map: EGameMap): TMufasaBitmap;
+var
+  cacheroot, cachename, zipFile, zipPath: String;
+  created: Boolean;
+begin
+  Result.Init();
+
+  case map of
+    EGameMap.NORMAL:
+    begin
+      cacheroot := Self.Cache + 'map' + DirectorySeparator;
+      cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
+      zipPath := MAP_PATH + 'files' + DirectorySeparator + 'map.zip';
+      zipFile := ToStr(plane) + '/' + chunk + '.png';
+    end;
+
+    EGameMap.HEIGHT:
+    begin
+      cacheroot := Self.Cache + 'heightmap' + DirectorySeparator;
+      cachename := cacheroot + '0' + DirectorySeparator + chunk;
+      zipPath := MAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip';
+      zipFile := '0/' + chunk + '.png';
+    end;
+
+    EGameMap.COLLISION:
+    begin
+      cacheroot := Self.Cache + 'collision' + DirectorySeparator;
+      cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
+      zipPath := MAP_PATH + 'files' + DirectorySeparator + 'collision.zip';
+      zipFile := ToStr(plane) + '/' + chunk + '.png';
+    end;
+  end;
+
+  Result.SetName(cachename);
+
+  if not FileExists(cachename + '.bmp') then
+  begin
+    Self.DebugLn('Caching ' + chunk + ' ' + ToStr(map) + ' this can take ~10 seconds.');
+
+    if not FileExists(cachename + '.png') then
+    begin
+      if not ForceDirectories(ExtractFilePath(cachename + '.png')) then
+      begin
+        Result.Free();
+        Self.Fatal('Failed to create TMapLoader cache directories.');
+      end;
+
+      if not UnZipOneFile(zipPath, zipFile, cacheroot) then
+      begin
+        created := True;
+        Result.SetSize(Translator.Map.ChunkSide, Translator.Map.ChunkSide);
+      end;
+    end;
+
+    if not created then
+      Result.LoadFromFile(cachename + '.png');
+    Result.SaveToFile(cachename + '.bmp');
+    DeleteFile(cachename + '.png');
+    Exit;
+  end;
+
+  Result.LoadFromFile(cachename + '.bmp');
+end;
+
+function TChunkLoader.GetBitmap(chunk: TPoint; plane: UInt32; map: EGameMap): TMufasaBitmap; overload;
+begin
+  Result := Self.GetBitmap(ToStr(chunk.X) + '-' + ToStr(chunk.Y), plane, map);
+end;
+
+
+(*
+## TChunkLoader.GetJSONFile
+```pascal
+function TChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: EGameMapJSON): TJSONArray;
+function TChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: EGameMapJSON): TJSONArray; overload;
+```
+Returns a chunk json file.
+If possible, it will be loaded from a cached file.
+If no cache file exists, the file is unzipped, loaded and saved into cache for future uses.
+```{note}
+This are an internal methods. Don't use them if you don't know what you are doing.
+```
+*)
+function TChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: EGameMapJSON): TJSONArray;
+var
+  name, cacheroot, cachename, zipFile, zipPath, contents: String;
+begin
+  case jsonType of
+    EGameMapJSON.OBJECTS: name := 'objects1400';
+    EGameMapJSON.NPCS:    name := 'npcs';
+  end;
+
+  cacheroot := Self.Cache + name + DirectorySeparator;
+  cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
+  zipPath := MAP_PATH + 'files' + DirectorySeparator + name + '.zip';
+  zipFile := ToStr(plane) + '/' + chunk + '.json';
+
+  if not FileExists(cachename + '.json') then
+  begin
+    if not ForceDirectories(ExtractFilePath(cachename + '.json')) then
+      Self.Fatal('Failed to create objects cache directories.');
+
+    if not UnZipOneFile(zipPath, zipFile, cacheroot) then
+      Exit;
+
+    Self.DebugLn('Caching ' + chunk + ' ' + ToStr(jsonType) + ' this can take ~10 seconds.');
+  end;
+
+  contents := ReadFileContents(cachename + '.json');
+
+  if contents <> '' then
+    Result.Init(contents);
+end;
+
+function TChunkLoader.GetJSONFile(chunk: TPoint; plane: UInt32; jsonType: EGameMapJSON): TJSONArray; overload;
+begin
+  Result := Self.GetJSONFile(ToStr(chunk.X) + '-' + ToStr(chunk.Y), plane, jsonType);
+end;
+
+
+(*
+## TChunkLoader.GetChunks
+```pascal
+function TChunkLoader.GetChunks(start, finish: TPoint): TPointArray; static;
+```
+Simple methods that will return all chunks in between a `start` and `finish` chunks.
+This will also fix their order if required, as game chunks are oddly numbered from bottom to top on the Y axis.
+
+Example:
+```pascal
+WriteLn TChunkLoader.GetChunks([20,20], [22,22]).ToString();
+//This will return:
+//[[20, 20], [20, 21], [20, 22], [21, 20], [21, 21], [21, 22], [22, 20], [22, 21], [22, 22]];
+```
+*)
+function TChunkLoader.GetChunks(start, finish: TPoint): TPointArray; static;
+var
+  x, y: Int32;
+begin
+  for x := Min(start.X, finish.X) to Max(start.X, finish.X) do
+    for y := Min(start.Y, finish.Y) to Max(start.Y, finish.Y) do
+      Result += [x,y];
+end;
+
+(*
+## TChunkLoader.GetMap
+```pascal
+function TChunkLoader.GetMap(chunks: TPointArray; plane: UInt32; map: EGameMap): TMufasaBitmap;
+function TChunkLoader.GetMap(start, finish: TPoint; plane: UInt32; map: EGameMap): TMufasaBitmap; overload;
+```
+This returns a bitmap of all the `chunks` you pass into it or `start` and `finish` plus everything inbetween.
+```{note}
+This is an internal method. Don't use it if you don't know what you are doing.
+```
+*)
+function TChunkLoader.GetMap(chunks: TPointArray; plane: UInt32; map: EGameMap): TMufasaBitmap;
+var
+  i, x, y, n: Int32;
+  lo, hi: TPoint;
+  chunkMaps: array of record
+    Point: TPoint;
+    Image: TMufasaBitmap;
+  end;
+begin
+  SetLength(chunkMaps, Length(chunks));
+
+  lo := [$FFFFFF, $FFFFFF];
+
+  for i := 0 to High(chunks) do
+  begin
+    chunkMaps[i].Image := Self.GetBitmap(chunks[i], plane, map);
+
+    x := chunks[i].X;
+    y := 199 - chunks[i].Y;
+
+    chunkMaps[i].Point := [x,y];
+    lo := [Min(x, lo.X), Min(y, lo.Y)];
+    hi := [Max(x, hi.X), Max(y, hi.Y)];
+  end;
+
+  Result.Init();
+  n := Translator.Map.ChunkSide;
+
+  Result.SetSize((hi.X-lo.X) * n + 1 + n, (hi.Y-lo.Y) * n + 1 + n);
+
+  for i := 0 to High(chunkMaps) do
+  begin
+    x := (chunkMaps[i].Point.X - lo.X) * n;
+    y := (chunkMaps[i].Point.Y - lo.Y) * n;
+
+    Result.DrawBitmap(chunkMaps[i].Image, Point(x, y));
+    chunkMaps[i].Image.Free();
+  end;
+end;
+
+function TChunkLoader.GetMap(start, finish: TPoint; plane: UInt32; map: EGameMap): TMufasaBitmap; overload;
+var
+  chunks: TPointArray;
+begin
+  chunks := TChunkLoader.GetChunks(start, finish);
+  Result := Self.GetMap(chunks, plane, map);
+end;
+
+(*
+## TChunkLoader.BuildGraph
+```pascal
+function TChunkLoader._BuildGraph(map: TMufasaBitmap; white, red: TPointArray): TWebGraphV2;
+function TChunkLoader.BuildGraph(name: String; map: TMufasaBitmap): TWebGraphV2;
+```
+Magically builds a webgraph for you for a given collision map passed into `map`.
+
+The collision map can only have 4 colors:
+- white ($FFFFFF) for walkable space
+- black ($000000) for non walkable space
+- red ($0000FF) for doors (optional)
+- gray ($333333) for objects (optional)
+
+```{note}
+This is an internal method. Don't use it if you don't know what you are doing.
+```
+*)
+function TChunkLoader._BuildGraph(map: TMufasaBitmap; white, red: TPointArray): TWebGraphV2;
+
+  function _FindDoors(doorATPA: T2DPointArray; white: TPointArray): TDoorArray;
+  var
+    direction, center: TPoint;
+    i: Integer;
+  begin
+    SetLength(Result, Length(doorATPA));
+
+    for i := 0 to High(doorATPA) do
+    begin
+      center := MiddleTPA(doorATPA[i]);
+      Result[i].Center := center;
+      direction := [0,0];
+
+      if PointInTPA(center + [1,0], doorATPA[i]) and PointInTPA(center + [-1,0], doorATPA[i]) then
+        direction := [0,1];
+
+      if PointInTPA(center + [0,1], doorATPA[i]) and PointInTPA(center + [0,-1], doorATPA[i]) then
+        direction := [1,0];
+
+      if PointInTPA(center + [1,1], doorATPA[i]) and PointInTPA(center + [-1,-1], doorATPA[i]) then
+        direction := [1,-1];
+
+      if PointInTPA(center + [1,-1], doorATPA[i]) and PointInTPA(center + [-1,1], doorATPA[i]) then
+        direction := [1,1];
+
+      if direction = [0,0] then Continue;
+
+      //check if pixels around the door are walkable to exclude weird objects colored red on the map as being doors
+      //also excludes open doors to be detected as doors needed to be passed through
+      if PointInTPA(center + direction, white) and PointInTPA(center + direction.Rotate(180, [0,0]), white) then
+      begin
+        Result[i].Direction := direction;
+        case Length(doorATPA[i]) of
+          4: Result[i].DoorType := EDoorType.NORMAL;
+          8: Result[i].DoorType := EDoorType.WIDE;
+        end;
+      end;
+
+      if Result[i].DoorType = EDoorType.WIDE then
+        case Result[i].Direction of
+          [0,1]: Result[i].Center.X -= 2;
+          [1,0]: Result[i].Center.Y -= 2;
+        end;
+
+      Result[i].Before += Result[i].Center + Result[i].Direction * 2;
+      Result[i].After  += Result[i].Center - Result[i].Direction * 2;
+    end;
+  end;
+
+var
+  a, b, i, j, n, len, hi, divider, nonSepDoors: Int32;
+  atpa, parts: T2DPointArray;
+  skeleton, nodes, tpa, doorsInTpa, doorNodes: TPointArray;
+  bounds: TBox;
+  p, q: TPoint;
+  nodesTree, skeletonTree: TSlackTree;
+  jInRange, nInRange: Boolean;
+  connectionMap: array of array of TIntegerArray;
+  doors: TDoorArray;
+  door: TDoor;
+  doorPaths: T2DIntegerArray;
+begin
+  atpa := white.NRCluster(1);
+
+  doors := _FindDoors(red.NRCluster(1), white);
+
+  atpa.sortBySize(0, True);
+
+  hi := High(doors);
+  case hi of
+    0..50: divider := 50;
+    51..400: divider := 100;
+    else divider := 200;
+  end;
+
+  for i := 0 to high(doors) do
+  begin
+    if i mod divider = 0 then
+      Self.DebugLn('Adding doors to graph: '  + ToStr(i) + '/' + ToStr(hi));
+    door := doors[i];
+
+    if (door.DoorType = EDoorType.UNKNOWN) or atpa.InSameTPA(door.Before, door.After) then
+    begin
+      nonSepDoors += 1;
+      Continue;
+    end;
+
+    door.SEPARATING := True;
+
+    Result.Doors += door;
+    doorNodes += [door.Before, door.After];
+    SetLength(doorPaths, Length(doorNodes));
+    doorPaths[(i-nonSepDoors)*2] += (i-nonSepDoors)*2+1;
+    doorPaths[(i-nonSepDoors)*2+1] += (i-nonSepDoors)*2;
+  end;
+
+  hi := High(atpa);
+
+  case hi of
+    0..50: divider := 50;
+    51..400: divider := 100;
+    else divider := 200;
+  end;
+
+  for i := 0 to hi do
+  begin
+    if i mod divider = 0 then
+      Self.DebugLn('Creating webgraph connections for area '  + ToStr(i) + '/' + ToStr(hi));
+
+    if Length(atpa[i]) <= GENERATED_GRAPH.MinimumTiles * Translator.TileArea then Continue; //remove very small spaces
+
+    bounds := atpa[i].Bounds();
+    if Max(bounds.Width(), bounds.Height()) < GENERATED_GRAPH.NodeRadius then //mark spaces less than NodeRadius with a single node and continue
+    begin
+      Result.Nodes += atpa[i].Median();
+      Continue;
+    end;
+
+    skeleton := atpa[i].Erode(1).Skeleton(2, 7);
+
+    if skeleton = [] then
+    begin
+      Result.Nodes += atpa[i].Median();
+      Continue;
+    end;
+
+    nodes := [];
+    for tpa in PartitionTPA(skeleton, GENERATED_GRAPH.Spacing, GENERATED_GRAPH.Spacing) do
+    begin
+      if tpa = [] then Continue;
+      for tpa in tpa.Cluster(1) do nodes += MiddleTPA(tpa);
+    end;
+
+    SetLength(connectionMap, bounds.X2, bounds.Y2);
+
+    skeletonTree.Init(skeleton);
+    nodesTree.Init(nodes);
+    for j := 0 to High(nodesTree.Data) do
+    begin
+      p := nodesTree.Data[j].split;
+      tpa := nodesTree.KNearest(p, GENERATED_GRAPH.MaxConnections, True);
+
+      for q in tpa do
+      begin
+        if Max(Abs(p.X - q.X), Abs(p.Y - q.Y)) > GENERATED_GRAPH.Spacing * 2 then
+          Continue;
+
+        if GENERATED_GRAPH.WallCrossings and not map.ColorsInLineEx(p, q, [$0, $333333, $FF]) then
+        begin
+          connectionMap[q.X, q.Y] += j;
+          Continue;
+        end;
+
+        bounds := Box(p, q).Expand(GENERATED_GRAPH.Spacing);
+        parts := skeletonTree.RangeQuery(bounds).Cluster(1);
+
+        for a := 0 to High(parts) do
+        begin
+          jInRange := False;
+          nInRange := False;
+
+          for b := 0 to High(parts[a]) do
+          begin
+            jInRange := jInRange or parts[a,b].InRange(p, Sqrt(2));
+            nInRange := nInRange or parts[a,b].InRange(q, Sqrt(2));
+
+            if jInRange and nInRange then Break(2);
+          end;
+
+          if jInRange <> nInRange then Break;
+        end;
+
+        if not jInRange or not nInRange then Continue;
+
+        connectionMap[q.X, q.Y] += j;
+      end;
+    end;
+
+    skeletonTree.Free();
+    len := Length(Result.Nodes);
+    SetLength(Result.Nodes, len + Length(nodes));
+    SetLength(Result.Paths, Length(Result.Nodes));
+
+    for j := 0 to High(nodesTree.Data) do
+    begin
+      p := nodesTree.Data[j].split;
+      Result.Nodes[j+len] := p;
+      for n in connectionMap[p.X, p.Y] do
+      begin
+        q := nodesTree.Data[n].split;
+        Result.Nodes[n+len] := q;
+
+        if not InIntArray(Result.Paths[j+len], n+len) then
+          Result.Paths[j+len] += n+len;
+        if not InIntArray(Result.Paths[n+len], j+len) then
+          Result.Paths[n+len] += j+len;
+      end;
+    end;
+
+    nodesTree.Free();
+  end;
+
+  SetLength(Result.Paths, Length(Result.Nodes));
+  SetLength(Result.Names, Length(Result.Nodes));
+
+  //Connect doornodes to nearest node
+  nodes := Copy(Result.Nodes);
+  nodesTree.Init(nodes);
+
+  len := Length(Result.Nodes);
+
+  for i := 0 to High(atpa) do
+  begin
+    doorsInTpa := atpa[i].Intersection(doorNodes);
+
+    for j := 0 to High(doorsInTpa) do
+    begin
+      for p in nodesTree.KNearest(doorsInTpa[j], 20) do
+      begin
+        if atpa[i].Contains(p) then
+        begin
+          n := Result.Nodes.Find(p);
+          Result.Nodes += doorsInTpa[j];
+          SetLength(result.Paths, Length(Result.Nodes));
+          Result.Paths[n] += High(Result.Nodes);
+          Result.Paths[High(Result.Nodes)] += n;
+          Break;
+        end;
+      end;
+
+      if not Result.Nodes.Contains(doorsInTpa[j]) then
+        Result.Nodes += doorsInTpa[j];
+    end;
+  end;
+
+  nodesTree.Free();
+
+  nodes := Copy(Result.Nodes, len, Length(Result.Nodes)-len);
+  for n := 0 to high(doorNodes) do
+  begin
+    i := nodes.Find(doorNodes[n]);
+    j := nodes.Find(doorNodes[doorPaths[n][0]]);
+    if (i < 0) or (j < 0) then Continue;
+    Result.Paths[len + i] += len + j;
+  end;
+
+  SetLength(Result.Paths, Length(Result.Nodes));
+  SetLength(Result.Names, Length(Result.Nodes));
+end;
+
+function TChunkLoader.BuildGraph(name: String; map: TMufasaBitmap): TWebGraphV2;
+var
+  white, red: TPointArray;
+begin
+  map.FindColors(white, $FFFFFF);
+  map.FindColors(red, $FF);
+  Self.DebugLn('Generating webgraph for region: ' + name);
+
+  Result := Self._BuildGraph(map, white, red);
+end;
+
+(*
+## TChunkLoader.GetGraph
+```pascal
+function TChunkLoader.GetGraph(name: String; plane: UInt32; map: TMufasaBitmap): TWebGraphV2;
+```
+Returns a TWebGraphV2 for the given `map`.
+If the graph is already cached we load it from cache, otherwise we build it and save it into cache.
+```{note}
+This is an internal method. Don't use it if you don't know what you are doing.
+```
+*)
+function TChunkLoader.GetGraph(name: String; plane: UInt32; map: TMufasaBitmap): TWebGraphV2;
+var
+  cacheroot, cachename: String;
+  json: TJSONObject;
+  t: UInt64;
+begin
+  cacheroot := Self.Cache + 'graphs' + DirectorySeparator;
+  cachename := cacheroot + ToStr(plane) + DirectorySeparator + name + '-' + GENERATED_GRAPH.Hash();
+
+  if not FileExists(cachename + '.json') then
+  begin
+    Self.DebugLn('Caching ' + name + ' webgraph, this will take a minute.');
+
+    if not ForceDirectories(cacheroot + ToStr(plane) + DirectorySeparator) then
+      Self.Fatal('Failed to create path: ' + cacheroot + ToStr(plane) + DirectorySeparator);
+
+    t := GetTickCount();
+    Result := Self.BuildGraph(name, map);
+    Self.DebugLn('Took ' + ToStr((GetTickCount()-t) div 1000) + ' seconds to generate webgraph.');
+    try
+      json.Init();
+
+      json.Put('nodes', Result.NodesToString());
+      json.Put('paths', Result.PathsToString());
+      json.Put('names', Result.NamesToString());
+      json.Put('doors', Result.DoorsToString());
+
+      if not WriteFileContents(cachename + '.json', json.ToString(2), False) then
+        Self.Fatal('Failed to save ' + name + ' webgraph.');
+    except
+      Self.Fatal('Something went wrong saving ' + name + ' webraph: ' + GetExceptionMessage());
+    finally
+      json.Free();
+    end;
+
+    Exit;
+  end;
+
+  try
+    json.Init(ReadFileContents(cachename + '.json'));
+
+    Result.LoadNodesFromString(json.getString('nodes'));
+    Result.LoadPathsFromString(json.getString('paths'));
+    Result.LoadNamesFromString(json.getString('names'));
+    Result.LoadDoorsFromString(json.getString('doors'));
+  except
+    TerminateScript('Something went wrong loading the webraph: ' + GetExceptionMessage());
+  finally
+    json.Free();
+  end;
+end;
+
+
+(*
+## TChunkLoader.GetJSON
+```pascal
+function TChunkLoader.GetJSON(chunks: TPointArray; plane: UInt32; jsonType: EGameMapJSON): TJSONArray;
+function TChunkLoader.GetJSON(start, finish: TPoint; level: UInt32; json: EGameMapJSON): TMufasaBitmap;
+```
+Returns a merged JSON file of all the jsons of our `chunks` or `start` and `finish` plus everything inbetween.
+```{note}
+This is an internal method. Don't use it if you don't know what you are doing.
+```
+*)
+function TChunkLoader.GetJSON(chunks: TPointArray; plane: UInt32; jsonType: EGameMapJSON): TJSONArray;
+var
+  i, j, n, l, x, y, id: Int32;
+  lo, hi: TPoint;
+  chunkJSONs: array of record
+    Point: TPoint;
+    JSON: TJSONArray;
+  end;
+  json, rJSON: TJSONObject;
+  coords, rotations: TJSONArray;
+begin
+  SetLength(chunkJSONs, Length(chunks));
+
+  lo := [$FFFFFF, $FFFFFF];
+
+  for i := High(chunks) downto 0 do
+  begin
+    chunkJSONs[i].JSON := Self.GetJSONFile(chunks[i], plane, jsonType);
+
+    if chunkJSONs[i].JSON = nil then
+    begin
+      Delete(chunkJSONs, i, 1);
+      Continue;
+    end;
+
+    x := chunks[i].X;
+    y := 199 - chunks[i].Y;
+
+    chunkJSONs[i].Point := [x,y];
+    lo := [Min(x, lo.X), Min(y, lo.Y)];
+    hi := [Max(x, hi.X), Max(y, hi.Y)];
+  end;
+
+  Result.Init();
+  for i := 0 to High(chunkJSONs) do
+    for j := 0 to chunkJSONs[i].JSON.High() do
+    begin
+      json := chunkJSONs[i].JSON.getJSONObject(j);
+      id := json.GetInt('id');
+
+      coords := json.getJSONArray('coordinates');
+
+      if jsonType = EGameMapJSON.OBJECTS then
+      begin
+        rotations := json.getJSONArray('rotations');
+        if coords.length() <> rotations.length() then
+          Self.Fatal('Coordinates and rotations for object id: ' + ToStr(id) + ' are not the same length.');
+      end;
+
+      if plane > 0 then
+      begin
+        for l := 0 to coords.High do
+          coords.getJSONArray(l).Put(0, Integer(coords.getJSONArray(l).GetInt(0) + Translator.MapWidth() * plane));
+      end;
+
+      for n := 0 to Result.High() do
+      begin
+        rJSON := Result.getJSONObject(n);
+        if id = rJSON.getInt('id') then
+        begin
+          for l := 0 to coords.High() do
+          begin
+            rJSON.getJSONArray('coordinates').Put(coords.Get(l));
+            if jsonType = EGameMapJSON.OBJECTS then
+              rJSON.getJSONArray('rotations').Put(rotations.Get(l));
+          end;
+          Continue(2);
+        end;
+      end;
+
+      Result.Put(json);
+    end;
+end;
+
+function TChunkLoader.GetJSON(start, finish: TPoint; level: UInt32; json: EGameMapJSON): TMufasaBitmap; overload;
+var
+  x, y: Int32;
+  chunks: TPointArray;
+begin
+  for x := Min(start.X, finish.X) to Max(start.X, finish.X) do
+    for y := Min(start.Y, finish.Y) to Max(start.Y, finish.Y) do
+      chunks += [x,y];
+
+  Result := Self.GetJSON(chunks, level, json);
+end;
+
+
+type
+(*
+(TLegacyMapLoader)=
+## type TLegacyMapLoader
+```pascal
+TLegacyMapLoader = record(TSRLBaseRecord)
+  Cache: String;
+end;
+```
+LegacyChunkLoader record, this is what's responsible for loading a map from a file, same as the original TWalker by slacky.
+*)
+  TLegacyMapLoader = record(TSRLBaseRecord)
+    Cache: String;
+  end;
+
+(*
+## TLegacyMapLoader.Setup
+```pascal
+procedure TLegacyMapLoader.Setup(name, cache: String);
+```
+This is responsible for setting up the TLegacyMapLoader.
+```{note}
+This is an internal method. Don't use it if you don't know what you are doing.
+```
+*)
+procedure TLegacyMapLoader.Setup(name, cache: String);
+begin
+  Self.Name := name;
+  Self.Cache := cache;
+end;
+
+(*
+## TLegacyMapLoader.FindFiles
+```pascal
+function TLegacyMapLoader.FindFiles(filename: String): TStringArray;
+```
+This is responsible for finding the map file to be loaded.
+Will only find `.png` or `.bmp` files in `MAP_PATH`.
+```{note}
+This is an internal method. Don't use it if you don't know what you are doing.
+```
+*)
+function TLegacyMapLoader.FindFiles(filename: String): TStringArray;
+var
+  mask: String = '.png;.bmp;';
+begin
+  if FileExists(filename) then
+    Exit([ExpandfileName(filename)]);
+  mask := StringReplace(mask, '.', filename + '.', [rfReplaceAll]);
+  Result := System.FindFile(MAP_PATH + 'files' + DirectorySeparator + 'maps' + DirectorySeparator, mask, True, False);
+end;
+
+(*
+## TLegacyMapLoader.GetMap
+```pascal
+function TLegacyMapLoader.GetMap(filename: String; crop: TBox = []): TMufasaBitmap;
+```
+Returns the map file from cache if it exists, if it doesn't,
+the map is loaded and saved as a `.bmp` cache file for next usages.
+.bmp is used for caching because it's a raw image format and Simba loads it much faster than .png.
+```{note}
+This is an internal method. Don't use it if you don't know what you are doing.
+```
+*)
+function TLegacyMapLoader.GetMap(filename: String; crop: TBox = []): TMufasaBitmap;
+var
+  fileStr, cachename: String;
+  files: TStringArray;
+begin
+  Result.Init();
+
+  if ExtractFileExt(filename) <> '.bmp' then
+  begin
+    fileStr := ExtractFileName(filename);
+    cachename := Self.Cache + fileStr.FileName() + '.bmp';
+
+    if not FileExists(cachename) then
+    begin
+      Self.DebugLn('Caching ' + fileStr + ' this can take ~10 seconds.');
+
+      files := Self.FindFiles(filename);
+
+      case Length(files) of
+        0:
+        begin
+          Result.Free();
+          Self.Fatal('Couldn''f find map file: ' + filename);
+        end;
+
+        1: fileStr := files[0];
+
+        else
+        begin
+          Result.Free();
+          Self.Fatal('Multiple maps matching: ' + filename + ' were found.');
+        end;
+      end;
+
+      Result.LoadFromFile(fileStr);
+      Result.SaveToFile(cachename);
+      if crop.area() > 1 then
+        Result.Crop(crop);
+    end;
+
+    fileName := cachename;
+  end;
+
+  Result.LoadFromFile(filename);
+  if crop.area() > 1 then
+    Result.Crop(crop);
+end;
+
+type
+(*
+(TMapRegion)=
+## type TMapRegion
+```pascal
+TMapRegion = record
+  Name: String;
+  Original: TBox;
+  Region: TBox;
+  Plane: UInt32;
+  Offset: TPoint;
+end;
+```
+Map region record, responsible for storing the map region/chunk data.
+```{note}
+This is an internal type. Don't use it if you don't know what you are doing.
+```
+*)
+  TMapRegion = record
+    Name: String;
+    Original: TBox;
+    Region: TBox;
+    Plane: UInt32;
+    Offset: TPoint;
+  end;
+
+(*
+(TMapLoader)=
+## type TMapLoader
+```pascal
+TMapLoader = record(TSRLBaseRecord)
+  Cache: String;
+
+  Map, Heightmap, Collision,
+  DownscaledMap: TMufasaBitmap;
+
+  MapBox: TBox;
+  Graph: TWebGraphV2;
+
+  Regions: array of TMapRegion;
+
+  Padding, Downscale: UInt32;
+
+  Loader: TChunkLoader;
+  LegacyLoader: TLegacyMapLoader;
+
+  UsingChunks, SkipGraph: Boolean;
+
+  ObjectData: TJSONArray;
+  NPCData: TJSONArray;
+end;
+```
+TMapLoader is what's responsible for loading a map for TMap.
+
+It will use `TChunkLoader` or `TLegacyMapLoader` depending on what the situation requires.
+```{note}
+This is an internal type. Don't use it if you don't know what you are doing.
+```
+*)
+  TMapLoader = record(TSRLBaseRecord)
+    Cache: String;
+
+    Map, Heightmap, Collision,
+    DownscaledMap: TMufasaBitmap;
+
+    MapBox: TBox;
+    Graph: TWebGraphV2;
+
+    Regions: array of TMapRegion;
+
+    Padding, Downscale: UInt32;
+
+    Loader: TChunkLoader;
+    LegacyLoader: TLegacyMapLoader;
+
+    UsingChunks: Boolean;
+
+    ObjectData: TJSONArray;
+    NPCData: TJSONArray;
+  end;
+
+procedure TMapLoader.Free();
+begin
+  if Assigned(Self.Map) then
+  begin
+    Self.Map.Free();
+    Self.Map := nil;
+  end;
+
+  if Assigned(Self.Heightmap) then
+  begin
+    Self.Heightmap.Free();
+    Self.Heightmap := nil;
+  end;
+
+  if Assigned(Self.DownscaledMap) then
+  begin
+    Self.DownscaledMap.Free();
+    Self.DownscaledMap := nil;
+  end;
+
+  if Assigned(Self.Collision) then
+  begin
+    Self.Collision.Free();
+    Self.Collision := nil;
+  end;
+
+  if Assigned(Self.ObjectData) then
+  begin
+    Self.ObjectData.Free();
+    Self.ObjectData := nil;
+  end;
+
+  if Assigned(Self.NPCData) then
+  begin
+    Self.NPCData.Free();
+    Self.NPCData := nil;
+  end;
+
+  if Assigned(Self.Graph.Tree) then
+    Self.Graph.Tree.Free();
+
+  Self.Graph := [];
+  Self := [];
+end;
+
+procedure TMapLoader.Init(downscale: UInt32);
+var
+  version: String;
+begin
+  Self.Name := 'RSMap.Loader';
+  version := SHA1String(
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'map.zip') +
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'heightmap.zip') +
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'collision.zip') +
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'objects1400.zip') +
+     SHA1File(MAP_PATH + 'files' + DirectorySeparator + 'npcs.zip')
+  );
+
+  version := version.SubString(6);
+  Self.Cache := CACHE_DIR + 'map' + DirectorySeparator +
+                version + DirectorySeparator;
+
+  if not ForceDirectories(Self.Cache) then
+    Self.Fatal('Failed to create TMapLoader cache directory for: ' + version);
+
+  Self.Downscale := downscale;
+  Self.Loader.Setup(Self.Name + '.Loader', cache);
+  Self.LegacyLoader.Setup(Self.Name + '.LegacyLoader', cache);
+end;
+
+procedure TMapLoader.Pack();
+type
+  TBlock = record X,Y,W,H: Integer; Index: Integer; end;
+  TBlockArray = array of TBlock;
+
+  function Block(X,Y,W,H: Integer; Index: Integer = -1): TBlock;
+  begin
+    Result.X := X;
+    Result.Y := Y;
+    Result.W := W;
+    Result.H := H;
+    Result.Index := Index;
+  end;
+var
+  weights: TIntegerArray;
+  I, J: Integer;
+  startWidth, area, maxWidth: Integer;
+  width, height: Integer;
+  blocks, spaces: TBlockArray;
+  len: Integer;
+begin
+  Self.MapBox := [];
+
+  len := length(Self.Regions);
+  if len = 0 then
+    Exit;
+
+  for i := 0 to len - 1 do
+  begin
+    blocks += Block(0, 0, Self.Regions[i].Region.Width() - 1, Self.Regions[i].Region.Height() - 1, i);
+    weights += blocks[i].H;
+
+    area += blocks[i].W * blocks[i].H;
+    maxWidth := Max(maxWidth, blocks[i].W);
+  end;
+
+  blocks := Sorted(blocks, weights, False);
+
+  startWidth := Max(Ceil(Sqrt(area / 0.95)), maxWidth);
+  spaces := [Block(0, 0, startWidth, $FFFFFF)];
+
+  for i := 0 to len - 1 do
+    for j := High(spaces) downto 0 do
+    begin
+      if (blocks[i].W > spaces[j].W) or (blocks[i].H > spaces[j].H) then
+        Continue;
+
+      blocks[i].X := spaces[j].X;
+      blocks[i].Y := spaces[j].Y;
+
+      width  := Max(width, blocks[i].X + blocks[i].W);
+      height := Max(height, blocks[i].Y + blocks[i].H);
+
+      if (blocks[i].W = spaces[j].W) and (blocks[i].H = spaces[j].H) then
+        Delete(spaces, j, 1)
+      else
+      if (blocks[i].H = spaces[j].H) then
+      begin
+        spaces[j].X += blocks[i].W;
+        spaces[j].W -= blocks[i].W;
+      end else
+      if (blocks[i].W = spaces[j].W) then
+      begin
+        spaces[j].Y += blocks[i].H;
+        spaces[j].H -= blocks[i].H;
+      end else
+      begin
+        spaces += [Block(
+          spaces[j].X + blocks[i].W,
+          spaces[j].Y,
+          spaces[j].W - blocks[i].W,
+          blocks[i].H
+        )];
+        spaces[j].Y += blocks[i].H;
+        spaces[j].H -= blocks[i].H;
+      end;
+
+      Break;
+    end;
+
+  for i := 0 to len - 1 do
+  begin
+    Self.Regions[blocks[i].Index].Region := Box(blocks[i].X, blocks[i].Y, blocks[i].X + blocks[i].W, blocks[i].Y + blocks[i].H);
+    Self.MapBox := Self.MapBox + Self.Regions[blocks[i].Index].Region;
+  end;
+end;
+
+
+function TMapLoader._InternalLoad(bitmaps: TMufasaBitmapArray): TMufasaBitmap;
+var
+  i: Int32;
+begin
+  Result.Init();
+  Result.SetSize(Self.MapBox.Width(), Self.MapBox.Height());
+
+  for i := 0 to High(bitmaps) do
+  begin
+    Result.DrawBitmap(bitmaps[i], [Self.Regions[i].Region.X1, Self.Regions[i].Region.Y1]);
+    bitmaps[i].Free();
+  end;
+end;
+
+function TMapLoader.InternalLoad(bitmaps: TMufasaBitmapArray): TMufasaBitmap;
+begin
+  Result := Self._InternalLoad(bitmaps);
+  Self.DownscaledMap.Init();
+  AddOnTerminate(@Self.Free);
+  Result.Downsample(Self.Downscale, Self.DownscaledMap);
+end;
+
+function TMapLoader.InternalGraphLoad(graphs: array of TWebGraphV2): TWebGraphV2;
+var
+  i: Int32;
+begin
+  for i := 0 to High(graphs) do
+    Result.Merge(graphs[i]);
+  for i := 0 to High(Result.Doors) do
+  begin
+    Result.Doors[i].Before := Translator.Normalize(Result.Doors[i].Before);
+    Result.Doors[i].After  := Translator.Normalize(Result.Doors[i].After);
+  end;
+
+  Result.UseCollisionData := Self.Graph.UseCollisionData;
+end;
+
+function TMapLoader.InternalJSONLoad(entries: array of TJSONArray): TJSONArray;
+var
+  i, j, n, id: Int32;
+  json, rJSON: TJSONObject;
+  entry, coords, rotations: TJSONArray;
+begin
+  Result.Init();
+
+  for entry in entries do
+    for i := 0 to entry.High() do
+    begin
+      json := entry.getJSONObject(i);
+      id := json.GetInt('id');
+      coords := json.getJSONArray('coordinates');
+
+      if json.Has('rotations') then
+      begin
+        rotations := json.getJSONArray('rotations');
+        if coords.length() <> rotations.length() then
+          Self.Fatal('Coordinates and rotations for object id: ' + ToStr(id) + ' are not the same length.');
+      end;
+
+      for j := 0 to Result.High() do
+      begin
+        rJSON := Result.getJSONObject(j);
+        if id <> rJSON.getInt('id') then
+          Continue;
+
+        for n := 0 to coords.High() do
+        begin
+          rJSON.getJSONArray('coordinates').Put(coords.Get(n));
+          if rotations <> nil then
+            rJSON.getJSONArray('rotations').Put(rotations.Get(n));
+        end;
+
+        Continue(2);
+      end;
+
+      Result.Put(json);
+    end;
+end;
+
+
+function TMapLoader.SetupGraph(name: String; idx, plane, padding: Int32; cbitmap: TMufasaBitmap): TWebGraphV2;
+var
+  gray, white, merged, graySubset: TPointArray;
+  whiteClusters, grayClusters, mergedClusters: T2DPointArray;
+  i, j: Int32;
+begin
+  Result := Self.Loader.GetGraph(name, plane, cbitmap);
+  Result.Nodes := Self.GetGlobal(idx, Result.Nodes, [padding,padding]);
+
+  cbitmap.FindColors(white, $FFFFFF);
+  cbitmap.FindColors(gray, $333333);
+
+  white := Self.GetGlobal(idx, white, [padding,padding]);
+  gray  := Self.GetGlobal(idx, gray, [padding,padding]);
+
+  whiteClusters := white.NRCluster(1);
+  grayClusters := gray.NRCluster(1);
+
+  for i := 0 to High(whiteClusters) do
+  begin
+    if Length(whiteClusters[i]) <= 6 then
+      Continue;
+
+    graySubset := whiteclusters[i].Bounds.Expand(80).Filter(gray);
+    merged := whiteclusters[i] + graySubset;
+    mergedClusters := merged.NRCluster(1);
+
+    for j := 0 to high(mergedClusters) do
+      if mergedClusters[j].Contains(whiteClusters[i][0]) then
+      begin
+        Result.WalkableClusters += mergedClusters[j];
+        Break;
+      end;
+  end;
+
+  Result.WalkableSpace    := white + gray;
+  Result.ObjectClusters   := grayClusters;
+
+  for i := 0 to High(Result.Doors) do
+  begin
+    Result.Doors[i].Before := Self.GetGlobal(idx, Result.Doors[i].Before, [padding, padding]);
+    Result.Doors[i].After  := Self.GetGlobal(idx, Result.Doors[i].After,  [padding, padding]);
+    Result.Doors[i].Center := Self.GetGlobal(idx, Result.Doors[i].Center, [padding, padding]);
+  end;
+end;
+
+{%codetools off}
+function TMapLoader._GetChunk(out chunk: TBox; out s, f: TPoint): String;
+begin
+  s := Point(Min(chunk.X1, chunk.X2), Max(chunk.Y1, chunk.Y2));
+  f := Point(Max(chunk.X1, chunk.X2), Min(chunk.Y1, chunk.Y2));
+  chunk := Box(s.X, s.Y, f.X, f.Y);
+
+  Result := ToStr(s.X) + '-' + ToStr(s.Y) + '_' + ToStr(f.X) + '-' + ToStr(f.Y);
+end;
+{%codetools on}
+
+
+procedure TMapLoader.Load(chunks: array of TMapChunk; downscale: UInt32 = 8; padding: UInt32 = 40); overload;
+var
+  i, j, idx: Int32;
+  bitmaps, hbitmaps, cbitmaps: TMufasaBitmapArray;
+  s, f, tmp: TPoint;
+  graphs: array of TWebGraphV2;
+  json: TJSONArray;
+  objects, npcs: array of TJSONArray;
+  name: String;
+begin
+  Self.Init(downscale);
+
+  for i := 0 to High(chunks) do j += Length(chunks[i].Planes);
+
+  SetLength(Self.Regions, j);
+
+  Self.Padding := padding;
+  idx := -1;
+
+  for i := 0 to High(chunks) do
+    for j := 0 to High(chunks[i].Planes) do
+    begin
+      idx += 1;
+      name := Self._GetChunk(chunks[i].Chunk, s, f);
+      Self.Regions[idx].Name :=  ToStr(chunks[i].Planes[j]) + '_' + name;
+      Self.Regions[idx].Original := Translator.Chunk2Coordinate(chunks[i].Chunk);
+
+      if chunks[i].Planes[j] > 0 then
+        Self.Regions[idx].Original := Self.Regions[idx].Original.Offset([Translator.MapWidth() * chunks[i].Planes[j], 0]);
+
+      Self.Regions[idx].Plane := chunks[i].Planes[j];
+
+      tmp :=  Translator.Chunk2Coordinate(s);
+      tmp.X += Translator.MapWidth() * chunks[i].Planes[j]; //easy way to handle upper levels
+      Self.Regions[idx].Offset := [tmp.X-padding, tmp.Y - padding];
+
+      bitmaps += Self.Loader.GetMap(s, f, chunks[i].Planes[j], EGameMap.NORMAL);
+      bitmaps[idx].Pad(padding);
+
+      if chunks[i].Planes[j] = 0 then
+      begin
+        hbitmaps += Self.Loader.GetMap(s, f, 0, EGameMap.HEIGHT);
+        hbitmaps[High(hbitmaps)].Pad(padding);
+      end;
+
+      cbitmaps += Self.Loader.GetMap(s, f, chunks[i].Planes[j], EGameMap.COLLISION);
+
+      if not GENERATED_GRAPH.Disabled then
+        graphs += Self.SetupGraph(name, idx, chunks[i].Planes[j], padding, cbitmaps[idx]);
+
+      cbitmaps[idx].Pad(padding);
+
+      json := Self.Loader.GetJSON(s, f, chunks[i].Planes[j], EGameMapJSON.OBJECTS);
+      objects += json;
+      json := Self.Loader.GetJSON(s, f, chunks[i].Planes[j], EGameMapJSON.NPCS);
+      npcs += json;
+
+      Self.Regions[idx].Region := Box(0, 0, bitmaps[idx].GetWidth(), bitmaps[idx].GetHeight());
+    end;
+
+  Self.Pack();
+
+  Self.Map        := Self.InternalLoad(bitmaps);
+  Self.Heightmap  := Self._InternalLoad(hbitmaps);
+  Self.Collision  := Self._InternalLoad(cbitmaps);
+
+  if not GENERATED_GRAPH.Disabled then
+    Self.Graph := Self.InternalGraphLoad(graphs);
+
+  Self.ObjectData := Self.InternalJSONLoad(objects);
+  Self.NPCData    := Self.InternalJSONLoad(npcs);
+
+  Self.UsingChunks := True;
+end;
+
+procedure TMapLoader.Add(chunks: array of TMapChunk; downscale: UInt32 = 8; padding: UInt32 = 40); overload;
+var
+  i, j: Int32;
+  current: TMapChunk;
+  loaded, final: array of TMapChunk;
+begin
+  for i := 0 to High(Self.Regions) do
+  begin
+    current := Chunk(Translator.Global2Chunk(Self.Regions[i].Original), [Self.Regions[i].Plane]);
+    for j := 0 to High(Self.Regions) do
+    begin
+      if i = j then Continue;
+      if Self.Regions[i].Original <> Self.Regions[j].Original then Continue;
+      if current.Planes.Contains(Self.Regions[j].Plane) then Continue;
+      current.Planes += Self.Regions[j].Plane;
+    end;
+
+    current.Planes := current.Planes.Sorted();
+    loaded += current;
+    current := [];
+  end;
+
+  for i := 0 to High(loaded) do
+  begin
+    current := loaded[i];
+
+    for j := High(chunks) downto 0 do
+    begin
+      if current = chunks[j] then
+      begin
+        Delete(chunks, j, 1);
+        Continue;
+      end;
+
+      if current.Chunk = chunks[j].Chunk then
+      begin
+        current.Planes += current.Planes.Difference(chunks[j].Planes);
+        Delete(chunks, j, 1);
+        Continue;
+      end;
+    end;
+
+    final += current;
+  end;
+
+  for i := 0 to High(chunks) do
+    final += chunks[i];
+
+  Self.Free();
+  Self.Regions := [];
+
+  Self.Load(final, downscale, padding);
+end;
+
+
+function TMapLoader.InternalLoadEx(bitmaps: TMufasaBitmapArray): TMufasaBitmap;
+var
+  i: Int32;
+begin
+  Result.Init();
+  Result.SetSize(Self.MapBox.Width(), Self.MapBox.Height());
+
+  for i := 0 to High(bitmaps) do
+  begin
+    Result.DrawBitmap(bitmaps[i], [Self.Regions[i].Region.X1, Self.Regions[i].Region.Y1]);
+    bitmaps[i].Free();
+  end;
+
+  Self.DownscaledMap.Init();
+  Result.Downsample(Self.Downscale, Self.DownscaledMap);
+end;
+
+
+procedure TMapLoader.LoadEx(filename: String; downscale: UInt32 = 8);
+begin
+  Self.Init(downscale);
+  Self.DownscaledMap.Init();
+
+  Self.Map := Self.LegacyLoader.GetMap(filename);
+  Self.Heightmap := Self.LegacyLoader.GetMap('h' + filename);
+  Self.Graph := WaspWeb;
+  Self.Map.Downsample(downscale, Self.DownscaledMap);
+  AddOnTerminate(@Self.Free);
+
+  Self.Regions := [[filename, Self.Map.Bounds(), Self.Map.Bounds(), 0, Point(0,0)]];
+end;
+
+procedure TMapLoader.LoadEx(filename: String; boxes: TBoxArray; downscale: UInt32 = 8; padding: UInt32 = 40); overload;
+var
+  i: Int32;
+  bitmaps, hbitmaps: TMufasaBitmapArray;
+begin
+  Self.Init(downscale);
+  SetLength(Self.Regions, Length(boxes));
+  Self.Padding := padding;
+
+  for i := 0 to High(boxes) do
+  begin
+    Self.Regions[i].Name := filename;
+    Self.Regions[i].Original := boxes[i];
+    Self.Regions[i].Offset := [boxes[i].X1-padding, boxes[i].Y1-padding];
+
+    bitmaps  += Self.LegacyLoader.GetMap(filename, boxes[i]);
+    bitmaps[i].Pad(padding);
+    hbitmaps += Self.LegacyLoader.GetMap('h' + filename, boxes[i]);
+    hbitmaps[i].Pad(padding);
+
+    Self.Regions[i].Region := Box(0, 0, bitmaps[i].GetWidth(), bitmaps[i].GetHeight());
+  end;
+
+  Self.Pack();
+
+  Self.Map := Self.InternalLoadEx(bitmaps);
+  Self.Heightmap := Self.InternalLoadEx(hbitmaps);
+  Self.Graph := WaspWeb;
+
+  Self.Map.Downsample(downscale, Self.DownscaledMap);
+  AddOnTerminate(@Self.Free);
+end;
+
+
+procedure TMapLoader.AddEx(filename: String; downscale: UInt32 = 8);
+var
+  i: Int32;
+  bmp, hbmp: TMufasaBitmap;
+  bitmaps, hbitmaps: TMufasaBitmapArray;
+begin
+  for i := 0 to High(Self.Regions) do
+  begin
+    Self.Regions[i].Offset := [Self.Regions[i].Original.X1 - Self.Padding, Self.Regions[i].Original.Y1 - Self.Padding];
+
+    bitmaps += Self.LegacyLoader.GetMap(filename, Self.Regions[i].Original);
+    bitmaps[i].Pad(Self.Padding);
+    hbitmaps += Self.LegacyLoader.GetMap('h' + filename, Self.Regions[i].Original);
+    hbitmaps[i].Pad(Self.Padding);
+
+    Self.Regions[i].Region := [0, 0, bitmaps[i].GetWidth(), bitmaps[i].GetHeight()];
+  end;
+
+  bmp := Self.LegacyLoader.GetMap(filename);
+  Self.Regions += [filename, bmp.Bounds(), bmp.Bounds(), 0, [0,0]];
+  bitmaps += bmp;
+
+  hbmp := Self.LegacyLoader.GetMap('h' + filename);
+  hbitmaps += hbmp;
+
+  Self.Free();
+  Self.Pack();
+
+  Self.Map := Self.InternalLoadEx(bitmaps);
+  Self.Heightmap := Self.InternalLoadEx(hbitmaps);
+  Self.Map.Downsample(downscale, Self.DownscaledMap);
+end;
+
+procedure TMapLoader.AddEx(filename: String; boxes: TBoxArray; downscale: UInt32 = 8; padding: UInt32 = 40); overload;
+var
+  len, i: Int32;
+  bitmaps, hbitmaps: TMufasaBitmapArray;
+begin
+  len := Length(Self.Regions);
+  SetLength(Self.Regions, len + Length(boxes));
+  Self.Padding := Max(Self.Padding, padding);
+
+  for i := 0 to len-1 do
+  begin
+    if i >= len then
+    begin
+      Self.Regions[i].Name := filename;
+      Self.Regions[i].Original := boxes[i-len];
+    end;
+
+    Self.Regions[i].Offset := Point(Self.Regions[i].Original.X1 - Self.Padding, Self.Regions[i].Original.Y1 - Self.Padding);
+
+    bitmaps += Self.LegacyLoader.GetMap(filename, Self.Regions[i].Original);
+    bitmaps[i].Pad(Self.Padding);
+    hbitmaps += Self.LegacyLoader.GetMap('h' + filename, Self.Regions[i].Original);
+    hbitmaps[i].Pad(Self.Padding);
+
+    Self.Regions[i].Region := [0, 0, bitmaps[i].GetWidth(), bitmaps[i].GetHeight()];
+  end;
+
+  Self.Free();
+  Self.Pack();
+
+  Self.Map := Self.InternalLoadEx(bitmaps);
+  Self.Heightmap := Self.InternalLoadEx(hbitmaps);
+  Self.Map.Downsample(downscale, Self.DownscaledMap);
+end;
+
+
+function TMapLoader.LocalIndex(p: TPoint): Int32;
+begin
+  for Result := 0 to High(Self.Regions) do
+    if p.InBox(Self.Regions[Result].Region) then
+      Exit;
+  Result := -1;
+end;
+
+function TMapLoader.GlobalIndex(p: TPoint): Int32;
+begin
+  for Result := 0 to High(Self.Regions) do
+    if p.InBox(Self.Regions[Result].Original) then
+      Exit;
+  Result := -1;
+end;
+
+function TMapLoader.GetOriginal(p: TPoint): Int32;
+var
+  b: TBox;
+begin
+  for Result := 0 to High(Self.Regions) do
+  begin
+    with Self.Regions[Result] do
+      b := Region.Offset(Offset);
+    if p.InBox(b) then
+      Exit;
+  end;
+
+  Result := -1;
+end;
+
+
+function TMapLoader.GetGlobal(regionIndex: Int32; p: TPoint; offset: TPoint = [0,0]): TPoint;
+begin
+  if regionIndex = -1 then
+    Exit(p);
+  Result := p + Self.Regions[regionIndex].Offset - [Self.Regions[regionIndex].Region.X1, Self.Regions[regionIndex].Region.Y1] + offset;
+end;
+
+function TMapLoader.GetGlobal(p: TPoint; offset: TPoint = [0,0]): TPoint; overload;
+begin
+  Result := Self.GetGlobal(Self.LocalIndex(p), p, offset);
+end;
+
+function TMapLoader.GetGlobal(regionIndex: Int32; tpa: TPointArray; offset: TPoint = [0,0]): TPointArray; overload;
+begin
+  if regionIndex = -1 then
+    Exit(tpa);
+
+  Result := tpa.Offset(Self.Regions[regionIndex].Offset - [Self.Regions[regionIndex].Region.X1, Self.Regions[regionIndex].Region.Y1] + offset);
+end;
+
+function TMapLoader.GetGlobal(tpa: TPointArray; offset: TPoint = [0,0]): TPointArray; overload;
+var
+  p: TPoint;
+begin
+  if Length(Self.Regions) = 1 then
+    Exit(Self.GetGlobal(Self.LocalIndex(tpa[0]), tpa, offset));
+
+  for p in tpa do
+    Result += Self.GetGlobal(Self.LocalIndex(p), p, offset);
+end;
+
+function TMapLoader.GetGlobal(regionIndex: Int32; b: TBox; offset: TPoint = [0,0]): TBox; overload;
+var
+  tpa: TPointArray;
+begin
+  if regionIndex = -1 then Exit(b);
+  tpa := b.ToRectangle().ToTPA();
+  tpa := tpa.Offset(Self.Regions[regionIndex].Offset - [Self.Regions[regionIndex].Region.X1, Self.Regions[regionIndex].Region.Y1] + offset);
+  Result := tpa.Bounds();
+end;
+
+function TMapLoader.GetGlobal(b: TBox; offset: TPoint = [0,0]): TBox; overload;
+begin
+  Result := Self.GetGlobal(Self.LocalIndex(b.Center()), b, offset);
+end;
+
+
+
+function TMapLoader.GetLocal(regionIndex: Int32; p: TPoint; offset: TPoint = [0,0]): TPoint;
+begin
+  if regionIndex = -1 then
+    Exit(p);
+  Result := p - Self.Regions[regionIndex].Offset + [Self.Regions[regionIndex].Region.X1, Self.Regions[regionIndex].Region.Y1] + offset;
+end;
+
+function TMapLoader.GetLocal(p: TPoint; offset: TPoint = [0,0]): TPoint; overload;
+begin
+  Result := Self.GetLocal(Self.GlobalIndex(p), p, offset);
+end;
+
+function TMapLoader.GetLocal(regionIndex: Int32; tpa: TPointArray; offset: TPoint = [0,0]): TPointArray; overload;
+var
+  p: TPoint;
+begin
+  if regionIndex = -1 then
+    Exit(tpa);
+
+  for p in tpa do
+    Result += p - Self.Regions[regionIndex].Offset + [Self.Regions[regionIndex].Region.X1, Self.Regions[regionIndex].Region.Y1] + offset;
+end;
+
+function TMapLoader.GetLocal(tpa: TPointArray; offset: TPoint = [0,0]): TPointArray; overload;
+var
+  p: TPoint;
+begin
+  for p in tpa do
+    Result += Self.GetLocal(Self.GlobalIndex(p), p, offset);
+end;

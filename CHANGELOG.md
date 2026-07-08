@@ -1,46 +1,45 @@
-## [7.21.47](https://github.com/Torwent/SRL-T/compare/v7.21.46...v7.21.47) (2026-05-27)
+# [7.22.0](https://github.com/Torwent/SRL-T/compare/v7.21.56...v7.22.0) (2026-07-08)
+
+
+### Features
+
+* add cache-tools to plugins ([0d704bf](https://github.com/Torwent/SRL-T/commit/0d704bffcdd87d2e31cea152f300a649256197e6))
+
+
+
+## [7.21.56](https://github.com/Torwent/SRL-T/compare/v7.21.55...v7.21.56) (2026-07-06)
 
 
 ### Bug Fixes
 
-* Submenu fix ([1a6aefb](https://github.com/Torwent/SRL-T/commit/1a6aefb1e0af572d0dbbfa15d53f2b5e6529d14d))
+* more renames ([68dd33c](https://github.com/Torwent/SRL-T/commit/68dd33c88448cbae8e4ce1b43db43386ed4097a3))
 
 
 
-## [7.21.46](https://github.com/Torwent/SRL-T/compare/v7.21.45...v7.21.46) (2026-04-09)
-
-
-### Bug Fixes
-
-* Update interface.simba ([658d4f3](https://github.com/Torwent/SRL-T/commit/658d4f37f9e89087b9d9796432cca72cad9964c9))
-
-
-
-## [7.21.45](https://github.com/Torwent/SRL-T/compare/v7.21.44...v7.21.45) (2026-04-03)
+## [7.21.55](https://github.com/Torwent/SRL-T/compare/v7.21.54...v7.21.55) (2026-07-05)
 
 
 ### Bug Fixes
 
-* **magic:** lower ARCEUUS_COLOR detection threshold from 81 to 60 ([3327f26](https://github.com/Torwent/SRL-T/commit/3327f26b14e88a0031976e9e4887557ee07b496d))
+* webgraphs ([7242dae](https://github.com/Torwent/SRL-T/commit/7242dae5420f1a37a1109b64baffbe6ebfcb8d37))
 
 
 
-## [7.21.44](https://github.com/Torwent/SRL-T/compare/v7.21.43...v7.21.44) (2026-03-15)
-
-
-### Bug Fixes
-
-* update grandexchange ([d3e33ac](https://github.com/Torwent/SRL-T/commit/d3e33ac28542c9779e4c6826f67495fd9f3a6f69))
-
-
-
-## [7.21.43](https://github.com/Torwent/SRL-T/compare/v7.21.42...v7.21.43) (2026-03-07)
+## [7.21.54](https://github.com/Torwent/SRL-T/compare/v7.21.53...v7.21.54) (2026-07-05)
 
 
 ### Bug Fixes
 
-* Bank Buttons ([2b68318](https://github.com/Torwent/SRL-T/commit/2b68318d59afc6b1f69eeecf9477b2ccabe129bb))
-* **bank:** increase FilterDimensions min height to reject stray pixels ([f87d7ec](https://github.com/Torwent/SRL-T/commit/f87d7ecd0f66c38c1aa5241f010e3e7a20582de2))
+* more renames ([1ae2def](https://github.com/Torwent/SRL-T/commit/1ae2def3e041577d420bd6fee71b0aab5909d584))
+
+
+
+## [7.21.53](https://github.com/Torwent/SRL-T/compare/v7.21.52...v7.21.53) (2026-07-05)
+
+
+### Bug Fixes
+
+* more renames ([8caa4ef](https://github.com/Torwent/SRL-T/commit/8caa4efdb619c24f0c507083635de50ab0ebff91))
 
 
 

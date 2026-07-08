@@ -1,0 +1,391 @@
+(*
+# Spell Finder
+*)
+
+{$DEFINE SRL_SPELLFINDER_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  ESpell = (
+    UNKNOWN,
+    // Standard
+    LUMBRIDGE_HOME_TELEPORT,
+    WIND_STRIKE,
+    CONFUSE,
+    ENCHANT_CROSSBOW_BOLT,
+    WATER_STRIKE,
+
+    JEWELLERY_ENCHANTMENTS,
+    BACK,
+    LVL1_ENCHANT,
+    LVL2_ENCHANT,
+    LVL3_ENCHANT,
+    LVL4_ENCHANT,
+    LVL5_ENCHANT,
+    LVL6_ENCHANT,
+    LVL7_ENCHANT,
+
+    EARTH_STRIKE,
+
+    WEAKEN,
+    FIRE_STRIKE,
+    BONES_TO_BANANAS,
+    WIND_BOLT,
+    CURSE,
+    BIND,
+    LOW_LEVEL_ALCHEMY,
+
+    WATER_BOLT,
+    VARROCK_TELEPORT,
+
+    EARTH_BOLT,
+    LUMBRIDGE_TELEPORT,
+    TELEKINETIC_GRAB,
+    FIRE_BOLT,
+
+    FALADOR_TELEPORT,
+    CRUMBLE_UNDEAD,
+    TELEPORT_TO_HOUSE,
+    WIND_BLAST,
+    SUPERHEAT_ITEM,
+    CAMELOT_TELEPORT,
+    WATER_BLAST,
+    IBAN_BLAST,
+    SNARE,
+    MAGIC_DART,
+    ARDOUGNE_TELEPORT,
+    EARTH_BLAST,
+    CIVITAS_ILLA_FORTIS_TELEPORT,
+    HIGH_LEVEL_ALCHEMY,
+
+    CHARGE_WATER_ORB,
+    TELEPORT_BOAT_TO_ME,
+    WATCHTOWER_TELEPORT,
+    FIRE_BLAST,
+    CHARGE_EARTH_ORB,
+    BONES_TO_PEACHES,
+    SARADOMIN_STRIKE,
+
+    CLAWS_OF_GUTHIX,
+    FLAMES_OF_ZAMORAK,
+    TROLLHEIM_TELEPORT,
+    WIND_WAVE,
+    CHARGE_FIRE_ORB,
+    TELEPORT_TO_APE_ATOLL,
+    WATER_WAVE,
+
+    CHARGE_AIR_ORB,
+    VULNERABILITY,
+    TELEPORT_ME_TO_BOAT,
+    TELEPORT_TO_KOUREND,
+    EARTH_WAVE,
+    ENFEEBLE,
+    TELEOTHER_LUMBRIDGE,
+
+    FIRE_WAVE,
+    ENTANGLE,
+    STUN,
+    CHARGE,
+    WIND_SURGE,
+    TELEOTHER_FALADOR,
+    WATER_SURGE,
+
+    TELE_BLOCK,
+    STANDARD_TARGET_TELEPORT,
+    TELEOTHER_CAMELOT,
+    EARTH_SURGE,
+    FIRE_SURGE,
+
+    // Ancient
+    EDGEVILLE_HOME_TELEPORT,
+    SMOKE_RUSH,
+    SHADOW_RUSH,
+    PADDEWWA_TELEPORT,
+
+    BLOOD_RUSH,
+    ICE_RUSH,
+    SENNTISTEN_TELEPORT,
+    SMOKE_BURST,
+
+    SHADOW_BURST,
+    KHARYRLL_TELEPORT,
+    BLOOD_BURST,
+    ICE_BURST,
+
+    LASSAR_TELEPORT,
+    SMOKE_BLITZ,
+    SHADOW_BLITZ,
+    DAREEYAK_TELEPORT,
+
+    BLOOD_BLITZ,
+    ICE_BLITZ,
+    CARRALLANGAR_TELEPORT,
+    ANCIENT_TARGET_TELEPORT,
+
+    SMOKE_BARRAGE,
+    SHADOW_BARRAGE,
+    ANNAKARL_TELEPORT,
+    BLOOD_BARRAGE,
+
+    ICE_BARRAGE,
+    GHORROCK_TELEPORT,
+
+    // Lunar
+    LUNAR_HOME_TELEPORT,
+    BAKE_PIE,
+    GEOMANCY,
+    CURE_PLANT,
+    MONSTER_EXAMINE,
+
+    NPC_CONTACT,
+    CURE_OTHER,
+    HUMIDIFY,
+    MOONCLAN_TELEPORT,
+    TELE_GROUP_MOONCLAN,
+
+    CURE_ME,
+    OURANIA_TELEPORT,
+    HUNTER_KIT,
+    WATERBIRTH_TELEPORT,
+    TELE_GROUP_WATERBIRTH,
+
+    CURE_GROUP,
+    STAT_SPY,
+    BARBARIAN_TELEPORT,
+    TELE_GROUP_BARBARIAN,
+    SPIN_FLAX,
+
+    SUPERGLASS_MAKE,
+    TAN_LEATHER,
+    KHAZARD_TELEPORT,
+    TELE_GROUP_KHAZARD,
+    DREAM,
+
+    STRING_JEWELLERY,
+    STAT_RESTORE_POT_SHARE,
+    MAGIC_IMBUE,
+    FERTILE_SOIL,
+    BOOST_POTION_SHARE,
+
+    FISHING_GUILD_TELEPORT,
+    BOUNTY_TELEPORT,
+    TELE_GROUP_FISHING_GUILD,
+    PLANK_MAKE,
+    CATHERBY_TELEPORT,
+
+    TELE_GROUP_CATHERBY,
+    RECHARGE_DRAGONSTONE,
+    ICE_PLATEU_TELEPORT,
+    TELE_GROUP_ICE_PLATEU,
+    ENERGY_TRANSFER,
+
+    HEAL_OTHER,
+    VENGEANCE_OTHER,
+    VENGEANCE,
+    HEAL_GROUP,
+    SPELLBOOK_SWAP,
+
+    // Arceuus
+    ARCEUUS_HOME_TELEPORT,
+    ARCEUUS_LIBRARY_TELEPORT,
+    BASIC_REANIMATION,
+    DRAYNOR_MANOR_TELEPORT,
+    BATTLEFRONT_TELEPORT,
+
+    MIND_ALTAR_TELEPORT,
+    RESPAWN_TELEPORT,
+    GHOSTLY_GRASP,
+    RESURRECT_LESSER_GHOST,
+    RESURRECT_LESSER_SKELETON,
+
+    RESURRECT_LESSER_ZOMBIE,
+    SALVE_GRAVEYARD_TELEPORT,
+    ADEPT_REANIMATION,
+    INFERIOR_DEMONBANE,
+    SHADOW_VEIL,
+
+    FENKENSTRAINS_CASTLE_TELEPORT,
+    DARK_LURE,
+    SKELETAL_GRASP,
+    RESURRECT_SUPERIOR_GHOST,
+    RESURRECT_SUPERIOR_SKELETON,
+
+    RESURRECT_SUPERIOR_ZOMBIE,
+    MARK_OF_DARKNESS,
+    WEST_ARDOUGNE_TELEPORT,
+    SUPERIOR_DEMONBANE,
+    LESSER_CORRUPTION,
+
+    HARMONY_ISLAND_TELEPORT,
+    VILE_VIGOUR,
+    DEGRIME,
+    CEMETERY_TELEPORT,
+    EXPERT_REANIMATION,
+
+    WARD_OF_ARCEUUS,
+    RESURRECT_GREATER_GHOST,
+    RESURRECT_GREATER_SKELETON,
+    RESURRECT_GREATER_ZOMBIE,
+    RESURRECT_CROPS,
+
+    UNDEAD_GRASP,
+    DEATH_CHARGE,
+    DARK_DEMONBANE,
+    BARROWS_TELEPORT,
+    DEMONIC_OFFERING,
+
+    GREATER_CORRUPTION,
+    MASTER_REANIMATION,
+    APE_ATOLL_TELEPORT,
+    SINISTER_OFFERING
+  );
+
+  TSpellFinder = record(TSRLBaseRecord)
+    IMAGES_ZIP: String;
+    IMAGES_PATH: String;
+    SpellImages: array [ESpell] of TMufasaBitmapArray;
+    SimTolerance : Extended;
+  end;
+
+procedure TSpellFinder.Free();
+var
+  spell: ESpell;
+  i: Int32;
+begin
+  for spell := ESpell(0) to ESpell(High(ESpell)) do
+    for i := 0 to High(Self.SpellImages[spell]) do
+      Self.SpellImages[spell][i].Free();
+end;
+
+procedure TSpellFinder.Setup();
+begin
+  Self.IMAGES_ZIP  := {$macro CURRENT_DIRECTORY} + 'images.zip';
+  Self.IMAGES_PATH := CACHE_DIR + 'spellfinder' + DirectorySeparator +
+                      SHA1File(Self.IMAGES_ZIP).SubString(6) +
+                      DirectorySeparator;
+
+  ForceDirectories(Self.IMAGES_PATH);
+
+  if Self.SimTolerance = 0 then
+    Self.SimTolerance := 0.85;
+
+  Self.Name := 'SpellFinder';
+  AddOnTerminate(@Self.Free);
+end;
+
+function TSpellFinder.GetSpellImages(spell: ESpell): TMufasaBitmapArray;
+const
+  SIZES: TStringArray = ['_large.png', '_small.png'];
+var
+  fileName, size: String;
+  spellImage: TMufasaBitmap;
+begin
+  if Self.SpellImages[spell] <> [] then
+    Exit(Self.SpellImages[spell]);
+
+  for size in SIZES do
+  begin
+    fileName := ExpandFileName(Self.IMAGES_PATH + LowerCase(ToStr(spell)) + size);
+
+    if not FileExists(fileName) then
+    begin
+      Self.DebugLn('Unzipping spell sprite: ' + ExtractFileName(fileName) + ' this can take a few seconds');
+      if not UnZipOneFile(Self.IMAGES_ZIP, ExtractFileName(fileName), Self.IMAGES_PATH) then
+        Self.Fatal('Unknown spell: ' + ToStr(spell));
+    end;
+
+    spellImage.Init(Client.GetMBitmaps());
+    spellImage.LoadFromFile(fileName);
+    spellImage.SetName(ToStr(spell));
+    spellImage.ReplaceColor(ITEM_SHADOW, 0);
+    Result += spellImage;
+  end;
+
+  Self.SpellImages[spell] := Result;
+end;
+
+type
+  TSpellFinderMatch = record
+    Spell: ESpell;
+    Box: TBox;
+    Index: Int32;
+  end;
+  TSpellFinderMatchArray = array of TSpellFinderMatch;
+
+
+function TSpellFinder.FindAll(spells: array of ESpell; box: TBox; maxToFind: Integer = 0): TSpellFinderMatchArray;
+var
+  i, j: Int32;
+  spellBitmaps: array of TMufasaBitmapArray;
+  bmp, tmp: TMufasaBitmap;
+  matrix: TSingleMatrix;
+  pt: TPoint;
+  b: TBox;
+  black: TPointArray;
+  value: Single;
+begin
+  for i := 0 to High(spells) do
+    spellBitmaps += Self.GetSpellImages(spells[i]);
+
+  bmp.Init();
+  bmp.FromClient(box);
+
+  for i := 0 to High(spellBitmaps) do
+    for j := 0 to High(spellBitmaps[i]) do
+    begin
+      matrix := bmp.MatchTemplateMask(spellBitmaps[i, j], ETMFormula.TM_CCOEFF_NORMED);
+      pt := matrix.ArgMax();
+      if matrix[pt.Y, pt.X] <= 0.5 then
+        Continue;
+
+      b := [pt.X, pt.Y, pt.X + SpellBitmaps[i, j].getWidth() - 1, pt.Y + SpellBitmaps[i, j].getHeight() - 1];
+
+      tmp := bmp.Copy(b);
+      spellBitmaps[i, j].FindColors(black, $0);
+      tmp.DrawTPA(black, $0);
+
+      //we basically get the black from the image and draw it on the template
+      //then if they are the same, tmp should look almost identical to spellBitmaps[i, j]
+      //and we compare it below.
+      value := tmp.CompareAt(spellBitmaps[i, j], [0,0], 3);
+      tmp.Free();
+
+      if value <= Self.SimTolerance then
+        Continue;
+
+      bmp.DrawBoxFilled(b, False, $FFFFFF);
+
+      b := b.Offset([box.X1, box.Y1]);
+
+      Result += [spells[i], b, i];
+      if Length(Result) = maxToFind then
+      begin
+        bmp.Free();
+        Exit;
+      end;
+      Break;
+    end;
+
+  bmp.Free();
+end;
+
+
+function TSpellFinder.Find(spells: array of ESpell; box: TBox; out match: TSpellFinderMatch): Boolean;
+var
+  matches: TSpellFinderMatchArray;
+begin
+  matches := Self.FindAll(spells, box, 1);
+
+  Result := Length(matches) = 1;
+  if Result then
+    match := matches[0];
+end;
+
+var
+  SpellFinder: TSpellFinder;
+
+begin
+  SpellFinder.Setup();
+end;

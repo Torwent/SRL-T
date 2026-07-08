@@ -1,0 +1,1670 @@
+(*
+# Bank
+Methods to interact with the Bank.
+*)
+
+{$DEFINE SRL_BANK_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  EBankLocation = (CASTLE_WARS, FEROX, GRAND_EXCHANGE, FALADOR_EAST);
+
+  {$SCOPEDENUMS ON}
+  EBankTitleButton = (SETTINGS, TUTORIAL);
+  EBankSideButton = (INCINERATOR, POTION_STORAGE);
+  EBankModeButton = (ARRANGEMENT, NOTES);
+  EBankQuantityButton = (ONE, FIVE, TEN, CUSTOM, ALL);
+  EBankMiscButton = (SEARCH, PLACEHOLDERS);
+  EBankDepositButton = (CONTAINERS, INVENTORY, WORN);
+  {$SCOPEDENUMS OFF}
+
+  TBankPosition = record
+    Tab, Scroll: Int32;
+  end;
+
+  TBank = record(TTitledInterface)
+    Items: TItemInterface;
+    FINDER_UPTEXT: TStringArray;
+    FINDER_OPTION: TStringArray;
+
+    QUANTITY_ALL: Int32;
+    QUANTITY_ALL_BUT_ONE: Int32;
+
+    CachedQuantity: Int32;
+
+    TitleBar, SideBar, BottomBar,
+    InceneratorBox, SlotsArea: TBox;
+    Tabs, SlotBoxes: TBoxArray;
+    _Cache: record
+      Items: TItemArray;
+      Positions: array of TBankPosition;
+    end;
+  end;
+
+  TBankItem = record
+    Item: TItem;
+    Quantity: Int32;
+    Noted: Boolean;
+  end;
+
+  TBankItemArray = array of TBankItem;
+
+function TBankItem.Setup(item: TItem; quantity: Int32 = -1; noted: Boolean = False): TBankItem; static;
+begin
+  Result.Item := item;
+  Result.Quantity := quantity;
+  Result.Noted := noted;
+end;
+
+function TBankItem.GetNoted(): TBankItem;
+begin
+  Result := Self;
+  Result.Noted := True;
+end;
+
+function TBank._IndexOfCache(item: TItem): Int32;
+var
+  i: Int32;
+begin
+  Result := -1;
+  for i := Low(Self._Cache.Items) to High(Self._Cache.Items) do
+    if item = Self._Cache.Items[i] then
+      Exit(i);
+end;
+
+procedure TBank._CachePosition(item: TItem; position: TBankPosition);
+var
+  index: Int32;
+begin
+  index := Self._IndexOfCache(item);
+  if index = -1 then
+  begin
+    Self._Cache.Items += item;
+    SetLength(Self._Cache.Positions, Length(Self._Cache.Items));
+    index := Self._IndexOfCache(item);
+  end;
+  Self._Cache.Positions[index] := position;
+end;
+
+function TBank._GetCachedPosition(item: TItem): TBankPosition;
+var
+  index: Int32;
+begin
+  index := Self._IndexOfCache(item);
+  if index = -1 then
+    Result :=[-1, -1]
+  else
+    Result := Self._Cache.Positions[index];
+end;
+
+function TBank.GetTabBox(tab: Int32): TBox;
+begin
+  if InRange(tab, 0, High(Self.Tabs)) then
+    Result := Self.Tabs[tab];
+end;
+
+
+function TBank.GetPopUpButtons(): TGameButtonArray;
+begin
+  Result := Self.FindButtons([[74,30]]);
+end;
+
+function TBank.PopUpIsOpen(): Boolean;
+var
+  buttons: TGameButtonArray;
+begin
+  buttons := Self.GetPopUpButtons();
+  if Length(buttons) <> 2 then
+    Exit;
+
+  Result := buttons[0].FindText('Not now', FONT_PLAIN_12, [$0000FF]);
+end;
+
+function TBank.ClosePopUp(): Boolean;
+var
+  buttons: TGameButtonArray;
+begin
+  buttons := Self.GetPopUpButtons();
+  if Length(buttons) <> 2 then
+    Exit(True);
+
+  if buttons[0].FindText('Not now', FONT_PLAIN_12, [$0000FF]) then
+    Result := buttons[0].Click(MOUSE_LEFT);
+
+  if Result then
+    WaitUntil(not Self.PopUpIsOpen(), 300, 3000);
+end;
+
+
+function TBank.GetButton(button: EBankTitleButton): TGameButton;
+var
+  buttons: TGameButtonArray;
+begin
+  buttons := Self.FindButtons([[21,21]], Self.TitleBar);
+  if High(buttons) >= Ord(button) then
+    Result := buttons[button];
+end;
+
+function TBank.GetButton(button: EBankSideButton): TGameButton; overload;
+var
+  buttons: TGameButtonArray;
+  i: Int32;
+begin
+  buttons := Self.FindButtons([[34,34]], Self.SideBar);
+
+  case button of
+    EBankSideButton.INCINERATOR:
+      for i := 0 to High(buttons) do
+        if SRL.CountColor(CTS2(2721742, 7, 0.11, 4.00), buttons[i].Bounds) > 3 then
+          Exit(buttons[i]);
+    EBankSideButton.POTION_STORAGE:
+      for i := 0 to High(buttons) do
+        if SRL.CountColor(CTS2(2721742, 7, 0.11, 4.00), buttons[i].Bounds) = 0 then
+          Exit(buttons[i]);
+  end;
+end;
+
+function TBank.InceneratorTooltipVisible(): Boolean;
+begin
+  Result := SRL.CountColor(10551295, Self.BottomBar) > 0;
+end;
+
+function TBank.UnHoverIncinerator(): Boolean;
+var
+  button: TGameButton;
+  pt: TPoint;
+begin
+  button := Self.GetButton(EBankSideButton.INCINERATOR);
+  if button = Default(TGameButton) then
+    Exit(True);
+  if not button.Bounds.Contains(Mouse.Position) then
+    Exit(True);
+
+  repeat
+    pt := SRL.RandomPoint(Self.Bounds);
+  until not button.Bounds.Contains(pt);
+
+  Mouse.Move(pt);
+  Result := WaitUntil(not Self.InceneratorTooltipVisible(), 100, 1000);
+end;
+
+
+function TBank.GetInteractionSection(): TBox;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+begin
+  if not Self.UnHoverIncinerator() then
+    Exit;
+
+  SRL.FindColors(tpa, CTS0($232B2E, 5), Self.BottomBar);
+  atpa := tpa.Cluster(1);
+  atpa.FilterDimensions(0, 20, 2, 32);
+  if Length(atpa) <> 3 then
+    Exit;
+
+  with Self.BottomBar do
+    Result := [X1, Y1, atpa[0][0].X, Y2];
+end;
+
+function TBank.GetQuantitySection(): TBox;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+begin
+  if not Self.UnHoverIncinerator() then
+    Exit;
+  SRL.FindColors(tpa, CTS0($232B2E, 5), Self.BottomBar);
+  atpa := tpa.Cluster(1);
+  atpa.FilterDimensions(0, 20, 2, 32);
+  if Length(atpa) <> 3 then
+    Exit;
+
+  with Self.BottomBar do
+    Result := [atpa[0][0].X, Y1, atpa[1][0].X, Y2];
+end;
+
+function TBank.GetButtonSection(): TBox;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+begin
+  if not Self.UnHoverIncinerator() then
+    Exit;
+  SRL.FindColors(tpa, CTS0($232B2E, 5), Self.BottomBar);
+  atpa := tpa.Cluster(1);
+  atpa.FilterDimensions(0, 20, 2, 32);
+  if Length(atpa) <> 3 then
+    Exit;
+
+  with Self.BottomBar do
+    Result := [atpa[1][0].X, Y1, atpa[2][0].X, Y2];
+end;
+
+function TBank.GetDynamicSection(): TBox;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+begin
+  if not Self.UnHoverIncinerator() then
+    Exit;
+  SRL.FindColors(tpa, CTS0($232B2E, 5), Self.BottomBar);
+  atpa := tpa.Cluster(1);
+  atpa.FilterDimensions(0, 20, 2, 32);
+  if Length(atpa) <> 3 then
+    Exit;
+
+  with Self.BottomBar do
+    Result := [atpa[2][0].X, Y1, X2, Y2];
+end;
+
+
+
+function TBank.GetButton(button: EBankModeButton): TGameButton; overload;
+var
+  buttons: TGameButtonArray;
+begin
+  buttons := Self.FindButtons([[34,34]], Self.GetInteractionSection());
+  if High(buttons) >= Ord(button) then
+    Result := buttons[button];
+end;
+
+function TBank.GetButton(button: EBankQuantityButton): TGameButton; overload;
+var
+  buttons: TGameButtonArray;
+begin
+  buttons := Self.FindButtons([[34,34]], Self.GetQuantitySection());
+  if High(buttons) >= Ord(button) then
+    Result := buttons[button];
+end;
+
+function TBank.GetButton(button: EBankMiscButton): TGameButton; overload;
+var
+  buttons: TGameButtonArray;
+begin
+  buttons := Self.FindButtons([[44, 34], [34,34]], Self.GetButtonSection());
+  if High(buttons) >= Ord(button) then
+    Result := buttons[button];
+end;
+
+function TBank.GetButton(button: EBankDepositButton): TGameButton; overload;
+var
+  buttons: TGameButtonArray;
+  i: Int32;
+begin
+  buttons := Self.FindButtons([[34,34]], Self.GetDynamicSection());
+
+  case button of
+    EBankDepositButton.WORN:
+      for i := 0 to High(buttons) do
+        if (SRL.CountColor(CTS2(8885663, 17, 0.09, 0.35), buttons[i].Bounds) > 5)
+        or (SRL.CountColor(CTS2(7635336, 12, 0.17, 0.35), buttons[i].Bounds) > 5) then // Different color if hovered
+          Exit(buttons[i]);
+    EBankDepositButton.INVENTORY:
+      for i := 0 to High(buttons) do
+        if (SRL.CountColor(CTS2(997739, 13, 0.10, 1.12), buttons[i].Bounds) > 5)
+        or (SRL.CountColor(CTS2(2441311, 10, 0.14, 0.96), buttons[i].Bounds) > 5) then // Different color if hovered
+          Exit(buttons[i]);
+
+    EBankDepositButton.CONTAINERS:
+      for i := 0 to High(buttons) do
+        if (SRL.CountColor(CTS2(8885663, 17, 0.09, 0.35), buttons[i].Bounds) = 0) and
+           (SRL.CountColor(CTS2(997739, 13, 0.10, 1.12), buttons[i].Bounds) = 0)
+        then
+          Exit(buttons[i]);
+  end;
+end;
+
+
+(*
+## Bank.IsOpen
+```pascal
+function TBank.IsOpen(waitForItems: Boolean = True): Boolean;
+```
+Returns true if the Bank is visible.
+
+**waitForItems** determines if the method waits up to one second for item to appears.
+There can be a small delay before items are visible.
+*)
+function TBank.IsOpen(waitForItems: Boolean = True): Boolean; overload;
+var
+  b: TBox;
+  count1, count2: Int32;
+begin
+  if not Self.ClosePopUp() then Exit;
+
+  b := Self.Bounds;
+  b.Y1 := b.Y2 - 39;
+  b.X1 += 90;
+  b.X2 -= 225;
+  b.Y2 -= 15;
+
+  count1 := SRL.CountColor(0, b);
+  count2 := SRL.CountColor(2070783, b) + SRL.CountColor(16777215, b);
+
+  Result := ((count1 = 120) and (count2 = 140)) or Self.IsTitle('Bank') or Self.IsTitle('Equip');
+
+  if Result and waitForItems then
+    WaitUntil(SRL.CountColor(ITEM_BORDER, Self.SlotsArea) > 0, 50, 1000);
+end;
+
+function TBank.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
+begin
+  if (interval = -1) then
+    interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), interval, waitTime);
+end;
+
+(*
+## Bank.Close
+```pascal
+function TBank.Close(PressEscape: Boolean = False): Boolean;
+```
+Closes the bank, Depending on `PressEscape` the function will either click the button
+or press backspace.
+
+Example:
+```pascal
+ WriteLn Bank.Close();
+```
+*)
+function TBank.Close(PressEscape: Boolean = False): Boolean;
+begin
+  if not Self.IsOpen(False) then
+    Exit(True);
+
+  Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(False), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
+end;
+
+procedure TBank.Draw(Bitmap: TMufasaBitmap); override;
+var
+  buttons: TGameButtonArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+
+  //buttons := Self.GetButtons();
+  buttons.Draw(bitmap);
+
+  Bitmap.DrawBoxes(Self.Tabs, $00FFFF);
+  Bitmap.DrawBoxes(Self.SlotBoxes, $00FFFF);
+end;
+
+(*
+## Bank.FindItemBoundaries
+```pascal
+function TBank.FindItemBoundaries(): TBoxArray;
+```
+Finds item boundaries. This is an internal function used to retrieve the boxes we
+search for items in.
+
+Example:
+```pascal
+Boxes := Self.FindItemBoundaries();
+WriteLn Items.Find(Item, Boxes);
+```
+*)
+function TBank.FindItemBoundaries(): TBoxArray;
+var
+  tpa, final: TPointArray;
+  atpa: T2DPointArray;
+  b: TBox;
+  i: Int32;
+begin
+  if SRL.FindColors(final, ITEM_BORDER, Self.SlotsArea) = 0 then
+    Exit;
+
+  for i in [ITEM_YELLOW_STACK, ITEM_WHITE_STACK, ITEM_GREEN_STACK] do
+    if SRL.FindColors(tpa, i, Self.SlotsArea) > 0 then
+      final += tpa;
+
+  atpa := final.Cluster(200, 3);
+
+  for i := 0 to High(atpa) do
+  begin
+    b := atpa[i].Bounds();
+    if b.Height() <= 5 then Continue;
+    Result += Grid(8, 1, 32, 32, [16], [Self.SlotsArea.X1, b.Y1 - 1]);
+  end;
+end;
+
+(*
+## Bank.Setup
+```pascal
+procedure Bank.Setup;
+```
+Initializes Bank variables.
+
+```{note}
+This is automatically called on the **Bank** variable.
+```
+*)
+procedure TBank.Setup(); override;
+begin
+  inherited;
+
+  Self.Name := 'Bank';
+  Self.Items.Name := Self.Name + '.Items';
+  Self.Items.SlotBoxesFunction := @Self.FindItemBoundaries;
+  Self.Items.DiscoverOffset := [0, 10, 3, 0];
+
+  Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
+  Self.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
+  Self.QUANTITY_ALL := -1;
+  Self.QUANTITY_ALL_BUT_ONE := -2;
+end;
+
+procedure TBank.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left := InterfaceArea.Bounds.X1;
+  alignment.Right := InterfaceArea.Bounds.X2;
+  alignment.Top := InterfaceArea.Bounds.Y1 + 2;
+  alignment.MaxWidth := 488;
+  alignment.MaxHeight := 800;
+
+  case GameClient.Mode of
+    EClientMode.FIXED:
+      alignment.Bottom := InterfaceArea.Bounds.Y2 - 1;
+    EClientMode.RESIZABLE_CLASSIC, EClientMode.RESIZABLE_MODERN:
+      alignment.Bottom := InterfaceArea.Bounds.Y2 - 2;
+  end;
+
+  Self.SetupAlignment(alignment);
+
+  Self.Tabs := Grid(10, 1, 35, 28, [5, 0], [Self.Bounds.X1 + 47, Self.Bounds.Y1 + 42]);
+  Self.SlotBoxes := Grid(8, (Self.Height - 135) div 35, 31, 31, [17, 5], [Self.Bounds.X1 + 57, Self.Bounds.Y1 + 77]);
+
+  Self.SlotsArea.X1 := Self.Bounds.X1 + 57;
+  Self.SlotsArea.Y1 := Self.Bounds.Y1 + 77;
+  Self.SlotsArea.X2 := Self.Bounds.X2 - 63;
+  Self.SlotsArea.Y2 := Self.Bounds.Y2 - 44;
+
+  Self.InceneratorBox.X1 := Self.Bounds.X1 + 5;
+  Self.InceneratorBox.Y1 := Self.Bounds.Y2 - 113;
+  Self.InceneratorBox.X2 := Self.Bounds.X1 + 51;
+  Self.InceneratorBox.Y2 := Self.Bounds.Y2 - 44;
+
+  Self.ScrollArea.X1 := Self.Bounds.X1 + 5;
+  Self.ScrollArea.Y1 := Self.Bounds.Y1 + 77;
+  Self.ScrollArea.X2 := Self.Bounds.X2 - 24;
+  Self.ScrollArea.Y2 := Self.Bounds.Y2 - 44;
+end;
+
+function Tbank.GetTitle(): String; override;
+var
+  B: TBox;
+begin
+  B := Self.Bounds;
+  B.X1 += 50;
+  B.Y1 += 10;
+  B.X2 -= 50;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
+
+  Result := OCR.Recognize(B, TOCRThresholdFilter.Create(13), FONT_BOLD_12);
+end;
+
+//should look for the query instead of interface title. Check the comment below for more info.
+function TBank.IsSearchOpen(waitTime: Int32 = 0): Boolean;
+begin
+  Result := Chat.FindQuery('Show items', waitTime);
+end;
+
+//Click instead of enable becuse the button can be enabled without search being "open".
+//if you search an item and press enter the button stays enabled while the query is closed.
+function TBank.OpenSearch(waitTime: Int32 = 0): Boolean;
+begin
+  Result := Self.GetButton(EBankMiscButton.SEARCH).Click() and Self.IsSearchOpen(waitTime);
+end;
+
+function TBank.ClearSearch(): Boolean;
+begin
+  Result := not Self.IsTitle('Showing items:') or Self.GetButton(EBankMiscButton.SEARCH).Click();
+end;
+
+(*
+## Bank.Search
+```pascal
+function TBank.Search(item: String): Boolean;
+```
+
+Searches for an item.
+
+Example:
+```pascal
+Bank.Search('logs'); // Search for logs
+```
+*)
+function TBank.Search(item: String): Boolean;
+begin
+  if Self.IsTitle('Showing items: ' + LowerCase(item)) then
+    Exit(True);
+
+  Result := Self.ClearSearch() and
+            Self.OpenSearch(Random(2000, 2500)) and
+            Chat.AnswerQuery('Show items', item, Random(2000, 2500)) and
+            Self.IsTitle('Showing items: ' + LowerCase(item), Random(2000, 2500));
+end;
+
+(*
+## Bank.CloseSearch
+```pascal
+function TBank.CloseSearch(): Boolean;
+```
+
+Closes the bank search if it's open.
+
+Example:
+```pascal
+Bank.Search('logs'); // Search for logs
+Wait(1000);
+Bank.CloseSearch();
+```
+*)
+function TBank.CloseSearch(): Boolean;
+begin
+  Result := Self.ClearSearch() and
+            Chat.AnswerQuery('Show items', '', Random(2000, 2500));
+end;
+
+
+(*
+## Bank.Open()
+```pascal
+function TBank.Open(P: TPoint): Boolean;
+```
+Function to open a bank at a specified **P** TPoint.
+This function will move the mouse to **P** and if the uptext matches the bank or a banker uptext it will open the bank.
+
+Example:
+```pascal
+P := CustomBankFinderFunction();
+Bank.Open(P);
+```
+*)
+function TBank.Open(P: TPoint): Boolean;
+begin
+  Mouse.Move(P);
+
+  Result := ChooseOption.IsOpen() and ChooseOption.Select(Self.FINDER_OPTION);
+
+  if not Result then
+  begin
+    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    begin
+      if ('Banker' in MainScreen.GetUpText()) or SRL.Dice(10) then
+        Result := ChooseOption.Select(Self.FINDER_OPTION)
+      else
+      begin
+        Mouse.Click(MOUSE_LEFT);
+
+        Result := MainScreen.DidRedClick();
+      end;
+    end;
+  end;
+
+  if Result then
+  begin
+    if Minimap.HasFlag(Random(200, 400)) then
+      Minimap.WaitFlag();
+
+    Result := Self.IsOpen(Random(3000, 4000));
+  end;
+end;
+
+function TBank._FindFaladorEast: T2DPointArray;
+var
+  Finder: TObjectFinder;
+begin
+  Finder.Colors += CTS2(4086642, 5, 0.08, 0.55);
+  Finder.ClusterDistance := 15;
+  Finder.Erode := 2;
+  Finder.Grow := 3;
+
+  Result := MainScreen.FindObject(Finder);
+  if Length(Result) = 0 then
+    Exit;
+
+  Result.SortByLongSide();
+  Result := Result[0].Cluster(5);
+  Result.SortByMiddle(Result.Merge.Mean());
+end;
+
+function TBank._FindCastleWars: T2DPointArray;
+var
+  TPA, ChestTPA: TPointArray;
+  ATPA: T2DPointArray;
+  I: Int32;
+begin
+  if SRL.FindColors(TPA, CTS2(5526875, 35, 0.19, 0.06), MainScreen.Bounds) > 0 then
+  begin
+    ATPA := TPA.Cluster(1);
+
+    for I := 0 to High(ATPA) do
+      if SRL.FindColors(TPA, CTS2(2503237, 40, 0.10, 0.14), ATPA[I].Bounds) > 5 then
+      begin
+        TPA := ATPA[I].MinAreaRect.Filter(TPA);
+        TPA := TPA.Erode(MainScreen.NormalizeDistance(3));
+        if Length(TPA) > 0 then
+          ChestTPA += TPA;
+      end;
+
+    Result := ChestTPA.Cluster(2);
+  end;
+end;
+
+function TBank._FindFerox: T2DPointArray;
+var
+  Finder: TObjectFinder;
+begin
+  Finder.Colors += CTS2(931652, 12, 0.07, 0.89);
+  Finder.ClusterDistance := 1;
+  Finder.Erode := 1;
+
+  Result := MainScreen.FindObject(Finder);
+end;
+
+function TBank._FindWintertodt: T2DPointArray;
+var
+  Finder: TObjectFinder;
+begin
+  Finder.ColorClusters += [
+    CTS2(3289384, 4, 0.51, 0.37),  //Dark hole
+    CTS2(13025214, 17, 0.13, 0.11), //Snow color
+    10
+  ];
+
+  Finder.ClusterDistance := 2;
+  Finder.Grow := 3;
+  Finder.Erode := 2;
+
+  Result := MainScreen.FindObject(Finder);
+  if Length(Result) = 0 then
+    Exit;
+  Result.SortByLongSide();
+  Result := Result[0].Cluster(3);
+  Result.SortByMiddle(Result.Merge.Mean());
+end;
+
+
+(*
+## Bank.CountTabs
+```pascal
+function TBank.CountTabs: Int32;
+```
+Counts the existing bank tabs.
+
+Example:
+```pascal
+WriteLn Bank.CountTabs;
+```
+*)
+function TBank.CountTabs(): Int32;
+var
+  i: Integer;
+begin
+  Result := 0;
+  for i := 9 downto 1 do
+    if SRL.CountColor(CTS0(65536), Self.GetTabBox(i)) > 0 then
+      Exit(i);
+end;
+
+(*
+## Bank.GetCurrentTab
+```pascal
+function TBank.GetCurrentTab(): Int32;
+```
+
+Get the current active bank tab.
+
+Example:
+```pascal
+WriteLn Bank.GetCurrentTab;
+```
+*)
+function TBank.GetCurrentTab(): Int32;
+var
+  tab: TBox;
+  i: Int32;
+begin
+  for i := 0 to High(Self.Tabs) do
+  begin
+    tab := Self.Tabs[i];
+    tab.Y1 := tab.Y2 - 3;
+    tab.Y2 += 3;
+    if SRL.CountColor(CTS1(5334129, 0), tab) = 0 then
+      Exit(i);
+  end;
+end;
+
+(*
+## Bank.OpenTab
+```pascal
+function TBank.OpenTab(tab: Int32): Boolean;
+```
+Open the specified bank tab.
+
+Example:
+```pascal
+Bank.OpenTab(0);
+```
+*)
+function TBank.OpenTab(tab: Int32): Boolean;
+var
+  b: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  if tab = Self.GetCurrentTab() then
+  begin
+    if (tab = 0) and not ('howing' in Self.GetTitle()) then
+      Exit(True);
+  end;
+
+  b := Self.GetTabBox(tab);
+  if b <> [] then
+  begin
+    Mouse.Click(b, MOUSE_LEFT);
+    Result := WaitUntil((tab = Self.GetCurrentTab()), 100, 2000);
+  end;
+end;
+
+
+(*
+## Bank._SimplifyItemName
+```pascal
+function TBank._SimplifyItemName(item: TItem): String;
+```
+Internal function to get a human like search term for an item.
+This could be improved for better antiban but I decided to keep it simple since it's not used very frequently.
+This basically strips the item name from things humans won't usually type when searching, like brackets. It also makes the string lower case because people searching don't usually care about casing.
+Once that's done wee crop some characters from the final string, because humans don't usually search the full item name, but just enough until it's seen on screen.
+
+```{note}
+Could be improved to in the future for only using the relevant part of the string. For example, an human searching for 'Amulet of glory(6)' would probably search for 'glory' instead of 'amulet of gl'.
+```
+
+Example:
+```pascal
+WriteLn Bank._SimplifyItemName('Amulet of glory(6)');
+```
+*)
+function TBank._SimplifyItemName(item: TItem): String;
+var
+  str: String;
+  maxLength, minLength: Int32;
+begin
+  str := ToStr(item).Before('(').Lower();
+  maxLength := Length(str);
+  minLength := maxLength - Round(maxLength/3);
+
+  Result := Copy(str, 0, SRL.TruncatedGauss(minLength, maxLength));
+end;
+
+(*
+## Bank.FindItemTab
+```pascal
+function TBank.FindItemTab(Item: TItem; OpenTab: Boolean = True): Int32;
+```
+
+Find the bank tab of an item just by knowing it's name.
+This is very useful when you want to support people having items in any tab they want without much hassle for people to setup.
+By default it will open the banktab if the item is found. This can be changed by setting **OpenTab** to false.
+The result will be the BankTab of the item. **-1** means we didn't find a BankTab.
+
+```{note}
+A known limitation of this is that if several items match the sprite of the item (for example multiple charged jewlry) the tab retrieved will be the first one found. If you have 'Games necklace(1)' in tab 1 and 'Games necklace(8)' in tab 5 and search for the latter, you will get tab 1.
+```
+
+Example:
+```pascal
+WriteLn Bank.FindItemTab('Molten glass');
+```
+*)
+function TBank.FindItemTab(item: TItem; openTab: Boolean = True): Int32;
+var
+  b, searchBox: TBox;
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+  tabsText: T2DPointArray;
+begin
+  if Self.ContainsItem(item) then
+  begin
+    if not Self.GetButton(EBankMiscButton.SEARCH).Enabled() then //if we found the item and we are not searching anything return the current tab.
+      Exit(Self.GetCurrentTab());
+
+    Self.OpenSearch(600); //if we found the item and we are searching something, it's better to clear the search and start from scratch.
+    Self.CloseSearch();
+  end;
+  //Attempt to search the "simplified item name" with Bank._SimplifyItemName(). Then try to find the item again.
+  if not Self.Search(Self._SimplifyItemName(item)) or not Self.FindItem(item, b) then
+    Exit(-1); //If either of this things fails we exit with -1.
+  //This is because if either fails something is wrong bank is not open or we don't have the item.
+
+  //Here is where the interesting stuff starts. We are going to look for the BankTab text on the left side that shows up when you search for an item.
+  //In particular, we are interested in the BankTab text that is right above the item we found.
+  //First we restrict the search box. SearchBox.Y2 will be Box.Y1 because we are not interested in anything below the item.
+  //We also set X1, Y1, X2 to known values that will make the search box smaller based on the Bank.Bounds.
+  searchBox := [Self.Bounds.X1 + 56, Self.Bounds.Y1 + 77, Self.Bounds.X1 + 84, b.Y1];
+  if searchBox.Height < 8 then
+  begin
+    if openTab then
+      Self.OpenTab(0);
+    Exit(0);
+  end;
+
+  //Now we search for both tab text colors. The tab text is light yellow and whiteish when you hover it.
+  if SRL.FindColors(tpa, CTS0(10672356, 0), searchBox) > 0 then
+    tabsText += tpa;
+
+  if SRL.FindColors(tpa, CTS0(16777215, 0), searchBox) > 0 then
+    tabsText += tpa;
+
+  if tabsText = [] then //if we can see the item at this point and there's no tab text, it's in tab0
+  begin                 //this is because tab0 is the only tab that doesn't have text.
+    if openTab then
+      Self.OpenTab(0);
+    Exit(0);
+  end;
+
+  tpa := tabsText.Merge();  //we merge the tab text.
+  atpa := tpa.Cluster(6); //and then we cluster it so we have a tpa of each tab text separated from each other.
+
+  //filter out anything that does not fit the size of the tab text.
+  atpa.FilterDimensions(24, 8, 26, 8);
+
+  if atpa = [] then Exit(-1); //At this point, if everything got filtered something must have gone wrong and we didn't find a tab. I don't think this ever happens.
+
+  atpa.SortByY(False); //Sort the tabs text from bottom to top. This is because we are only interested in the very first above the item.
+
+  atpa := atpa[0].Cluster(1); //Now we make clusters of that single tab text. This will separate the text from the number.
+  atpa.SortByX(False);        //Sort the tab text from right to left because now we are only interested in the number which is to the right.
+  tpa := atpa[0];
+
+  //Now we run OCR on the number tpa to find out what number is it and set our result
+  Result := OCR.RecognizeNumber(tpa.Bounds(), TOCRColorFilter.Create([10672356]), FONT_PLAIN_11);
+  if Result = 0 then
+    Result := OCR.RecognizeNumber(tpa.Bounds(), TOCRColorFilter.Create([16777215]), FONT_PLAIN_11);
+
+  if (Result > 0) and openTab then
+    Self.OpenTab(Result);
+end;
+
+function TBank.FindItemScroll(item: TItem): Int32;
+var
+  scroll, nextScroll: Int32;
+  down: Boolean;
+begin
+  if Self.ContainsItem(item) then
+  begin
+    if not Self.GetButton(EBankMiscButton.SEARCH).Enabled() then
+      Exit(Self.GetScrollPosition())
+    else
+    begin
+      Self.OpenSearch(600);
+      Self.CloseSearch();
+      if Self.ContainsItem(item) then
+        Exit(Self.GetScrollPosition());
+    end;
+  end;
+
+  if not Self.CanScroll() then
+    Exit(-1);
+
+  scroll := Self.GetScrollPosition();
+
+  down := (scroll > 0) or SRL.Dice(50);
+
+  repeat
+    if down then
+      nextScroll := scroll - 5
+    else
+      nextScroll := scroll + 5;
+
+    Self.SetScrollPosition(nextScroll);
+
+    scroll := Self.GetScrollPosition();
+    if Self.ContainsItem(item) then
+      Exit(scroll);
+
+    if not Self.IsOpen() then
+      Exit(-1);
+  until (scroll = 0) or (scroll = 100);
+
+  down := not down;
+
+  repeat
+    if down then
+      nextScroll := scroll - 5
+    else
+      nextScroll := scroll + 5;
+
+    Self.SetScrollPosition(nextScroll);
+
+    scroll := Self.GetScrollPosition();
+    if Self.ContainsItem(item) then
+      Exit(scroll);
+
+    if not Self.IsOpen() then
+      Exit(-1);
+  until (scroll = 0) or (scroll = 100);
+
+  Result := -1;
+end;
+
+function TBank.Open(Location: EBankLocation): Boolean; overload;
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
+begin
+  if Self.IsOpen() or Self.Open(Mouse.Position()) then
+    Exit(True);
+
+  case Location of
+    EBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
+    EBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
+    EBankLocation.FEROX:          ATPA := Self._FindFerox();
+  end;
+
+  ATPA.SortBySize();
+  if Length(ATPA) > 3 then
+    SetLength(ATPA, 3);
+
+  for TPA in ATPA do
+  begin
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+
+    if Self.Open(P) then
+      Exit(True);
+  end;
+end;
+
+function TBank.Hover(Location: EBankLocation; HoverOption: Boolean): Boolean;
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
+begin
+  if ChooseOption.IsOpen() or MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    Exit(True);
+
+  case Location of
+    EBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
+    EBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
+    EBankLocation.FEROX:          ATPA := Self._FindFerox();
+  end;
+
+  ATPA.SortBySize();
+  if Length(ATPA) > 3 then
+    SetLength(ATPA, 3);
+
+  for TPA in ATPA do
+  begin
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+
+    Mouse.Move(P);
+    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    begin
+      if HoverOption then
+        ChooseOption.Hover(['Use Bank', 'Bank Bank']);
+
+      Exit(True);
+    end;
+  end;
+end;
+
+
+function TBank.IsCustomQuantity(Quantity: Int32): Boolean;
+begin
+  Result := not (Quantity in [1,5,10, Self.QUANTITY_ALL]);
+end;
+
+function TBank.DepositHelper(b: TBox; amount: Int32; useQuantityButtons: Boolean): Boolean;
+var
+  button: TGameButton;
+begin
+  if not useQuantityButtons then
+  begin
+    Mouse.Move(b);
+
+    if (amount = Self.QUANTITY_ALL) then
+      Exit(ChooseOption.Select('Deposit-All'));
+
+    Result := ChooseOption.Select('Deposit-' + ToString(amount) + ' ', MOUSE_LEFT, True, False) or
+              ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(amount), Random(2000, 2500));
+    Exit;
+  end;
+
+  if Self.IsCustomQuantity(amount) then
+  begin
+    button := Self.GetButton(EBankQuantityButton.CUSTOM);
+
+    if not button.Enabled() then
+    begin
+      if not button.Enable() then Exit;
+      Wait(600,800);
+    end;
+
+    Mouse.Move(b);
+
+    if MainScreen.IsUpText('Deposit-' + ToString(Amount)) then
+    begin
+      Mouse.Click(MOUSE_LEFT);
+      Exit(True);
+    end;
+
+    Result := ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(amount), Random(2000, 4000));
+    Exit;
+  end;
+
+  case amount of
+    1:   button := Self.GetButton(EBankQuantityButton.ONE);
+    5:   button := Self.GetButton(EBankQuantityButton.FIVE);
+    10:  button := Self.GetButton(EBankQuantityButton.TEN);
+    else button := Self.GetButton(EBankQuantityButton.ALL)
+  end;
+
+  if not button.Enabled() then
+  begin
+    if not button.Enable() then Exit;
+    Wait(600,800);
+  end;
+
+  Mouse.Click(b, MOUSE_LEFT);
+  Result := True;
+end;
+
+function TBank.WithdrawHelper(b: TBox; amount: Int32; noted: Boolean; useQuantityButtons: Boolean): Boolean;
+var
+  button: TGameButton;
+begin
+  button := Self.GetButton(EBankModeButton.NOTES);
+  if noted then
+  begin
+    if not button.Enabled() then
+    begin
+      if not button.Enable() then Exit;
+      Wait(600,800);
+    end;
+  end
+  else
+  begin
+    if not button.Disable() then
+    begin
+      if not button.Disable() then Exit;
+      Wait(600,800);
+    end;
+  end;
+
+  if not useQuantityButtons then
+  begin
+    Mouse.Move(b);
+
+    case amount of
+      Self.QUANTITY_ALL:         Exit(ChooseOption.Select('Withdraw-All'));
+      Self.QUANTITY_ALL_BUT_ONE: Exit(ChooseOption.Select('Withdraw-All-but-1'));
+    end;
+
+    Exit(ChooseOption.Select('Withdraw-' + ToString(amount) + ' ', MOUSE_LEFT, True, False) or
+         ChooseOption.Select('Withdraw-X') and Chat.AnswerQuery('Enter amount', ToString(amount), Random(2000, 2500)));
+  end;
+
+  if not Self.IsCustomQuantity(amount) then
+  begin
+    case amount of
+      1:   button := Self.GetButton(EBankQuantityButton.ONE);
+      5:   button := Self.GetButton(EBankQuantityButton.FIVE);
+      10:  button := Self.GetButton(EBankQuantityButton.TEN);
+      else button := Self.GetButton(EBankQuantityButton.ALL);
+    end;
+
+    if not button.Enabled() then
+    begin
+      if not button.Enable() then Exit;
+      Wait(600,800);
+    end;
+
+    Mouse.Click(b, MOUSE_LEFT);
+    Exit(True);
+  end;
+
+  button := Self.GetButton(EBankQuantityButton.CUSTOM);
+
+  if not button.Enabled() then
+  begin
+    if not button.Enable() then Exit;
+    Wait(600,800);
+  end;
+
+  Mouse.Move(b);
+
+  if (amount = Self.CachedQuantity) or (amount = MainScreen.GetUpText().ExtractNumber(Self.CachedQuantity)) then
+  begin
+    Self.CachedQuantity := amount;
+    Mouse.Click(MOUSE_LEFT);
+    Exit(True);
+  end;
+
+  Self.CachedQuantity := 0; //in case we falsely return the next statement true we reset this.
+  Result := ChooseOption.Select('Withdraw-X') and Chat.AnswerQuery('Enter amount', ToString(amount), Random(2000, 4000));
+  if Result then
+    Self.CachedQuantity := amount;
+end;
+
+
+function TBank.FindAny(items: TItemArray; out box: TBox): Boolean;
+begin
+  Result := Self.Items.FindAny(items, box);
+end;
+
+(*
+## Bank.FindItem
+```pascal
+function TBank.FindItem(Item: TItem; out box: TBox): Boolean;
+function TBank.FindItem(item: TBankItem; out box: TBox; attempts: Int32 = 0): Boolean; overload;
+```
+
+Finds and returns the bounds of an item in the bank
+The TBankItem version of the method will actually search the bank for the item while the TItem will not.
+
+Example:
+```pascal
+Bank.FindItem('Coins', Box);
+Debug(Box);
+```
+*)
+function TBank.FindItem(item: TItem; out box: TBox): Boolean;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := Self.Items.Find([item], box);
+end;
+
+function TBank.FindItem(item: TBankItem; out box: TBox; attempts: Int32 = 0): Boolean; overload;
+var
+  count: Int32;
+  position: TBankPosition;
+begin
+  if not Self.FindItem(item.Item, box) then
+  begin
+    position := Self._GetCachedPosition(item.Item);
+    if position.Tab = -1 then
+      position.Tab := Self.FindItemTab(item.Item, False);
+
+    if position.Tab = 0 then
+      count := Self.Items.Count();
+
+    if Self.OpenTab(position.Tab) then
+      if position.Tab = 0 then WaitUntil(count <> Self.Items.Count(), 300, 3000);
+
+    if not Self.FindItem(item.Item, box) then
+    begin
+      if position.Scroll = -1 then
+        position.Scroll := Self.FindItemScroll(item.Item);
+
+      if Self.GetScrollPosition() <> position.Scroll then
+        Self.SetScrollPosition(position.Scroll);
+
+      if not Self.FindItem(item.Item, box) then
+      begin
+        position.Tab := -1;
+        position.Scroll := -1;
+        Self._CachePosition(item.Item, position);
+        if attempts = 2 then
+          Exit;
+        Exit(Self.FindItem(item, box, attempts + 1));
+      end;
+    end;
+  end;
+
+
+  position.Tab := Self.GetCurrentTab();
+  //by setting this everytime, item.Scroll will slowly be adjusted
+  //to something that will match all required items in a script.
+  position.Scroll := Self.GetScrollPosition();
+  Self._CachePosition(item.Item, position);
+  Result := True;
+end;
+
+
+(*
+## Bank.ContainsItem
+```pascal
+function TBank.ContainsItem(Item: TItem): Boolean;
+function TBank.ContainsItem(out item: TBankItem): Boolean; overload;
+```
+
+Returns true/false whether a item is found in the bank or not.
+The TBankItem version of the method will actually search the bank for the item while the TItem will not.
+
+Example:
+```pascal
+WriteLn Bank.ContainsItem('Coins');
+```
+*)
+function TBank.ContainsItem(item: TItem): Boolean;
+begin
+  Result := Self.Items.Contains(item);
+end;
+
+function TBank.ContainsItem(out item: TBankItem): Boolean; overload;
+var
+  box: TBox;
+begin
+  Result := Self.FindItem(item, box);
+end;
+
+
+(*
+## Bank.DiscoverAll
+```pascal
+function TBank.DiscoverAllEx(): array of TItemArray;
+function TBank.DiscoverAll(): TItemArray;
+```
+Returns all possible items found visible in the bank.
+The extended version returns an `array of TItemArray` while the other returns
+a flat `TItemArray`.
+
+Example:
+```pascal
+if Bank.Open() then
+  WriteLn Bank.DiscoverAll();
+```
+*)
+function TBank.DiscoverAllEx(): array of TItemArray;
+begin
+  Result := Self.Items.DiscoverAllEx();
+end;
+
+function TBank.DiscoverAll(): TItemArray;
+begin
+  Result := Self.Items.DiscoverAll();
+end;
+
+(*
+## Bank.Discover
+```pascal
+function TBank.Discover(slot: Int32): TItemArray;
+```
+Discovers what item is on the specified bank `slot`.
+
+Example:
+```pascal
+if Bank.Open() then
+  WriteLn Bank.Discover(0);
+```
+*)
+function TBank.Discover(slot: Int32): TItemArray;
+begin
+  Result := Self.Items.Discover(slot);
+end;
+
+
+(*
+## Bank.ContainsAny
+```pascal
+function TBank.ContainsAny(items: TItemArray): Boolean;
+```
+Returns true/false whether any item in **items** is visible in the bank.
+*)
+function TBank.ContainsAny(items: TItemArray): Boolean;
+begin
+  Result := Self.Items.ContainsAny(items);
+end;
+
+
+(*
+## Bank.CountItem
+```pascal
+function TBank.CountItem(Item: TItem): Int32;
+```
+Counts the amount of items that share the same sprite in the bank.
+This are extremely rare but do exist, e.g.: Edible seaweed, seaweed, giant seaweed.
+
+Example:
+```pascal
+WriteLn Bank.CountItem('Seaweed');
+```
+*)
+function TBank.CountItem(item: TItem): Int32;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := Self.Items.Count(item);
+end;
+
+function TBank.CountSlotStack(slot: Int32): Int32;
+begin
+  Result := Self.Items.CountStack(slot);
+end;
+
+(*
+## Bank.CountItemStack
+```pascal
+function TBank.CountItemStack(Item: TItem): Int32;
+```
+Counts the stack amount of a item in the bank.
+
+Example:
+```pascal
+WriteLn Bank.CountItemStack('Coins');
+```
+*)
+function TBank.CountItemStack(item: TItem): Int32;
+begin
+  Result := Self.Items.CountStack(item);
+end;
+
+(*
+## Bank.MouseItem
+```pascal
+function TBank.MouseItem(Item: TItem): Boolean;
+```
+Moves the mouse to an item.
+
+Example:
+```pascal
+Bank.MouseItem('Coins');
+```
+*)
+function TBank.MouseItem(item: TItem): Boolean;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := Self.Items.MouseItem(item);
+end;
+
+(*
+## Bank.ClickItem
+```pascal
+function TBank.ClickItem(Item: TItem; Option: String = ''): Boolean;
+```
+
+Clicks an item in the bank. If an **Option** is specified and it's not in the uptext it will right click the item and look for the **Option**.
+
+Example:
+```pascal
+Bank.ClickItem('Coins', 'All');
+```
+*)
+function TBank.ClickItem(item: TItem; Option: String = ''): Boolean;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := Self.Items.InteractItem(item, option);
+end;
+
+(*
+## Bank.WithdrawItem
+```pascal
+function TBank.WithdrawItem(item: TBankItem; useQuantityButtons: Boolean): Boolean;
+function TBank.WithdrawItem(item: TItem; useQuantityButtons: Boolean): Boolean; overload;
+```
+
+Finds and withdraws an item.
+
+Parameters:
+- Item
+	TItem, TBankItem to withdraw.
+  Item to withdraw, quantity and noted if using TBankItem.
+- useQuantityButtons
+  Determines if to use the 1,5,10,X,ALL `Quantity` buttons.
+
+Example:
+```pascal
+var
+  ItemToWithdraw: TBankItem;
+
+ItemToWithdraw.Item := 'Iron full helm';
+ItemToWithdraw.Quantity := 5;
+ItemToWithdraw.Noted := False;
+
+Bank.WithdrawItem(ItemToWithdraw, True);
+
+// OR you can shorthand by passing an open array.
+
+Bank.WithdrawItem(['Iron full helm', 5, False], True);
+```
+*)
+function TBank.WithdrawItem(item: TBankItem; useQuantityButtons: Boolean): Boolean;
+var
+  box: TBox;
+begin
+  if Self.FindItem(item, box) then
+    Result := Self.WithdrawHelper(box, item.Quantity, item.Noted, useQuantityButtons);
+end;
+
+function TBank.WithdrawItem(item: TItem; useQuantityButtons: Boolean): Boolean; overload;
+var
+  tmp: TBankItem;
+begin
+  tmp := TBankItem.Setup(item);
+  Result := Self.WithdrawItem(tmp, useQuantityButtons);
+end;
+
+
+(*
+## Bank.DepositItem
+```pascal
+function TBank.DepositItem(item: TBankItem; useQuantityButtons: Boolean): Boolean; overload
+```
+
+Deposits the specified **item** into the bank.
+
+Example:
+```pascal
+WriteLn BankDepositItem(['Coins', TBank.QUANTITY_ALL, False]);
+```
+*)
+function TBank.DepositItem(item: TBankItem; useQuantityButtons: Boolean): Boolean;
+var
+  isStackable: Boolean;
+  count: Int32;
+  slot: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  count := Inventory.CountItemStack(item.Item);
+  isStackable := count > 0;
+
+  if not isStackable then
+    count := Inventory.CountItem(item.Item);
+
+  if Inventory.Items.FindAny([item.Item], slot) then
+    Result := Self.DepositHelper(slot, item.Quantity, useQuantityButtons);
+
+  if Result then
+  begin
+    if isStackable then
+      Exit(WaitUntil((Inventory.CountItemStack(item.Item) < count), 50, 2000));
+
+    Result := WaitUntil((Inventory.CountItem(item.Item) < count), 50, 2000);
+  end;
+end;
+
+function TBank.DepositItem(item: TItem; useQuantityButtons: Boolean): Boolean; overload;
+var
+  tmp: TBankItem;
+begin
+  tmp := TBankItem.Setup(item);
+  Result := Self.DepositItem(tmp, useQuantityButtons);
+end;
+
+function TBank.DepositItems(items: array of TBankItem; useQuantityButtons: Boolean): Boolean;
+var
+  i: Int32;
+begin
+  for i := 0 to High(items) do
+    if Self.DepositItem(items[i], useQuantityButtons) then
+      Result := True;
+end;
+
+function TBank.DepositItems(items: TItemArray; useQuantityButtons: Boolean): Boolean; overload;
+var
+  i: Int32;
+begin
+  for i := 0 to High(items) do
+    if Self.DepositItem(items[i], useQuantityButtons) then
+      Result := True;
+end;
+
+
+(*
+## Bank.DepositAll
+```pascal
+function TBank.DepositAll: Boolean;
+```
+Depositis your inventory by clicking the deposit inventory button
+*)
+function TBank.DepositAll(): Boolean;
+var
+  btn: TGameButton;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  btn := Self.GetButton(EBankDepositButton.INVENTORY);
+  if btn = Default(TGameButton) then
+  begin
+    if not WaitUntil(Self.GetButton(EBankDepositButton.INVENTORY).Visible , 10 , 5000) then
+    Self.Fatal('This script needs the "Deposit Inventory" button visible!');
+  end;
+  Result := (Inventory.Count() = 0) or btn.Click();
+end;
+
+(*
+## Bank.DepositEquipment
+```pascal
+function TBank.DepositEquipment: Boolean;
+```
+Depositis your equipment by clicking the deposit equipment button
+*)
+function TBank.DepositEquipment(): Boolean;
+begin
+  Result := Self.IsOpen() and Self.GetButton(EBankDepositButton.WORN).Click();
+end;
+
+var
+(*
+## var Bank
+Global Bank variable.
+*)
+  Bank: TBank;
+
+(*
+## GameTabs.Open() override;
+```pascal
+function TGameTabs.Open(Tab: EGameTab): Boolean; override;
+```
+Overrides {ref}`GameTabs.Open()` to close the bank if the bank open.
+*)
+function TGameTabs.Open(Tab: EGameTab): Boolean; override;
+begin
+  if Bank.IsOpen(False) then
+  begin
+    if (Tab = EGameTab.INVENTORY) then
+      Exit(True);
+
+    Bank.Close();
+  end;
+
+  Result := inherited();
+end;
+
+
+function TMainScreen.IsVisible(p: TPoint): Boolean; override;
+begin
+  Result := inherited;
+
+  if not Result or (GameClient.Mode = EClientMode.FIXED) then
+    Exit;
+
+  if Bank.Bounds.Expand(5).Contains(p) and Bank.IsOpen() then
+    Exit(False);
+end;
+
+function TMainScreen.IsVisible(tpa: TPointArray; useCenter: Boolean = True): Boolean; override;
+begin
+  Result := inherited;
+
+  if Result and useCenter then
+    Exit;
+
+  if not Result or (GameClient.Mode = EClientMode.FIXED) then
+    Exit;
+
+  if Bank.Bounds.Expand(5).ContainsAll(tpa) and Bank.IsOpen() then
+    Exit(False);
+end;
+
+function TMainScreen.Filter(arr: TPointArray): TPointArray; override;
+begin
+  Result := inherited;
+
+  if (Result = []) or (GameClient.Mode = EClientMode.FIXED) then
+    Exit;
+
+  if Bank.IsOpen() then
+  begin
+    arr := Result.FilterBox(Bank.Bounds);
+    Result := Result.Difference(arr);
+  end;
+end;
+
+
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Bank.SetupAlignment();
+
+  with Bank.Bounds do
+  begin
+    Bank.TitleBar.X1 := X1 + 30;
+    Bank.TitleBar.Y1 := Y1 + 7;
+    Bank.TitleBar.X2 := X1 + 120;
+    Bank.TitleBar.Y2 := Y1 + 27;
+
+    Bank.SideBar.X1 := X1 + 6;
+    Bank.SideBar.Y1 := Y1 + 75;
+    Bank.SideBar.X2 := X1 + 43;
+    Bank.SideBar.Y2 := Y2 - 47;
+
+    Bank.BottomBar.X1 := X1 + 6;
+    Bank.BottomBar.Y1 := Y2 - 43;
+    Bank.BottomBar.X2 := X2 - 6;
+    Bank.BottomBar.Y2 := Y2 - 6;
+  end;
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+
+  Bank.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Bank.Draw(Bitmap);
+end;

@@ -1,0 +1,291 @@
+{$DEFINE SRL_DEBUG_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+
+procedure Debug(atpa: T2DPointArray); overload;
+var
+  bitmap: TMufasaBitmap;
+  i: Int32;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    for i := 0 to High(atpa) do
+      GameClient.Image().DrawTPA(atpa[i], DEBUG_COLORS[i mod Length(DEBUG_COLORS)]);
+    Exit;
+  end;
+  {$ENDIF}
+
+  bitmap.FromClient();
+
+  for i := 0 to High(ATPA) do
+    bitmap.DrawTPA(ATPA[i], DEBUG_COLORS[i mod Length(DEBUG_COLORS)]);
+
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+procedure Debug(tpa: TPointArray); overload;
+begin
+  Debug([tpa]);
+end;
+
+procedure Debug(p: TPoint; color: Int32 = $FF); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCross(p, 4, color);
+    Exit;
+  end;
+  {$ENDIF}
+
+  bitmap.FromClient();
+  bitmap.DrawCross(p, 4, color);
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+procedure Debug(r: TRectangle); overload;
+begin
+  Debug(r.ToTPA().Connect());
+end;
+
+procedure Debug(rectArray: TRectArray); overload;
+var
+  r: TRectangle;
+  atpa: T2DPointArray;
+begin
+  for r in rectArray do
+    atpa += R.ToTPA.Connect();
+
+  Debug(atpa);
+end;
+
+procedure Debug(c: TCircle); overload;
+begin
+  Debug(TPAFromCircle(c.X, c.Y, c.Radius));
+end;
+
+procedure Debug(b: TBox); overload;
+begin
+  Debug(EdgeFromBox(b));
+end;
+
+procedure Debug(boxes: TBoxArray); overload;
+var
+  atpa: T2DPointArray;
+  i: Int32;
+begin
+  SetLength(atpa, Length(boxes));
+  for i := 0 to High(atpa) do
+    atpa[i] := EdgeFromBox(boxes[i]);
+
+  Debug(atpa);
+end;
+
+procedure Debug(matrix: T2DIntegerArray); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  bitmap.Init();
+  bitmap.DrawMatrix(matrix);
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+procedure Debug(cuboid: TCuboid; color: Integer = $0000FF); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCuboid(cuboid, color);
+    Exit;
+  end;
+  {$ENDIF}
+
+  bitmap.FromClient();
+  bitmap.DrawCuboid(cuboid, color);
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+procedure Debug(cuboids: TCuboidArray; color: Integer = $0000FF); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCuboidArray(cuboids, color);
+    Exit;
+  end;
+  {$ENDIF}
+  bitmap.FromClient();
+  bitmap.DrawCuboidArray(cuboids, color);
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+procedure Debug(cuboid: TCuboidEx; color: Integer = $0000FF); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCuboid(cuboid, color);
+    Exit;
+  end;
+  {$ENDIF}
+  bitmap.FromClient();
+  bitmap.DrawCuboid(cuboid, color);
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+procedure Debug(cuboids: TCuboidExArray; color: Integer = $0000FF); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    GameClient.Image().DrawCuboidArray(cuboids, color);
+    Exit;
+  end;
+  {$ENDIF}
+  bitmap.FromClient();
+  bitmap.DrawCuboidArray(cuboids, color);
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+
+procedure PlotGraph(xAxis, yAxis: String; dataNames: TStringArray; data: T2DPointArray; colors: TIntegerArray; connect: Boolean = True);
+var
+  bmp, tmp, rotated: TMufasaBitmap;
+  xMax, yMax, i, j, x: Int32;
+  p: TPoint;
+begin
+  if Length(colors) < Length(data) then
+    TerminateScript('Not enough colors to draw your data');
+
+  bmp.Init();
+  bmp.setFontAntialiasing(True);
+
+  for i := 0 to High(data) do
+    for j := 0 to High(data[i]) do
+    begin
+      data[i,j].X += 20;
+      data[i,j].Y += 20;
+      xMax := Max(data[i,j].X, xMax);
+      yMax := Max(data[i,j].Y, yMax);
+    end;
+
+  bmp.SetSize(xMax+40, yMax + 80 + (40 * High(data)));
+
+  for x := 0 to bmp.GetWidth() do
+  begin
+    if Frac(x / 2) = 0 then
+      bmp.LineTo([x, 0], [x, bmp.GetHeight()], $F5F5F5)
+    else
+      bmp.LineTo([x, 0], [x, bmp.GetHeight()], $FFFFFF);
+  end;
+
+  bmp.LineTo([20,20], [20, yMax], $0);
+  bmp.LineTo([20, yMax], [xMax+20, yMax], $0);
+
+  bmp.setFontSize(15);
+
+  bmp.DrawText(xAxis, [30, yMax + 5], $11);
+
+  tmp.Init();
+  tmp.SetSize(bmp.getHeight() div 2, 40);
+  tmp.setFontSize(15);
+  tmp.setFontAntialiasing(True);
+  tmp.DrawText(yAxis, [0,0], $11);
+  rotated.Init();
+  rotated.setFontAntialiasing(True);
+  tmp.RotateBitmap(PI/2, rotated);
+  rotated.SetTransparentColor($0);
+
+  bmp.DrawBitmap(rotated, [4, bmp.getHeight() div 2 - (40 * High(data)) - 90]);
+  tmp.Free();
+  rotated.Free();
+
+  for i := 0 to High(data) do
+  begin
+    if connect then
+    begin
+      for j := 0 to High(data[i])-1 do
+        bmp.DrawTPA(TPAFromLine(data[i,j], data[i,j+1]), colors[i]);
+    end
+    else
+      bmp.DrawTPA(data[i], colors[i]);
+
+    if i <= Length(dataNames) then
+    begin
+      p := [bmp.getWidth() div 2, yMax + 40 + 30 * i];
+      bmp.DrawBoxFilled(p.Offset(0,5), 5, False, colors[i]);
+      bmp.DrawText(dataNames[i], p.Offset(10,0), $0);
+    end;
+  end;
+
+  bmp.Debug();
+  bmp.Free();
+end;
+
+procedure PlotGraph(xAxis, yAxis: String; dataNames: TStringArray; data: array of Vector2Array; colors: TIntegerArray; connect: Boolean = True); overload;
+var
+  i, j: Int32;
+  arr: T2DPointArray;
+begin
+  SetLength(arr, Length(data));
+  for i := 0 to High(data) do
+  begin
+    SetLength(arr[i], Length(data[i]));
+    for j := 0 to High(data[i]) do
+      arr[i,j] := [Round(data[i,j].X * 10), Round(data[i,j].Y * 10)];
+  end;
+
+  PlotGraph(xAxis, yAxis, dataNames, arr, colors, connect);
+end;
+
+
+{$IFNDEF SRL_DISABLE_REMOTEINPUT}
+procedure TSRL.Debug(); override;
+var
+  Bitmap: TMufasaBitmap;
+begin
+  Freeze();
+
+  try
+    if GameClient.DebugOnClient then
+    begin
+      GameClient.Image().Clear();
+      Self.Debug(GameClient.Image());
+      Exit;
+    end;
+
+    Bitmap.FromClient();
+    Self.Debug(Bitmap);
+    Bitmap.Debug();
+    Bitmap.Free();
+  finally
+    Unfreeze();
+  end;
+end;
+{$ENDIF}
