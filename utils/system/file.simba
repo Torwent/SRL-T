@@ -1,0 +1,122 @@
+{$DEFINE SRL_FILE_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+function BackupFile(filePath: String): Boolean;
+var
+  f: Int32;
+  contents: String;
+begin
+  f := OpenFile(filePath, False);
+  if not ReadFileString(f, contents, FileSize(f)) then
+    Exit;
+
+  CloseFile(f);
+  Result := WriteFileContents(filePath + '.bak', contents, False);
+end;
+
+function RestoreFile(filePath: String): Boolean;
+var
+  f: Int32;
+  contents: String;
+begin
+  f := OpenFile(filePath + '.bak', False);
+  if not ReadFileString(f, contents, FileSize(f)) then
+    Exit;
+
+  CloseFile(f);
+  Result := WriteFileContents(filePath, contents, False);
+  DeleteFile(filePath + '.bak');
+end;
+
+function DirectoryIsEmpty(const directory: String): Boolean;
+begin
+  Result := (FindFiles(directory, False) = []) and (FindDirectories(directory, False) = []);
+end;
+
+function DeleteFiles(const directory: String; skip: TStringArray = []): Boolean;
+  function _SkipFile(dir: String): Boolean;
+  var
+    s: String;
+  begin
+    for s in skip do
+      if dir.Contains(s) then
+        Exit(True);
+  end;
+
+var
+  f: String;
+begin
+  for f in FindFiles(directory, True) do
+  begin
+    if _SkipFile(f) then
+      Continue;
+
+    if not DeleteFile(f) then
+      Exit;
+  end;
+
+  Result := True;
+end;
+
+function DeleteSubDirectories(const directory: String; deleteRoot: Boolean; skip: TStringArray = []): Boolean;
+
+  function _SkipDirectory(dir: String): Boolean;
+  var
+    s: String;
+  begin
+    for s in skip do
+      if dir.Contains(s) then
+        Exit(True);
+  end;
+
+  function _GetParent(dir: String): String;
+  var
+    strings: TStringArray;
+  begin
+    strings := dir.Explode(DirectorySeparator);
+    SetLength(strings, High(strings));
+    Result := strings.Merge(DirectorySeparator);
+  end;
+
+var
+  directories, parents: TStringArray;
+  i: Int32;
+begin
+  directories := FindDirectories(directory, True);
+
+  while directories <> [] do
+  begin
+    for i := High(directories) downto 0 do
+    begin
+      if _SkipDirectory(directories[i]) then
+      begin
+        parents += _GetParent(directories[i]);
+        Delete(directories, i, 1);
+        deleteRoot := False;
+        Continue;
+      end;
+
+      if not parents.Contains(directories[i]) and not DeleteDirectory(directories[i], False) then
+        Exit;
+      Delete(directories, i, 1);
+    end;
+  end;
+
+  Result := not deleteRoot or DeleteDirectory(directory, False);
+end;
+
+function RMDir(const directory: String; deleteRoot: Boolean; skip: TStringArray = []): Boolean;
+begin
+  if not DeleteFiles(directory, skip) then
+    Exit;
+
+  Result := DeleteSubDirectories(directory, deleteRoot, skip);
+end;
+
+function RMDir(path: String): Boolean; overload;
+begin
+  Result := RMDir(path, True, []);
+end;
+

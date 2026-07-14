@@ -1,0 +1,259 @@
+{$DEFINE SRL_MUSIC_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+//by Kriptic
+type
+  TMusicPlayer = type TInterface;
+
+function HTMLDecode(const encodedStr: String): String;
+begin
+  Result := encodedStr.Replace('&#39;', '''')
+                      .Replace('&amp;', '&')
+                      .Replace('&quot;', '"')
+                      .Replace('&lt;', '<')
+                      .Replace('&gt;', '>')
+                      .Replace('&apos;', '''');
+end;
+
+function SortedTrackList(): tStringArray;
+var
+  http: Int32;
+  page: String;
+  rawTracks: TStringArray;
+  i: Int32;
+begin
+  http := InitializeHTTPClient();
+  SetHTTPUserAgent(http, 'Simba Music Scraper'); //By Garrett
+
+  // Fetch the page content
+  page := GetHTTPPage(http, 'https://oldschool.runescape.wiki/w/Music');
+
+  // Extract the part of the page that contains the music tracks
+  page := Between('<table class="wikitable', '</tbody></table>', page);
+
+  // Get the track names
+  rawTracks := MultiBetween(page, 'data-music-track-name="', '">');
+
+  // Decode HTML entities in the track names
+  for i := 0 to High(rawTracks) do
+    rawTracks[i] := HTMLDecode(rawTracks[i]);
+
+  Result := rawTracks;
+  FreeHTTPClient(http)
+end;
+
+procedure TMusicPlayer.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left := GameTab.Bounds.X1;
+  alignment.Right := GameTab.Bounds.X2;
+  alignment.Top := GameTab.Bounds.Y1;
+  alignment.Bottom := GameTab.Bounds.Y2;
+
+  Self.SetupAlignment(alignment);
+
+  Self.ScrollArea := Self.Bounds;
+  Self.ScrollArea.Y1 += 55;
+  Self.ScrollArea.Y2 -= 15;
+end;
+
+
+procedure TMusicPlayer.Setup(); override;
+begin
+  inherited;
+  Self.Name := 'MusicPlayer';
+end;
+
+function TMusicPlayer.IsOpen(): Boolean;
+begin
+  Result := GameTabs.GetCurrentTab() = EGameTab.MUSIC;  // Assuming the music tab constant is EGameTab.MUSIC
+end;
+
+function TMusicPlayer.Open(): Boolean;
+begin
+  Result := GameTabs.Open(EGameTab.MUSIC);
+end;
+
+procedure TMusicPlayer.Scroll(down: Boolean);
+var
+  scrollBar: TGameScrollBar;
+begin
+  scrollBar := Self.GetScrollBar();
+  if not scrollBar.IsVisible() or not Self.CanScroll() then
+    Exit;
+
+  Mouse.Scroll(Self.GetScrollArea(scrollBar), Random(1, 3), down, True);
+
+end;
+
+
+function TMusicPlayer.GetCurrentTrack(): String;
+var
+  tpa: TPointArray;
+  boxes: TBoxArray;
+  foundText: String;
+begin
+  if SRL.FindColors(tpa, CTS2(15132220, 1, 0.01, 0.01), Self.Bounds) < 1 then
+    Exit;
+
+  boxes := tpa.Cluster(15, 1).ToTBA();
+  Result:=foundText := OCR.Recognize(boxes[0], TOCRColorFilter.Create([15132220]), FONT_PLAIN_12);
+end;
+
+function FindTrackIndex(const trackName: String; const trackList: array of String): Int32;
+var
+  i: Int32;
+begin
+  // Initialize the result to -1 (not found)
+  Result := -1;
+
+  // Iterate over the track list to find the index of trackName
+  for i := Low(trackList) to High(trackList) do
+  begin
+    if trackList[i] = trackName then
+    begin
+      // If the track is found, return its index
+      Result := i;
+      Exit;
+    end;
+  end;
+end;
+
+function TMusicPlayer.LocateTrack(trackName: String): TBox;
+var
+  tpa: TPointArray;
+  boxes: TBoxArray;
+  i, trackIndex: Int32;
+  foundText: String;
+  timeOut: UInt64;
+  scrollPosition: Int32;
+begin
+  Result := [0, 0, 0, 0];
+  timeOut := GetSystemTime() + 15000;
+
+  // Find the index of the track in the sorted list
+  trackIndex := FindTrackIndex(trackName, SortedTrackList);
+  if trackIndex = -1 then
+  begin
+    Self.DebugLn('Track not found in list: ' + trackName);
+    Exit;
+  end;
+    // Calculate the approximate scrollbar position
+  scrollPosition := ((trackIndex * 100) div high(SortedTrackList))-1;
+  Self.SetScrollPosition_Mouse(scrollPosition);
+
+  repeat
+    // Find potential matches for the track name on the screen
+    if SRL.FindColors(tpa, [901389,16777215], Self.ScrollArea) > 0 then
+    begin
+      boxes := tpa.Cluster(9, 1).ToTBA();
+      // Loop through found boxes and check if the text matches the trackName
+      for i := 0 to High(boxes) do
+      begin
+        foundText := OCR.Recognize([boxes[i].X1-5, boxes[i].Y1-3, boxes[i].X2+5, boxes[i].Y2+3], TOCRColorFilter.Create([901389,16777215]), FONT_PLAIN_12);
+
+        if Pos(trackName, foundText) > 0 then
+          Exit(boxes[i]);
+      end;
+    end;
+
+    // Scroll down to search further if the track is not found
+    Self.Scroll(True);
+  until GetSystemTime() > timeOut;
+
+  // Track not found, return empty box
+  Self.DebugLn('Track not found: ' + trackName);
+  Result := [0, 0, 0, 0];
+end;
+
+function TMusicPlayer.PlayTrack(trackName: String): Boolean;
+var
+  trackBox: TBox;
+begin
+  if not Self.Open() then
+    Exit(False);
+  if (Pos(trackName, Self.GetCurrentTrack())) then
+    Exit(True);
+  trackBox := Self.LocateTrack(trackName);
+  if trackBox.Area > 0 then
+  begin
+    Mouse.Click(trackBox, MOUSE_LEFT, True);
+    Result := WaitUntil((Pos(trackName, Self.GetCurrentTrack()) = 1), 100, 5000);
+    Exit(Result);
+  end;
+
+  Self.DebugLn('Track not found or playing: ' + trackName);
+  Exit(False);
+end;
+
+var
+  MusicPlayer: TMusicPlayer;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  MusicPlayer.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  MusicPlayer.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  MusicPlayer.Draw(Bitmap);
+end;
+
+procedure TInterface.SetScrollPosition_Mouse(value: Int32);
+var
+  scrollBar: TGameScrollBar;
+  scrollableHeight, targetY: Int32;
+begin
+  value := EnsureRange(value, 0, 100);
+
+  // Retrieve current scrollbar information
+  scrollBar := Self.GetScrollBar();
+
+  // Check if the scrollbar is visible and scrollable
+  if not scrollBar.IsVisible() or not Self.CanScroll() then
+    Exit;
+
+  // Calculate the height of the area within which the slider can move
+  scrollableHeight := scrollBar.SliderRegion.Height - scrollBar.Slider.Height;
+
+  // Calculate the Y coordinate for the mouse click based on the desired scroll position
+  targetY := scrollBar.SliderRegion.Y1 + Round(scrollableHeight * value / 100);
+
+  // Adjust to click in the middle of the slider for better accuracy
+  targetY := targetY + (scrollBar.Slider.Height div 2);
+
+  // Move the mouse to the calculated position and click to set the scrollbar position
+  Mouse.Move(scrollBar.SliderRegion.X1 + (scrollBar.SliderRegion.Width div 2), targetY);
+  Mouse.Click(MOUSE_LEFT); // Assuming mbLeft is the enumeration for a left mouse button click
+
+  // Optionally, wait for the interface to update after the click
+  waituntil ((self.getscrollposition = value),100,5000); // Sleep for 100 milliseconds to allow the interface to update
+end;
+
+function TMusicPlayer.PlayRandomTrack(): Boolean;
+var
+  randomIndex: Integer;
+  trackName: String;
+begin
+  if not Self.Open() then
+    Exit;
+
+  // Generate a random index within the bounds of the track list
+  randomIndex := Random(Length(SortedTrackList));
+
+  // Retrieve the track name using the random index
+  trackName := SortedTrackList[randomIndex];
+
+  // Attempt to play the track using the existing method
+  Result := Self.PlayTrack(trackName);
+end;

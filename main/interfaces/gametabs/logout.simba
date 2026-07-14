@@ -1,0 +1,295 @@
+(*
+# Logout
+Methods to interact with the logout tab.
+*)
+{$DEFINE SRL_LOGOUT_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  ELogoutButton = (WORLD_SWITCHER, CLICK_HERE);
+  ELogoutWorldSwitcherButton = (CLOSE);
+  TLogout = type TInterface;
+
+procedure TLogout.Setup(); override;
+begin
+  inherited;
+  Self.Name := 'Logout';
+end;
+
+procedure TLogout.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left := GameTab.Bounds.X1 - 3;
+  alignment.Right := GameTab.Bounds.X2 + 3;
+  alignment.Top := GameTab.Bounds.Y1;
+  alignment.Bottom := GameTab.Bounds.Y2;
+  Self.SetupAlignment(alignment);
+end;
+
+(*
+## Logout.IsOpen
+```pascal
+function TLogout.IsOpen(): Boolean;
+```
+Returns true if the logout gametab is open, false if it's not.
+
+Example:
+```pascal
+WriteLn Logout.IsOpen();
+```
+*)
+function TLogout.IsOpen(): Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = EGameTab.LOGOUT);
+end;
+
+(*
+## Logout.Open
+```pascal
+function TLogout.Open(): Boolean;
+```
+Attempts to open the logout tab, returns true if it succeeds.
+
+Example:
+```pascal
+WriteLn Logout.Open();
+```
+*)
+function TLogout.Open(): Boolean;
+begin
+  Result := GameTabs.Open(EGameTab.LOGOUT);
+end;
+
+(*
+## Logout.GetButtons
+```pascal
+function TLogout.GetButtons(): TGameButtonArray;
+```
+Returns the logout and world switcher buttons.
+
+Example:
+```pascal
+Debug(Logout.GetButtons());
+```
+*)
+function TLogout.GetButtons(): TGameButtonArray;
+begin
+  Result := Self.FindButtons([[138, 30], [21, 21]]);
+end;
+
+(*
+## Logout.GetButton
+```pascal
+function TLogout.GetButton(button: ELogoutButton): TGameButton;
+```
+Returns a logout button.
+
+Example:
+```pascal
+Debug([Logout.GetButton(ELogoutButton.CLICK_HERE)]);
+```
+*)
+function TLogout.GetButton(button: ELogoutButton): TGameButton;
+var
+  buttons: TGameButtonArray;
+begin
+  buttons := Self.GetButtons();
+  if Length(buttons) = Length(ELogoutButton) then
+    Result := buttons[button];
+end;
+
+
+(*
+## Logout.GetStarButtons
+```pascal
+function TLogout.GetStarButtons(): TGameButtonArray;
+```
+Returns the rating star buttons.
+
+Example:
+```pascal
+Debug(Logout.GetStarButtons());
+```
+*)
+function TLogout.GetStarButtons(): TGameButtonArray;
+begin
+  Result := Self.FindButtons([[30, 34]]);
+end;
+
+(*
+## Logout.GetStarButton
+```pascal
+function TLogout.GetStarButton(star: Int32): TGameButton;
+```
+Returns a star button.
+
+Example:
+```pascal
+Debug([Logout.GetStarButton(3)]);
+```
+*)
+function TLogout.GetStarButton(star: Int32): TGameButton;
+var
+  buttons: TGameButtonArray;
+begin
+  if not InRange(star, 1, 5) then RaiseException('You can only rate the game between 1 and 5.');
+  buttons := Self.GetStarButtons();
+  if Length(buttons) <> 5 then Exit;
+  Result := buttons[star-1];
+end;
+
+
+(*
+## Logout.IsRated
+```pascal
+function TLogout.IsRated(): Boolean;
+```
+Returns true if a star button was clicked.
+
+Example:
+```pascal
+WriteLn Logout.IsRated();
+```
+*)
+function TLogout.IsRated(): Boolean;
+var
+  button: TGameButton;
+begin
+  button := Self.GetStarButton(1);
+  if button = [] then Exit;
+  Result := button.Enabled();
+end;
+
+
+(*
+## Logout.GetWorldSwitcherButtons
+```pascal
+function TLogout.GetWorldSwitcherButtons(): TGameButtonArray;
+```
+Returns world switcher buttons.
+
+Example:
+```pascal
+Debug(Logout.GetWorldSwitcherButtons());
+```
+*)
+function TLogout.GetWorldSwitcherButtons(): TGameButtonArray;
+begin
+  Result := Self.FindButtons([[21, 21]]);
+end;
+
+(*
+## Logout.GetWorldSwitcherButton
+```pascal
+function TLogout.GetWorldSwitcherButton(button: ELogoutWorldSwitcherButton): TGameButton;
+```
+Returns a world switcher button.
+
+Example:
+```pascal
+Debug([Logout.GetWorldSwitcherButton(ELogoutWorldSwitcherButton.CLOSE)]);
+```
+*)
+function TLogout.GetWorldSwitcherButton(button: ELogoutWorldSwitcherButton): TGameButton;
+var
+  Buttons: TGameButtonArray := Self.GetWorldSwitcherButtons();
+begin
+  if Length(Buttons) = Length(ELogoutWorldSwitcherButton) then
+    Result := Buttons[Button];
+end;
+
+
+(*
+## Logout.IsWorldSwitcherOpen
+```pascal
+function TLogout.IsWorldSwitcherOpen(): Boolean;
+```
+Returns true if the world switcher is open.
+
+Example:
+```pascal
+WriteLn Logout.IsWorldSwitcherOpen();
+```
+*)
+function TLogout.IsWorldSwitcherOpen(): Boolean;
+begin
+  Result := Self.IsOpen() and Self.GetWorldSwitcherButton(ELogoutWorldSwitcherButton.CLOSE).Visible();
+end;
+
+(*
+## Logout.CloseWorldSwitcher
+```pascal
+function TLogout.CloseWorldSwitcher(): Boolean;
+```
+Closes the world switcher.
+
+Example:
+```pascal
+Logout.CloseWorldSwitcher();
+```
+*)
+function TLogout.CloseWorldSwitcher(): Boolean;
+begin
+  if Self.IsOpen() and (not Self.IsWorldSwitcherOpen()) then
+    Exit(True);
+
+  Result := Self.GetWorldSwitcherButton(ELogoutWorldSwitcherButton.CLOSE).Click() and WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 5000);
+end;
+
+
+(*
+## Logout.ClickLogout
+```pascal
+function TLogout.ClickLogout(attempts: Int32 = 5; time: Int32 = 20000): Boolean;
+```
+Clicks the logout button. Returns true if we succesfully logout of the game.
+
+Example:
+```pascal
+WriteLn Logout.ClickLogout();
+```
+*)
+function TLogout.ClickLogout(attempts: Int32 = 5; time: Int32 = 20000): Boolean;
+var
+  i: Int32;
+  interval: UInt64;
+begin
+  if (not Self.Open()) or (not Self.CloseWorldSwitcher()) then
+    Exit;
+
+  interval := time div attempts;
+
+  for i := 1 to attempts do
+    if Self.GetButton(ELogoutButton.CLICK_HERE).Click() and WaitUntil(not GameClient.IsLoggedIn(), 500, Interval + SRL.NormalRange(-2000, 2000)) then
+      Exit(True);
+end;
+
+var
+(*
+## var Logout
+Global TLogout variable.
+*)
+  Logout: TLogout;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Logout.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+
+  Logout.Setup();
+end;
+
+procedure TSRL.Debug(bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Logout.Draw(bitmap);
+end;

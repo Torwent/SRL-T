@@ -1,0 +1,123 @@
+(*
+# HTTPClient
+Wrapper type with methods to interace with built in Simba http features.
+*)
+
+{$DEFINE SRL_HTTP_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+type
+  THTTPClient = record(TSRLBaseRecord)
+    Client: Int32;
+    Server: String;
+    IsSetup: Boolean;
+  end;
+
+function THTTPClient.GetHTTPCode(): Int32;
+begin
+  Result := GetHTTPResponseCode(Self.Client);
+end;
+
+procedure THTTPClient.Free();
+begin
+  if not Self.IsSetup then Exit;
+  FreeHTTPClient(Self.Client);
+  Self.IsSetup := False;
+end;
+
+function THTTPClient.GET(route: String; debugTime, verbose: Boolean = False): String;
+var
+  time: UInt64;
+  print: String;
+begin
+  time := GetTickCount();
+  Result := GetHTTPPage(Self.Client, Self.Server + route);
+  Result := StringReplace(Result, '\u0020', ' ', [rfReplaceAll]);
+
+  if not verbose and not debugTime then
+    Exit;
+
+  print += 'HTTPCode: ' + ToStr(Self.GetHTTPCode());
+  if verbose then
+    print += ' - ' + Result;
+  if debugTime then
+   print += ' - Response took: ' + ToStr(GetTickCount() - time) + 'ms.';
+  Self.DebugLn(print);
+end;
+
+function THTTPClient.GETEx(route, destination: String; debugTime, verbose: Boolean = False): Boolean;
+var
+  time: UInt64;
+  response, print: String;
+begin
+  time := GetTickCount();
+  response := GetHTTPPage(Self.Client, Self.Server + route);
+  Result := (Self.GetHTTPCode() = 200) and WriteFileContents(destination, response, False);
+
+  if not verbose and not debugTime then
+    Exit;
+
+  print += 'HTTPCode: ' + ToStr(Self.GetHTTPCode());
+  if verbose then
+    print += ' - ' + ExtractFileName(destination);
+  if debugTime then
+    print += ' - Download took: ' + ToStr(GetTickCount() - time) + 'ms.';
+  Self.DebugLn(print);
+end;
+
+function THTTPClient.POST(route: String; debugTime, verbose: Boolean = False): String;
+var
+  time: UInt64;
+  print: String;
+begin
+  time := GetTickCount();
+  ClearPostData(Self.Client);
+  Result := PostHTTPPageEx(Self.Client, Self.Server + route);
+  Result := StringReplace(Result, '\u0020', ' ', [rfReplaceAll]);
+
+  if not verbose and not debugTime then
+    Exit;
+
+  print += 'HTTPCode: ' + ToStr(Self.GetHTTPCode());
+  if verbose then
+    print += ' - ' + Result;
+  if debugTime then
+   print += ' - Response took: ' + ToStr(GetTickCount() - time) + 'ms.';
+  Self.DebugLn(print);
+end;
+
+function THTTPClient.POST(route: String; payload: String; debugTime, verbose: Boolean = False): String; overload;
+var
+  time: UInt64;
+  print: String;
+begin
+  time := GetTickCount();
+  Result := PostHTTPPage(Self.Client, Self.Server + route, payload);
+  Result := StringReplace(Result, '\u0020', ' ', [rfReplaceAll]);
+
+  if not verbose and not debugTime then
+    Exit;
+
+  print += 'HTTPCode: ' + ToStr(Self.GetHTTPCode());
+  if verbose then
+    print += ' - ' + Result;
+  if debugTime then
+   print += ' - Response took: ' + ToStr(GetTickCount() - time) + 'ms.';
+  Self.DebugLn(print);
+end;
+
+function THTTPClient.POST(route: String; payload: TJSONObject; verbose: Boolean = False): String; overload;
+begin
+  Result := Self.POST(route, payload.toString(), verbose);
+end;
+
+procedure THTTPClient.Init(name, server: String; handleCookies: Boolean = True);
+begin
+  Self.Name := name;
+  Self.Server := server;
+  Self.Client := InitializeHTTPClient(handleCookies);
+  AddOnTerminate(@Self.Free);
+  Self.IsSetup := True;
+end;

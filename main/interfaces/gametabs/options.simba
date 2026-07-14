@@ -1,0 +1,255 @@
+{$DEFINE SRL_OPTIONS_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  EOptionsTab = (CONTROLS, AUDIO, DISPLAY);
+  EOptionsSlider = (BRIGHTNESS, ZOOM);
+  EOptionsButton = (AID, RUN, HOUSE, BOND);
+  EHouseOptionsButton = (CLOSE, VIEWER, EXPEL, SERVANT, LEAVE);
+
+  TOptions = record(TInterface)
+    Sliders: array [EOptionsSlider] of TBox;
+    Tabs: array [EOptionsTab] of TBox;
+  end;
+
+procedure TOptions.Setup(); override;
+begin
+  inherited;
+
+  Self.Name := 'Options';
+  Self.ButtonColors += CTS1(2369440, 5);
+end;
+
+procedure TOptions.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+var
+  boxes: TBoxArray;
+  i: Int32;
+begin
+  alignment.Left := GameTab.Bounds.X1;
+  alignment.Right := GameTab.Bounds.X2;
+  alignment.Top := GameTab.Bounds.Y1;
+  alignment.Bottom := GameTab.Bounds.Y2;
+
+  Self.SetupAlignment(alignment);
+
+  boxes := Grid(3, 1, 55, 24, [9], [Self.Bounds.X1, Self.Bounds.Y1 + 5]);
+
+  for i := 0 to High(boxes) do
+    Self.Tabs[EOptionsTab(i)] := boxes[i];
+
+  Self.Sliders[EOptionsSlider.BRIGHTNESS].X1 := Self.Bounds.X1 + 57;
+  Self.Sliders[EOptionsSlider.BRIGHTNESS].Y1 := Self.Bounds.Y1 + 72;
+  Self.Sliders[EOptionsSlider.BRIGHTNESS].X2 := Self.Sliders[EOptionsSlider.BRIGHTNESS].X1 + 96;
+  Self.Sliders[EOptionsSlider.BRIGHTNESS].Y2 := Self.Sliders[EOptionsSlider.BRIGHTNESS].Y1 + 9;
+
+  Self.Sliders[EOptionsSlider.ZOOM].X1 := Self.Bounds.X1 + 57;
+  Self.Sliders[EOptionsSlider.ZOOM].Y1 := Self.Bounds.Y1 + 109;
+  Self.Sliders[EOptionsSlider.ZOOM].X2 := Self.Sliders[EOptionsSlider.ZOOM].X1 + 96;
+  Self.Sliders[EOptionsSlider.ZOOM].Y2 := Self.Sliders[EOptionsSlider.ZOOM].Y1 + 9;
+end;
+
+
+function TOptions.GetSliderLevel(SliderBounds: TBox; SliderColor: Integer): Integer;
+var
+  TPA: TPointArray;
+begin
+  Result := -1;
+  if Self.Open() and Self.OpenTab(EOptionsTab.DISPLAY) then
+  begin
+    if SRL.FindColors(TPA, SliderColor, SliderBounds.Expand(10)) > 0 then
+      Result := Round((TPA.Mean.X - SliderBounds.X1) * 100 / (SliderBounds.Width() - 1));
+  end;
+end;
+
+function TOptions.GetZoomLevel(): Integer;
+begin
+  Result := Self.GetSliderLevel(Self.Sliders[EOptionsSlider.ZOOM], 2106152);
+end;
+
+function TOptions.SetZoomLevel(level: Integer): Boolean;
+var
+  currentLevel: Integer;
+  sliderBounds: TBox;
+begin
+  currentLevel := Self.GetZoomLevel();
+  if (currentLevel = level) then Exit(True);
+
+  // Move slider away so we can click the level
+  if (Abs(currentLevel - level) <= 20) then
+  begin
+    if (currentLevel + 40 < 100) then
+      Self.SetZoomLevel(currentLevel + Random(20, 40))
+    else
+      Self.SetZoomLevel(currentLevel - Random(20, 40));
+  end;
+
+  sliderBounds := Self.Sliders[EOptionsSlider.ZOOM];
+  Mouse.Click(
+    sliderBounds.X1 + Round((level * (sliderBounds.Width() - 1) / 100)) + 1,
+    sliderBounds.Y1 + Random(sliderBounds.Y2 - sliderBounds.Y1),
+    MOUSE_LEFT
+  );
+
+  Result := WaitUntil(InRange(Self.GetZoomLevel(), level-1, level+1), SRL.TruncatedGauss(50, 1500), 3000);
+end;
+
+function TOptions.GetBrightnessLevel(): Integer;
+begin
+  Result := Self.GetSliderLevel(Self.Sliders[EOptionsSlider.BRIGHTNESS], 2040359);
+end;
+
+function TOptions.SetMaxBrightness(): Boolean;
+begin
+  Result := Self.OpenTab(EOptionsTab.DISPLAY);
+  if not Result then Exit;
+
+  with Self.Sliders[EOptionsSlider.BRIGHTNESS] do
+    Mouse.Click(X2 + Random(3, 5), Random(Y1, Y2), MOUSE_LEFT);
+end;
+
+function TOptions.IsOpen(): Boolean;
+begin
+  Result := GameTabs.GetCurrentTab = EGameTab.OPTIONS;
+end;
+
+function TOptions.Open(): Boolean;
+begin
+  Result := GameTabs.Open(EGameTab.OPTIONS);
+end;
+
+
+function TOptions.GetButtons(): TGameButtonArray;
+begin
+  Result := Self.FindButtons([[38,38]]);
+end;
+
+function TOptions.GetButton(button: EOptionsButton): TGameButton;
+var
+  Buttons: TGameButtonArray := Self.GetButtons;
+begin
+  if Length(Buttons) = Length(EOptionsButton) then
+    Result := Buttons[Button];
+end;
+
+
+function TOptions.GetHouseOptionsButtons(): TGameButtonArray;
+begin
+  Result := Self.FindButtons([[21, 21], [103, 38], [164, 30]]);
+end;
+
+function TOptions.GetHouseOptionsButton(button: EHouseOptionsButton): TGameButton;
+var
+  Buttons: TGameButtonArray;
+begin
+  Buttons := Self.GetHouseOptionsButtons;
+  if High(Buttons) = Ord(High(EHouseOptionsButton)) then
+    Result := Buttons[Button];
+end;
+
+function TOptions.IsHouseOptionsOpen(): Boolean;
+begin
+  Result := SRL.CountColor(CTS2(4630611, 23, 0.04, 0.79), Self.Bounds) = 148;
+end;
+
+function TOptions.OpenHouseOptions(): Boolean;
+begin
+  if Self.IsHouseOptionsOpen() then Exit(True);
+  if not Self.Open or not Self.OpenTab(EOptionsTab.CONTROLS) then Exit;
+
+  Self.GetButton(EOptionsButton.HOUSE).Click();
+
+  Result := WaitUntil(Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+end;
+
+function TOptions.CloseHouseOptions(): Boolean;
+begin
+  if not Self.IsHouseOptionsOpen() then Exit(True);
+  Self.GetHouseOptionsButton(EHouseOptionsButton.CLOSE).Click();
+  Result := WaitUntil(not Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+end;
+
+
+function TOptions.GetCurrentTab(): EOptionsTab;
+var
+  tab: EOptionsTab;
+  count: Integer;
+begin
+  for tab := Low(EOptionsTab) to High(EOptionsTab) do
+  begin
+    count := SRL.CountColor($48585D, tabs[tab]) + SRL.CountColor($1E2528, tabs[tab]);
+    if count < 50 then //finds the one without the bottom white/black line
+      Exit(tab);
+  end;
+end;
+
+function TOptions.OpenTab(tab: EOptionsTab): Boolean;
+begin
+  if not Self.Open() or not Self.CloseHouseOptions() then
+    Exit(False);
+  if Self.GetCurrentTab() = tab then
+    Exit(True);
+
+  Mouse.Click(Self.Tabs[tab], MOUSE_LEFT);
+
+  Result := WaitUntil(Self.GetCurrentTab() = tab, SRL.TruncatedGauss(50, 1500), 3000);
+end;
+
+procedure TOptions.Draw(bitmap: TMufasaBitmap); override;
+var
+  buttons: TGameButtonArray;
+begin
+  if not Self.IsOpen() then Exit;
+
+  inherited;
+
+  buttons := Self.GetButtons();
+  buttons.Draw(bitmap);
+
+  if Self.IsHouseOptionsOpen() then
+  begin
+    buttons := Self.GetHouseOptionsButtons();
+    buttons.Draw(bitmap);
+    Exit;
+  end;
+
+  bitmap.DrawBoxes(Self.Tabs, $00FFFF);
+  if Self.GetCurrentTab() = EOptionsTab.DISPLAY then
+  begin
+    bitmap.DrawBox(Self.Sliders[EOptionsSlider.BRIGHTNESS], $00FFFF);
+    bitmap.DrawBox(Self.Sliders[EOptionsSlider.ZOOM], $00FFFF);
+  end;
+end;
+
+var
+  Options: TOptions;
+
+function TGameTabs.GetCurrentTab(): EGameTab; override;
+begin
+  Result := inherited;
+
+  if (Result = EGameTab.UNKNOWN) and Options.IsHouseOptionsOpen() then
+    Result := EGameTab.OPTIONS;
+end;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Options.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  Options.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Options.Draw(Bitmap);
+end;

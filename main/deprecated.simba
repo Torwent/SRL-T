@@ -1,0 +1,65 @@
+{$DEFINE SRL_DEPRECATED_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+//deprecated SRL-T methods, variables and constants. AVOID USING THEM!
+
+const
+  BANK_DEPOSIT_ALL          = -1;
+  BANK_WITHDRAW_ALL         = -1;
+  BANK_WITHDRAW_ALL_BUT_ONE = -2;
+  MAKE_QUANTITY_ALL = -1;
+
+function TStats.GetCurrentLevel(skill: ESkill): Int32; deprecated 'Use Stats.GetLevel() instead.'
+begin
+  Result := Self.GetLevel(skill, False);
+end;
+
+function TEquipment.FindItem(Item: TItem): Boolean; overload; deprecated 'Use TEquipment.ContainsItem()';
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Item, B);
+end;
+
+
+function TMinimap.ArrToMS(points: TPointArray; roll: Single = $FFFF): TPointArray; deprecated 'Use Minimap.PointsToMS() instead.';
+begin
+  Result := Self.PointsToMS(points, roll);
+end;
+
+function TMinimap.VecToMSRect(vector: Vector3; weSize, nsSize: Double = 1; roll: Single = $FFFF): TRectangle; deprecated ' Use Minimap.VectorToMSRect() instead.';
+begin
+  Result := Self.VectorToMSRect(vector, weSize, nsSize, roll);
+end;
+
+
+
+procedure TWalker.Setup(map: String; aRegions: TBoxArray; scaling: Int32 = 8); overload; deprecated 'Use TWalker.SetupRegions() instead.';
+begin
+  Self.Scaling := scaling;
+  Self.Map.Load(map, aRegions, scaling);
+  Self.Regions := aRegions;
+  Self.InternalSetup();
+end;
+
+procedure TWalker.Setup(aRegions: TBoxArray; scaling: Int32 = 8); overload; deprecated 'Use TWalker.SetupRegions() instead.';
+begin
+  Self.SetupRegions(WALKER_MAP, aRegions, scaling);
+end;
+
+
+function TMainScreen.IsClassicOpen(): Boolean; deprecated 'Use GameInterface.IsOpen(EInterfaceType.CLASSIC) instead.';
+begin
+  Result := GameInterface.IsOpen(EInterfaceType.CLASSIC);
+end;
+
+function TMainScreen.HasInterface(): Boolean; deprecated 'Use GameInterface.IsOpen() instead.';
+begin
+  Result := GameInterface.IsOpen();
+end;
+
+function TMainScreen.CloseInterface(pressEscape: Boolean = True): Boolean; deprecated 'Use GameInterface.Close() instead.';
+begin
+  Result := GameInterface.Close(pressEscape);
+end;

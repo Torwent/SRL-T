@@ -1,0 +1,46 @@
+{$DEFINE SRL_OCR_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+{$loadlib ../../plugins/libsimpleocr/libsimpleocr}
+
+const
+  FONT_PATH = CACHE_DIR + 'fonts' + DirectorySeparator;
+
+var
+  FONT_PLAIN_11: TFontSet;
+  FONT_PLAIN_12: TFontSet;
+  FONT_BOLD_12: TFontSet;
+  FONT_BOLD_12_SHADOW: TFontSet;
+  FONT_QUILL_8: TFontSet;
+  FONT_QUILL: TFontSet;
+
+  OCR: TSimpleOCR;
+
+procedure SetupFonts();
+var
+  zip: String;
+begin
+  zip  := ASSETS_DIR + 'fonts' + DirectorySeparator + 'fonts.zip';
+
+  if not ForceDirectories(FONT_PATH) then
+    raise 'Failed to create path: ' + FONT_PATH;
+
+  if DirectoryIsEmpty(FONT_PATH) then
+    UnZipFile(zip, FONT_PATH);
+
+  if DirectoryIsEmpty(FONT_PATH) then
+    raise 'Failed to unzip fonts.';
+
+  FONT_PLAIN_11.Load(FONT_PATH + 'Plain 11');
+  FONT_PLAIN_12.Load(FONT_PATH + 'Plain 12');
+  FONT_BOLD_12.Load(FONT_PATH + 'Bold 12');
+  FONT_BOLD_12_SHADOW.Load(FONT_PATH + 'Bold 12 Shadow');
+  FONT_QUILL_8.Load(FONT_PATH + 'Quill 8');
+  FONT_QUILL.Load(FONT_PATH + 'Quill');
+end;
+
+begin
+  SetupFonts();
+end;

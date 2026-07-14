@@ -1,0 +1,708 @@
+{$DEFINE SRL_MAPOBJECTARRAY_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  PRSMapObjectArray = array of Pointer;
+
+function PRSMapObjectArray.GetClosest(): PRSMapObject;
+var
+  meObj, meNPC: TPoint = [0,0];
+  tmp: PRSMapObject;
+  i: Int32;
+  closest: Double;
+  current: Double;
+begin
+  closest := $FFFFFF;
+
+  for i := High(Self) downto 0 do
+  begin
+    tmp := Self[i];
+
+    case tmp^.MapObjectType of
+      EGameMapObjectType.OBJ:
+      begin
+        if meObj = [0,0] then meObj := tmp^.Walker^.Position();
+        current := tmp^.Coordinates.NearestPoint(meObj).DistanceTo(meObj);
+      end;
+
+      EGameMapObjectType.NPC:
+      begin
+        if meNPC = [0,0] then meNPC := tmp^.Walker^.Position();
+        current := tmp^.Coordinates.NearestPoint(meNPC).DistanceTo(meNPC);
+      end;
+    end;
+
+    if current < closest then
+    begin
+      closest := current;
+      Result := tmp;
+    end;
+  end;
+end;
+
+function PRSMapObjectArray.GetCoordinates(): TPointArray;
+var
+  tmp: PRSMapObject;
+  i: Int32;
+begin
+  for i := 0 to  High(Self) do
+  begin
+    tmp := Self[i];
+    Result += tmp^.Coordinates;
+  end;
+end;
+
+procedure PRSMapObjectArray.Offset(off: TPoint);
+var
+  tmp: PRSMapObject;
+  i: Int32;
+begin
+  for i := 0 to  High(Self) do
+  begin
+    tmp := Self[i];
+    tmp^.Coordinates := tmp^.Coordinates.Offset(off);
+  end;
+end;
+
+
+procedure PRSMapObjectArray.Filter(polygon: TPointArray; inside: Boolean);
+var
+  tmp: PRSMapObject;
+  i, j: Int32;
+begin
+  for i := High(Self) downto 0 do
+  begin
+    tmp := Self[i];
+    for j := High(tmp^.Coordinates) downto 0 do
+      if (inside and SRL.PointInPoly(tmp^.Coordinates[j], polygon)) or
+         (not inside and not SRL.PointInPoly(tmp^.Coordinates[j], polygon))
+      then
+      begin
+        Delete(tmp^.Coordinates, j, 1);
+        if tmp^.MapObjectType = EGameMapObjectType.OBJ then
+          Delete(PGameObjectV2(tmp)^.Rotations, j, 1);
+      end;
+
+    if Length(tmp^.Coordinates) = 0 then
+      Delete(Self, i, 1);
+  end;
+end;
+
+procedure PRSMapObjectArray.Filter(circle: TCircle; inside: Boolean); overload;
+var
+  tmp: PRSMapObject;
+  i, j: Int32;
+begin
+  for i := High(Self) downto 0 do
+  begin
+    tmp := Self[i];
+    for j := High(tmp^.Coordinates) downto 0 do
+      if (inside and circle.Contains(tmp^.Coordinates[j])) or
+         (not inside and not circle.Contains(tmp^.Coordinates[j]))
+      then
+      begin
+        Delete(tmp^.Coordinates, j, 1);
+        if tmp^.MapObjectType = EGameMapObjectType.OBJ then
+          Delete(PGameObjectV2(tmp)^.Rotations, j, 1);
+      end;
+
+    if Length(tmp^.Coordinates) = 0 then
+      Delete(Self, i, 1);
+  end;
+end;
+
+
+procedure PRSMapObjectArray.Print();
+var
+  tmp: PRSMapObject;
+  i: Int32;
+begin
+  for i := High(Self) downto 0 do
+  begin
+    tmp := PRSMapObject(Self[i]);
+    WriteLn(
+      'ID: ', tmp^.ID, ', Name: ', tmp^.Name,
+      ', Category: ', tmp^.Category,
+      ', Actions: ', tmp^.Actions, ', Colors: ', tmp^.Finder.Colors
+    );
+  end;
+end;
+
+
+type
+  TObjectJSONParser = record
+    Data: TJSONArray;
+    Walker: PWalkerV2;
+  end;
+
+procedure TObjectJSONParser.Setup(json: TJSONArray; walker: PWalkerV2);
+begin
+  if Self.Data = nil then
+    Self.Data := json
+  else
+    Self.Data.Merge(json);
+
+  Self.Walker := walker;
+end;
+
+
+function TObjectJSONParser.Get(obj: Variant): TGameObjectV2;
+var
+  i: Int32;
+  name: String;
+begin
+  if VarIsNumeric(obj) then
+  begin
+    for i := 0 to  Self.Data.High() do
+      if Self.Data.getJSONObject(i).getInt('id') = obj then
+        Exit(TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+    TerminateScript('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
+  end;
+
+  name := LowerCase(obj);
+
+  if name.IsDigit() then
+  begin
+    for i := 0 to  Self.Data.High() do
+      if Self.Data.getJSONObject(i).getInt('id') = obj then
+        Exit(TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+    TerminateScript('Object with ID ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
+  end;
+
+  for i := 0 to Self.Data.High() do
+  begin
+    if LowerCase(Self.Data.getJSONObject(i).getString('name')) <> name then
+      Continue;
+
+    if Result.Name <> '' then
+    begin
+      if Result.SameObject(Self.Data.getJSONObject(i)) then
+        Result := Result.Merge(Self.Data.getJSONObject(i));
+      Continue;
+    end;
+
+    Result := TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+  end;
+
+  if Result.Name = '' then
+    TerminateScript('Object ' + ToStr(obj) + ' doesn''t exist on the loaded maps.');
+end;
+
+function TObjectJSONParser.GetByAction(action: String): TGameObjectV2;
+var
+  i, j: Int32;
+begin
+  action := LowerCase(action);
+
+  for i := 0 to Self.Data.High() do
+    for j := 0 to Self.Data.getJSONObject(i).getJSONArray('actions').High() do
+    begin
+      if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) <> action then
+        Continue;
+      Exit(TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+    end;
+end;
+
+function TObjectJSONParser.GetByCategory(category: Int32): TGameObjectV2;
+var
+  i: Int32;
+begin
+  for i := 0 to Self.Data.High() do
+    if Self.Data.getJSONObject(i).getInt('category') = category then
+      Exit(TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+end;
+
+
+function TObjectJSONParser.GetAll(name: String): TGameObjectV2Array;
+var
+  i: Int32;
+begin
+  name := LowerCase(name);
+  for i := 0 to Self.Data.High() do
+    if LowerCase(Self.Data.getJSONObject(i).getString('name')) = name then
+      Result += TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+end;
+
+function TObjectJSONParser.GetAll(names: TStringArray): TGameObjectV2Array; overload;
+var
+  name: String;
+begin
+  for name in names do
+    Result += Self.GetAll(name);
+end;
+
+function TObjectJSONParser.GetAllByAction(action: String): TGameObjectV2Array;
+var
+  i, j: Int32;
+begin
+  action := LowerCase(action);
+
+  for i := 0 to Self.Data.High() do
+    for j := 0 to Self.Data.getJSONObject(i).getJSONArray('actions').High() do
+    begin
+      if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) <> action then
+        Continue;
+      Result += TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Break;
+    end;
+
+  if Result <> [] then
+    Result.Reduce();
+end;
+
+function TObjectJSONParser.GetAllByCoordinate(p: TPoint; dist: Int32): TGameObjectV2Array;
+var
+  i, j: Int32;
+  coordJSON: TJSONArray;
+  coord: TPoint;
+begin
+  for i := 0 to Self.Data.High() do
+    for j := 0 to Self.Data.getJSONObject(i).getJSONArray('coordinates').High() do
+    begin
+      coordJSON := Self.Data.getJSONObject(i).getJSONArray('coordinates').Get(j);
+      coord := [coordJSON.getInt(0), coordJSON.getInt(1)];
+      if p.DistanceTo(coord) >= dist then
+        Continue;
+      Result += TGameObjectV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Break;
+    end;
+
+  if Result <> [] then
+    Result.Reduce();
+end;
+
+function TObjectJSONParser.GetNearest(names: TStringArray; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TGameObjectV2;
+var
+  obj: TGameObjectV2;
+  objArr: TGameObjectV2Array;
+  dist: Double;
+  coordinate: TPoint;
+  angle: Single;
+  i, j: Integer;
+  action: String;
+  actionFound: Boolean;
+begin
+  objArr := Self.GetAll(names);
+  dist := maxDist;
+  for obj in objArr do
+  begin
+    actionFound := False;
+    if actions <> [] then
+    begin
+      for action in obj.Actions do
+        for j := 0 to High(actions) do
+          if (actions[j] in action) or (actions[j] = action) then
+            actionFound := True;
+    end else actionFound := True;
+    for i := 0 to high(obj.Coordinates) do
+    begin
+      if actionFound and (obj.Coordinates[i].DistanceTo(point) < dist) then
+      begin
+        Result := obj;
+        coordinate := obj.Coordinates[i];
+        angle := obj.Rotations[i];
+        dist := obj.Coordinates[i].DistanceTo(point);
+      end;
+    end;
+  end;
+  Result.Coordinates := [coordinate];
+  Result.Rotations := [angle];
+end;
+
+function TObjectJSONParser.GetNearest(name: String; point: TPoint; actions: TStringArray = []; maxDist: Integer = $FFFFFF): TGameObjectV2; overload;
+begin
+  Result := Self.GetNearest([name], point, actions, maxDist);
+end;
+
+procedure TObjectJSONParser.Print();
+var
+  i, j: Int32;
+  actions: TStringArray;
+  colors: TIntegerArray;
+begin
+  for i := 0 to  Self.Data.High() do with Self.Data.getJSONObject(i) do
+  begin
+    for j := 0 to getJSONArray('actions').High() do
+      actions += getJSONArray('actions').getString(j);
+
+    for j := 0 to getJSONArray('colors').High() do
+      colors += getJSONArray('colors').getInt(j);
+
+    WriteLn(
+      'ID: ', getInt('id'), ', Name: ', getString('name'),
+      ', Type: ', getInt('type'), ', Category: ', getInt('category'),
+      ', Actions: ', actions, ', Colors: ', getJSONArray('colors').ToString(), ', Coordinates: ', getJSONArray('coordinates').toString()
+    );
+
+    actions := [];
+    colors := [];
+  end;
+end;
+
+var
+  Objects: TObjectJSONParser;
+
+type
+  TNPCJSONParser = record
+    Data: TJSONArray;
+    Walker: PWalkerV2;
+  end;
+
+procedure TNPCJSONParser.Setup(json: TJSONArray; walker: PWalkerV2);
+begin
+  if Self.Data = nil then
+    Self.Data := json
+  else
+    Self.Data.Merge(json);
+
+  Self.Walker := walker;
+end;
+
+
+function TNPCJSONParser.Get(npc: Variant): TNPCV2;
+var
+  i: Int32;
+  name: String;
+begin
+  if VarIsNumeric(npc) then
+  begin
+    for i := 0 to  Self.Data.High() do
+      if Self.Data.getJSONObject(i).getInt('id') = npc then
+        Exit(TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+    TerminateScript('NPC with ID ' + ToStr(npc) + ' doesn''t exist on the loaded maps.');
+  end;
+
+  name := LowerCase(npc);
+
+  if name.IsDigit() then
+  begin
+    for i := 0 to  Self.Data.High() do
+      if Self.Data.getJSONObject(i).getInt('id') = npc then
+        Exit(TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+    TerminateScript('NPC with ID ' + ToStr(npc) + ' doesn''t exist on the loaded maps.');
+  end;
+
+  for i := 0 to Self.Data.High() do
+  begin
+    if LowerCase(Self.Data.getJSONObject(i).getString('name')) <> name then
+      Continue;
+
+    if Result.Name <> '' then
+    begin
+      if Result.SameObject(Self.Data.getJSONObject(i)) then
+        Result := Result.Merge(Self.Data.getJSONObject(i));
+      Continue;
+    end;
+
+    Result := TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+  end;
+
+  if Result.Name = '' then
+    TerminateScript('NPC ' + name + ' doesn''t exist on the loaded maps.');
+end;
+
+function TNPCJSONParser.GetByAction(action: String): TNPCV2;
+var
+  i, j: Int32;
+begin
+  action := LowerCase(action);
+  for i := 0 to Self.Data.High() do
+    for j := 0 to Self.Data.getJSONObject(i).getJSONArray('actions').High() do
+      if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) = action then
+        Exit(TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i)));
+
+  TerminateScript('NPCs with action ' + action + ' don''t exist on the loaded maps.');
+end;
+
+function TNPCJSONParser.GetAll(name: String): TNPCV2Array;
+var
+  i: Int32;
+begin
+  name := LowerCase(name);
+  for i := 0 to Self.Data.High() do
+    if LowerCase(Self.Data.getJSONObject(i).getString('name')) = name then
+      Result += TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+end;
+
+function TNPCJSONParser.GetAll(names: TStringArray): TNPCV2Array; overload;
+var
+  name: String;
+begin
+  for name in names do
+    Result += Self.GetAll(name);
+end;
+
+
+function TNPCJSONParser.GetAllByAction(action: String): TNPCV2Array;
+var
+  i, j: Int32;
+begin
+  action := LowerCase(action);
+  for i := 0 to Self.Data.High() do
+    for j := 0 to Self.Data.getJSONObject(i).getJSONArray('actions').High() do
+      if LowerCase(Self.Data.getJSONObject(i).getJSONArray('actions').getString(j)) = action then
+        Result += TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+
+  if Result <> [] then
+    Result.Reduce();
+end;
+
+function TNPCJSONParser.GetAllByCoordinate(p: TPoint; dist: Int32): TNPCV2Array;
+var
+  i, j: Int32;
+  coordJSON: TJSONArray;
+  coord: TPoint;
+begin
+  for i := 0 to Self.Data.High() do
+    for j := 0 to Self.Data.getJSONObject(i).getJSONArray('coordinates').High() do
+    begin
+      coordJSON := Self.Data.getJSONObject(i).getJSONArray('coordinates').Get(j);
+      coord := [coordJSON.getInt(0), coordJSON.getInt(1)];
+      if p.DistanceTo(coord) >= dist then
+        Continue;
+      Result += TNPCV2.Setup(Self.Walker, Self.Data.getJSONObject(i));
+      Break;
+    end;
+
+  if Result <> [] then
+    Result.Reduce();
+end;
+
+function TNPCJSONParser.GetNearest(names: TStringArray; point:TPoint): TNPCV2;
+var
+  NPC: TNPCV2;
+  npcArr: TNPCV2Array;
+  coordinate: TPoint;
+  dist: Double;
+  i: Integer;
+begin
+  npcArr := Self.GetAll(names);
+  dist := $FFFFFF;
+  for NPC in npcArr do
+    for i := 0 to high(NPC.Coordinates) do
+    begin
+      if NPC.Coordinates[i].DistanceTo(point) < dist then
+      begin
+        Result := NPC;
+        coordinate := NPC.Coordinates[i];
+        dist := NPC.Coordinates[i].DistanceTo(point);
+      end;
+    end;
+  Result.Coordinates := [coordinate];
+end;
+
+function TNPCJSONParser.GetNearest(name: String; point:TPoint): TNPCV2; overload;
+begin
+  Result := Self.GetNearest([name], point);
+end;
+
+
+procedure TNPCJSONParser.Print();
+var
+  i, j: Int32;
+  actions: TStringArray;
+  colors: TIntegerArray;
+begin
+  for i := 0 to  Self.Data.High() do with Self.Data.getJSONObject(i) do
+  begin
+    for j := 0 to getJSONArray('actions').High() do
+      actions += getJSONArray('actions').getString(j);
+
+    for j := 0 to getJSONArray('colors').High() do
+      colors += getJSONArray('colors').getInt(j);
+
+    WriteLn(
+      'ID: ', getInt('id'), ', Name: ', getString('name'),
+      ', Category: ', getInt('category'),
+      ', Actions: ', actions, ', Colors: ', colors, ', Coordinates: ', getJSONArray('coordinates').toString()
+    );
+    actions := [];
+    colors := [];
+  end;
+end;
+
+var
+  NPCs: TNPCJSONParser;
+
+type
+  TBanks = record
+    MapObjects: PRSMapObjectArray;
+
+    ObjectsCache: TGameObjectV2Array;
+    NPCsCache: TNPCV2Array;
+  end;
+
+procedure TBanks._SetupMapObjects(Objects: TObjectJSONParser = Objects; NPCs: TNPCJSONParser = NPCs);
+var
+  i: Int32;
+begin
+  if Objects <> [] then
+  begin
+    Self.ObjectsCache := Objects.GetAllByAction('Bank');
+    Self.ObjectsCache += Objects.GetAll('Bank chest');
+
+    for i := 0 to High(Self.ObjectsCache) do
+    begin
+      Self.ObjectsCache[i].Filter.Finder := False;
+      Self.MapObjects += @Self.ObjectsCache[i];
+    end;
+  end;
+
+  if NPCs <> [] then
+  begin
+    Self.NPCsCache := NPCs.GetAllByAction('Bank');
+    for i := 0 to High(Self.NPCsCache)  do
+    begin
+      Self.NPCsCache[i].Filter.Finder := False;
+      Self.MapObjects += @Self.NPCsCache[i];
+    end;
+  end;
+
+  if Self.MapObjects = [] then
+    TerminateScript('No bank objects nor npcs available in the loaded TMap');
+end;
+
+procedure TBanks._AddObject(obj: TGameObjectV2);
+begin
+  Self.ObjectsCache += obj;
+  Self.MapObjects += @Self.ObjectsCache[High(Self.ObjectsCache)];
+end;
+
+procedure TBanks._AddNPC(npc: TNPCV2);
+begin
+  Self.NPCsCache += npc;
+  Self.MapObjects += @Self.NPCsCache[High(Self.NPCsCache)];
+end;
+
+procedure TBanks._FilterLocation(polygon: TPointArray; inside: Boolean);
+begin
+  if Self.MapObjects = [] then
+    Self._SetupMapObjects();
+
+  Self.MapObjects.Filter(polygon, inside);
+end;
+
+procedure TBanks._FilterLocation(circle: TCircle; inside: Boolean); overload;
+begin
+  if Self.MapObjects = [] then
+    Self._SetupMapObjects();
+
+  Self.MapObjects.Filter(circle, inside);
+end;
+
+
+function TBanks.GetCoordinates(): TPointArray;
+begin
+  if Self.MapObjects = [] then
+    Self._SetupMapObjects();
+
+  Result := Self.MapObjects.GetCoordinates();
+end;
+
+procedure TBanks.SetOffset(offset: TPoint);
+begin
+  if Self.MapObjects = [] then
+    Self._SetupMapObjects();
+
+  Self.MapObjects.Offset(offset);
+end;
+
+
+procedure TBanks.Debug();
+var
+  mapObj: PRSMapObject;
+begin
+  if Self.MapObjects = [] then
+    Self._SetupMapObjects();
+
+  mapObj := Self.MapObjects.GetClosest();
+  case mapObj^.MapObjectType of
+    EGameMapObjectType.OBJ: System.Debug(PGameObjectV2(mapObj)^);
+    EGameMapObjectType.NPC: System.Debug(PNPCV2(mapObj)^);
+  end;
+end;
+
+
+function TBanks.GetClosest(): PRSMapObject;
+begin
+  if Self.MapObjects = [] then
+    Self._SetupMapObjects();
+
+  Result := Self.MapObjects.GetClosest();
+end;
+
+
+function TBanks.Hover(mapObj: PRSMapObject = nil): Boolean;
+begin
+  if GameInterface.IsOpen() then
+    Exit;
+
+  if mapObj = nil then
+    mapObj := Self.GetClosest();
+
+  Result := mapObj^.Hover();
+end;
+
+function TBanks.Open(mapObj: PRSMapObject = nil): Boolean;
+begin
+  if GameInterface.IsOpen() then
+  begin
+    if Bank.IsOpen() or BankPin.IsOpen() then
+      Exit(True);
+    GameInterface.Close(True);
+  end;
+
+  if mapObj = nil then
+    mapObj := Self.GetClosest();
+
+  case mapObj^.MapObjectType of
+    EGameMapObjectType.OBJ: Result := mapObj^.Click() or (MainScreen.IsUpText('Banker') and ChooseOption.Select(['Bank B', 'Bank E']));
+    EGameMapObjectType.NPC: Result := mapObj^.SelectOption(['Bank B', 'Bank E']) or (MainScreen.IsUpText('Bank') and ChooseOption.Select(['Bank B', 'Bank E']));
+  end;
+
+  if not Result then
+    Exit;
+
+  Minimap.WaitMoving();
+  Result := WaitUntil(GameInterface.IsOpen(), 300, 3000) and (Bank.IsOpen() or BankPin.IsOpen());
+end;
+
+function TBanks.WalkHover(mapObj: PRSMapObject = nil): Boolean;
+begin
+  if GameInterface.IsOpen() then
+    Exit;
+
+  if mapObj = nil then
+    mapObj := Self.GetClosest();
+
+  Result := mapObj^.WalkHover();
+end;
+
+function TBanks.WalkOpen(mapObj: PRSMapObject = nil): Boolean;
+begin
+  if GameInterface.IsOpen() then
+  begin
+    if Bank.IsOpen() or BankPin.IsOpen() then
+      Exit(True);
+    GameInterface.Close(True);
+  end;
+
+  if mapObj = nil then
+    mapObj := Self.GetClosest();
+
+  case mapObj^.MapObjectType of
+    EGameMapObjectType.OBJ: Result := mapObj^.WalkClick() or (MainScreen.IsUpText('Banker') and ChooseOption.Select(['Bank B', 'Bank E']));
+    EGameMapObjectType.NPC: Result := mapObj^.WalkSelectOption(['Bank B', 'Bank E']) or (MainScreen.IsUpText('Bank') and ChooseOption.Select(['Bank B', 'Bank E']));
+  end;
+
+  if not Result then
+    Exit;
+
+  Minimap.WaitMoving();
+  Result := WaitUntil(GameInterface.IsOpen(), 300, 3000) and (Bank.IsOpen() or BankPin.IsOpen());
+end;
+
+var
+  {$H-}Banks: TBanks;{$H+}

@@ -1,0 +1,1084 @@
+(*
+# Login
+
+Handles logging in players.
+
+Summary:
+
+- Add players with `Login.AddPlayer`
+- Login the current player with `Login.LoginPlayer`
+- Switch to the next player with `Login.NextPlayer`
+
+Example:
+```pascal
+Login.AddPlayer('myusername', 'mypassword');
+if not Login.LoginPlayer() then
+  TerminateScript('Failed to login!');
+```
+*)
+
+{$DEFINE SRL_LOGIN_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+(*
+(TLoginPlayer)=
+## type TLoginPlayer
+```pascal
+TLoginPlayer = record
+  User: String;
+  Password: String;
+  Pin: String;
+  Worlds: TIntegerArray;
+  Active: Boolean;
+  BioHash: Double;
+end;
+```
+Type responsible for managing player data.
+You usually don't use this directly but instead use TLogin methods to interact with TLoginPlayers stored in TLogin.Players array.
+The **Active** variable decides wether the player is inteded to be skipped or not by TLogin.
+*)
+  TLoginPlayer = record
+    User: String;
+    Password: String;
+    Pin: String;
+    Worlds: TIntegerArray;
+    Active: Boolean;
+    BioHash: Double;
+  end;
+
+(*
+(TLogin)=
+## type TLogin
+```pascal
+TLogin = record(TInterface)
+  Players: array of TLoginPlayer;
+  PlayerIndex: Int32;
+  AllowDangerousWorlds: Boolean;
+end;
+```
+Type responsible for handling login and managing cached TLoginPlayers.
+*)
+  TLogin = record(TInterface)
+    Players: array of TLoginPlayer;
+    PlayerIndex: Int32;
+
+    AllowDangerousWorlds: Boolean;
+
+    {%codetools off}
+    WhiteOCRFilter, YellowOCRFilter: TOCRColorFilter;
+    {%codetools on}
+  end;
+
+const
+(*
+## LOGIN_MESSAGES
+```pascal
+LOGIN_MESSAGE_NONE = '';
+LOGIN_MESSAGE_CONNECTING = 'Connecting to server';
+LOGIN_MESSAGE_INVALID_CREDENTIALS = 'Invalid credentials';
+LOGIN_MESSAGE_NEED_SKILL_TOTAL = 'You need a skill total of';
+LOGIN_MESSAGE_INVALID_USER_PASS = 'Please enter your username/email address.';
+LOGIN_MESSAGE_ERROR_CONNECTING = 'Error connecting to server';
+LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT = 'Your account has not logged out';
+LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE = 'Login server offline';
+LOGIN_MESSAGE_ERROR_LOADING_PROFILE = 'Error loading your profile';
+LOGIN_MESSAGE_CONNECTION_TIMED_OUT = 'Connection timed out';
+LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED = 'Login limit exceeded';
+LOGIN_MESSAGE_WORLD_FULL = 'This world is full';
+LOGIN_MESSAGE_ACCOUNT_DISABLED = 'Your account has been disabled';
+LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER = 'Your account has been involved';
+LOGIN_MESSAGE_MEMBERS = 'You need a members account';
+LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
+LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
+```
+Global constants for most if not all login messages.
+
+Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
+*)
+  LOGIN_MESSAGE_NONE = '';
+  LOGIN_MESSAGE_CONNECTING = 'Connecting to server';
+  LOGIN_MESSAGE_INVALID_CREDENTIALS = 'Invalid credentials';
+  LOGIN_MESSAGE_NEED_SKILL_TOTAL = 'You need a skill total of';
+  LOGIN_MESSAGE_INVALID_USER_PASS = 'Please enter your username/email address.';
+  LOGIN_MESSAGE_ERROR_CONNECTING = 'Error connecting to server';
+  LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT = 'Your account has not logged out';
+  LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE = 'Login server offline';
+  LOGIN_MESSAGE_ERROR_LOADING_PROFILE = 'Error loading your profile';
+  LOGIN_MESSAGE_CONNECTION_TIMED_OUT = 'Connection timed out';
+  LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED = 'Login limit exceeded';
+  LOGIN_MESSAGE_WORLD_FULL = 'This world is full';
+  LOGIN_MESSAGE_ACCOUNT_DISABLED = 'Your account has been disabled';
+  LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER = 'Your account has been involved';
+  LOGIN_MESSAGE_MEMBERS = 'You need a members account';
+  LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
+  LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
+  LOGIN_MESSAGE_UPDATED =  'has been updated! Please restart the game to retry';
+  LOGIN_MESSAGE_TOO_MANY_ATTEMPTS = 'Too many login attempts from your address';
+  LOGIN_MESSAGE_UNABLE_TO_CONNECT = 'Unable to connect';
+  LOGIN_MESSAGE_NO_REPLY_LOGINSERVER = 'No reply from login server';
+  LOGIN_MESSAGE_ACCOUNT_LOCKED = 'Your account has been locked as we suspect it has been stolen';
+  LOGIN_MESSAGE_TOO_MANY_INCORRECT = 'Too many incorrect logins from your address';
+  LOGIN_MESSAGE_INVALID_EMAIL_PASS = 'Invalid email or password';
+  LOGIN_MESSAGE_SERVICE_UNAVAILABLE = 'Service unavailable';
+  LOGIN_MESSAGE_SESSION_ERROR = 'There was a problem updating your session';
+  LOGIN_MESSAGE_UNEXPECTED_RESPONSE = 'Unexpected server response';
+  LOGIN_MESSAGE_NOT_LOGGED_OUT_ALT = 'Your account has not logged out from its last session';
+  LOGIN_MESSAGE_BEING_UPDATED = 'is being updated';
+  LOGIN_MESSAGE_RELOAD_PAGE = 'Please reload this page';
+
+  LOGIN_MESSAGES = [
+    LOGIN_MESSAGE_CONNECTING,
+    LOGIN_MESSAGE_INVALID_CREDENTIALS,
+    LOGIN_MESSAGE_NEED_SKILL_TOTAL,
+    LOGIN_MESSAGE_INVALID_USER_PASS,
+    LOGIN_MESSAGE_ERROR_CONNECTING,
+    LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT,
+    LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE,
+    LOGIN_MESSAGE_ERROR_LOADING_PROFILE,
+    LOGIN_MESSAGE_CONNECTION_TIMED_OUT,
+    LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED,
+    LOGIN_MESSAGE_WORLD_FULL,
+    LOGIN_MESSAGE_ACCOUNT_DISABLED,
+    LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER,
+    LOGIN_MESSAGE_MEMBERS,
+    LOGIN_MESSAGE_IN_MEMBERS_AREA ,
+    LOGIN_MESSAGE_AUTHENTICATOR,
+    LOGIN_MESSAGE_UPDATED,
+    LOGIN_MESSAGE_TOO_MANY_ATTEMPTS,
+    LOGIN_MESSAGE_UNABLE_TO_CONNECT,
+    LOGIN_MESSAGE_NO_REPLY_LOGINSERVER,
+    LOGIN_MESSAGE_ACCOUNT_LOCKED,
+    LOGIN_MESSAGE_TOO_MANY_INCORRECT,
+    LOGIN_MESSAGE_INVALID_EMAIL_PASS,
+    LOGIN_MESSAGE_SERVICE_UNAVAILABLE,
+    LOGIN_MESSAGE_SESSION_ERROR,
+    LOGIN_MESSAGE_UNEXPECTED_RESPONSE,
+    LOGIN_MESSAGE_NOT_LOGGED_OUT_ALT,
+    LOGIN_MESSAGE_BEING_UPDATED,
+    LOGIN_MESSAGE_RELOAD_PAGE
+  ];
+
+  LOGIN_DIALOG_OK = 'Ok';
+  LOGIN_DIALOG_TRY_AGAIN = 'Try again';
+  LOGIN_DIALOG_EXISTING_USER = 'Existing User';
+  LOGIN_DIALOG_CONTINUE = 'Continue';
+
+  LOGIN_DIALOGS = [
+    LOGIN_DIALOG_OK,
+    LOGIN_DIALOG_TRY_AGAIN,
+    LOGIN_DIALOG_EXISTING_USER
+  ];
+
+  LOGIN_DIALOGS_DANGEROUS = [
+    LOGIN_DIALOG_CONTINUE
+  ];
+
+
+(*
+## Login.FindText
+```pascal
+function TLogin.FindText(Text: String; out B: TBox): Boolean;
+function TLogin.FindText(Text: String): Boolean; overload;
+```
+Internal TLogin method used to find a message on the TLogin interface.
+You probably will never to use this directly.
+*)
+function TLogin.FindText(text: String; out b: TBox): Boolean;
+begin
+  Result := (OCR.LocateText(Self.Bounds, text, FONT_BOLD_12,  Self.WhiteOCRFilter, b) = 1) or
+            (OCR.LocateText(Self.Bounds, text, FONT_BOLD_12,  Self.YellowOCRFilter, b) = 1) or
+            (OCR.LocateText(Self.Bounds, text, FONT_PLAIN_12, Self.WhiteOCRFilter, b) = 1) or
+            (OCR.LocateText(Self.Bounds, text, FONT_PLAIN_11, Self.WhiteOCRFilter, b) = 1);
+end;
+
+function TLogin.FindText(text: String): Boolean; overload;
+var
+  b: TBox;
+begin
+  Result := Self.FindText(text, b);
+end;
+
+(*
+## Login.IsReady
+```pascal
+function TLogin.IsReady(): Boolean;
+```
+Checks if the login screen is ready to login. In other words, has no dialogs up.
+
+Example:
+```pascal
+WriteLn Login.IsReady();
+```
+*)
+function TLogin.IsReady(): Boolean;
+begin
+  Result := Self.FindText('Welcome') or
+            (Self.FindText('Login:') and Self.FindText('Password:'));
+end;
+
+(*
+## Login.UsingLauncher
+```pascal
+function TLogin.UsingLauncher(): Boolean;
+```
+Checks if the client was launched by a launcher (Steam/Jagex Launcher) or was manually ran by the user.
+
+Example:
+```pascal
+WriteLn Login.UsingLauncher();
+```
+*)
+function TLogin.UsingLauncher(): Boolean;
+begin
+  Result := not Self.FindText('New User') and
+            not Self.FindText('Existing User') and not Self.FindText('Login:')
+            and not Self.FindText('Password:');
+end;
+
+(*
+## Login.ClickText
+```pascal
+function TLogin.ClickText(Text: String): Boolean;
+```
+Internal TLogin method used to find the specified **Text** on the TLogin interface and click it.
+You probably will never to use this directly.
+*)
+function TLogin.ClickText(text: String): Boolean;
+var
+  b: TBox;
+begin
+  Result := FindText(text, b);
+  if Result then
+    Mouse.Click(b, MOUSE_LEFT);
+end;
+
+(*
+## Login.ClickWorld
+```pascal
+function TLogin.ClickWorld(World: Int32): Boolean;
+```
+Internal TLogin method used to click a world on the login interface.
+You probably will never to use this directly.
+*)
+function TLogin.ClickWorld(World: Int32): Boolean;
+var
+  B: TBox;
+begin
+  Result := OCR.LocateText(Self.Bounds, ToString(World), FONT_BOLD_12, TOCRColorFilter.Create([$000000]), B) = 1;
+
+  if Result then
+  begin
+    if (not Self.AllowDangerousWorlds) then
+    begin
+      // normal free(silver) or members(gold) world
+      if (SRL.CountColor(CTS1(4089471, 20), B) = 0) and
+         (SRL.CountColor(CTS1(8421504, 25), B) = 0) then
+        Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(World) + ')');
+    end;
+
+    Mouse.Click(B, MOUSE_LEFT);
+  end;
+end;
+
+(*
+## Login.IsOpen
+```pascal
+function TLogin.IsOpen(): Boolean;
+```
+TLogin method used to check if we are on the login screen.
+
+Example:
+```pascal
+WriteLn Login.IsOpen();
+```
+*)
+function TLogin.IsOpen(): Boolean;
+begin
+  Result := Self.FindText('Click to switch');
+end;
+
+(*
+## Login.IsWorldSwitcherOpen
+```pascal
+function TLogin.IsWorldSwitcherOpen(): Boolean;
+```
+TLogin method used to check if the login world switcher is open.
+
+Example:
+```pascal
+WriteLn Login.IsWorldSwitcherOpen();
+```
+*)
+function TLogin.IsWorldSwitcherOpen(): Boolean;
+begin
+  Result := Self.FindText('Cancel');
+end;
+
+(*
+## Login.OpenWorldSwitcher
+```pascal
+function TLogin.OpenWorldSwitcher(): Boolean;
+```
+TLogin method used to open the login screen world switcher.
+
+Example:
+```pascal
+if not Login.IsWorldSwitcherOpen() then
+  WriteLn Login.OpenWorldSwitcher();
+```
+*)
+function TLogin.OpenWorldSwitcher(): Boolean;
+begin
+  Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000);
+end;
+
+(*
+## Login.CloseWorldSwitcher
+```pascal
+function TLogin.CloseWorldSwitcher(): Boolean;
+```
+TLogin method used to close the login screen world switcher.
+
+Example:
+```pascal
+if Login.IsWorldSwitcherOpen() then
+  WriteLn Login.CloseWorldSwitcher();
+```
+*)
+function TLogin.CloseWorldSwitcher(): Boolean;
+begin
+  Result := Self.IsOpen() or (Self.ClickText('Cancel') and WaitUntil(Self.IsOpen(), 100, 1000));
+end;
+
+(*
+## Login.GetCurrentWorld
+```pascal
+function TLogin.GetCurrentWorld(): Int32;
+```
+Returns the currently selected world.
+
+Example:
+```pascal
+WriteLn Login.GetCurrentWorld();
+```
+*)
+function TLogin.GetCurrentWorld(): Int32;
+var
+  B: TBox;
+begin
+  if Self.CloseWorldSwitcher() and Self.FindText('Click to switch', B) then
+  begin
+    B.Y1 -= 25;
+
+    Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([$FFFFFF]), FONT_BOLD_12);
+  end;
+end;
+
+(*
+## Login.SwitchToWorld
+```pascal
+function TLogin.SwitchToWorld(World: Int32): Boolean;
+```
+Attempts to switch the current world to the **World** specified.
+
+Example:
+```pascal
+WriteLn Login.SwitchToWorld(303);
+```
+*)
+function TLogin.SwitchToWorld(World: Int32): Boolean;
+var
+  i: Int32;
+begin
+  if Self.GetCurrentWorld() = World then
+    Exit(True);
+
+  if Self.OpenWorldSwitcher() then
+  begin
+    for i := 1 to 9 do // Nine pages of worlds
+    begin
+      if Self.ClickWorld(World) then
+      begin
+        Result := Self.GetCurrentWorld() = World;
+        Exit;
+      end;
+
+      Keyboard.PressKey(VK_RIGHT);
+
+      Wait(500, 2000, wdLeft);
+    end;
+  end;
+end;
+
+(*
+## Login.HandleDialogs
+```pascal
+function TLogin.HandleDialogs(): Boolean;
+```
+Internal TLogin method used to handle the dialog messages.
+You probably will never need to call this directly.
+*)
+function TLogin.HandleDialogs(): Boolean;
+var
+  Dialog: String;
+begin
+  for Dialog in LOGIN_DIALOGS do
+    if Self.ClickText(' ' + Dialog + ' ') then
+      Exit(True);
+
+  for Dialog in LOGIN_DIALOGS_DANGEROUS do
+    case Self.AllowDangerousWorlds of
+      True:
+        if Self.ClickText(' ' + Dialog + ' ') then
+          Exit(True);
+
+      False:
+        if Self.FindText(' ' + Dialog + ' ') then
+          Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(Self.GetCurrentWorld()) + ')');
+    end;
+end;
+
+(*
+## Login.EnterField
+```pascal
+function TLogin.EnterField(Field, Details: String): Boolean;
+```
+
+Used to enter player details in the login screen.
+This is not an internal method but you probably will never need to call this directly.
+
+Example:
+```pascal
+WriteLn Login.EnterField('Login:', 'my user name') and
+        Login.EnterField('Password:', 'my password');
+```
+*)
+function TLogin.EnterField(Field, Details: String): Boolean;
+var
+  B: TBox;
+begin
+  if Self.FindText(Details + ' ') then
+    Exit(True);
+
+  if Self.FindText(Field, B) then
+  begin
+    B.X1 := B.X2;
+    B.X2 := B.X1 + 250;
+
+    // Move caret
+    while not WaitUntil(SRL.CountColor($00FFFF, B) > 15, 100, SRL.TruncatedGauss(800, 1600)) do
+    begin
+      if not Self.IsOpen() then
+        Exit(False);
+
+      Keyboard.PressKey(VK_TAB);
+    end;
+
+    // Erase field
+    while SRL.CountColor($FFFFFF, B) > 0 do
+      Keyboard.PressKey(VK_BACK);
+    Keyboard.Send(Details);
+
+    Wait(0, 1000, wdLeft);
+
+    Result := True;
+  end;
+end;
+
+(*
+## Login.GetLoginMessage
+```pascal
+function TLogin.GetLoginMessage(): String;
+```
+Returns the login message that matches any of the messages stored in the constant **LOGIN_MESSAGES**.
+This is not an internal method but you probably will never need to call this directly.
+
+Example:
+```pascal
+WriteLn Login.GetLoginMessage();
+```
+*)
+function TLogin.GetLoginMessage(): String;
+var
+  i: Int32;
+begin
+  Result := LOGIN_MESSAGE_NONE;
+
+  for i := 0 to High(LOGIN_MESSAGES) do
+    if Self.FindText(LOGIN_MESSAGES[i]) then
+    begin
+      Result := LOGIN_MESSAGES[i];
+
+      Exit;
+    end;
+end;
+
+(*
+## Login.HandleMessage
+```pascal
+function TLogin.HandleMessage(Message: String): Boolean;
+```
+Attempts to handle the currently displayed login message.
+This is not an internal method but you probably will never need to call this directly.
+
+Example:
+```pascal
+WriteLn Login.HandleMessage(Login.GetLoginMessage());
+```
+*)
+function TLogin.HandleMessage(Message: String): Boolean;
+begin
+  Self.DebugLn('Handling login message: ' + Message);
+
+  case Message of
+    // Cannot recover
+    LOGIN_MESSAGE_MEMBERS,
+    LOGIN_MESSAGE_IN_MEMBERS_AREA,
+    LOGIN_MESSAGE_NEED_SKILL_TOTAL,
+    LOGIN_MESSAGE_ACCOUNT_DISABLED,
+    LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER,
+    LOGIN_MESSAGE_ACCOUNT_LOCKED,
+    LOGIN_MESSAGE_AUTHENTICATOR,
+    LOGIN_MESSAGE_TOO_MANY_INCORRECT,
+    LOGIN_MESSAGE_BEING_UPDATED,
+    LOGIN_MESSAGE_RELOAD_PAGE,
+    LOGIN_MESSAGE_UPDATED:
+      Result := False;
+
+    // Retry
+    LOGIN_MESSAGE_INVALID_CREDENTIALS,
+    LOGIN_MESSAGE_INVALID_EMAIL_PASS,
+    LOGIN_MESSAGE_INVALID_USER_PASS:
+      Result := True;
+
+    // Retry after ~15 seconds
+    LOGIN_MESSAGE_ERROR_CONNECTING,
+    LOGIN_MESSAGE_SERVICE_UNAVAILABLE,
+    LOGIN_MESSAGE_SESSION_ERROR,
+    LOGIN_MESSAGE_UNEXPECTED_RESPONSE,
+    LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT,
+    LOGIN_MESSAGE_NOT_LOGGED_OUT_ALT,
+    LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE,
+    LOGIN_MESSAGE_ERROR_LOADING_PROFILE,
+    LOGIN_MESSAGE_CONNECTION_TIMED_OUT,
+    LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED,
+    LOGIN_MESSAGE_TOO_MANY_ATTEMPTS,
+    LOGIN_MESSAGE_UNABLE_TO_CONNECT,
+    LOGIN_MESSAGE_NO_REPLY_LOGINSERVER,
+    LOGIN_MESSAGE_WORLD_FULL:
+      begin
+        Wait(10000, 20000);
+
+        Result := True;
+      end;
+
+    // No handler
+    else
+      Self.Fatal('Unknown login message');
+  end;
+end;
+
+(*
+## Login.EnterGame
+```pascal
+function TLogin.EnterGame(): Boolean;
+```
+
+Attempts to login into the game.
+This is not an internal method but you probably will never need to call this directly.
+This assumes that the player username and password are already filled in.
+
+Example:
+```pascal
+if Login.EnterField('Login:', 'my user name') and
+   Login.EnterField('Password:', 'my password') then
+  WriteLn Login.EnterGame();
+```
+*)
+function TLogin.EnterGame(): Boolean;
+var
+  current, timeout, failsafe: UInt64;
+begin
+  current  := GetTickCount();
+  timeout  := current + 15000;
+  failsafe := current + Random(5000, 7000);
+  Self.DebugLn('Handling lobby screen.');
+
+  while not GameClient.IsLoggedIn() do
+  begin
+    if Self.ClickText('CLICK HERE TO PLAY') then
+      if GameClient.IsLoggedIn(5000) then exit(True);
+
+    current := GetTickCount();
+    if (current > timeout) then
+    begin
+      Self.DebugLn('Lobby screen timed out.');
+      Exit;
+    end;
+
+    if GameClient.IsLoggedIn() then
+      Exit(True);
+
+    if current > failsafe then
+      Mouse.Move(Box(Mouse.Position(), 10, 10), True);
+
+    Wait(300, 600);
+  end;
+
+  Result := GameClient.IsLoggedIn(5000);
+end;
+
+(*
+## Login.GetPlayer
+```pascal
+function TLogin.GetPlayer(): TLoginPlayer;
+```
+Returns the currently selected TLoginPlayer.
+The currently selected TLoginPlayer is decided by TLogin.PlayerIndex which
+is an index of the TLogin.Players array.
+
+Example:
+```pascal
+  WriteLn Login.GetPlayer().Username;
+```
+*)
+function TLogin.GetPlayer(): TLoginPlayer;
+begin
+  if Self.Players = [] then
+    Self.Fatal('No players declared: Add an account if you want scripts to handle login.');
+  if not InRange(Self.PlayerIndex, 0, High(Self.Players)) then
+    Self.Fatal('Player is out of range: Account number selected in script does not exist.');
+
+  Result := Self.Players[Self.PlayerIndex];
+end;
+
+(*
+## Login.DoLogin
+```pascal
+function TLogin.DoLogin(player: TLoginPlayer; launcher: Boolean = False): Boolean;
+```
+Performs a login in the loginscreen with the specified player.
+*)
+function TLogin.DoLogin(player: TLoginPlayer; launcher: Boolean = False): Boolean;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+  b: TBox;
+begin
+  if launcher then
+  begin
+    SRL.FindColors(tpa, CTS0(591881, 12), Self.Bounds);
+
+    if tpa = [] then
+      Exit;
+
+    atpa := tpa.Cluster(3);
+    atpa.FilterDimensions(200, 50, 230, 70);
+
+    if Length(atpa) <> 1 then
+      Exit;
+    tpa := atpa[0];
+
+    b := tpa.Bounds();
+    b.Y2 -= 18;
+    Mouse.Click(b, MOUSE_LEFT, True);
+    Exit(True);
+  end;
+
+  Result := Self.EnterField('Login:', player.User) and
+            Self.EnterField('Password:', player.Password);
+
+  if Result then
+    Keyboard.PressKey(VK_ENTER);
+end;
+
+(*
+## Login.WaitLoginMessage
+```pascal
+function TLogin.WaitLoginMessage(): Boolean;
+```
+Waits for a login message after a login was performed, returns true if we successfully enter the game lobby.
+*)
+function TLogin.WaitLoginMessage(): Boolean;
+var
+  message: String;
+  timeout: UInt64;
+begin
+  timeout := GetTickCount() + 80000; //80 seconds.
+  Self.DebugLn('Waiting for login message.');
+  while Self.IsOpen() do
+  begin
+    message := Self.GetLoginMessage();
+    if (message <> LOGIN_MESSAGE_CONNECTING) and
+       (message <> LOGIN_MESSAGE_NONE) then
+      Break;
+
+    if GetTickCount() >= timeout then
+    begin
+      Self.DebugLn('Login attempt timed out.');
+      Exit;
+    end;
+
+    Wait(500);
+  end;
+
+  Result := not Self.IsOpen() or Self.HandleMessage(message);
+end;
+
+(*
+## Login.LoginPlayer
+```pascal
+function TLogin.LoginPlayer(): Boolean;
+```
+Attempts to login the current selected player into the game.
+The currently selected player is decided by TLogin.PlayerIndex which is an
+index of the TLogin.Players array.
+
+Example:
+```pascal
+WriteLn Login.LoginPlayer();
+```
+*)
+function TLogin.LoginPlayer(): Boolean;
+var
+  attempts, world: Int32;
+  timeout: UInt64;
+  player: TLoginPlayer;
+  isLauncher: Boolean;
+begin
+  Self.DebugLn('Logging in player');
+
+  timeout := GetTickCount() + 40000;
+
+  while not Self.IsReady() do
+  begin
+    if Self.FindText('CLICK HERE TO PLAY') then
+      Exit(Self.EnterGame());
+
+    if Self.HandleDialogs() then
+      Wait(500);
+
+    if GetTickCount() > timeout then
+    begin
+      Self.DebugLn('Timed out waiting for the loginscreen to be ready.');
+      Exit;
+    end;
+  end;
+
+  player := Self.GetPlayer();
+  isLauncher := Self.UsingLauncher();
+
+  if isLauncher then
+    Self.DebugLn('Jagex Launcher login detected.')
+  else
+  begin
+    Self.DebugLn('Legacy login detected.');
+    if (player.User = '') or (player.Password = '') then
+      Self.Fatal('Player has no username or password');
+  end;
+
+  while Self.IsOpen() and (attempts < 10) do
+  begin
+    Self.DebugLn('Attempt ' + ToString(attempts + 1));
+
+    if player.Worlds <> [] then
+      if not (Self.GetCurrentWorld() in player.Worlds) or SRL.Dice(30) then
+      begin
+        world := Player.Worlds[Random(Length(Player.Worlds))];
+        if (not Self.SwitchToWorld(world)) then
+          Exit;
+      end;
+
+    if Self.HandleDialogs() then
+      Wait(500);
+
+    if Self.DoLogin(player, isLauncher) and not Self.WaitLoginMessage() then
+      Exit;
+
+    Inc(attempts);
+  end;
+
+  Result := Self.EnterGame();
+end;
+
+(*
+## Login.LoginPlayer overload which allows for fully customizable hop and percentage.
+It's coded to behave as the default if you just prefer having the option to customize.
+```pascal
+function TLogin.LoginPlayer(randomHop; hopChance): Boolean; overload;
+```
+Attempts to login the current selected player into the game.
+The currently selected player is decided by TLogin.PlayerIndex which is an
+index of the TLogin.Players array.
+
+Example:
+```pascal
+WriteLn Login.LoginPlayer(True, 90); // When on the main login lobby, has a 90% chance to hop
+```
+*)
+
+function TLogin.LoginPlayer(randomHop: Boolean; hopChance: Int32 = 30): Boolean; overload;
+var
+  attempts, world: Int32;
+  timeout: UInt64;
+  player: TLoginPlayer;
+  isLauncher: Boolean;
+begin
+  Self.DebugLn('Logging in player');
+
+  timeout := GetTickCount() + 40000;
+
+  while not Self.IsReady() do
+  begin
+    if Self.FindText('CLICK HERE TO PLAY') then
+      Exit(Self.EnterGame());
+
+    if Self.HandleDialogs() then
+      Wait(500);
+
+    if GetTickCount() > timeout then
+    begin
+      Self.DebugLn('Timed out waiting for the loginscreen to be ready.');
+      Exit;
+    end;
+  end;
+
+  player := Self.GetPlayer();
+  isLauncher := Self.UsingLauncher();
+
+  if isLauncher then
+    Self.DebugLn('Jagex Launcher login detected.')
+  else
+  begin
+    Self.DebugLn('Legacy login detected.');
+    if (player.User = '') or (player.Password = '') then
+      Self.Fatal('Player has no username or password');
+  end;
+
+  while Self.IsOpen() and (attempts < 10) do
+  begin
+    Self.DebugLn('Attempt ' + ToString(attempts + 1));
+
+    if (player.Worlds <> []) and randomHop then
+      if not (Self.GetCurrentWorld() in player.Worlds) or SRL.Dice(hopChance) then
+      begin
+        world := Player.Worlds[Random(Length(Player.Worlds))];
+        if (not Self.SwitchToWorld(world)) then
+          Exit;
+      end;
+
+    if Self.HandleDialogs() then
+      Wait(500);
+
+    if Self.DoLogin(player, isLauncher) and not Self.WaitLoginMessage() then
+      Exit;
+
+    Inc(attempts);
+  end;
+
+  Result := Self.EnterGame();
+end;
+
+(*
+## Login.AddPlayer
+```pascal
+procedure TLogin.AddPlayer(user, pass: String; pin: String = ''; worlds: TIntegerArray = []);
+```
+Adds a TLoginPlayer to the TLogin.Players array.
+
+Example:
+```pascal
+Login.AddPlayer('my username', 'my password', '0000'); //Adds a player to TLogin.Players
+Login.PlayerIndex := High(Login.Players);              //Our added TLoginPlayer will be the last in the array.
+Login.LoginPlayer();                                   //Login Login.Players[Login.PlayerIndex]
+```
+*)
+procedure TLogin.AddPlayer(user, pass: String; pin: String = ''; worlds: TIntegerArray = []);
+begin
+  Self.Players += [user, pass, pin, worlds, true];
+end;
+
+(*
+## Login.NextPlayer
+```pascal
+procedure TLogin.NextPlayer(DisableCurrentPlayer: Boolean);
+```
+This basically increments TLogin.PlayerIndex to the next TLoginPlayer that has the **Active** variable set to true.
+If TLogin.PlayerIndex is already set to our last TLoginPlayer, then it's reset to 0 and set to the first **Active** player.
+
+Example:
+```pascal
+WriteLn Login.PlayerIndex;
+Login.NextPlayer(True);        //Make sure you have a couple of players to run this example properly.
+WriteLn Login.PlayerIndex;
+```
+*)
+procedure TLogin.NextPlayer(disableCurrentPlayer: Boolean);
+
+  function Next(): Int32;
+  var
+    i: Int32;
+  begin
+    Result := -1;
+
+    for i := Self.PlayerIndex + 1 to High(Self.Players) do
+      if Self.Players[i].Active then
+        Exit(i);
+    for I := 0 to Self.PlayerIndex - 1 do // wrap around
+      if Self.Players[i].Active then
+        Exit(i);
+  end;
+
+begin
+  Self.Players[Self.PlayerIndex].Active := not disableCurrentPlayer;
+
+  Self.PlayerIndex := Next();
+  if (Self.PlayerIndex = -1) then
+    Self.Fatal('No other active players to switch to');
+end;
+
+
+(*
+## Login.GetPlayerPin
+```pascal
+function TLogin.GetPlayerPin(): String;
+```
+Get the current player bank pin.
+
+Example:
+```pascal
+if BankPin.IsOpen() then
+  BankPin.Enter(Login.GetPlayerPin());
+```
+*)
+function TLogin.GetPlayerPin(): String;
+begin
+  Result := Self.GetPlayer().Pin;
+  if (Length(Result) <> 4) or (not Result.IsDigit()) then
+    Self.Fatal('Invalid bank pin');
+end;
+
+(*
+## Login.GetPlayerBioHash
+```pascal
+function TLogin.GetPlayerBioHash(): Double;
+```
+Get the current player BioHash.
+
+Example:
+```pascal
+WriteLn Login.GetPlayerBioHash();
+```
+*)
+function TLogin.GetPlayerBioHash(): Double;
+var
+  h: UInt32;
+begin
+  if Self.Players = [] then
+    Self.Fatal('No players declared: Add an account if you want scripts to handle login.');
+  if not InRange(Self.PlayerIndex, 0, High(Self.Players)) then
+    Self.Fatal('Player is out of range: Account number selected in script does not exist.');
+
+  if (Self.Players[Self.PlayerIndex].BioHash = 0) then
+  begin
+    h := Self.Players[Self.PlayerIndex].User.Hash();
+    Self.Players[Self.PlayerIndex].BioHash := h / $FFFFFFFF;
+  end;
+
+  Result := Self.Players[Self.PlayerIndex].BioHash;
+end;
+
+
+(*
+## Login.Draw
+```pascal
+procedure TLogin.Draw(Bitmap: TMufasaBitmap); override;
+```
+Internal TLogin method used for debugging.
+You probably will never need to call this directly but can be useful for debugging.
+This is automatically called with **SRL.Debug()**.
+
+Example:
+```pascal
+SRL.Debug();
+```
+*)
+procedure TLogin.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+end;
+
+(*
+## Login.Setup
+```pascal
+procedure TLogin.Setup(); override;
+```
+Internal TLogin setup method. This is automatically called by SRL and you
+probably will never need to call this directly.
+*)
+procedure TLogin.Setup(); override;
+begin
+  inherited;
+
+  Self.Name := 'Login';
+  Self.WhiteOCRFilter := TOCRColorFilter.Create([$FFFFFF]);
+  Self.YellowOCRFilter := TOCRColorFilter.Create([$00FFFF]);
+end;
+
+(*
+## Login.SetupAlignment
+```pascal
+procedure TLogin.SetupAlignment(); overload;
+```
+Internal TLogin aligment method. This is automatically called by SRL and you
+probably will never need to call this directly.
+
+This is responsible for setting up the TLogin interface coordinates.
+*)
+procedure TLogin.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left   := RootInterface.Bounds.X1;
+  alignment.Right  := RootInterface.Bounds.X2;
+  alignment.Top    := RootInterface.Bounds.Y1;
+  alignment.Bottom := RootInterface.Bounds.Y1 + 502;
+  alignment.MaxWidth := 764;
+  alignment.MaxHeight := 0;
+
+  Self.SetupAlignment(alignment);
+end;
+
+(*
+(Login)=
+## var Login
+Global TLogin variable.
+*)
+var
+  Login: TLogin;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Login.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+
+  Login.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Login.Draw(Bitmap);
+end;

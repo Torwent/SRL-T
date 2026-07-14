@@ -1,0 +1,543 @@
+(*
+# Web Graph
+*)
+
+{$DEFINE SRL_WEBGRAPH_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+type
+  TWebGraph = record
+    Nodes: TPointArray;
+    Paths: T2DIntArray;
+    Names: TStringArray;
+    Blocking: TIntegerArray;
+  end;
+
+function TWebGraph.Copy(): TWebGraph;
+begin
+  Result.Blocking := System.Copy(Self.Blocking);
+  Result.Names    := System.Copy(Self.Names);
+  Result.Nodes    := System.Copy(Self.Nodes);
+  Result.Paths    := System.Copy(Self.Paths);
+end;
+
+procedure TWebGraph.BlockInside(area: TBox);
+var
+  i, c: Int32;
+begin
+  SetLength(blocking, Length(Self.Nodes));
+
+  for i := 0 to High(Self.Nodes) do
+    if area.Contains(Self.Nodes[i]) then
+    begin
+      blocking[c] := i;
+      Inc(c);
+    end;
+
+  SetLength(blocking, c);
+end;
+
+procedure TWebGraph.BlockOutside(Area: TBox);
+var
+  i, c: Int32;
+begin
+  SetLength(Blocking, Length(Self.Nodes));
+
+  for i := 0 to High(Self.Nodes) do
+    if (not Area.Contains(Self.Nodes[i])) then
+    begin
+      Blocking[c] := i;
+      Inc(c);
+    end;
+
+  SetLength(Blocking, c);
+end;
+
+function TWebGraph.FindPath(Start, Goal: Int32; Rnd:Double=0): TIntegerArray; constref;
+type
+  TNode = record
+    Indices: TIntegerArray;
+    Score: Double;
+  end;
+var
+  queue: array of TNode;
+  visited: TBoolArray;
+  cIdx, pathIdx, i: Int32;
+  current, node: TNode;
+  p,q: TPoint;
+  hyp: Double;
+
+  function GetNextShortest(): TNode;
+  var i, node: Int32;
+  begin
+    Result := queue[0];
+    for i := 1 to High(queue) do
+      if queue[i].Score < Result.Score then
+      begin
+        node   := i;
+        Result := queue[i];
+      end;
+    Delete(queue, node, 1);
+  end;
+begin
+  queue   := [[[start],0]];
+  SetLength(visited, Length(Self.Nodes));
+
+  // block certain paths by marking them as visited
+  for i:=0 to High(Blocking) do Visited[Blocking[i]] := True;
+
+  // ...
+  while Length(queue) <> 0 do
+  begin
+    current := GetNextShortest();
+    cIdx := current.Indices[High(current.Indices)];
+    if Visited[cIdx] then Continue; //skip overwrapping paths..
+    Visited[cIdx] := True;
+
+    if (cIdx = Goal) then
+      Exit(current.Indices);
+
+    p := Self.Nodes[cIdx];
+    for pathIdx in Self.Paths[cIdx] do
+    begin
+      if not Visited[pathIdx] then
+      begin
+        q := Self.Nodes[pathIdx];
+        node.Indices := current.Indices + pathIdx;
+
+        hyp := Hypot(p.x-q.x, p.y-q.y);
+        node.Score   := current.Score + hyp + (hyp*Random()*Rnd-Rnd/2);
+        queue += node;
+      end;
+    end;
+  end;
+end;
+
+
+function TWebGraph.FindNearestNode(P: TPoint): Int32; constref;
+var
+  i,j: Int32;
+  d,best,dn1,dn2: Double;
+begin
+  best := $FFFFFF;
+  for i:=0 to High(Self.Paths) do
+    for j in Self.Paths[i] do
+    begin
+      d := SRL.DistToLine(P, Self.Nodes[i], Self.Nodes[j]);
+      if d < best then
+      begin
+        best := d;
+        dn1 := Hypot(Self.Nodes[i].x-P.x, Self.Nodes[i].y-P.y);
+        dn2 := Hypot(Self.Nodes[j].x-P.x, Self.Nodes[j].y-P.y);
+        if dn1 < dn2 then
+          Result := i
+        else
+          Result := j;
+      end;
+    end;
+end;
+
+function TWebGraph.FindNearestNodes(p: TPoint; amount: Int32): TIntegerArray; constref;
+var
+  i,j,l: Int32;
+  d,dn1,dn2: Double;
+  weights: TIntegerArray;
+  lines: array of record
+    I: Int32;
+    J: Int32;
+    Dist: Double;
+  end;
+begin
+  for i := 1 to amount do
+    lines += [-1, -1, $FFFFFF];
+
+  for i := 0 to High(Self.Paths) do
+    for j in Self.Paths[i] do
+    begin
+      for l := 0 to High(lines) do
+        if (i = lines[l].I) or (i = lines[l].J) or (j = lines[l].I) or (j = lines[l].J) then
+          Continue(2);
+
+      d := SRL.DistToLine(p, Self.Nodes[i], Self.Nodes[j]);
+
+      for l := 0 to High(lines) do
+        if lines[l].Dist > d then
+        begin
+          lines[l] := [i, j, d];
+          Break;
+        end;
+    end;
+
+  for l := 0 to High(lines) do
+  begin
+    if lines[l].I = -1 then Continue;
+    if lines[l].J = -1 then Continue;
+
+    dn1 := Hypot(Self.Nodes[lines[l].I].x-P.x, Self.Nodes[lines[l].I].y-P.y);
+    dn2 := Hypot(Self.Nodes[lines[l].J].x-P.x, Self.Nodes[lines[l].J].y-P.y);
+
+    if dn1 < dn2 then
+      Result += lines[l].I
+    else
+      Result += lines[l].J;
+  end;
+
+  if Length(Result) = 0 then
+    Exit;
+
+  SetLength(weights, Length(Result));
+
+  for i := 0 to High(Result) do
+    weights[i] := Sqr(p.X - Self.Nodes[Result[i]].X) + Sqr(p.Y - Self.Nodes[Result[i]].Y);
+
+  Result.WeightedSort(weights, 0, High(Result), True);
+end;
+
+
+function TWebGraph.NodesToPoints(NodeList: TIntegerArray): TPointArray; constref;
+var node: Int32;
+begin
+  for node in NodeList do
+    Result += Self.Nodes[node];
+end;
+
+
+function TWebGraph.PathBetween(p,q: TPoint; rnd: Double = 0): TPointArray; constref;
+var
+  n1, n2: Int32;
+  nodes: TIntegerArray;
+begin
+  n1 := Self.FindNearestNode(p);
+  n2 := Self.FindNearestNode(q);
+
+  nodes := Self.FindPath(n1, n2, rnd);
+
+  if (Length(nodes) = 0) then
+    RaiseException(
+      'Points [' + ToStr(p.X) + ', ' + ToStr(p.Y) + '] and [' + ToStr(q.X) + ', ' + ToStr(q.Y) + '] don''t connect'
+    );
+
+  Result += p;
+  Result += NodesToPoints(nodes);
+  Result += q;
+end;
+
+
+
+function TWebGraph.PathBetweenEx(p,q: TPoint; rnd: Double = 0; attempts: Int32 = 3): TPointArray; constref;
+var
+  i, j: Int32;
+  nS, nG, nodes: TIntegerArray;
+begin
+  nS := Self.FindNearestNodes(p, attempts);
+  nG := Self.FindNearestNodes(q, attempts);
+
+  attempts -= 1;
+
+  for i := 0 to attempts do
+    for j := 0 to attempts do
+    begin
+      if nS[i] = nG[j] then Continue;
+      nodes := Self.FindPath(nS[i],nG[j], rnd);
+      if Length(nodes) > 0 then Break(2);
+    end;
+
+  if (Length(nodes) = 0) then
+    RaiseException(
+      'Points [' + ToStr(p.X) + ', ' + ToStr(p.Y) + '] and [' + ToStr(q.X) + ', ' + ToStr(q.Y) + '] don''t connect'
+    );
+
+  Result += p;
+  Result += NodesToPoints(nodes);
+  Result += q;
+end;
+
+
+
+function TWebGraph.InvalidConnection(p,q: TPoint): Boolean;
+
+  function LinesIntersect(p,q:array[0..1] of TPoint; out i:TPoint): Boolean;
+  var
+    dx,dy,d: TPoint;
+    dt,s,t: Double;
+    function Det(a,b: TPoint): Int64;
+    begin
+      Result := a.x*b.y - a.y*b.x;
+    end;
+  begin
+    dx := [p[0].x - p[1].x, q[0].x - q[1].x];
+    dy := [p[0].y - p[1].y, q[0].y - q[1].y];
+    dt := det(dx, dy);
+    if dt = 0 then Exit(False);
+    d := [Det(p[0],p[1]), Det(q[0],q[1])];
+    i.x := Round(Det(d, dx) / dt);
+    i.y := Round(Det(d, dy) / dt);
+    s := (dx.x * (q[0].y-p[0].y) + dy.x * (p[0].x-q[0].x)) / dt;
+    t := (dx.y * (p[0].y-q[0].y) + dy.y * (q[0].x-p[0].x)) / (-dt);
+    Result := (s > 0) and (s < 1) and (t > 0) and (t < 1);
+  end;
+
+var
+  i,n: Int32;
+  l1,l2: array[0..1] of TPoint;
+  _: TPoint;
+begin
+  l1 := [p,q];
+  for i:=0 to High(self.Paths) do
+  begin
+    l2[0] := self.Nodes[i];
+    for n in self.Paths[i] do
+    begin
+      l2[1] := self.Nodes[n];
+      if (l1[0] = l2[0]) and (l1[1] = l2[1]) then
+        Continue;
+      if LinesIntersect(l1,l2,_) then
+        Exit(True);
+    end;
+  end;
+end;
+
+
+function TWebGraph.AddNode(p: TPoint; FromNode: Int32): Boolean;
+var
+  c: Int32;
+begin
+  if (FromNode <> -1) and (Self.InvalidConnection(p, Self.Nodes[FromNode])) then
+    Exit(False);
+
+  c := Length(Self.Nodes);
+  SetLength(Self.Nodes, c+1);
+  SetLength(Self.Paths, c+1);
+  Self.Nodes[c] := p;
+
+  if FromNode <> -1 then
+  begin
+    Self.Paths[FromNode] += c;
+    Self.Paths[c] += FromNode;
+  end;
+
+  Result := True;
+end;
+
+
+function TWebGraph.ConnectNodes(a,b: Int32): Boolean;
+begin
+  if InIntArray(Self.Paths[a], b) then
+  begin
+    Self.Paths[a].Remove(b);
+    Self.Paths[b].Remove(a);
+  end else
+  begin
+    if (Self.InvalidConnection(Self.Nodes[a], Self.Nodes[b])) then
+      Exit(False);
+
+    Self.Paths[a] += b;
+    Self.Paths[b] += a;
+  end;
+
+  Result := True;
+end;
+
+function TWebGraph.ConnectNodes(a,b: TPoint): Boolean; overload;
+var
+  i, j: Int32;
+begin
+  i := Self.Nodes.Find(a);
+  if i = -1 then Exit;
+  j := Self.Nodes.Find(b);
+  if j = -1 then Exit;
+  Result := Self.ConnectNodes(i,j);
+end;
+
+function TWebGraph.ConnectNodes(a: Int32; b: TPoint): Boolean; overload;
+var
+  i: Int32;
+begin
+  i := Self.Nodes.Find(b);
+  if i = -1 then Exit;
+  Result := Self.ConnectNodes(a, i);
+end;
+
+
+function TWebGraph.DeleteNode(node: Int32): Int32;
+var
+  i,j,n,curr: Int32;
+  marked: TIntegerArray;
+begin
+  marked += node;
+  repeat
+    curr := marked.Pop();
+
+    for n in Self.Paths[curr] do
+    begin
+      Self.Paths[n].Remove(curr, True);
+      if Length(Self.Paths[n]) = 0 then
+        marked += n;
+    end;
+
+    // offset remainding nodes
+    for i:=0 to High(Self.Paths) do
+      for j:=0 to High(Self.Paths[i]) do
+        if Self.Paths[i][j] > curr then
+          Dec(Self.Paths[i][j]);
+
+    for i:=0 to High(marked) do
+      if marked[i] > curr then Dec(marked[i]);
+
+    // remove the node itself
+    Delete(Self.Paths, curr, 1);
+    Delete(Self.Nodes, curr, 1);
+    Result += 1;
+  until Length(marked) = 0;
+end;
+
+
+function TWebGraph.NodesToString(): String;
+var
+  I: Int32;
+begin
+  for I := 0 to High(Self.Nodes) do
+    Result := Result + '[' + IntToStr(Self.Nodes[I].X) + ' ' + IntToStr(Self.Nodes[I].Y) + ']';
+  Result := Base64Encode(CompressString(Result));
+end;
+
+procedure TWebGraph.LoadNodesFromString(S: String);
+var
+  Elements, Values: TStringArray;
+  I: Int32;
+begin
+  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
+
+  SetLength(Self.Nodes, Length(Elements));
+
+  for I := 0 to High(Elements) do
+  begin
+    Values := Explode(' ', Elements[I]);
+
+    Self.Nodes[I].X := StrToInt(Values[0]);
+    Self.Nodes[I].Y := StrToInt(Values[1]);
+  end;
+end;
+
+function TWebGraph.PathsToString(): String;
+var
+  I, J: Int32;
+begin
+  for I := 0 to High(Self.Paths) do
+  begin
+    Result := Result + '[';
+    if Length(Self.Paths[I]) = 0 then
+      Result += ' ';
+
+    for J := 0 to High(Self.Paths[I]) do
+    begin
+      if (J > 0) then
+        Result += ' ';
+      Result += IntToStr(Self.Paths[I][J]);
+    end;
+
+    Result := Result + ']';
+  end;
+
+  Result := Base64Encode(CompressString(Result));
+end;
+
+procedure TWebGraph.LoadPathsFromString(S: String);
+var
+  Elements, Values: TStringArray;
+  I, J: Int32;
+begin
+  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
+
+  SetLength(Self.Paths, Length(Elements));
+
+  for I := 0 to High(Elements) do
+  begin
+    if Elements[I] = ' ' then
+      Continue;
+
+    Values := Explode(' ', Elements[I]);
+
+    SetLength(Self.Paths[I], Length(Values));
+    for J := 0 to High(Values) do
+      Self.Paths[I][J] := StrToInt(Values[J]);
+  end;
+end;
+
+function TWebGraph.NamesToString(): String;
+var
+  I: Int32;
+begin
+  for I := 0 to High(Self.Names) do
+    if Self.Names[I] = '' then
+      Result := Result + '[#0]'
+    else
+      Result := Result + '[' + Self.Names[I] + ']';
+
+  Result := Base64Encode(CompressString(Result));
+end;
+
+procedure TWebGraph.LoadNamesFromString(S: String);
+var
+  Elements: TStringArray;
+  I: Int32;
+begin
+  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
+
+  SetLength(Self.Names, Length(Elements));
+
+  for I := 0 to High(Elements) do
+    if (Elements[I] <> '#0') then
+      Self.Names[I] := Elements[I];
+end;
+
+
+procedure TWebGraph.Merge(graph: TWebGraph);
+var
+  i, j, len: Int32;
+begin
+  len := Length(Self.Nodes);
+  for i := 0 to High(graph.Nodes) do
+  begin
+    Self.Nodes += graph.Nodes[i];
+    Self.Paths += graph.Paths[i];
+
+    for j := 0 to High(Self.Paths[len+i]) do
+      Self.Paths[len+i,j] += len;
+
+    Self.Names += graph.Names[i];
+  end;
+end;
+
+
+procedure TWebGraph.Draw(bitmap: TMufasaBitmap);
+var
+  i,j,color: Int32;
+  p,q: TPoint;
+begin
+  if Length(Self.Nodes) = 0 then
+    Exit;
+
+  for i := 0 to High(Self.Paths) do
+  begin
+    p := Self.Nodes[i];
+
+    for j := 0 to High(Self.Paths[i]) do
+    begin
+      q := Self.Nodes[Self.Paths[i][j]];
+      bitmap.DrawTPA(TPAFromLine(p, q), $00EAEA);
+    end;
+  end;
+
+  for i := 0 to High(Self.Nodes) do
+  begin
+    color := $0101CC;
+    if Length(Self.Names[i]) <> 0 then
+      color := $FF7F00;
+
+    p := Self.Nodes[i];
+    bitmap.DrawBox(p, 1, color);
+  end;
+end;

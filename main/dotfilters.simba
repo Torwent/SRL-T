@@ -1,0 +1,288 @@
+(*
+# DotFilters
+Methods to handle DotFilters. Dot filters are filters that filter in or out EMinimapDots.
+*)
+
+{$DEFINE SRL_DOTFILTERS_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+(*
+(TDotFilter)=
+## type TDotFilter
+```pascal
+TDotFilter = record
+  Bounds: TPointArray;
+  Circle: TCircle;
+  Inside: Boolean;
+
+  Timeout: Boolean;
+  Timer: TCountDown;
+end;
+```
+Type used to filter minimap dots.
+*)
+  TDotFilter = record
+    Bounds: TPointArray;
+    Circle: TCircle;
+    Inside: Boolean;
+
+    Timeout: Boolean;
+    Timer: TCountDown;
+  end;
+
+
+(*
+## TDotFilter.Create
+```pascal
+function TDotFilter.Create(bounds: TPointArray; c: TCircle; inside: Boolean; time: Int32 = -1): TDotFilter; static;
+```
+Static method to create a TDotFilter.
+*)
+function TDotFilter.Create(bounds: TPointArray; c: TCircle; inside: Boolean; time: Int32 = -1): TDotFilter; static;
+var
+  timer: TCountDown;
+begin
+  timer.Init(time);
+  Result := [bounds, c, inside, (time > 0), timer];
+end;
+
+(*
+## TDotFilter.IsExpired
+```pascal
+function TDotFilter.IsExpired(): Boolean;
+```
+Checks if a TDotFilter is already expired by checking it's timer.
+*)
+function TDotFilter.IsExpired(): Boolean;
+begin
+  Result := Self.Timeout and Self.Timer.IsFinished();
+end;
+
+(*
+## TDotFilter.IsValid
+```pascal
+function TDotFilter.IsValid(p: TPoint): Boolean;
+```
+Checks if a point is valid accordint to the current TDotFilter;
+*)
+function TDotFilter.IsValid(p: TPoint): Boolean;
+var
+  inPoly, inCircle: Boolean;
+begin
+  if Self.Bounds <> [] then inPoly := SRL.PointInPoly(p, Self.Bounds);
+  if Self.Circle <> [] then inCircle := Self.Circle.Contains(p);
+
+  if Self.Inside then
+    Result := inPoly or inCircle
+  else
+    Result := not inPoly and not inCircle;
+end;
+
+
+(*
+## TDotFilter.Draw
+```pascal
+procedure TDotFilter.Draw(out bitmap: TMufasaBitmap);
+```
+Internal method to draw the current dot filter on a bitmap for debugging.
+You can see this in action by calling `Debug(TDotFilter)`.
+*)
+procedure TDotFilter.Draw(bitmap: TMufasaBitmap);
+var
+  color: Int32;
+begin
+
+  with Self do
+  begin
+    if Inside then color := $BE9625 else color := $FF;
+    if (Bounds <> []) and Minimap.IsPointOn(Bounds.Mean(), Bounds.MinAreaCircle().Radius) then
+      bitmap.DrawTPA(Bounds.Connect(), color);
+    if (Circle <> []) and Minimap.IsPointOn(Circle.Mean(), Circle.Radius) then
+      bitmap.DrawCircle(Circle.Mean(), Circle.Radius, color);
+  end;
+end;
+
+type
+(*
+(TDotFilterArray)=
+## type TDotFilterArray
+Type used to manage and interact with arrays of TDotFilters.
+*)
+  TDotFilterArray = array of TDotFilter;
+
+(*
+## TDotFilterArray.Setup
+```pascal
+procedure TDotFilterArray.Setup(bounds: TPointArray; circle: TCircle; inside: Boolean; time: Int32 = -1);
+procedure TDotFilterArray.SetupBounds(bounds: TPointArray; inside: Boolean; time: Int32 = -1);
+procedure TDotFilterArray.SetupCircle(circle: TCircle; inside: Boolean; time: Int32 = -1);
+```
+Creates and adds a TDotFilter to the current TDotFilterArray.
+*)
+procedure TDotFilterArray.Setup(bounds: TPointArray; circle: TCircle; inside: Boolean; time: Int32 = -1);
+begin
+  Self += TDotFilter.Create(bounds, circle, inside, time);
+end;
+
+procedure TDotFilterArray.SetupBounds(bounds: TPointArray; inside: Boolean; time: Int32 = -1);
+var
+  c: TCircle;
+begin
+  Self.Setup(bounds, c, inside, time);
+end;
+
+procedure TDotFilterArray.SetupCircle(circle: TCircle; inside: Boolean; time: Int32 = -1);
+var
+  bounds: TPointArray := [];
+begin
+  Self.Setup(bounds, circle, inside, time);
+end;
+
+
+(*
+## TDotFilterArray.ClearExpired
+```pascal
+procedure TDotFilterArray.ClearExpired();
+```
+Clears expired TDotFilter from the current TDotFilterArray.
+You usually don't need to call this directly, but you can if you want.
+Other methods already take care of this by default for you regardless.
+*)
+procedure TDotFilterArray.ClearExpired();
+var
+  i: Int32;
+begin
+  for i := High(Self) downto 0 do
+    if Self[i].IsExpired() then
+      Delete(Self, i, 1);
+end;
+
+
+(*
+## TDotFilterArray.IsValid
+```pascal
+function TDotFilterArray.IsValid(dot: TPoint; clearExpired: Boolean = True): Boolean;
+```
+Checks if a dot/point is valid in any of the TDotFilters in the current array.
+By default, expired TDotFilters are cleared from the array while this runs.
+*)
+function TDotFilterArray.IsValid(dot: TPoint; clearExpired: Boolean = True): Boolean;
+var
+  i: Int32;
+begin
+  for i := High(Self) downto 0 do
+  begin
+    if clearExpired and Self[i].IsExpired() then
+    begin
+      Delete(Self, i, 1);
+      Continue;
+    end;
+
+    if Self[i].IsValid(dot) then
+      Exit(True);
+  end;
+end;
+
+(*
+## TDotFilterArray.FilterDots
+```pascal
+function TDotFilterArray.FilterDots(dots: TPointArray): TPointArray;
+```
+Filter the dots/points passed into this according to our current TDotFilters.
+*)
+function TDotFilterArray.FilterDots(dots: TPointArray): TPointArray;
+var
+  dot: TPoint;
+begin
+  for dot in dots do
+    if Self.IsValid(dot, True) then
+      Result += dot;
+end;
+
+
+(*
+## TDotFilterArray.Draw
+```pascal
+procedure TDotFilterArray.Draw(out bitmap: TMufasaBitmap);
+```
+Internal method for drawing the TDotFilterArray on a bitmap for debugging.
+You can see this in action by calling `Debug(TDotFilterArray)`
+*)
+procedure TDotFilterArray.Draw(bitmap: TMufasaBitmap);
+var
+  i: Int32;
+begin
+  for i := 0 to High(Self) do
+    Self[i].Draw(bitmap);
+end;
+
+
+(*
+## TMinimap.GetFilteredDot
+```pascal
+function TMinimap.GetFilteredDotArray(dot: EMinimapDot; dotFilters: TDotFilterArray): TPointArray;
+function TMinimap.GetFilteredDot(dot: EMinimapDot; dotFilters: TDotFilterArray): TPoint;
+```
+Retrieves and filters minimap dots according to the specified TDotFilters.
+*)
+function TMinimap.GetFilteredDotArray(dot: EMinimapDot; dotFilters: TDotFilterArray): TPointArray;
+begin
+  Result := dotFilters.FilterDots(Self.GetDots(dot));
+end;
+
+function TMinimap.GetFilteredDot(dot: EMinimapDot; dotFilters: TDotFilterArray): TPoint;
+var
+  dots: TPointArray;
+begin
+  dots := Self.GetFilteredDotArray(dot, dotFilters);
+  if dots <> [] then
+    Result := dots[0];
+end;
+
+
+(*
+## Debug
+```pascal
+procedure Debug(filter: TDotFilter); overload;
+procedure Debug(filterArray: TDotFilterArray); overload;
+```
+Debugs a TDotFilter or TDotFilterArray on the client.
+*)
+procedure Debug(filter: TDotFilter); overload;
+var
+  bmp: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    filter.Draw(GameClient.Image());
+    Exit;
+  end;
+  {$ENDIF}
+  bmp.FromClient();
+  filter.Draw(bmp);
+  bmp.Debug();
+  bmp.Free();
+end;
+
+procedure Debug(filters: TDotFilterArray); overload;
+var
+  bmp: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    filters.Draw(GameClient.Image());
+    Exit;
+  end;
+  {$ENDIF}
+  bmp.FromClient();
+  filters.Draw(bmp);
+  bmp.Debug();
+  bmp.Free();
+end;

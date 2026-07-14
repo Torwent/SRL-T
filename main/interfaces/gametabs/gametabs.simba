@@ -1,0 +1,157 @@
+(*
+# GameTabs
+Methods to interact with the gametabs.
+*)
+{$DEFINE SRL_GAMETABS_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  EGameTab = (
+    COMBAT, STATS, QUESTS, INVENTORY, EQUIPMENT, PRAYER, MAGIC,
+    CLAN, FRIENDS, ACCOUNT, LOGOUT, OPTIONS, EMOTES, MUSIC, UNKNOWN
+  );
+
+  TGameTabs = record(TInterface)
+    Boxes: TBoxArray;
+  end;
+
+function TGameTabs.GetCurrentTab(): EGameTab;
+var
+  tab: EGameTab;
+begin
+  if (GameClient.Mode = EClientMode.RESIZABLE_MODERN) and (SRL.CountColor(8639715, Self.Boxes[EGameTab.LOGOUT]) > 0) then
+    Exit(EGameTab.LOGOUT);
+
+  for tab := Low(EGameTab) to EGameTab.MUSIC do
+    if (SRL.CountColor(CTS1(1778534, 22), Self.Boxes[tab]) > 50) then
+      Exit(tab);
+
+  Result := EGameTab.UNKNOWN;
+end;
+
+(*
+## GameTabs.Open()
+```pascal
+function TGameTabs.Open(tab: EGameTab): Boolean;
+```
+Opens the specified `Tab`.
+
+Example:
+```pascal
+WriteLn GameTabs.Open(EGameTab.INVENTORY);
+```
+*)
+function TGameTabs.Open(tab: EGameTab): Boolean;
+var
+  i: Int32;
+begin
+  if Self.GetCurrentTab() = tab then Exit(True);
+
+  for i := 1 to 3 do
+  begin
+    Mouse.Click(Self.Boxes[tab], MOUSE_LEFT, SRL.Dice(50));
+
+    Result := WaitUntil(Self.GetCurrentTab() = tab, SRL.TruncatedGauss(50, 2000), SRL.TruncatedGauss(2000, 3000));
+    if Result then Exit;
+  end;
+end;
+
+procedure TGameTabs.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  Bitmap.DrawBoxes(Self.Boxes, $00FFFF);
+end;
+
+procedure TGameTabs.Setup(); override;
+begin
+  inherited;
+  Self.Name := 'GameTabs';
+end;
+
+procedure TGameTabs.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+  i: Int32;
+begin
+  alignment.Bottom := RootInterface.Bounds.Y2;
+
+  case GameClient.Mode of
+    EClientMode.FIXED:
+    begin
+      alignment.Left  := RootInterface.Bounds.X2 - 242;
+      alignment.Right := RootInterface.Bounds.X2 - 2;
+      alignment.Top   := RootInterface.Bounds.Y2 - 334;
+    end;
+
+    EClientMode.RESIZABLE_CLASSIC:
+    begin
+      alignment.Left  := RootInterface.Bounds.X2 - 240;
+      alignment.Right := RootInterface.Bounds.X2;
+      alignment.Top   := RootInterface.Bounds.Y2 - 334;
+    end;
+
+    EClientMode.RESIZABLE_MODERN:
+    begin
+      alignment.Right := RootInterface.Bounds.X2;
+
+      //Needed because depending on the client width the tabs stack into row(s)
+      if RootInterface.Width >= 948 then
+      begin
+        alignment.Left := RootInterface.Bounds.X2 - 428;
+        alignment.Top  := RootInterface.Bounds.Y2 - 35;
+      end
+      else
+      begin
+        alignment.Left := RootInterface.Bounds.X2 - 230;
+        alignment.Top  := RootInterface.Bounds.Y2 - 71;
+      end;
+    end;
+  end;
+
+  Self.SetupAlignment(alignment);
+
+  case GameClient.Mode of
+    EClientMode.FIXED, EClientMode.RESIZABLE_CLASSIC:
+      Self.Boxes := Grid(7, 2, 30, 33, [3, 265], [Self.Bounds.X1 + 6, Self.Bounds.Y1 + 1]);
+
+    EClientMode.RESIZABLE_MODERN:
+      begin
+        // One row
+        if RootInterface.Width >= 948 then
+        begin
+          Self.Boxes := Grid(14, 1, 30, 33, [3, 0], [Self.Bounds.X1, Self.Bounds.Y2 - 35]);
+          for i := Ord(EGameTab.MUSIC) downto Ord(EGameTab.FRIENDS) - 1 do
+            Self.Boxes[i] := Self.Boxes[i-1];
+        end
+        else // Two rows
+          Self.Boxes := Grid(7, 2, 30, 33, [3, 3], [Self.Bounds.X1, Self.Bounds.Y2 - 70]);
+
+        // Logout button is moved to top right corner
+        Self.Boxes[7] := Self.Boxes[10];
+        Self.Boxes[10] := [RootInterface.Bounds.X2 - 19, RootInterface.Bounds.Y1 + 9, RootInterface.Bounds.X2 - 10, RootInterface.Bounds.Y1 + 18];
+      end;
+  end;
+end;
+
+var
+  GameTabs: TGameTabs;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  GameTabs.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  GameTabs.Setup();
+end;
+
+procedure TSRL.Debug(bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  GameTabs.Draw(bitmap);
+end;

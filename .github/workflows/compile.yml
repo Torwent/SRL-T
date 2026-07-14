@@ -1,0 +1,17 @@
+name: Compile Test
+
+on: [push, pull_request]      
+env:
+  simba-download: https://github.com/Villavu/Simba/releases/download/simba1400-release/Simba-Win32.exe       
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Compile Test
+        shell: bash
+        run: |
+          curl --retry 5 -L -o Simba.exe ${{ env.simba-download }}
+          echo '{$I osr.simba}' > test.simba && ./Simba.exe --compile test.simba
+          

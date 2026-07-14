@@ -1,0 +1,326 @@
+{$DEFINE SRL_ITEMS_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+type
+  TItem = Variant;
+  TItemArray = array of TItem;
+
+{%codetools off}
+function _ItemSortComparison(constref l, r: TItem): Int32;
+var
+  left, right: String;
+begin
+  left := ToStr(l);
+  right := ToStr(r);
+  Result := CompareStr(left, right);
+end;
+{%codetools on}
+
+(*
+## ItemArray.Find
+```pascal
+function TItemArray.Find(const value: TItem): Int32; constref;
+```
+Find a TItem in a TItemArray and return it's index.
+*)
+function TItemArray.Find(const value: TItem): Int32; constref;
+begin
+  for Result := 0 to High(Self) do
+    if VarToStr(value) = VarToStr(Self[Result]) then
+      Exit;
+
+  Result := -1;
+end;
+
+function TItemArray.FindAll(const value: TItem): TIntegerArray; constref;
+var
+  i: UInt32;
+begin
+  for i:=0 to High(Self) do
+    if (Self[i] = value) then
+      Result += i;
+end;
+
+
+procedure TItemArray.Insert(const value: String; index: Int32);
+var
+  l: UInt32;
+begin
+  l := Length(Self);
+  if (l <= index) then
+  begin
+    Self += value;
+    Exit;
+  end;
+
+  SetLength(Self, l + 1);
+  MemMove(Self[index], self[index + 1], (l - index) * SizeOf(Self[0]));
+  Self[index] := value;
+end;
+
+procedure TItemArray.Del(const index: Int32; const count: Int32 = 1);
+begin
+  Delete(Self, index, count);
+end;
+
+
+function TItemArray.Len(): Int32;
+begin
+  Result := Length(Self);
+end;
+
+procedure TItemArray.Remove(const value: TItem; const all: Boolean = False);
+var
+  i: Int32;
+  lst: TIntegerArray;
+begin
+  if (not all) then
+  begin
+    i := Self.Find(value);
+    if i >= 0 then Self.Del(i);
+    Exit;
+  end;
+
+  lst := Self.FindAll(value);
+  for i:=High(lst) downto 0 do
+    Self.Del(lst[i]);
+end;
+
+function TItemArray.Pop(): String;
+var
+  h: Int32;
+begin
+  h := High(Self);
+  Result := Self[h];
+  SetLength(Self, h);
+end;
+
+procedure TItemArray.Extend(const arr: TItemArray);
+var
+  i, len: Int32;
+begin
+  len := Length(Self);
+  SetLength(Self, len+Length(arr));
+  for i:=0 to High(arr) do
+    Self[len+i] := arr[i];
+end;
+
+
+(*
+## ItemArray.Contains
+```pascal
+function TItemArray.Contains(const value: TItem): Boolean; constref;
+```
+Find a TItem in a TItemArray and return true or false.
+*)
+function TItemArray.Contains(const value: TItem): Boolean; constref;
+begin
+  Result := Self.Find(value) > -1;
+end;
+
+function TItemArray.ContainsAny(const values: TItemArray): Boolean; constref;
+var
+  value: String;
+begin
+  for value in values do
+    if Self.Contains(value) then
+      Exit(True);
+end;
+
+function TItemArray.ContainsAll(const values: TItemArray): Boolean; constref;
+var
+  value: String;
+begin
+  for value in values do
+    if not Self.Contains(value) then
+      Exit;
+  Result := True;
+end;
+
+
+procedure TItemArray.Sort();
+begin
+  System.Sort(Self, @_ItemSortComparison);
+end;
+
+function TItemArray.Sorted(): TItemArray;
+begin
+  Result := Copy(Self);
+  Result.Sort();
+end;
+
+
+function TItemArray.Reversed(): TItemArray;
+var
+  lo: PtrUInt;
+  p, r: ^TItem;
+begin
+  if (Length(Self) = 0) then
+    Exit();
+
+  SetLength(Result,length(self));
+  p := @Self[high(self)];
+  r := @Result[0];
+
+  lo := PtrUInt(@Self[0]);
+  while (lo<=PtrUInt(p)) do
+  begin
+    r^ := p^;
+    dec(p);
+    inc(r);
+  end;
+end;
+
+procedure TItemArray.Reverse();
+var
+  tmp: TItem;
+  lo, hi: ^TItem;
+begin
+  if (Length(Self) = 0) then
+    Exit();
+
+  lo := @Self[0];
+  hi := @Self[High(self)];
+  while (PtrUInt(lo)<PtrUInt(hi)) do
+  begin
+    tmp := hi^;
+    hi^ := lo^;
+    lo^ := tmp;
+    dec(hi);
+    inc(lo);
+  end;
+end;
+
+
+function TItemArray.Combine(const arr2: TItemArray): TItemArray; constref;
+var
+  i, j: Int32;
+begin
+  if (Length(arr2) = 0) then
+    Exit(Copy(Self));
+
+  Result := Self;
+  SetLength(Result, Length(Self) + Length(arr2));
+
+  j := 0;
+  for i := Length(Self) to High(arr2) + Length(Self) do
+  begin
+    Result[i] := arr2[j];
+    Inc(j);
+  end;
+end;
+
+function TItemArray.Equals(other: TItemArray): Boolean; constref;
+var
+  i: Int32;
+begin
+  if (Length(Self) <> Length(other)) then Exit(False);
+  if (Length(Self) = 0) then Exit(True);
+
+  for i:=0 to High(self) do
+    if (self[i] <> other[i]) then
+      Exit(False);
+  Result := True;
+end;
+
+
+procedure TItemArray.ClearDuplicates();
+var
+  i: Int32;
+  unique: TItemArray;
+begin
+  for i := 0 to High(Self) do
+    if unique.Find(Self[i]) = -1 then
+      unique += Self[i];
+  Self := unique;
+end;
+
+function TItemArray.Unique(): TItemArray;
+begin
+  Result := Copy(Self);
+  Result.ClearDuplicates();
+end;
+
+
+function TItemArray.Count(const value: TItem): Int32;
+var
+  i: Int32;
+begin
+  for i := 0 to High(Self) do
+    if Self[i] = value then
+      Inc(Result);
+end;
+
+
+function TItemArray.Intersection(other: TItemArray; unsorted: Boolean = True): TItemArray; constref;
+var
+  i, j, resultIndex: Int32;
+  s1, s2: TItemArray;
+  a, b: String;
+begin
+  s1 := Copy(Self);
+
+  if unsorted then
+  begin
+    s1.Sort();
+    s2 := other.Sorted();
+  end
+  else
+    s2 := Copy(other);
+
+  SetLength(Result, Min(Length(Self), Length(other)));
+
+  while (i < Length(s1)) and (j < Length(s2)) do
+  begin
+    a := ToStr(s1[i]);
+    b := ToStr(s2[j]);
+
+    if a = b then
+    begin
+      Result[resultIndex] := s1[i];
+      Inc(resultIndex);
+      Inc(i);
+      Inc(j);
+      Continue;
+    end;
+
+    if a < b then Inc(i)
+    else Inc(j);
+  end;
+
+  SetLength(Result, resultIndex);
+end;
+
+function TItemArray.Difference(other: TItemArray): TItemArray; constref;
+var
+  item: TItem;
+begin
+  for item in Self do
+    if other.Find(item) = -1 then
+      Result += item;
+  Result.ClearDuplicates();
+end;
+
+function TItemArray.SymmetricDifference(other: TItemArray): TItemArray; constref;
+var
+  item: TItem;
+begin
+  for item in Self do
+    if other.Find(item) = -1 then
+      Result += item;
+
+  for item in other do
+    if Self.Find(item) = -1 then
+      Result += item;
+
+  Result.ClearDuplicates();
+end;
+
+
+function TItemArray.RandomValue(): TItem; constref;
+begin
+  if Self <> [] then
+    Result := Self[System.Random(Low(Self), High(Self))];
+end;

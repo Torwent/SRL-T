@@ -1,0 +1,21 @@
+{$DEFINE SRL_BASE_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+type
+  TSRLBaseRecord = record
+    Name: String;
+    DisableDebugging: Boolean;
+  end;
+
+procedure TSRLBaseRecord.DebugLn(text: String); constref;
+begin
+  if not Self.DisableDebugging then
+    WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']: ' + text);
+end;
+
+procedure TSRLBaseRecord.Fatal(text: String); constref;
+begin
+  TerminateScript(SRL.TimeStamp() + ':[' + Self.Name + ']:[Fatal]: ' + text);
+end;

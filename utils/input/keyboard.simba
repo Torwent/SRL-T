@@ -1,0 +1,159 @@
+{$DEFINE SRL_KEYBOARD_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+(*
+# Keyboard
+The Keyboard file holds functions and procedures that are related to the keyboard.
+*)
+
+const
+  VK_ENTER = VK_RETURN;
+
+  KEYBOARD_ARROWS: TIntegerArray = [VK_LEFT..VK_DOWN];
+  KEYBOARD_FKEYS: TIntegerArray = [VK_ESCAPE, VK_F1..VK_F12];
+  KEYBOARD_CHARACTERS: TIntegerArray = [VK_A..VK_Z];
+  KEYBOARD_NUMBERS: TIntegerArray = [VK_0..VK_9, VK_NUMPAD0..VK_NUMPAD9];
+  KEYBOARD_MISC: TIntegerArray = [VK_LCONTROL, VK_CONTROL, VK_SPACE, VK_SHIFT, VK_RSHIFT];
+
+type
+  TKeyboard = record
+    KeyDelay, SentenceDelay: record
+      Min, Max: Integer;
+    end;
+    LastKey: Integer;
+  end;
+
+(*
+## Keyboard.SetKeyDelay
+```pascal
+procedure TKeyboard.SetKeyDelay(min, max: Integer);
+```
+Sets the minimum and maximum delay between keystrokes.
+*)
+procedure TKeyboard.SetKeyDelay(min, max: Integer);
+begin
+  Self.KeyDelay := [min, max];
+end;
+
+(*
+## Keyboard.SetSentenceDelay
+```pascal
+procedure TKeyboard.SetSentenceDelay(min, max: Integer);
+```
+Sets the minimum and maximum delay between sentences.
+*)
+procedure TKeyboard.SetSentenceDelay(min, max: Integer);
+begin
+  Self.SentenceDelay := [min, max];
+end;
+
+
+(*
+## Keyboard.KeyDown
+```pascal
+procedure TKeyboard.KeyDown(Key: Integer);
+```
+Presses down the given virtual key. 
+
+Note: See `VK_` constants for values to pass it.
+*)
+procedure TKeyboard.KeyDown(const key: Integer);
+begin
+  System.KeyDown(key);
+  Self.LastKey := key;
+end;
+
+(*
+## Keyboard.KeyUp
+```pascal
+procedure TKeyboard.KeyUp(Key: Integer);
+```
+Releases the given virtual key. 
+
+Note: See `VK_` constants for values to pass it.
+*)
+procedure TKeyboard.KeyUp(const Key: Integer);
+begin
+  System.KeyUp(Key);
+end;
+
+(*
+## Keyboard.PressKey
+```pascal
+procedure TKeyboard.PressKey(const key: Integer);
+```
+Presses the given virtual key.
+
+Note: See `VK_` constants for values to pass it.
+*)
+procedure TKeyboard.PressKey(const key: Integer);
+begin
+  Self.KeyDown(key);
+  Wait(Trunc(SRL.SkewedRand(60,45,180)));
+  Self.KeyUp(key);
+end;
+
+
+(*
+## Keyboard.IsKeyDown
+```pascal
+procedure TKeyboard.IsKeyDown(Key: Integer);
+```
+Returns True if the given virtual key is currently down. 
+
+Note: See `VK_` constants for values to pass it.
+*)
+function TKeyboard.IsKeyDown(const Key: Integer): Boolean;
+begin
+  Result := System.IsKeyDown(Key);
+end;
+
+(*
+## Keyboard.Send
+```pascal
+procedure TKeyboard.Send(const Text: String; const KeyWait, KeyModWait, KeyPressWait: UInt32); overload;
+procedure TKeyboard.Send(const Text: String); overload;
+procedure TKeyboard.Send(const Text: String; KeyPressAfter: Integer); overload;
+```
+Writes the given text to whatever window is currently in focus. 
+
+First overload allows you to pass KeyWait, KeyModWait, and KeyPressWait, all are timing modifiers.
+Last overload allows you to pass a long a key to be pressed after the text has been typed, for example ``VK_ENTER``.
+*)
+procedure TKeyboard.Send(const Text: String; const KeyWait, KeyModWait, KeyPressWait: UInt32); overload;
+var
+  i: UInt32;
+begin
+  for i := 1 to Length(Text) do
+  begin
+    SendKeys(Text[i], KeyWait, KeyModWait);
+    Wait(KeyPressWait);
+  end;
+end;
+
+procedure TKeyboard.Send(const Text: String); overload;
+begin
+  Self.Send(
+    Text,
+    Random(Self.KeyDelay.Min, Self.KeyDelay.Max),
+    Random(Self.KeyDelay.Min, Self.KeyDelay.Max),
+    Random(Self.KeyDelay.Min+10, Self.KeyDelay.Max+25)
+  );
+end;
+
+procedure TKeyboard.Send(const Text: String; keyPressAfter: Integer); overload;
+begin
+  Self.Send(Text);
+  Wait(Self.SentenceDelay.Min, Self.SentenceDelay.Max, wdLeft);
+  Self.PressKey(keyPressAfter);
+end;
+
+var
+  Keyboard: TKeyboard;
+
+begin
+  Keyboard.SetKeyDelay(30, 60);
+  Keyboard.SetSentenceDelay(30, 120);
+end;

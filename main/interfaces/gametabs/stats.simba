@@ -1,0 +1,382 @@
+(*
+# Stats
+Methods responsible for dealing with the stats tab.
+*)
+{$DEFINE SRL_STATS_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+(*
+## ESkill
+```pascal
+ESkill = (ATTACK, HITPOINTS, MINING, STRENGTH, AGILITY, SMITHING, DEFENCE, HERBLORE, FISHING, RANGE, THIEVING, COOKING, PRAYER, CRAFTING, FIREMAKING, MAGIC, FLETCHING, WOODCUTTING, RUNECRAFTING, SLAYER, FARMING, CONSTRUCTION, HUNTER, TOTAL);
+```
+*)
+  ESkill = (
+    ATTACK,
+    HITPOINTS,
+    MINING,
+    STRENGTH,
+    AGILITY,
+    SMITHING,
+    DEFENCE,
+    HERBLORE,
+    FISHING,
+    RANGE,
+    THIEVING,
+    COOKING,
+    PRAYER,
+    CRAFTING,
+    FIREMAKING,
+    MAGIC,
+    FLETCHING,
+    WOODCUTTING,
+    RUNECRAFTING,
+    SLAYER,
+    FARMING,
+    CONSTRUCTION,
+    HUNTER,
+    SAILING,
+    TOTAL
+  );
+
+const
+  SKILLNAMES = [
+   'Attack',
+   'Hitpoints',
+   'Mining',
+   'Strength',
+   'Agility',
+   'Smithing',
+   'Defence',
+   'Herblore',
+   'Fishing',
+   'Range',
+   'Thieving',
+   'Cooking',
+   'Prayer',
+   'Crafting',
+   'Firemaking',
+   'Magic',
+   'Fletching',
+   'Woodcutting',
+   'Runecraft',
+   'Slayer',
+   'Farming',
+   'Construction',
+   'Hunter',
+   'Sailing',
+   'Total'
+  ];
+
+type
+  TSkillInfo = record
+    Level:     Int32;
+    XP:        Int32;
+    Next:      Int32;
+    Remainder: Int32;
+  end;
+
+type
+  TStats = record(TInterface)
+    Levels: array [ESkill] of Int32;
+    SkillBoxes: array [ESkill] of TBox;
+    OCRFilter: TOCRColorFilter;
+  end;
+
+(*
+## Stats.Setup()
+```pascal
+procedure TStats.Setup(); override;
+```
+Internal method automatically called by SRL.Setup()
+*)
+procedure TStats.Setup(); override;
+begin
+  inherited;
+
+  Self.Name := 'Stats';
+  Self.OCRFilter := TOCRColorFilter.Create([65535]);
+end;
+
+(*
+## Stats.SetupAlignment
+```pascal
+procedure TStats.SetupAlignment(); overload;
+```
+Internal method automatically called by GameClient.ClientModeChanged()
+*)
+procedure TStats.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+  boxes: TBoxArray;
+  i: Int32;
+begin
+  alignment.Left := GameTab.Bounds.X1;
+  alignment.Right := GameTab.Bounds.X2;
+  alignment.Top := GameTab.Bounds.Y1;
+  alignment.Bottom := GameTab.Bounds.Y2;
+  Self.SetupAlignment(alignment);
+
+  boxes := Grid(3, 8, 55, 29, [8, 1], [Self.Bounds.X1 + 1, Self.Bounds.Y1 + 3]);
+  boxes += Box(Self.Bounds.X1 + 1, Self.Bounds.Y2 - 18, Self.Bounds.X2 - 1, Self.Bounds.Y2 - 1);
+
+  for i := 0 to Ord(High(ESkill)) do
+   Self.SkillBoxes[ESkill(i)] := boxes[i];
+
+end;
+
+
+
+(*
+## Stats.IsOpen
+```pascal
+function TStats.IsOpen(): Boolean;
+```
+Returns true/false if the gametab is open or not.
+
+Example:
+```pascal
+WriteLn Stats.IsOpen();
+```
+*)
+function TStats.IsOpen(): Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = EGameTab.STATS);
+end;
+
+(*
+## Stats.Open
+```pascal
+function TStats.Open(): Boolean;
+```
+Attempts to open the gametab.
+
+Example:
+```pascal
+WriteLn Stats.Open();
+```
+*)
+function TStats.Open(): Boolean;
+begin
+  Result := GameTabs.Open(EGameTab.STATS);
+end;
+
+(*
+## Stats.MouseOver
+```pascal
+function TStats.MouseOver(skill: ESkill): Boolean;
+```
+Moves the mouse over to a skill box.
+
+Example:
+```pascal
+WriteLn Stats.MouseOver(ESkill.CONSTRUCTION);
+```
+*)
+function TStats.MouseOver(skill: ESkill): Boolean;
+begin
+  Result := Self.Open();
+  if Result then
+    Mouse.Move(Self.SkillBoxes[skill]);
+end;
+
+(*
+## Stats.GetSkillInfo
+```pascal
+function TStats.GetSkillInfo(skill: ESkill; waitTime: Int32 = 1000): TSkillInfo;
+```
+Get the skill information about a skill when you hover it.
+
+Example:
+```pascal
+WriteLn Stats.GetSkillInfo(ESkill.CONSTRUCTION);
+```
+*)
+function TStats.GetSkillInfo(skill: ESkill; waitTime: Int32 = 1000): TSkillInfo;
+var
+  TPA: TPointArray;
+  Lines: TStringArray;
+  T: UInt64;
+  B: TBox;
+  I: Int32;
+begin
+  if not Self.MouseOver(skill) then
+    Exit();
+
+  T := GetTickCount() + waitTime;
+  repeat
+    if SRL.FindColors(TPA, CTS0($A0FFFF), Self.Bounds) then
+    begin
+      B := TPA.Bounds;
+
+      SetLength(Lines, B.Height div 12);
+      for I := 0 to High(Lines) do
+        Lines[I] := OCR.Recognize([B.X1, B.Y1 + (I * 12), B.X2, B.Y1 + ((I+1) * 12) + 3],  TOCRColorFilter.Create([0]), FONT_PLAIN_12);
+
+      if Length(Lines) = 0 then
+        Continue;
+      if not (SKILLNAMES[Skill] in Lines[0]) then
+        Continue;
+
+      Result.XP := StrToIntDef(ExtractFromStr(Lines[0], Numbers), 0);
+      Result.Level := SRL.GetLevelAtXP(Result.XP);
+
+      if Length(Lines) = 3 then
+      begin
+        Result.Next := StrToIntDef(ExtractFromStr(Lines[1], Numbers), 0);
+        Result.Remainder := StrToIntDef(ExtractFromStr(Lines[2], Numbers), 0);
+      end;
+
+      Break;
+    end;
+
+    Wait(50);
+  until GetTickCount() >= T;
+end;
+
+(*
+## Stats.GetLevel
+```pascal
+function TStats.GetLevel(skill: ESkill; useCache: Boolean = True): Int32;
+```
+Get the level of the specified **skill**. By default uses the levels cached in the Stats.Levels array.
+When using the cached methods, it can be used to retrieve the level of a skill while the gametab is open assuming the level is already cached.
+
+Example:
+```pascal
+WriteLn Stats.GetLevel(ESkill.HITPOINTS);
+```
+*)
+function TStats.GetLevel(skill: ESkill; useCache: Boolean = True): Int32;
+var
+  text: String;
+  b: TBox;
+begin
+  if useCache then
+  begin
+    Result := Self.Levels[skill];
+    if Result > 0 then
+      Exit;
+  end;
+
+  if not Self.Open() then Exit(-1);
+
+  b := Self.SkillBoxes[skill];
+  b.Y1 := b.Y2 - (b.Height() div 2);
+
+  text := OCR.Recognize(b, Self.OCRFilter, FONT_PLAIN_11);
+  Result := StrToIntDef(ExtractFromStr(text, Numbers), -1);
+
+  if Result > 0 then
+    Self.Levels[skill] := Result;
+end;
+
+(*
+## Stats.CacheAll
+```pascal
+procedure TStats.CacheAll();
+```
+Method to update all cached levels.
+*)
+procedure TStats.CacheAll();
+var
+  i: Int32;
+begin
+  for i := 0 to Ord(High(ESkill)) do
+    Self.GetLevel(ESkill(i), False);
+end;
+
+(*
+## Stats.IncrementCachedLevel
+```pascal
+procedure TStats.IncrementCachedLevel(skill: ESkill);
+```
+Internal method to update cached levels. This is automatically called by Chat.LeveledUp().
+
+Example:
+```pascal
+WriteLn Stats.GetCurrentLevel(ESkill.PRAYER);
+Stats.IncrementLevel(ESkill.PRAYER);
+WriteLn Stats.GetCurrentLevel(ESkill.PRAYER);
+```
+*)
+procedure TStats.IncrementCachedLevel(skill: ESkill);
+begin
+  if Self.Levels[skill] > 0 then
+    Self.Levels[skill] += 1;
+end;
+
+
+procedure TStats.Draw(bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  bitmap.DrawBoxes(Self.SkillBoxes, $00FFFF);
+end;
+
+var
+  Stats: TStats;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Stats.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  Stats.Setup();
+end;
+
+procedure TSRL.Debug(bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  Stats.Draw(bitmap);
+end;
+
+(*
+## Chat.LeveledUp() override
+```pascal
+function TChat.LeveledUp(): Boolean; override;
+```
+Returns true if we have the level up message on the chat box and attempts
+to update Stats.Levels
+
+Example:
+```pascal
+if Chat.LeveledUp() then
+  Chat.ClickContinue(True);
+```
+*)
+function TChat.LeveledUp(): Boolean; override;
+var
+  b: TBox;
+  i: Int32;
+  skillStr: String;
+begin
+  Result := Self.FindOption('Congratulations', [CHAT_COLOR_NAVY]);
+  if not Result then Exit;
+
+  b := Self.Bounds;
+  b.Y1 += 60;
+  b.Y2 -= 75;
+
+  skillStr := OCR.Recognize(b, TOCRColorFilter.Create([0]), FONT_QUILL_8);
+  skillStr := Trim(skillStr.After('Your ').Before(' level').Lower());
+
+  for i := 0 to Ord(High(ESkill)) do
+    if skillStr in ToStr(ESkill(i)).After('ESkill.').Lower() then
+      Break;
+
+  if i >= Ord(High(ESkill)) then //total never has level ups...
+    Exit;
+
+  Stats.IncrementCachedLevel(ESkill(i));
+end;

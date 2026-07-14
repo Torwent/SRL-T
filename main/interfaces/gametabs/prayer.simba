@@ -1,0 +1,737 @@
+(*
+# Prayer
+Methods to interact with the prayer tab and quick prayers.
+*)
+
+{$DEFINE SRL_PRAYER_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  EPrayer = (
+    THICK_SKIN,
+    BURST_OF_STRENGTH,
+    CLARITY_OF_THOUGHT,
+    SHARP_EYE,
+    MYSTIC_WILL,
+
+    ROCK_SKIN,
+    SUPERHUMAN_STRENGTH,
+    IMPROVED_REFLEXES,
+    RAPID_RESTORE,
+    RAPID_HEAL,
+
+    PROTECT_ITEM,
+    HAWK_EYE,
+    MYSTIC_LORE,
+    STEEL_SKIN,
+    ULTIMATE_STRENGTH,
+
+    INCREDIBLE_REFLEXES,
+    PROTECT_FROM_MAGIC,
+    PROTECT_FROM_MISSILES,
+    PROTECT_FROM_MELEE,
+    EAGLE_EYE,
+
+    MYSTIC_MIGHT,
+    RETRIBUTION,
+    REDEMPTION,
+    SMITE,
+    PRESERVE,
+
+    CHIVALRY,
+    PIETY,
+    RIGOUR,
+    AUGURY
+  );
+
+  TPrayer = record(TInterface)
+    PrayerBoxes: TBoxArray;
+  end;
+  TQuickPrayer = type TInterface;
+
+
+(*
+## Prayer.Setup
+```pascal
+procedure TPrayer.Setup; override;
+```
+Initializes **Prayer** variables.
+
+```{note}
+This is automatically called on the **Prayer** variable.
+```
+*)
+procedure TPrayer.Setup(); override;
+begin
+  inherited;
+  Self.Name := 'Prayer';
+end;
+
+(*
+## Prayer.SetupAlignment
+```pascal
+procedure TPrayer.SetupAlignment(); overload;
+```
+Setups up the interface aligment for the current client mode.
+
+```{note}
+This is automatically called on the **TGameClient.ClientModeChanged** function.
+```
+*)
+procedure TPrayer.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left := GameTab.Bounds.X1;
+  alignment.Right := GameTab.Bounds.X2;
+  alignment.Top := GameTab.Bounds.Y1;
+  alignment.Bottom := GameTab.Bounds.Y2;
+  Self.SetupAlignment(alignment);
+
+  Self.PrayerBoxes := Grid(5, 6, 33, 33, [4, 4], [Self.Bounds.X1 + 1, Self.Bounds.Y1 + 10]);
+end;
+
+(*
+## Prayer.GetPrayerLevel
+```pascal
+function TPrayer.GetPrayerLevel(): Int32;
+```
+
+**Prayer.GetPrayerLevel** is used to retrieve the prayer level from the prayer tab.
+
+Example:
+```pascal
+Writeln Prayer.GetPrayerLevel();
+```
+*)
+function TPrayer.GetPrayerLevel(): Int32;
+var
+  Text: String;
+begin
+  Result := -1;
+
+  if (GameTabs.GetCurrentTab() = EGameTab.PRAYER) then
+  begin
+    Text := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$1F98FF]), FONT_PLAIN_12);
+
+    Result := Text.Before('/').ExtractNumber();
+  end;
+end;
+
+(*
+## Prayer.IsOpen
+```pascal
+function TPrayer.IsOpen(): Boolean;
+```
+
+Returns true if the Prayer tab is open.
+*)
+function TPrayer.IsOpen(): Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = EGameTab.PRAYER) and (Self.GetPrayerLevel <> -1);
+end;
+
+(*
+## Prayer.Open
+```pascal
+function TPrayer.Open(): Boolean;
+```
+
+Attempts to open the prayer tab.
+
+Example:
+```pascal
+Prayer.Open;
+```
+*)
+function TPrayer.Open(): Boolean;
+begin
+  Result := Self.IsOpen() or GameTabs.Open(EGameTab.PRAYER);
+end;
+
+function TPrayer.GetPrayerBoxes(prayers: array of EPrayer): TBoxArray; overload;
+var
+  prayer: EPrayer;
+begin
+  for prayer in prayers do
+    Result += Self.PrayerBoxes[prayer];
+end;
+
+(*
+## Prayer.PointToPrayer
+```pascal
+function TPrayer.PointToPrayer(P: TPoint): Int32;
+```
+
+Returns the prayer number that **P** is part of.
+-1 is returned if there's no result.
+
+Example:
+```pascal
+WriteLn('Mouse is hovering prayer ', Prayer.PointToPrayer(Mouse.Position));
+```
+*)
+function TPrayer.PointToPrayer(P: TPoint): Int32;
+var
+  prayer: EPrayer;
+begin
+  for prayer := Low(EPrayer) to High(EPrayer) do
+    if Self.PrayerBoxes[prayer].Contains(p) then
+      Exit(Ord(prayer));
+
+  Result := -1;
+end;
+
+(*
+## Prayer.MouseOver
+```pascal
+function TPrayer.MouseOver(Prayer: EPrayer): Boolean;
+```
+
+Hovers the specified prayer.
+
+Example:
+```pascal
+Prayer.MouseOver(EPrayer.PROTECT_FROM_MELEE);
+```
+*)
+function TPrayer.MouseOver(prayer: EPrayer): Boolean;
+begin
+  if not Self.Open() then Exit();
+  Result := True;
+  Mouse.Move(Self.PrayerBoxes[prayer]);
+end;
+
+(*
+## Prayer.CanActivate
+```pascal
+function TPrayer.CanActivate(Prayer: EPrayer): Boolean;
+```
+
+Returns true if we have enough level and have unlocked the specified prayer.
+
+Example:
+```pascal
+WriteLn Prayer.CanActivate(EPrayer.PROTECT_FROM_MELEE);
+```
+*)
+function TPrayer.CanActivate(prayer: EPrayer): Boolean;
+begin
+  if not Self.IsOpen() then Exit;
+  Result := SRL.PeakBrightness(Self.PrayerBoxes[prayer]) > 55;
+end;
+
+(*
+## Prayer.GetAvailablePrayers
+```pascal
+function TPrayer.GetAvailablePrayers: array of EPrayer;
+```
+
+Returns an array of all available prayers.
+*)
+function TPrayer.GetAvailablePrayers: array of EPrayer;
+var
+  Prayer: EPrayer;
+begin
+  Result := [];
+  if not Self.IsOpen() then
+    Exit;
+
+  for Prayer := Low(EPrayer) to High(EPrayer) do
+    if Self.CanActivate(EPrayer(Prayer)) then
+      Result += Prayer;
+end;
+
+(*
+## Prayer.IsPrayerActive
+```pascal
+function TPrayer.IsPrayerActive(Prayer: EPrayer): Boolean;
+```
+Returns true if the specified prayer is active right now.
+
+Example:
+```pascal
+WriteLn Prayer.IsPrayerActive(EPrayer.SMITE);
+```
+*)
+function TPrayer.IsPrayerActive(prayer: EPrayer): Boolean;
+begin
+  if not Self.IsOpen() then Exit;
+  Result := SRL.CountColor(CTS0(7315120, 27), Self.PrayerBoxes[prayer]) > 10;
+end;
+
+(*
+## Prayer.AnyPrayerActive()
+```pascal
+function TPrayer.AnyPrayerActive(prayers: array of EPrayer): Boolean;
+```
+Returns true if any of the specified prayers is active.
+*)
+function TPrayer.AnyPrayerActive(prayers: array of EPrayer): Boolean;
+var
+  i: Int32;
+begin
+  for i := 0 to High(prayers) do
+    if Self.IsPrayerActive(prayers[i]) then
+      Exit(True);
+end;
+
+(*
+## Prayer.AllPrayerActive
+```pascal
+function TPrayer.AllPrayerActive(prayers: array of EPrayer): Boolean;
+```
+Returns true if all of the specified prayers is active.
+*)
+function TPrayer.AllPrayerActive(prayers: array of EPrayer): Boolean;
+var
+  i: Int32;
+begin
+  for i := 0 to High(prayers) do
+    if not Self.IsPrayerActive(prayers[i]) then
+      Exit;
+  Result := True;
+end;
+
+
+(*
+## Prayer.GetActivePrayers
+```pascal
+function TPrayer.GetActivePrayers: array of EPrayer;
+```
+
+Returns an array of all active prayers.
+*)
+function TPrayer.GetActivePrayers(): array of EPrayer;
+var
+  Prayer: EPrayer;
+begin
+  Result := [];
+  if not Self.IsOpen() then
+    Exit;
+
+  for Prayer := Low(EPrayer) to High(EPrayer) do
+    if Self.IsPrayerActive(EPrayer(Prayer)) then
+      Result += Prayer;
+end;
+
+(*
+## Prayer.PrayerActive
+```pascal
+function TPrayer.PrayerActive: Boolean;
+```
+
+Returns true if any prayer is active.
+*)
+function TPrayer.PrayerActive: Boolean;
+begin
+  if not Self.Open then
+    Exit;
+
+  Result := Self.GetActivePrayers <> [];
+end;
+
+(*
+## Prayer.ActivatePrayer
+```pascal
+function TPrayer.ActivatePrayer(prayers: array of EPrayer): Boolean;
+function TPrayer.ActivatePrayer(prayer: EPrayer): Boolean; overload;
+```
+Attempts to activate the specified `prayer`or `prayers`.
+
+Example:
+```pascal
+Prayer.ActivatePrayer(EPrayer.PROTECT_FROM_MELEE);
+```
+*)
+function TPrayer.ActivatePrayer(prayers: array of EPrayer): Boolean;
+var
+  i : int32;
+  cantActivate: Boolean;
+begin
+  if not Self.Open() then
+    Exit(False);
+
+  for i := 0 to High(prayers) do
+  begin
+    cantActivate := cantActivate or not Self.CanActivate(prayers[i]);
+    if not cantActivate and not Self.IsPrayerActive(prayers[i]) then
+      Mouse.Click(Self.PrayerBoxes[prayers[i]], MOUSE_LEFT);
+  end;
+
+  Result := not cantActivate and WaitUntil(Self.AllPrayerActive(prayers), 100, 2000);
+end;
+
+function TPrayer.ActivatePrayer(prayer: EPrayer): Boolean; overload;
+begin
+  Result := Self.ActivatePrayer([prayer]);
+end;
+
+(*
+## Prayer.DisablePrayer
+```pascal
+function TPrayer.DisablePrayer(prayers: array of EPrayer): Boolean;
+function TPrayer.DisablePrayer(prayer: EPrayer): Boolean; overload;
+```
+Attempts to disable the specified `prayer` or `prayers`.
+
+Example:
+```pascal
+Prayer.DisablePrayer(EPrayer.PROTECT_FROM_MELEE);
+```
+*)
+function TPrayer.DisablePrayer(prayers: array of EPrayer): Boolean;
+var
+  i : int32;
+begin
+  if not Self.Open() then Exit;
+
+  for i := 0 to High(prayers) do
+    if Self.CanActivate(prayers[i]) and Self.IsPrayerActive(prayers[i]) then
+    begin
+      Mouse.Click(Self.PrayerBoxes[prayers[i]], MOUSE_LEFT);
+      Wait(0, 100, EWaitDir.wdLeft);
+    end;
+
+  Result := WaitUntil(not Self.AnyPrayerActive(prayers), 100, 2000);
+end;
+
+function TPrayer.DisablePrayer(prayer: EPrayer): Boolean; overload;
+begin
+  Result := Self.DisablePrayer([prayer]);
+end;
+
+procedure TPrayer.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Self.PrayerBoxes, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetAvailablePrayers), $00FF22);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), $FFFFFF);
+end;
+
+(*
+## var Prayer
+  Global Prayer variable.
+*)
+var
+  Prayer: TPrayer;
+
+(*
+## QuickPrayer.Setup
+```pascal
+procedure QuickPrayer.Setup;
+```
+
+Initializes **QuickPrayer** variables.
+
+```{note}
+This is automatically called on the **QuickPrayer** variable.
+```
+*)
+procedure TQuickPrayer.Setup(); override;
+begin
+  inherited;
+
+  Self.Name := 'QuickPrayer';
+end;
+
+(*
+## QuickPrayer.SetupSetupAlignment
+```pascal
+procedure QuickPrayer.SetupSetupAlignment(); overload;
+```
+Setups up the interface aligment for the current client mode.
+
+```{note}
+This is automatically called on the **TGameClient.ClientModeChanged** function.
+```
+*)
+procedure TQuickPrayer.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left := GameTab.Bounds.X1;
+  alignment.Right := GameTab.Bounds.X2;
+  alignment.Top := GameTab.Bounds.Y1;
+  alignment.Bottom := GameTab.Bounds.Y2;
+  Self.SetupAlignment(alignment);
+end;
+
+(*
+## QuickPrayer.IsOpen
+```pascal
+function QuickPrayer.IsOpen(): Boolean;
+function QuickPrayer.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
+```
+Returns true if the quick prayers are open.
+*)
+function TQuickPrayer.IsOpen(): Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = EGameTab.PRAYER) and (Prayer.GetPrayerLevel = -1);
+end;
+
+function TQuickPrayer.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+(*
+## QuickPrayer.Open
+```pascal
+function QuickPrayer.Open(): Boolean;
+```
+Attempts to open the quick prayers.
+
+Example:
+```pascal
+QuickPrayer.Open();
+```
+*)
+function TQuickPrayer.Open(): Boolean;
+begin
+  if Self.IsOpen then Exit(True);
+
+  Mouse.Move(Minimap.Orbs[EMinimapOrb.PRAYER]);
+  ChooseOption.Open;
+  if ChooseOption.Select('Setup') then
+    Result := Self.IsOpen(2000);
+end;
+
+(*
+## QuickPrayer.GetButton
+```pascal
+function QuickPrayer.GetButton(): TBox;
+```
+Internal function that returns the bounds of the quick prayers close button.
+*)
+function TQuickPrayer.GetButton(): TBox;
+begin
+  Result := [Self.Bounds.X1 + 50, Self.Bounds.Y1 + 233, Self.Bounds.X2 - 49, Self.Bounds.Y2 - 7];
+end;
+
+(*
+## QuickPrayer.Close
+```pascal
+function QuickPrayer.Close(): Boolean;
+```
+Attempts to close the quick prayers.
+
+Example:
+```pascal
+QuickPrayers.Close;
+```
+*)
+function TQuickPrayer.Close(): Boolean;
+begin
+  if not Self.IsOpen then
+    Exit(True);
+
+  Mouse.Click(Self.GetButton, MOUSE_LEFT);
+
+  Result := WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(0, 1500), Random(1500, 3000));
+end;
+
+(*
+## QuickPrayer.IsPrayerSelected
+```pascal
+function QuickPrayer.IsPrayerSelected(qPrayer: EPrayer): Boolean;
+```
+Returns true if the specified quick prayer is selected.
+
+Example:
+```pascal
+WriteLn QuickPrayers.IsPrayerSelected(EPrayer.PROTECT_FROM_MAGIC);
+```
+*)
+function TQuickPrayer.IsPrayerSelected(qPrayer: EPrayer): Boolean;
+begin
+  if not Self.IsOpen() then  Exit;
+  Result := SRL.CountColor(CTS0($080CEF), Prayer.PrayerBoxes[qPrayer]) > 0;
+end;
+
+(*
+## QuickPrayer.GetSelectedPrayers
+```pascal
+function QuickPrayer.GetSelectedPrayers(): array of EPrayer;
+```
+Returns an array of all selected quick prayers
+
+Example:
+```pascal
+WriteLn QuickPrayers.GetSelectedPrayers;
+```
+*)
+function TQuickPrayer.GetSelectedPrayers(): array of EPrayer;
+var
+  qPrayer: EPrayer;
+begin
+  Result := [];
+  if not Self.IsOpen() then
+    Exit;
+
+  for qPrayer := Low(EPrayer) to High(EPrayer) do
+    if Self.IsPrayerSelected(qPrayer) then
+      Result += qPrayer;
+end;
+
+(*
+## QuickPrayer.SelectPrayer
+```pascal
+function QuickPrayer.SelectPrayer(QPrayer: EPrayer): Boolean;
+function QuickPrayer.SelectPrayer(QPrayers: array of EPrayer): Boolean; overload;
+```
+Attempts to select the specified quick prayer/prayers.
+
+Example:
+```pascal
+QuickPrayers.SelectPrayer(EPrayer.PROTECT_ITEM);
+```
+*)
+function TQuickPrayer.SelectPrayer(qPrayer: EPrayer): Boolean;
+begin
+  if not Self.Open() then Exit;
+  if Self.IsPrayerSelected(qPrayer) then Exit(True);
+
+  Mouse.Click(Prayer.PrayerBoxes[qPrayer], MOUSE_LEFT);
+
+  Result := WaitUntil(Self.IsPrayerSelected(qPrayer), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+function TQuickPrayer.SelectPrayer(qPrayers: array of EPrayer): Boolean; overload;
+var
+  i : int32;
+begin
+  for i := 0 to High(qPrayers) do
+  Self.SelectPrayer(qPrayers[i]);
+
+  Result := qPrayers = Self.GetSelectedPrayers();
+end;
+
+(*
+## QuickPrayer.DeselectPrayer
+```pascal
+function QuickPrayer.DeselectPrayer(QPrayer: EPrayer): Boolean;
+function QuickPrayer.DeselectPrayer(QPrayers: array of EPrayer): Boolean; overload;
+```
+Attempts to Deselect the specified quick prayer/prayers.
+
+Example:
+```pascal
+QuickPrayers.DeselectPrayer(EPrayer.PROTECT_ITEM);
+```
+*)
+function TQuickPrayer.DeselectPrayer(qPrayer: EPrayer): Boolean;
+begin
+  if not Self.Open then Exit;
+  if not Self.IsPrayerSelected(qPrayer) then Exit(True);
+
+  Mouse.Click(Prayer.PrayerBoxes[qPrayer], MOUSE_LEFT);
+
+  Result := WaitUntil(not Self.IsPrayerSelected(qPrayer), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+function TQuickPrayer.DeselectPrayer(qPrayers: array of EPrayer): Boolean; overload;
+var
+  i : int32;
+begin
+  for i := 0 to High(qPrayers) do
+    Self.DeselectPrayer(qPrayers[i]);
+
+  Result := qPrayers <> Self.GetSelectedPrayers();
+end;
+
+procedure TQuickPrayer.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Prayer.PrayerBoxes, $00FFFF);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers()), $00ff22);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers()), $FFFFFF);
+  Bitmap.DrawBox(Self.GetButton, $00FFFF);
+end;
+
+var
+(*
+## var QuickPrayer
+  Global QuickPrayer variable.
+*)
+  QuickPrayer: TQuickPrayer;
+
+(*
+## Prayer.Open() override
+```pascal
+function TPrayer.Open: Boolean; override;
+```
+Overrides **Prayer.Open** to handle quick prayers if they are open.
+*)
+function TPrayer.Open(): Boolean; override;
+begin
+  Result := Self.IsOpen or (GameTabs.Open(EGameTab.PRAYER) and QuickPrayer.Close);
+end;
+
+(*
+## Prayer.CanActivate() override
+```pascal
+function TPrayer.CanActivate(Prayer: EPrayer): Boolean; override;
+```
+Overrides `Prayer.CanActivate()` to handle quick prayers.
+*)
+function TPrayer.CanActivate(prayer: EPrayer): Boolean; override;
+begin
+  if not Self.IsOpen() and not QuickPrayer.IsOpen() then Exit;
+  Result := SRL.PeakBrightness(Self.PrayerBoxes[prayer]) > 55;
+end;
+
+(*
+## Prayer.GetAvailablePrayers() override
+```pascal
+function TPrayer.GetAvailablePrayers(): array of EPrayer; override;
+```
+Overrides `Prayer.GetAvailablePrayers()` to handle quick prayers.
+*)
+function TPrayer.GetAvailablePrayers(): array of EPrayer; override;
+var
+  Prayer: EPrayer;
+begin
+  Result := [];
+  if not Self.IsOpen and not QuickPrayer.IsOpen then
+    Exit;
+
+  for Prayer := Low(EPrayer) to High(EPrayer) do
+    if Self.CanActivate(EPrayer(Prayer)) then
+      Result += Prayer;
+end;
+
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Prayer.SetupAlignment();
+  QuickPrayer.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  Prayer.Setup();
+  QuickPrayer.Setup();
+end;
+
+procedure TSRL.Debug(bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  Prayer.Draw(Bitmap);
+  QuickPrayer.Draw(Bitmap);
+end;

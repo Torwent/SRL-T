@@ -1,0 +1,186 @@
+{$DEFINE SRL_CHATBUTTONS_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  TChatButtons = type TInterface;
+
+  EChatButton = (
+    CLOSED,
+
+    ALL_CHAT,
+    GAME_CHAT,
+    PUBLIC_CHAT,
+    PRIVATE_CHAT,
+    CHANNEL_CHAT,
+    CLAN_CHAT,
+    TRADE_CHAT,
+
+    REPORT
+  );
+
+  EChatButtonState = (
+    NONE,       //All and report button
+    ENABLED,    //Chat on
+    FILTERED,   //Chat filtered (friends only for example)
+    DISABLED,   //Chat off
+    HIDE,       //Hide for public chat
+    AUTOCHAT    //Chat autochat (only for the public chat button)
+  );
+
+function TChatButtons.GetButtons(): TGameButtonArray;
+var
+  i: Int32;
+  Boxes: TBoxArray;
+begin
+  SetLength(Boxes, 7);
+  for i := 0 to High(Boxes) do
+    Boxes[i] := [(Self.Bounds.X1 + 3 + (i * 62)), Self.Bounds.Y1, (Self.Bounds.X1 + 58 + (i * 62)), (Self.Bounds.Y2 - 1)];
+
+  Boxes += [[(Self.Bounds.X1 + 436), Self.Bounds.Y1, (Self.Bounds.X1 + 515), (Self.Bounds.Y2 - 1)]];
+
+  for i := 0 to High(Boxes) do
+    Result += [[CTS1(1555, 6), CTS1(5399922, 0), CTS1(795452, 0)], i, Boxes[i], Boxes[i].Middle];
+end;
+
+function TChatButtons.GetButton(Button: EChatButton): TGameButton;
+var
+  Buttons: TGameButtonArray := Self.GetButtons();
+begin
+  if Button = EChatButton.CLOSED then
+    Exit;
+  if Length(Buttons) = (Length(EChatButton) - 1) then
+    Result := Buttons[Button - 1];
+end;
+
+
+function TChatButtons.GetActive(): EChatButton;
+var
+  Buttons: TGameButtonArray := Self.GetButtons();
+  i: Int32;
+begin
+  Result := EChatButton.CLOSED;
+  for i := 0 to High(Buttons) do
+    if Buttons[i].Enabled then
+      Exit(EChatButton((i+1)));
+end;
+
+function TChatButtons.IsOpen(): Boolean;
+begin
+  Result := Self.GetActive() = EChatButton.CLOSED;
+end;
+
+
+procedure TChatButtons.Draw(Bitmap: TMufasaBitmap); override;
+var
+  buttons: TGameButtonArray;
+begin
+  bitmap.DrawBox(Self.Bounds, $00FFFF);
+  buttons := Self.GetButtons();
+  buttons.Draw(bitmap);
+end;
+
+
+procedure TChatButtons.Setup; override;
+begin
+  inherited;
+  Self.Name := 'ChatButtons';
+end;
+
+procedure TChatButtons.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left := RootInterface.Bounds.X1;
+  alignment.Right := RootInterface.Bounds.X1 + 518;
+  alignment.Top := RootInterface.Bounds.Y2 - 22;
+  alignment.Bottom := RootInterface.Bounds.Y2;
+  Self.SetupAlignment(alignment);
+end;
+
+
+function TChatButtons.IsActive(button: EChatButton): Boolean;
+begin
+  Result := Self.GetButton(Button).Enabled;
+end;
+
+function TChatButtons.Open(button: EChatButton): Boolean;
+begin
+  Result := Self.GetButton(Button).Enable;
+end;
+
+function TChatButtons.Close: Boolean;
+begin
+  if GameClient.Mode = EClientMode.FIXED then
+    Exit(False);
+
+  if Self.GetActive = EChatButton.CLOSED then
+    Exit(True);
+
+  Result := Self.GetButton(Self.GetActive).Click();
+end;
+
+
+function TChatButtons.GetState(Button: EChatButton): EChatButtonState;
+var
+  TPA: TPointArray;
+begin
+  if (Button = EChatButton.ALL_CHAT) or (Button = EChatButton.REPORT) then
+    Exit(EChatButtonState.NONE);
+
+  if SRL.FindColors(TPA, CTS0(65280, 0), Self.GetButton(Button).Bounds) then
+    Result := EChatButtonState.ENABLED
+  else if SRL.FindColors(TPA, CTS0(65535, 0), Self.GetButton(Button).Bounds) then
+    Result := EChatButtonState.FILTERED
+  else if SRL.FindColors(TPA, CTS0(255, 0), Self.GetButton(Button).Bounds) then
+    Result := EChatButtonState.DISABLED
+  else if SRL.FindColors(TPA, CTS0(16776960, 0), Self.GetButton(Button).Bounds) then
+    Result := EChatButtonState.HIDE
+  else if SRL.FindColors(TPA, CTS0(16756480, 0), Self.GetButton(Button).Bounds) then
+    Result := EChatButtonState.AUTOCHAT;
+end;
+
+function TChatButtons.ChangeState(Button: EChatButton; State: EChatButtonState): Boolean;
+begin
+  if Self.GetState(Button) = State then
+    Exit(True);
+
+  Self.GetButton(Button).Click(MOUSE_RIGHT);
+  if ChooseOption.IsOpen() then
+  begin
+    if State = EChatButtonState.ENABLED then
+      ChooseOption.Select(['Filter', 'standard', 'all'])
+    else if State = EChatButtonState.FILTERED then
+      ChooseOption.Select(['Filter', 'friends'])
+    else if State = EChatButtonState.DISABLED then
+      ChooseOption.Select(['none'])
+    else if State = EChatButtonState.HIDE then
+      ChooseOption.Select(['Hide'])
+    else if State = EChatButtonState.AUTOCHAT then
+      ChooseOption.Select(['autochat'])
+  end;
+
+  Result := Self.GetState(Button) = State;
+end;
+
+var
+  ChatButtons: TChatButtons;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  ChatButtons.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  ChatButtons.Setup();
+end;
+
+procedure TSRL.Debug(bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  ChatButtons.Draw(bitmap);
+end;

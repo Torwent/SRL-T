@@ -1,0 +1,98 @@
+(*
+# OTPGenerator
+OTPGenerator related methods.
+OTP generation can be used to generate authenticator's one time passwords (OTP).
+
+Credits: Olly
+*)
+
+{$DEFINE SRL_TOTP_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+type
+  TOTPGenerator = record
+    ValidCharacters: String;
+  end;
+
+function TOTPGenerator.Decode(const source: String): String;
+var
+  str: String;
+  p, i, l, n, j: Integer;
+begin
+  str := UpperCase(source);
+
+  l := Length(str);
+  n := 0; j := 0;
+  Result := '';
+
+  for i := 1 to l do
+  begin
+    n := n shl 5;                 // Move buffer left by 5 to make room
+
+    p := Pos(str[i], Self.ValidCharacters);
+    if p >= 0 then
+    begin
+      n := n + (p - 1);         // Add value into buffer
+      j := j + 5;               // Keep track of number of bits in buffer
+    end;
+
+    if (j >= 8) then
+    begin
+      j := j - 8;
+      Result := Result + chr((n AND ($FF shl j)) shr j);
+    end;
+  end;
+end;
+
+function TOTPGenerator.GetTimeSecret(i: Int64): String;
+var
+  tRes : String;
+  j : Integer;
+begin
+  SetLength(Result, SizeOf(Int64));
+  MemMove(i, Result[1], SizeOf(Int64));
+
+  tRes := Result;
+  for j := 1 to length(Result) do
+    Result[High(tRes) - j + 1] := tRes[j];
+end;
+
+function TOTPGenerator.CalculateOTP(const str: String): String;
+var
+  offset: Integer;
+  part1, part2, part3, part4: Integer;
+  key: Integer;
+begin
+  offset := (StrToInt('$' + str[39] + str[40]) and $0F) * 2;
+  part1 := StrToInt('$' + str[offset+1] + str[offset+2]) and $7F;
+  part2 := StrToInt('$' + str[offset+3] + str[offset+4]) and $FF;
+  part3 := StrToInt('$' + str[offset+5] + str[offset+6]) and $FF;
+  part4 := StrToInt('$' + str[offset+7] + str[offset+8]) and $FF;
+
+  key := (part1 shl 24) or (part2 shl 16) or (part3 shl 8) or (part4);
+  Result := ToStr(key mod trunc(10**6));
+
+  while Length(Result) < 6 do
+    Insert('0', Result, 0);
+end;
+
+function TOTPGenerator.GetOTPNow(secret: String): String;
+var
+  byteSecret, timeSecret : String;
+  timecode : Int64;
+begin
+  timecode := Trunc(DateTimeToUnix(Now(), False) / 30);
+  byteSecret := Self.Decode(secret);
+  timeSecret := Self.GetTimeSecret(timeCode);
+
+  Result := Self.CalculateOTP(HMACSHA1(byteSecret, timeSecret));
+end;
+
+var
+  OTPGenerator: TOTPGenerator;
+
+begin
+  OTPGenerator.ValidCharacters := 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+end;

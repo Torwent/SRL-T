@@ -1,0 +1,595 @@
+(*
+# Chat
+Methods to interact with the chat box.
+*)
+
+{$DEFINE SRL_CHAT_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+const
+  CHAT_COLOR_BLACK        = $000000;
+  CHAT_COLOR_MAROON       = $7F0000;
+  CHAT_COLOR_BLUE         = $FF0000;
+  CHAT_COLOR_PURPLE       = $7F007F;
+  CHAT_COLOR_RED          = $2010EF;
+  CHAT_COLOR_LIGHT_RED    = $0000FF;
+  CHAT_COLOR_WHITE        = $FFFFFF;
+  CHAT_COLOR_LIGHT_PURPLE = $FF9090;
+  CHAT_COLOR_NAVY         = $800000;
+  CHAT_COLOR_GREEN        = $005F00;
+
+  CHAT_MESSAGE_COLORS: TIntegerArray = [
+    CHAT_COLOR_BLACK,
+    CHAT_COLOR_MAROON,
+    CHAT_COLOR_BLUE,
+    CHAT_COLOR_PURPLE,
+    CHAT_COLOR_RED,
+    CHAT_COLOR_LIGHT_RED,
+    CHAT_COLOR_WHITE,
+    CHAT_COLOR_LIGHT_PURPLE,
+    CHAT_COLOR_GREEN
+  ];
+
+  CHAT_MESSAGE_LINES = [0..7];
+  CHAT_INPUT_LINE = 8;
+
+type
+  EIronManType = (NONE, IRONMAN, HARDCORE, ULTIMATE, GROUP, HARCORE_GROUP, UNRANKED_GROUP);
+
+  TChat = record(TInterface)
+    LineBoxes: TBoxArray;
+  end;
+
+(*
+## Chat.Setup
+```pascal
+procedure TChat.Setup; override;
+```
+
+Initializes **Chat** variables.
+
+```{note}
+This is automatically called on the **Chat** variable.
+```
+*)
+procedure TChat.Setup(); override;
+begin
+  inherited;
+
+  Self.Name := 'Chatbox';
+end;
+
+(*
+## Chat.SetupAlignment
+```pascal
+procedure TChat.SetupAlignment(); overload;
+```
+Setups up the interface aligment for the current client mode.
+
+```{note}
+This is automatically called on the **TGameClient.ClientModeChanged** function.
+```
+*)
+procedure TChat.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  alignment.Left   := ChatButtons.Bounds.X1;
+  alignment.Right  := ChatButtons.Bounds.X2;
+  alignment.Top    := ChatButtons.Bounds.Y1 - 142;
+  alignment.Bottom := ChatButtons.Bounds.Y1 - 1;
+  alignment.MaxWidth := 0;
+  alignment.MaxHeight := 0;
+
+  Self.SetupAlignment(alignment);
+
+  Self.ScrollArea := Self.Bounds;
+
+  Self.LineBoxes := Grid(1, 9, Self.Width - 35, 13, [0, 1], [Self.Bounds.X1 + 10, Self.Bounds.Y1 + 8]);
+  Self.LineBoxes[CHAT_INPUT_LINE].Y2 += 2;
+end;
+
+procedure TChat.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+
+  Bitmap.DrawBoxes(Self.LineBoxes, $00FFFF);
+end;
+
+
+(*
+## Chat.GetDisplayNameBox
+function TChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox;
+function TChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
+
+Get the user name box. Useful for certain things like hiding the username for screenshots.
+
+Example::
+
+  Debug(Chat.GetDisplayNameBox());
+*)
+function TChat.GetDisplayNameBox(colors: TIntegerArray = [$FFFFFF, $000000]; out color: Integer): TBox;
+var
+  tpa: TPointArray;
+begin
+  Result := Self.LineBoxes[CHAT_INPUT_LINE];
+  for color in colors do
+    if SRL.FindColors(tpa, color, Result) then
+      Exit(tpa.Bounds());
+end;
+
+function TChat.GetDisplayNameBox(colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
+var
+  c: Integer;
+begin
+  Result := Self.GetDisplayNameBox(colors, c);
+end;
+
+function TChat.GetIronManType() : EIronManType;
+const
+    NAME_LINE_BOX : TBox := Self.LineBoxes[CHAT_INPUT_LINE];
+begin
+  //If Ironman Grey then we're at least a regular Ironman. Check for the accent of the other Ironman types.
+  if SRL.CountColor(CTS2(5262159, 9, 4.91, 0.28), NAME_LINE_BOX) > 1 then
+  begin
+    if SRL.CountColor(CTS2(1710709, 6, 0.05, 2.15), NAME_LINE_BOX) > 1 then
+      Exit(EIronManType.HARCORE_GROUP)
+    else if SRL.CountColor(CTS2(8338202, 6, 0.06, 0.18), NAME_LINE_BOX) > 1 then
+      Exit(EIronManType.GROUP)
+    else if SRL.CountColor(CTS2(5995801, 1, 0.01, 0.01), NAME_LINE_BOX) > 1 then
+      Exit(EIronManType.UNRANKED_GROUP);
+
+    Exit(EIronManType.IRONMAN);
+  end
+  else if SRL.CountColor(CTS2(1318997, 6, 0.61, 1.74), NAME_LINE_BOX) > 1 then
+    Exit(EIronManType.HARDCORE)
+  else if SRL.CountColor(CTS2(12566728, 23, 0.83, 0.34), NAME_LINE_BOX) > 1 then
+    Exit(EIronManType.ULTIMATE);
+end;
+
+(*
+## Chat.GetDisplayName
+```pascal
+function TChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
+```
+
+Get the user displayed name.
+
+Example:
+```pascal
+WriteLn('The user name is: ', Chat.GetDisplayName);
+```
+*)
+function TChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
+var
+  color: Int32;
+begin
+  for color in Colors do
+  begin
+    Result := OCR.RecognizeStatic(Self.LineBoxes[CHAT_INPUT_LINE], TOCRColorFilter.Create([color]), FONT_PLAIN_12);
+    if Result <> '' then Break;
+  end;
+
+  if ':' in Result then
+    Result := Result.Before(':');
+end;
+
+(*
+## Chat.IsTransparent
+```pascal
+function TChat.IsTransparent: Boolean;
+```
+
+Returns true if the chat box is in transparent mode.
+
+Example:
+```pascal
+WriteLn Chat.IsTransparent;
+```
+*)
+function TChat.IsTransparent(): Boolean;
+begin
+  Result := Self.GetDisplayName([$FFFFFF]) <> '';
+end;
+
+(*
+## Chat.IsOpen
+```pascal
+function TChat.IsOpen: Boolean;
+```
+
+Returns true if the chat box is open.
+
+Example:
+```pascal
+WriteLn Chat.IsOpen;
+```
+*)
+function TChat.IsOpen(): Boolean;
+begin
+  Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or Self.IsTransparent();
+end;
+
+
+(*
+## Chat.GetQuery
+```pascal
+function TChat.GetQuery: String;
+```
+
+Returns the query question.
+
+Example:
+```pascal
+WriteLn Chat.GetQuery;
+```
+*)
+function TChat.GetQuery(): String;
+begin
+  Result := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$000000]), FONT_BOLD_12);
+end;
+
+(*
+## Chat.GetQueryAnswer
+```pascal
+function TChat.GetQueryAnswer: String;
+```
+
+Returns the currently typed answer.
+
+Example:
+```pascal
+WriteLn Chat.GetQueryAnswer;
+```
+*)
+function TChat.GetQueryAnswer(): String;
+begin
+  Result := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([8388608]), FONT_BOLD_12);
+end;
+
+(*
+## Chat.FindQuery
+```pascal
+function TChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+```
+
+Returns true if the specified **Query** is currently open or opens up within **WaitTime**.
+
+Example:
+```pascal
+WriteLn Chat.FindQuery('How many doses', 2000); //Example query of NMZ Potion Barrels.
+```
+*)
+function TChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+begin
+  if Interval = -1 then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Query in Self.GetQuery(), Interval, WaitTime);
+end;
+
+(*
+## Chat.AnswerQuery
+```pascal
+function TChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+```
+
+Replies with **Answer** to the specified **Query**.
+
+Example:
+```pascal
+Chat.AnswerQuery('How many doses', '20', 2000); //Example query of NMZ Potion Barrels.
+```
+*)
+function TChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+begin
+  if Result := FindQuery(Query, WaitTime, Interval) then
+  begin
+    if Self.GetQueryAnswer() <> Answer then
+      while Self.GetQueryAnswer() <> '*' do
+        Keyboard.PressKey(VK_BACK);
+
+    Keyboard.Send(Answer, VK_ENTER);
+  end;
+end;
+
+type
+  TChatboxOption = record
+    Text: String;
+    Bounds: TBox;
+    Number: Int32;
+  end;
+  TChatboxOptionArray = array of TChatboxOption;
+
+(*
+## Chat.GetOptions
+```pascal
+function TChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TChatboxOptionArray;
+```
+
+Internal function to retrieve the currently available chat options.
+*)
+function TChat.GetOptions(colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TChatboxOptionArray;
+var
+  Strings: TStringArray;
+  Boxes: TBoxArray;
+  I, Key: Int32;
+begin
+  Strings := OCR.RecognizeLines(Self.Bounds, TOCRColorFilter.Create(colors), FONT_QUILL_8, Boxes);
+
+  SetLength(Result, Length(Strings));
+  for I := 0 to High(Result) do
+  begin
+    if ('Click here to continue' in Strings[I]) then
+      Key := VK_SPACE
+    else
+      Key := VK_1 + I;
+
+    Result[I] := [Strings[I], Boxes[I], Key];
+  end;
+end;
+
+(*
+## Chat.FindOption
+```pascal
+function TChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
+```
+
+Returns true if the specified **Text** is an available option.
+
+Example:
+```pascal
+Chat.FindOption('Yes'); //Common chat option in several instances as an example where you are asked Yes or No.
+```
+*)
+function TChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
+var
+  Option: TChatboxOption;
+begin
+  for Option in GetOptions(Colors) do
+    if Text in Option.Text then
+      Exit(True);
+end;
+
+(*
+## Chat.ClickOption
+```pascal
+function TChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
+```
+
+Attempts to click the specied chat option. If **UseKeyboard** is true, the keyboard will be used.
+
+Example:
+```pascal
+Chat.ClickOption('Yes', True); //Common chat option in several instances as an example where you are asked Yes or No.
+```
+*)
+function TChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
+var
+  Option: TChatboxOption;
+begin
+  for Option in GetOptions(Colors) do
+    if Text in Option.Text then
+    begin
+      if UseKeyboard then
+        Keyboard.PressKey(Option.Number)
+      else
+        Mouse.Click(Option.Bounds, MOUSE_LEFT);
+
+      Exit(True);
+    end;
+end;
+
+(*
+## Chat.ClickContinue
+```pascal
+function TChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
+```
+
+Attempts to click the continue chat option. If **UseKeyboard** is true, the keyboard will be used.
+
+Example:
+```pascal
+Chat.ClickContinue(True);
+```
+*)
+function TChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
+begin
+  if Self.ClickOption('Click here to continue', UseKeyboard, [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]) then
+  begin
+    Result := WaitUntil(Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]), SRL.TruncatedGauss(50, 1500), 3000) and
+              WaitUntil(not Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]), SRL.TruncatedGauss(50, 1500), 3000);
+  end;
+end;
+
+(*
+## Chat.ChatToOption
+```pascal
+function TChat.ChatToOption(Option: String): Boolean;
+```
+
+Continuously advances the chat with **TChat.ClickContinue** until the specified **Option** appears.
+
+Example:
+```pascal
+Chat.ChatToOption('Yes');
+```
+*)
+function TChat.ChatToOption(Option: String): Boolean;
+var
+  Timeout: TCountdown;
+begin
+  Timeout.Init(10000);
+  while (not Timeout.IsFinished) and (not Self.FindOption(Option)) and Self.ClickContinue() do
+    Wait(0, 2500, wdLeft);
+
+  Result := Self.ClickOption(Option);
+end;
+
+(*
+## Chat.GetMessage
+```pascal
+function TChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
+```
+
+Get the message in the specified **Line**.
+
+Example:
+```pascal
+WriteLn Chat.GetMessage(5);
+```
+*)
+function TChat.GetMessage(line: Int32; colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
+const
+  STATIC_OFFSET = 2; // Make static text placement so RecognizeStatic can be used
+var
+  b: TBox;
+  x: Int32;
+  transparent: Boolean;
+  matrix: T2DIntegerArray;
+begin
+  b := Self.LineBoxes[line];
+  b.Y1 -= STATIC_OFFSET;
+
+  transparent := Self.IsTransparent();
+  if transparent then
+    colors.Remove(CHAT_COLOR_BLACK, True);
+
+  if (Length(colors) > 0) then
+  begin
+    matrix := GetColorsMatrix(b.X1, b.Y1, b.X2, b.Y2);
+
+    // Shadow from above line draws over our line.
+    // Mark the shadow as a match since OCR requires 100% character match.
+    if transparent then
+      for x := 0 to High(matrix[STATIC_OFFSET]) do
+        if (matrix[STATIC_OFFSET, x] = CHAT_COLOR_BLACK) theN
+          matrix[STATIC_OFFSET, x] := colors[0];
+
+    Result := OCR._RecognizeStatic(matrix, TOCRColorFilter.Create(colors), FONT_PLAIN_12);
+  end;
+end;
+
+(*
+## Chat.FindMessage
+```pascal
+function TChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
+```
+
+Returns true if **Message** is found in any chat line.
+
+Example:
+```pascal
+WriteLn Chat.FindMessage('Buying gf');
+```
+*)
+function TChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
+var
+  I: Int32;
+begin
+  for I := 0 to CHAT_INPUT_LINE - 1 do
+    if Message in Self.GetMessage(I, Colors) then
+      Exit(True);
+end;
+
+(*
+## Chat.GetChat
+```pascal
+function TChat.GetChat: String;
+```
+
+Returns the message displayed in a chat when we are talking with an NPC or interacting with something.
+
+Example:
+```pascal
+WriteLn Chat.GetChat;
+```
+*)
+function TChat.GetChat(): String;
+var
+  Option: TChatboxOption;
+begin
+  for Option in Self.GetOptions() do
+  begin
+    if Result <> '' then
+      Result += LineEnding;
+
+    Result += Option.Text;
+  end;
+end;
+
+(*
+## Chat.GetChatTitle
+```pascal
+function TChat.GetChatTitle: String;
+```
+
+Returns the chat title if available. This is usually a red text and sometimes has 2 swords pointing to it.
+
+Example:
+```pascal
+if 'Select an Option' = Chat.GetChatTitle then
+  Chat.ClickOption('access my bank');
+```
+*)
+function TChat.GetChatTitle(): String;
+var
+  Options: TChatboxOptionArray;
+begin
+  Options := Self.GetOptions([$000080]);
+  if Length(Options) > 0 then
+    Result := Options[0].Text;
+end;
+
+(*
+## Chat.LeveledUp
+```pascal
+function TChat.LeveledUp(): Boolean;
+```
+Returns true if we have the level up message on the chat box.
+Declared here and overriden in stats.simba
+
+Example:
+```pascal
+if Chat.LeveledUp then
+  Chat.ClickContinue(True);
+```
+*)
+{$H-}
+function TChat.LeveledUp(): Boolean;
+begin
+  //Overriden in stats.simba
+end;
+{$H+}
+
+(*
+## var Chat
+Global Chat variable.
+*)
+var
+  Chat: TChat;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Chat.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+
+  Chat.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Chat.Draw(Bitmap);
+end;

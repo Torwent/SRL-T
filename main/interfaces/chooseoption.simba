@@ -1,0 +1,596 @@
+(*
+# ChooseOption
+This file contains types and methods meant to handle the game
+context menu that opens on right clicking.
+*)
+{$DEFINE SRL_CHOOSEOPTION_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+(*
+(TChooseOption_Option)=
+## type TChooseOption_Option
+```pascal
+TChooseOption_Option = record
+  Text: String;
+  Bounds: TBox;
+  StringIndex, OptionIndex: Int32;
+end;
+
+TChooseOption_OptionArray = array of TChooseOption_Option;
+```
+Helper type to handle the context menu options.
+You probably won't have to use this directly.
+*)
+  TChooseOption_Option = record
+    Text: String;
+    Bounds: TBox;
+    StringIndex, OptionIndex: Int32;
+  end;
+
+  TChooseOption_OptionArray = array of TChooseOption_Option;
+
+(*
+(TChooseOption)=
+## type TChooseOption
+```pascal
+TChooseOption = record
+  Bitmap: Int32;
+  BitmapWidth: Int32;
+  BitmapHeight: Int32;
+
+  Bounds: TBox;
+end;
+```
+Main record responsible for handling the ChooseOption menu.
+*)
+  TChooseOption = record
+    Bitmap: Int32;
+    BitmapWidth: Int32;
+    BitmapHeight: Int32;
+
+    Bounds: TBox;
+
+    OCRFilter: TOCRFilter;
+  end;
+
+(*
+## ChooseOption.IsOpen
+```pascal
+function TChooseOption.IsOpen(): Boolean;
+function TChooseOption.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+```
+Returns True/False if the choose option menu is currently visible/open.
+
+Example:
+```pascal
+WriteLn ChooseOption.IsOpen();
+```
+*)
+function TChooseOption.IsOpen(): Boolean;
+var
+  tpa: TPointArray;
+  atpa: T2DPointArray;
+  p: TPoint;
+begin
+  if not FindBitmap(Self.Bitmap, p.X, p.Y) then
+    Exit;
+
+  p.Y += Self.BitmapHeight;
+
+  if FindColors(tpa, 0, P.X, P.Y, GameClient.Bounds.X2, GameClient.Bounds.Y2) then
+  begin
+    atpa := tpa.Cluster(1, 1);
+    atpa.SortByIndex(p, 0);
+
+    Self.Bounds := atpa[0].Bounds().Expand(-1);
+    Exit(True);
+  end;
+end;
+
+function TChooseOption.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+
+(*
+## ChooseOption.IsOpen
+```pascal
+function TChooseOption.Open(): Boolean;
+```
+Opens the choose option context menu if it's not currently open.
+
+Example:
+```pascal
+WriteLn ChooseOption.Open();
+```
+*)
+function TChooseOption.Open(): Boolean;
+begin
+  Result := Self.IsOpen();
+
+  if not Result then
+  begin
+    Mouse.Click(MOUSE_RIGHT);
+    Result := Self.IsOpen(3000);
+  end;
+end;
+
+
+(*
+## ChooseOption.Free
+```pascal
+function TChooseOption.Free(): Boolean;
+```
+Releases loaded bitmaps that the TChooseOption loads to work.
+This is automatically called for you on script termination, you don't have to call it.
+*)
+procedure TChooseOption.Free();
+begin
+  FreeBitmap(Self.Bitmap);
+end;
+
+(*
+## ChooseOption.Setup
+```pascal
+procedure TChooseOption.Setup();
+```
+TChooseOption setup method.
+This is responsible for loading the needed bitmaps into memory and is automatically called for you when a script is ran so you
+don't have to call it.
+*)
+procedure TChooseOption.Setup();
+begin
+  Self.Bitmap := BitmapFromString(20, 18, 'meJxzD4l1pwAxkAsGj15Mv+DyGpogXBmyemL04lEzgHqxhgPxehkwwoEkN9NCLwMRcYRHL5rvSNVLPBhAvWQjAO6IcGE=');
+  GetBitmapSize(Self.Bitmap, Self.BitmapWidth, Self.BitmapHeight);
+  AddOnTerminate(@Self.Free);
+
+  Self.OCRFilter := TOCRThresholdFilter.Create(-1);
+end;
+
+(*
+## ChooseOption.GetOptions
+```pascal
+function TChooseOption.GetOptions(): TChooseOption_OptionArray;
+```
+Returns a `TChooseOption_OptionArray` of all available options in the Choose Option context menu.
+This is a internal method, you probably don't need to call it.
+*)
+function TChooseOption.GetOptions(): TChooseOption_OptionArray;
+var
+  i, h: Int32;
+  b: TBox;
+begin
+  if not Self.Open() then Exit;
+
+  h := Self.Bounds.Height();
+  if (h < 15) then Exit;
+
+  SetLength(Result, h div 15);
+
+  b.X1 := Self.Bounds.X1;
+  b.X2 := Self.Bounds.X2;
+
+  for i := 0 to High(Result) do
+  begin
+    b.Y1 := Self.Bounds.Y1 + (i * 15);
+    b.Y2 := b.Y1 + 15;
+
+    if (b.Y2 > Self.Bounds.Y2) then Exit;
+
+    Result[i].Text := OCR.RecognizeStatic(b, Self.OCRFilter, FONT_BOLD_12_SHADOW);
+    Result[i].Bounds := b;
+    Result[i].OptionIndex := i;
+  end;
+end;
+
+(*
+## ChooseOption.Close
+```pascal
+function TChooseOption.Close(): Boolean;
+```
+Closes the Choose option context menu if it's open.
+Returns True on success.
+
+Example:
+```pascal
+WriteLn ChooseOption.Close();
+```
+*)
+function TChooseOption.Close(): Boolean;
+var
+  boxes: TBoxArray;
+  space: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit(True);
+
+  space := Self.Bounds.Expand(100);
+  space.LimitTo(GetClientBounds());
+
+  boxes := Self.Bounds.Expand(50).Invert(space);
+  if Length(boxes) = 0 then
+    raise 'No space found to move mouse';
+
+  Mouse.Move(boxes[Random(Length(boxes))], False, EMouseDistribution.MOUSE_DISTRIBUTION_RANDOM);
+  Result := WaitUntil(not Self.IsOpen(), 100, 1000);
+end;
+
+
+(*
+## ChooseOption.HasOption
+```pascal
+function TChooseOption.HasOption(text: TStringArray; out option: TChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+function TChooseOption.HasOption(text: TStringArray; out index: Int32; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HasOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.HasOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+```
+Methods to check if an option is available in the choose option context menu.
+Returns true if the option specified is available.
+
+Example:
+```pascal
+WriteLn ChooseOption.HasOption('Take');
+```
+*)
+function TChooseOption.HasOption(text: TStringArray; out option: TChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+var
+  choices: TChooseOption_OptionArray;
+  i, j: Int32;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Wait(0, 1000, wdLeft);
+  choices := Self.GetOptions();
+
+  for i := 0 to High(text) do
+  begin
+    if not caseSensitive then
+      text[i] := Lowercase(text[i]);
+
+    for j := 0 to High(choices) do
+    begin
+      if not caseSensitive then
+        choices[j].Text := Lowercase(choices[j].Text);
+
+      if text[i] in choices[j].Text then
+      begin
+        option := choices[j];
+        option.StringIndex := i;
+        Exit(True);
+      end;
+    end;
+  end;
+
+  if closeIfNotFound then
+  begin
+    WaitEx(500, 250);
+    Self.Close();
+  end;
+end;
+
+function TChooseOption.HasOption(text: TStringArray; out index: Int32; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+var
+  option: TChooseOption_Option;
+begin
+  Result := Self.HasOption(text, option, caseSensitive, closeIfNotFound);
+  if Result then
+    index := option.StringIndex
+  else
+    index := -1;
+end;
+
+function TChooseOption.HasOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+var
+  i: Int32;
+begin
+  Result := Self.HasOption(text, i, caseSensitive, closeIfNotFound);
+end;
+
+function TChooseOption.HasOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+begin
+  Result := Self.HasOption([text], caseSensitive, closeIfNotFound);
+end;
+
+
+(*
+## ChooseOption.CountOption
+```pascal
+function TChooseOption.CountOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32;
+function TChooseOption.CountOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32; overload;
+```
+Count how many times the specified option occurs in the choose option context menu.
+
+Example:
+```pascal
+WriteLn ChooseOption.CountOption('Take Bones');
+```
+*)
+function TChooseOption.CountOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32;
+var
+  choices: TChooseOption_OptionArray;
+  i, j: Int32;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Wait(0, 1000, wdLeft);
+  choices := Self.GetOptions();
+
+  for i := 0 to High(text) do
+  begin
+    if not caseSensitive then
+      text[i] := Lowercase(text[i]);
+
+    for j := 0 to High(choices) do
+    begin
+      if not caseSensitive then
+        choices[j].Text := Lowercase(choices[j].Text);
+
+      if text[i] in choices[j].Text then
+        Result += 1;
+    end;
+  end;
+
+  if (Result = 0) and closeIfNotFound then
+  begin
+    WaitEx(500, 250);
+    Self.Close();
+  end;
+end;
+
+function TChooseOption.CountOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Int32; overload;
+begin
+  Result := Self.CountOption([text], caseSensitive, closeIfNotFound);
+end;
+
+function TChooseOption.FindSub(): TBox;
+var
+  atpa: T2DPointArray;
+  tpa: TPointArray;
+begin
+  Result := [0,0,-1,-1];
+
+  SRL.FindColors(tpa, 0, GameClient.Bounds);
+  atpa := tpa.NRCluster(1);
+  atpa := atpa.SortFrom(Mouse.Position);
+
+  for tpa in atpa do
+  begin
+    if (Length(tpa) < 100) then Continue; //prevents small black areas around letters from getting detected
+
+    if (Length((EdgeFromBox(tpa.Bounds).Difference(tpa))) = 0) and not tpa.Bounds().Contains(Self.Bounds) then
+    if tpa.Bounds.Height = 16 then continue else // first box found is the title of submenu which is 16 height
+      Exit(tpa.Bounds.Expand(-1));
+  end
+end;
+
+function TChooseOption.IsSubOpen(): Boolean;
+begin
+  Result := not (Self.FindSub = [0,0,-1,-1]);
+end;
+
+function TChooseOption.OpenSub(): Boolean;
+begin
+  if not self.Open then Exit(False);
+
+  Result := Self.Hover(' >'); // with space so it does not do `->`
+
+  if Result then
+    Result := Self.IsSubOpen();
+end;
+
+function TChooseOption.GetSubOptions(): TChooseOption_OptionArray;
+var
+  subBounds, b: TBox;
+  i, h: Integer;
+begin
+  if not Self.IsSubOpen() then Exit();
+
+  subBounds := Self.FindSub;
+
+  h := subBounds.Height();
+  if (h < 15) then Exit;
+
+  SetLength(Result, h div 15);
+
+  b.X1 := subBounds.X1;
+  b.X2 := subBounds.X2;
+
+  for i := 0 to High(Result) do
+  begin
+    b.Y1 := subBounds.Y1 + (i * 15);
+    b.Y2 := b.Y1 + 15;
+
+    if (b.Y2 > subBounds.Y2) then Exit;
+
+    Result[i].Text := OCR.RecognizeStatic(b, Self.OCRFilter, FONT_BOLD_12_SHADOW);
+    Result[i].Bounds := b;
+    Result[i].OptionIndex := i;
+  end;
+end;
+
+function TChooseOption.HasSubOption(text: TStringArray; out option: TChooseOption_Option; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+var
+  choices: TChooseOption_OptionArray;
+  i, j: Int32;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Wait(0, 1000, wdLeft);
+  choices := Self.GetSubOptions();
+
+  for i := 0 to High(text) do
+  begin
+    if not caseSensitive then
+      text[i] := Lowercase(text[i]);
+
+    for j := 0 to High(choices) do
+    begin
+      if not caseSensitive then
+        choices[j].Text := Lowercase(choices[j].Text);
+
+      if text[i] in choices[j].Text then
+      begin
+        option := choices[j];
+        option.StringIndex := i;
+        Exit(True);
+      end;
+    end;
+  end;
+
+  if closeIfNotFound then
+  begin
+    WaitEx(500, 250);
+    Self.Close();
+  end;
+end;
+
+procedure TChooseOption.SelectSubOption(option: TChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
+var
+  from: TPoint;
+  b: TBox;
+  tmpMouse: TMouse;
+begin
+  b := option.Bounds;
+  b := b.Expand(-1);
+
+  from.X := b.X1;
+  from.Y := b.Y1 + (b.Height() div 3);
+
+  tmpMouse := Mouse;
+  tmpMouse.MissChance := 0;
+  tmpMouse.Wind := 1;
+  tmpMouse.Gravity := 10;
+  tmpMouse.Speed += 10;
+  tmpMouse.IdleInterval := 0;
+  tmpMouse.Move(SRL.RandomPointEx(from, b));
+
+  if (mouseAction <> MOUSE_MOVE) then
+    tmpMouse.Click(mouseAction);
+end;
+
+function TChooseOption.SelectSubOption(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+var
+  option: TChooseOption_Option;
+begin
+  if not Self.OpenSub() then Exit();
+
+  Result := Self.HasSubOption(text, option, caseSensitive, closeIfNotFound);
+  if Result then
+    Self.SelectSubOption(option, mouseAction);
+end;
+
+function TChooseOption.SelectSubOption(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+begin
+  Result := SelectSubOption([text], mouseAction, caseSensitive, closeIfNotFound);
+end;
+
+
+function TChooseOption.HoverSubOption(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+begin
+  Result := SelectSubOption(text, MOUSE_MOVE, caseSensitive, closeIfNotFound);
+end;
+
+function TChooseOption.HoverSubOption(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+begin
+  Result := SelectSubOption([text], MOUSE_MOVE, caseSensitive, closeIfNotFound);
+end;
+
+
+(*
+## ChooseOption.Select
+```pascal
+procedure TChooseOption.Select(option: TChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
+function TChooseOption.Select(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+function TChooseOption.Select(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+```
+Selects the specified option if it exists on the Choose option context menu.
+
+Example:
+```pascal
+WriteLn ChooseOption.Select('Take Bones');
+```
+*)
+procedure TChooseOption.Select(option: TChooseOption_Option; mouseAction: Int32 = MOUSE_LEFT);
+var
+  from: TPoint;
+  b: TBox;
+  tmpMouse: TMouse;
+begin
+  b := option.Bounds;
+  b := b.Expand(-1);
+
+  from.X := b.X1;
+  from.Y := b.Y1 + (b.Height() div 3);
+
+  tmpMouse := Mouse;
+  tmpMouse.MissChance := 0;
+  tmpMouse.IdleInterval := 0;
+  tmpMouse.Move(SRL.RandomPointEx(from, b));
+
+  if (mouseAction <> MOUSE_MOVE) then
+    tmpMouse.Click(mouseAction);
+end;
+
+function TChooseOption.Select(text: TStringArray; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+var
+  option: TChooseOption_Option;
+begin
+  Result := Self.HasOption(text, option, caseSensitive, False);
+  if Result then
+    Self.Select(option, mouseAction)
+  else if Self.HasOption(' >', caseSensitive, closeIfNotFound) then
+      Result := Self.SelectSubOption(text, mouseAction, caseSensitive, closeIfNotFound);
+end;
+
+function TChooseOption.Select(text: String; mouseAction: Int32 = MOUSE_LEFT; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+begin
+  Result := Select([text], mouseAction, caseSensitive, closeIfNotFound);
+end;
+
+(*
+## ChooseOption.Hover
+```pascal
+function TChooseOption.Hover(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+function TChooseOption.Hover(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+```
+Hovers the specified option if it exists on the Choose option context menu.
+
+Example:
+```pascal
+WriteLn ChooseOption.Hover('Take Bones');
+```
+*)
+function TChooseOption.Hover(text: TStringArray; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean;
+begin
+  Result := Select(text, MOUSE_MOVE, caseSensitive, closeIfNotFound);
+end;
+
+function TChooseOption.Hover(text: String; caseSensitive: Boolean = True; closeIfNotFound: Boolean = True): Boolean; overload;
+begin
+  Result := Select([text], MOUSE_MOVE, caseSensitive, closeIfNotFound);
+end;
+
+var
+(*
+(ChooseOption)=
+## var ChooseOption
+Global variable for the TChooseOption record. You should use this variable when you want to interact with TChooseOption.
+*)
+  ChooseOption: TChooseOption;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+
+  ChooseOption.Setup();
+end;

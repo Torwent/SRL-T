@@ -1,0 +1,396 @@
+{$DEFINE SRL_TBOX_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+(*
+# TBox
+TBox related methods
+*)
+
+function Box(X1,Y1,X2,Y2: Int32): TBox;
+begin
+  Result := [X1, Y1, X2, Y2];
+end;
+
+function Box(mid:TPoint; xr,yr: Int32): TBox; overload;
+begin
+  Result := [mid.x-xr, mid.y-yr, mid.x+xr, mid.y+yr];
+end;
+
+function Box(p, q: TPoint): TBox; overload;
+begin
+  Result := Box(Min(p.X, q.X), Min(p.Y, q.Y), Max(p.X, q.X), Max(p.Y, q.Y));
+end;
+
+function TBox.ToRectangle(): TRectangle; constref;
+begin
+  Result.Top   := [Self.X1, Self.Y1];
+  Result.Right := [Self.X2, Self.Y1];
+  Result.Btm   := [Self.X2, Self.Y2];
+  Result.Left  := [Self.X1, Self.Y2];
+end;
+
+function TBox.ToTPA(): TPointArray; constref;
+begin
+  Result := [
+    [Self.X1, Self.Y1], [Self.X2, Self.Y1], [Self.X2, Self.Y2], [Self.X1, Self.Y2]
+  ];
+end;
+
+procedure TBox.GetDimensions(out w, h: Int32); constref;
+begin
+  w := Self.X2 - Self.X1 + 1;
+  h := Self.Y2 - Self.Y1 + 1;
+end;
+
+function TBox.Width(): UInt32; constref;
+begin
+  Result := Self.X2 - Self.X1 + 1;
+end;
+
+function TBox.Height(): UInt32; constref;
+begin
+  Result := Self.Y2 - Self.Y1 + 1;
+end;
+
+function TBox.Area(): UInt32; constref;
+begin
+  Result := (Self.X2 - Self.X1 + 1) * (Self.Y2 - Self.Y1 + 1);
+end;
+
+function TBox.Center(): TPoint; constref;
+begin
+  Result := Point((Self.X2 + Self.X1+1) div 2, (Self.Y2 + Self.Y1+1) div 2);
+end;
+
+function TBox.Middle(): TPoint; constref;
+begin
+  Result := Point((Self.X2 + Self.X1+1) div 2, (Self.Y2 + Self.Y1+1) div 2);
+end;
+
+function TBox.Expand(SizeMod: Int32): TBox; constref;
+begin
+  Result.X1 := Self.X1 - SizeMod;
+  Result.Y1 := Self.Y1 - SizeMod;
+  Result.X2 := Self.X2 + SizeMod;
+  Result.Y2 := Self.Y2 + SizeMod;
+end;
+
+function TBox.Expand(WidMod,HeiMod: Int32): TBox; constref; overload;
+begin
+  Result.X1 := Self.X1 - WidMod;
+  Result.Y1 := Self.Y1 - HeiMod;
+  Result.X2 := Self.X2 + WidMod;
+  Result.Y2 := Self.Y2 + HeiMod;
+end;
+
+function TBox.Expand(SizeMod: Int32; MaxBounds: TBox): TBox; constref; overload;
+begin
+  Result.X1 := Self.X1 - SizeMod;
+  Result.Y1 := Self.Y1 - SizeMod;
+  Result.X2 := Self.X2 + SizeMod;
+  Result.Y2 := Self.Y2 + SizeMod;
+  
+  Result.LimitTo(MaxBounds);
+end;
+
+function TBox.Combine(other: TBox): TBox; constref;
+begin
+  Result.X1 := Min(Min(Self.X1, other.X2), Min(other.X1, Self.X2));
+  Result.Y1 := Min(Min(Self.Y1, other.Y2), Min(other.Y1, Self.Y2));
+  Result.X2 := Max(Max(Self.X1, other.X2), Max(other.X1, Self.X2));
+  Result.Y2 := Max(Max(Self.Y1, other.Y2), Max(other.Y1, Self.Y2));
+end;
+
+function TBox.Overlap(other: TBox): Boolean; constref;
+begin
+  Result := (Self.X1 <= other.X2) and (Self.X2 >= other.X1) and 
+            (Self.Y1 <= other.Y2) and (Self.Y2 >= other.Y1);
+end;
+
+
+function TBox.Contains(other: TPoint): Boolean; constref;
+begin
+  Result := InRange(other.X, Self.X1, Self.X2) and
+            InRange(other.Y, Self.Y1, Self.Y2);
+end;
+
+function TBox.Contains(other: TBox): Boolean; constref; overload;
+begin
+  Result := InRange(other.X1, Self.X1, Self.X2) and
+            InRange(other.X2, Self.X1, Self.X2) and
+            InRange(other.Y1, Self.Y1, Self.Y2) and
+            InRange(other.Y2, Self.Y1, Self.Y2);
+end;
+
+function TBox.Contains(other: TRectangle): Boolean; constref; overload;
+begin
+  Result := Self.Contains(other.Top) and Self.Contains(other.Left) and Self.Contains(other.Btm) and Self.Contains(other.Right);
+end;
+
+function TBox.ContainsAny(other: TPointArray): Boolean; constref; overload;
+var
+  p: TPoint;
+begin
+  for p in other do
+    if Self.Contains(p) then
+      Exit(True);
+end;
+
+function TBox.ContainsAll(other: TPointArray): Boolean; constref; overload;
+var
+  p: TPoint;
+begin
+  for p in other do
+    if not Self.Contains(p) then
+      Exit;
+  Result := True;
+end;
+
+
+function TBox.Offset(pt: TPoint): TBox; constref;
+begin
+  Result.x1 := self.x1 + pt.x;
+  Result.y1 := self.y1 + pt.y;
+  Result.x2 := self.x2 + pt.x;
+  Result.y2 := self.y2 + pt.y;
+end;
+
+procedure TBox.Normalize();
+begin
+  if (Self.X1 > Self.X2) then Swap(Self.X1, Self.X2);
+  if (Self.Y1 > Self.Y2) then Swap(Self.Y1, Self.Y2);
+end;
+
+procedure TBox.LimitTo(b: TBox);
+begin
+  Self.Normalize();
+  b.Normalize();
+
+  if (Self.x1 < b.x1) then Self.x1 := b.x1;
+  if (Self.x1 > b.x2) then Self.x1 := b.x2;
+  if (Self.x2 < b.x1) then Self.x2 := b.x1;
+  if (Self.x2 > b.x2) then Self.x2 := b.x2;
+
+  if (Self.y1 < b.y1) then Self.y1 := b.y1;
+  if (Self.y1 > b.y2) then Self.y1 := b.y2;
+  if (Self.y2 < b.y1) then Self.y2 := b.y1;
+  if (Self.y2 > b.y2) then Self.y2 := b.y2;
+end;
+
+function TBox.EnsureRange(b: TBox): TBox; constref;
+begin
+  Result := Self;
+  Result.LimitTo(b);
+end;
+
+
+function TBox.Partition(Rows, Cols: Int32; SizeMod:Int32=0): TBoxArray; constref;
+var
+  idx,x,y: Int32;
+  BoxW,BoxH: Single;
+begin
+  SetLength(Result, Cols * Rows);
+  BoxW := (Self.x2 - Self.x1 + 1) / Cols;
+  BoxH := (Self.y2 - Self.y1 + 1) / Rows;
+  for y:=0 to Rows-1 do
+    for x:=0 to Cols-1 do
+    begin
+      idx := (Y * Cols) + X;
+      Result[idx].x1 := Ceil(Self.x1 + (BoxW * x)) - SizeMod;
+      Result[idx].y1 := Ceil(Self.y1 + (BoxH * y)) - SizeMod;
+      Result[idx].x2 := Trunc(Self.x1 + (BoxW * x) + BoxW-1) + SizeMod;
+      Result[idx].y2 := Trunc(Self.y1 + (BoxH * y) + BoxH-1) + SizeMod;
+    end;
+end;
+
+function TBox.PartitionEx(Rows, Cols: Int32; RowMod, ColMod:Int32): TBoxArray; constref;
+var
+  idx,x,y: Int32;
+  BoxW,BoxH: Single;
+begin
+  SetLength(Result, Cols * Rows);
+  BoxW := (Self.x2 - Self.x1 + 1) / Cols;
+  BoxH := (Self.y2 - Self.y1 + 1) / Rows;
+  for y:=0 to Rows-1 do
+    for x:=0 to Cols-1 do
+    begin
+      idx := (Y * Cols) + X;
+      Result[idx].x1 := Ceil(Self.x1 + (BoxW * x)) - ColMod;
+      Result[idx].y1 := Ceil(Self.y1 + (BoxH * y)) - RowMod;
+      Result[idx].x2 := Trunc(Self.x1 + (BoxW * x) + BoxW-1) + ColMod;
+      Result[idx].y2 := Trunc(Self.y1 + (BoxH * y) + BoxH-1) + RowMod;
+    end;
+end;
+
+function TBox.EqualDimensions(const other: TBox): Boolean; constref;
+begin
+  Result := ((Self.X2 - Self.X1) = (other.X2 - other.X1)) and
+            ((Self.Y2 - Self.Y1) = (other.Y2 - other.Y1));
+end;
+
+function TBox.InnerBorder(Size: Integer): TBoxArray; constref;
+begin
+  SetLength(Result, 4);
+  Result[0] := [Self.X1, Self.Y1, Self.X2, Self.Y1 + Size];
+  Result[1] := [Self.X1, Self.Y2 - Size, Self.X2, Self.Y2];
+  Result[2] := [Self.X1, Result[0].Y2 + 1, Self.X1 + Size, Result[1].Y1 - 1];
+  Result[3] := [Self.X2 - Size, Result[0].Y2 + 1, Self.X2, Result[1].Y1 - 1];
+end;
+
+(*
+## TBox.NearestEdge
+```pascal
+function TBox.NearestEdge(P: TPoint): TPoint; constref;
+```
+
+Returns the closest edge point to the TPoint `P`.
+
+```{note}
+By slacky
+```
+*)
+function TBox.NearestEdge(P: TPoint): TPoint; constref;
+begin
+  Result := P;
+
+  if Self.Contains(Result) then
+  begin
+    if Min(Abs(Self.Y1 - P.Y), Abs(P.Y - Self.Y2)) > Min(Abs(Self.X1 - P.X), Abs(P.X - Self.X2)) then
+    begin
+      Result.X := Self.X1;
+      if (P.X - Self.X1 > Self.X2 - P.X) then
+        Result.X := Self.X2;
+    end else
+     begin
+      Result.Y := Self.Y1;
+      if (P.Y - Self.Y1 > Self.Y2 - P.Y) then
+        Result.Y := Self.Y2;
+    end;
+  end else
+  begin
+    if (Result.X < Self.X1) then Result.X := Self.X1;
+    if (Result.X > Self.X2) then Result.X := Self.X2;
+    if (Result.Y < Self.Y1) then Result.Y := Self.Y1;
+    if (Result.Y > Self.Y2) then Result.Y := Self.Y2;
+  end;
+end;
+
+(*
+## TBox.Intersect
+```pascal
+function TBox.Intersect(P: TPoint): TPoint; constref;
+```
+
+Returns the point on the edge where point `P` intersects with the edge when crossing to the mean of the box.
+*)
+function TBox.Intersect(P: TPoint): TPoint; constref;
+var m,i: TPoint;
+begin
+  Result := P;
+  m := Self.Middle;
+  if srl.LinesIntersect(p,m, Point(X1,Y1), Point(X2,Y1), i) then Result := i;
+  if srl.LinesIntersect(p,m, Point(X2,Y1), Point(X2,Y2), i) then Result := i;
+  if srl.LinesIntersect(p,m, Point(X2,Y2), Point(X1,Y2), i) then Result := i;
+  if srl.LinesIntersect(p,m, Point(X1,Y2), Point(X1,Y1), i) then Result := i;
+end;
+
+(*
+## TBox.Invert
+```pascal
+function TBox.Invert(Area: TBox): TBoxArray; constref;
+```
+
+Returns the boxes which surround `Self` in the given `Area`.
+Typically there is eight surroudning boxes:
+
+  * Top Left
+  * Mid Left
+  * Bottom Left
+  * Top Mid
+  * Bottom Mid
+  * Top Right
+  * Mid Right
+  * Bottom Right
+
+*)
+function TBox.Invert(Area: TBox): TBoxArray; constref;
+var
+  B: TBox;
+  Boxes: TBoxArray;
+begin
+  B.X1 := Max(Area.X1, Self.X1-1);
+  B.X2 := Min(Area.X2, Self.X2+1);
+  B.Y1 := Max(Area.Y1, Self.Y1-1);
+  B.Y2 := Min(Area.Y2, Self.Y2+1);
+
+  Boxes := [
+    [Area.X1, Area.Y1, B.X1, B.Y1],
+    [Area.X1, B.Y1, B.X1, B.Y2],
+    [Area.X1, B.Y2, B.X1, Area.Y2],
+    [B.X1, Area.Y1, B.X2, B.Y1],
+    [B.X1, B.Y2, B.X2, Area.Y2],
+    [B.X2, Area.Y1, Area.X2, B.Y1],
+    [B.X2, B.Y1, Area.X2, B.Y2],
+    [B.X2, B.Y2, Area.X2, Area.Y2]
+  ];
+
+  for B in Boxes do
+    if (B.X2 > B.X1) and (B.Y2 > B.Y1) then
+      Result := Result + B;
+end;
+
+
+(*
+## TBox.Filter
+```pascal
+function TBox.Filter(testSet: TPointArray): TPointArray; constref;
+```
+Extract all the points from `testSet` that fits within this rectangle.
+*)
+function TBox.Filter(testSet: TPointArray): TPointArray; constref;
+begin
+  Result := Copy(testSet);
+  FilterPointsBox(Result, Self.X1, Self.Y1, Self.X2, Self.Y2);
+end;
+
+
+function ToString(b: TBox): String; override;
+begin
+  Result := 'Box(' +
+    ToString(b.X1) + ', ' + ToString(b.Y1) + ', ' +
+    ToString(b.X2) + ', ' + ToString(b.Y2) +
+  ')';
+end;
+
+function TBox.ToString(short: Boolean = True): String; constref;
+begin
+  if not short then Exit(System.ToString(Self));
+
+  Result := '[' +
+    System.ToString(Self.X1) + ', ' + System.ToString(Self.Y1) + ', ' +
+    System.ToString(Self.X2) + ', ' + System.ToString(Self.Y2) +
+  ']';
+end;
+
+
+operator > (left, right: TBox): Boolean;
+begin
+  Result := left.Area() > right.Area();
+end;
+
+operator < (left, right: TBox): Boolean;
+begin
+  Result := left.Area() < right.Area();
+end;
+
+operator >= (left, right: TBox): Boolean;
+begin
+  Result := left.Area() >= right.Area();
+end;
+
+operator <= (left, right: TBox): Boolean;
+begin
+  Result := left.Area() <= right.Area();
+end;

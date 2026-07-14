@@ -1,0 +1,74 @@
+{$DEFINE SRL_GAMETAB_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  TGameTab = type TInterface;
+
+procedure TGameTab.Setup(); override;
+begin
+  inherited;
+  Self.Name := 'GameTab';
+end;
+
+procedure TGameTab.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+begin
+  case GameClient.Mode of
+    EClientMode.FIXED:
+    begin
+      alignment.Left   := RootInterface.Bounds.X2 - 214;
+      alignment.Right  := RootInterface.Bounds.X2 - 31;
+      alignment.Top    := RootInterface.Bounds.Y2 - 298;
+      alignment.Bottom := RootInterface.Bounds.Y2 - 37;
+    end;
+
+    EClientMode.RESIZABLE_CLASSIC:
+    begin
+      alignment.Left   := RootInterface.Bounds.X2 - 212;
+      alignment.Right  := RootInterface.Bounds.X2 - 29;
+      alignment.Top    := RootInterface.Bounds.Y2 - 298;
+      alignment.Bottom := RootInterface.Bounds.Y2 - 37;
+    end;
+
+    EClientMode.RESIZABLE_MODERN:
+    begin
+      alignment.Left   := RootInterface.Bounds.X2 - 193;
+      alignment.Right  := RootInterface.Bounds.X2 - 10;
+      alignment.Top    := GameTabs.Bounds.Y1 - 269;
+      alignment.Bottom := GameTabs.Bounds.Y1 - 7;
+    end;
+  end;
+
+  Self.SetupAlignment(alignment);
+end;
+
+var
+  GameTab: TGameTab;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  GameTab.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  GameTab.Setup();
+end;
+
+procedure TSRL.Debug(bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  GameTab.Draw(bitmap);
+end;
+
+type
+  TItemGameTab = record(TInterface)
+    Items: TItemInterface;
+    SlotBoxes: TBoxArray;
+  end;
+  PRSItemGameTab = ^TItemGameTab;

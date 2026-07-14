@@ -1,0 +1,19 @@
+{$DEFINE SRL_USE_REMOTEINPUT}
+
+{$I SRL-T/main.simba}
+
+begin
+  GameClient.Image.Clear();
+  GameClient.Image.DrawBoxFilled([100,100,450,210], False, $0000A4);
+  GameClient.Image.SetFontSize(40);
+
+  // Rough edges
+  GameClient.Image.SetFontAntialiasing(False);
+  GameClient.Image.DrawText('Hello World!', [120, 120], $FFFFFF);
+
+  // Smooth Edges
+  GameClient.Image.SetFontAntialiasing(True);
+  GameClient.Image.DrawText('UTC Time: ' + FormatDateTime('t', NowUTC()), [120, 165], $FFFFFF);
+
+  GameClient.image.DrawBox([105,105,445,205], $FFFFFF);
+end;

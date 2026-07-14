@@ -1,0 +1,207 @@
+(*
+# TPoint
+TPoint related methods
+*)
+
+{$DEFINE SRL_TPOINT_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+(*
+## TPoint.In
+```pascal
+function TPoint.InRect(rect: TRectangle): Boolean; constref;
+function TPoint.InBox(Box: TBox): Boolean; constref;
+function TPoint.InCircle(circle: TCircle): Boolean; constref;
+```
+Returns true if the `TPoint` is inside the specified TRectangle, TBox or TCircle.
+*)
+function TPoint.InRect(rect: TRectangle): Boolean; constref;
+begin
+  Result := TSRL.PointInRect(Self, rect);
+end;
+
+function TPoint.InBox(Box: TBox): Boolean; constref;
+begin
+  Result := PointInBox(Self, Box);
+end;
+
+function TPoint.InCircle(circle: TCircle): Boolean; constref;
+begin
+  Result := Hypot(Self.X - circle.X, Self.Y - circle.Y) <= circle.Radius;
+end;
+
+
+function TPoint.LineTo(other: TPoint): TPointArray; constref;
+begin
+  Result := TPAFromLine(Self.X, Self.Y, other.X, other.Y);
+end;
+
+(*
+## TPoint.DistanceTo
+```pascal
+function TPoint.DistanceTo(other:TPoint): Double; constref;
+```
+Returns distance between the current TPoint and another one.
+
+Example:
+```pascal
+var
+  p1: TPoint = [100, 100];
+  p2: TPoint = [120, 120];
+
+begin
+  WriteLn p1.DistanceTo(p2);
+end;
+```
+*)
+function TPoint.DistanceTo(other:TPoint): Double; constref;
+begin
+  Result := Hypot(Self.x-other.x, Self.y-other.y);
+end;
+
+(*
+## TPoint.Rotate
+```pascal
+function TPoint.Rotate(angle: Double; mid: TPoint): TPoint; constref;
+```
+Returns the current point rotated around `mid` by the specified `angle`.
+*)
+function TPoint.Rotate(angle: Double; mid: TPoint): TPoint; constref;
+begin
+  Result := RotatePoint(Self, Angle, Mid.X, Mid.Y);
+end;
+
+(*
+## TPoint.Magnitude
+```pascal
+function TPoint.Magnitude(): Double; constref;
+```
+Returns the magnitude of the current point.
+*)
+function TPoint.Magnitude(): Double; constref;
+begin
+  Result := Sqrt(Sqr(Self.x) + Sqr(Self.y));
+end;
+
+(*
+## TPoint.Dot
+```pascal
+function TPoint.Dot(other: TPoint): Double; constref;
+```
+Returns the dot product of 2 points
+*)
+function TPoint.Dot(other: TPoint): Double; constref;
+begin
+  Result := Self.X * other.X + Self.Y * other.Y;
+end;
+
+(*
+## TPoint.AngleBetween
+```pascal
+function TPoint.AngleBetween(other: TPoint): Double; constref;
+```
+Returns the angle between the current point and `other`.
+*)
+function TPoint.AngleBetween(other: TPoint): Double; constref;
+begin
+  Result := SRL.Modulo(Degrees(ArcTan2(other.Y - self.Y, other.X - self.X)) - 90, 360);
+end;
+
+
+(*
+## TPoint.Offset
+```pascal
+function TPoint.Offset(other: TPoint): TPoint; constref;
+function TPoint.Offset(x, y: Int32): TPoint; constref; overload;
+```
+Offsets the current point by the values of `other` or by `x` and `y`.
+
+Example
+```pascal
+var
+  p: TPoint = [100, 100];
+
+begin
+  p := p.Offset(20, 20);
+  WriteLn p;
+end;
+```
+*)
+function TPoint.Offset(other: TPoint): TPoint; constref;
+begin
+  Result.X := Self.X + other.X;
+  Result.Y := Self.Y + other.Y;
+end;
+
+function TPoint.Offset(x, y: Int32): TPoint; constref; overload;
+begin
+  Result := Self.Offset([x,y]);
+end;
+
+
+(*
+## TPoint.Random
+```pascal
+function TPoint.EnsureRange(x1, y1, x2, y2: Int32): TPoint;
+function TPoint.EnsureRange(b: TBox): TPoint; overload;
+```
+Returns a point that is within the specified box by setting the values
+that are outside of it to it's edge.
+*)
+function TPoint.EnsureRange(x1, y1, x2, y2: Int32): TPoint;
+begin
+  Result.X := System.EnsureRange(Self.X, Min(x1, x2), Max(x1, x2));
+  Result.Y := System.EnsureRange(Self.Y, Min(y1, y2), Max(y1, y2));
+end;
+
+function TPoint.EnsureRange(b: TBox): TPoint; overload;
+begin
+  Result := Self.EnsureRange(b.X1, b.Y1, b.X2, b.Y2);
+end;
+
+
+(*
+## TPoint.InRange
+```pascal
+function TPoint.InRange(other: TPoint; dist: Double): Boolean; constref;
+function TPoint.AnyInRange(other: TPointArray; dist: Double): Boolean; constref;
+function TPoint.AllInRange(other: TPointArray; dist: Double): Boolean; constref;
+```
+Checks if the current point is within `dist` distance of `other`.
+*)
+function TPoint.InRange(other: TPoint; dist: Double): Boolean; constref;
+begin
+  Result := Self.DistanceTo(other) <= dist;
+end;
+
+function TPoint.AnyInRange(other: TPointArray; dist: Double): Boolean; constref;
+var
+  p: TPoint;
+begin
+  for p in other do
+    if Self.InRange(p, dist) then
+      Exit(True);
+end;
+
+function TPoint.AllInRange(other: TPointArray; dist: Double): Boolean; constref;
+var
+  p: TPoint;
+begin
+  for p in other do
+    if not Self.InRange(p, dist) then
+      Exit;
+  Result := True;
+end;
+
+function ToString(p: TPoint): String; override;
+begin
+  Result := 'Point(' + ToString(p.X) + ',' + ToString(p.Y) + ')';
+end;
+
+function TPoint.ToString(short: Boolean = True): String; constref;
+begin
+  if not short then Exit(System.ToString(Self));
+  Result := '[' + System.ToString(Self.X) + ',' + System.ToString(Self.Y) + ']';
+end;

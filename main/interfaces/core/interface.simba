@@ -1,0 +1,563 @@
+{$DEFINE SRL_INTERFACE_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  TInterfaceAlignment = record
+    Left, Top, Right, Bottom, MaxWidth, MaxHeight: Int32;
+  end;
+
+  TInterface = record(TSRLBaseRecord)
+    ButtonColors: array of TCTS1Color;
+    ButtonEnabledColors: array of TCTS1Color;
+
+    Width, Height: Int32;
+    Center: TPoint;
+    Bounds: TBox;
+    Rectangle: TRectangle;
+
+    ScrollArea: TBox;
+  end;
+
+  PRSInterface = ^TInterface;
+
+procedure TInterface.Setup();
+begin
+  Self.Name := 'Interface';
+  Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20), CTS1(1514268, 10)];
+  Self.ButtonEnabledColors := [CTS1(2369440, 5), CTS1(2700350, 5)];
+end;
+
+procedure TInterface.SetupAlignment(alignment: TInterfaceAlignment);
+var
+  length, center, half, halfMax: Single;
+begin
+  if alignment = [0,0,0,0,0,0] then Self.Fatal('No anchors set for this alignment');
+
+  if alignment.MaxWidth > 0 then
+  begin
+    length := alignment.Right - alignment.Left;
+    half := length / 2;
+    center := alignment.Left + half;
+    halfMax := (alignment.MaxWidth - 1) / 2;
+
+    Self.Bounds.X1 := Max(Floor(center - half), Floor(center - halfMax));
+    Self.Bounds.X2 := Min(Floor(center + half), Floor(center + halfMax));
+  end
+  else
+  begin
+    Self.Bounds.X1 := alignment.Left;
+    Self.Bounds.X2 := alignment.Right;
+  end;
+
+  if alignment.MaxHeight > 0 then
+  begin
+    length := alignment.Bottom - alignment.Top;
+    half := length / 2;
+    center := alignment.Top + half;
+    halfMax := (alignment.MaxHeight - 1) / 2;
+
+    Self.Bounds.Y1 := Max(Floor(center - half), Floor(center - halfMax));
+    Self.Bounds.Y2 := Min(Floor(center + half), Floor(center + halfMax));
+  end
+  else
+  begin
+    Self.Bounds.Y1 := alignment.Top;
+    Self.Bounds.Y2 := alignment.Bottom;
+  end;
+
+  Self.Rectangle := Self.Bounds.ToRectangle();
+  Self.Center := Self.Bounds.Middle();
+  Self.Width := Self.Bounds.Width();
+  Self.Height := Self.Bounds.Height();
+end;
+
+type
+  TGameButton = record
+    EnabledColors: array of TCTS1Color;
+
+    Index: Int32;
+    Bounds: TBox;
+    Middle: TPoint;
+  end;
+
+  TGameButtonArray = array of TGameButton;
+  TGameButtonDimensions = array of record Width, Height: Int32; end;
+
+function TInterface.FindButtons(Dimensions: TGameButtonDimensions; Area: TBox): TGameButtonArray; overload;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  I, W, H: Int32;
+  Color: TCTS1Color;
+  Boxes: TBoxArray;
+  B: TBox;
+begin
+  for Color in Self.ButtonColors do
+    if SRL.FindColors(TPA, Color, Area) > 0 then
+      ATPA += TPA;
+
+  ATPA := ATPA.Merge().Cluster(1);
+
+  for TPA in ATPA do
+  begin
+    if Length(TPA) < 50 then
+      Continue;
+
+    B := TPA.Bounds();
+    B.GetDimensions(W, H);
+
+    for I := 0 to High(Dimensions) do
+    begin
+      if ((W = Dimensions[I].Width) or (Dimensions[I].Width = 0)) and
+         ((H = Dimensions[I].Height) or (Dimensions[I].Height = 0)) and
+          (TPA.Frameness > 75) then
+        Boxes += B;
+    end;
+
+    {$IFDEF SRL_DEBUG_FINDBUTTONS}
+    Writeln(W, ', ', H);
+    {$ENDIF}
+  end;
+
+  Boxes.SortByXY(10);
+
+  SetLength(Result, Length(Boxes));
+  for I := 0 to High(Boxes) do
+  begin
+    Result[I].Index := I;
+    Result[I].Bounds := Boxes[I];
+    Result[I].Middle := Boxes[I].Middle();
+    Result[I].EnabledColors := Self.ButtonEnabledColors;
+  end;
+end;
+
+function TInterface.FindButtons(Dimensions: TGameButtonDimensions): TGameButtonArray; overload;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  I, W, H: Int32;
+  B: TBox;
+  Color: TCTS1Color;
+  Boxes: TBoxArray;
+begin
+  B := Self.Bounds;
+
+  for Color in Self.ButtonColors do
+    if SRL.FindColors(TPA, Color, B) > 0 then
+      ATPA += TPA;
+
+  ATPA := ATPA.Merge().Cluster(1);
+
+  //Debug(ATPA);
+  //Halt;
+
+  for TPA in ATPA do
+  begin
+    if Length(TPA) < 50 then
+      Continue;
+
+    B := TPA.Bounds();
+    B.GetDimensions(W, H);
+
+    for I := 0 to High(Dimensions) do
+    begin
+      if ((W = Dimensions[I].Width) or (Dimensions[I].Width = 0)) and
+         ((H = Dimensions[I].Height) or (Dimensions[I].Height = 0)) and
+          (TPA.Frameness > 75) then
+        Boxes += B;
+    end;
+
+    {$IFDEF SRL_DEBUG_FINDBUTTONS}
+    Writeln(W, ', ', H);
+    {$ENDIF}
+  end;
+
+  Boxes.SortByXY(10);
+
+  SetLength(Result, Length(Boxes));
+  for I := 0 to High(Boxes) do
+  begin
+    Result[I].Index := I;
+    Result[I].Bounds := Boxes[I];
+    Result[I].Middle := Boxes[I].Middle;
+    Result[I].EnabledColors := Self.ButtonEnabledColors;
+  end;
+end;
+
+function TGameButtonArray.ToBoxes(): TBoxArray; constref;
+var
+  I: Int32;
+begin
+  SetLength(Result, Length(Self));
+  for I := 0 to High(Result) do
+    Result[I] := Self[I].Bounds;
+end;
+
+function TGameButton.Visible(): Boolean; constref;
+begin
+  Result := Self <> [];
+end;
+
+function TGameButton.Enabled(): Boolean; constref;
+var
+  color: TCTS1Color;
+begin
+  if Self.Visible() then
+  begin
+    for color in Self.EnabledColors do
+      if SRL.CountColor(color, Self.Bounds) > 0 then
+        Exit(True);
+  end;
+end;
+
+function TGameButton.Click(MouseButton: Int32 = MOUSE_LEFT): Boolean; constref;
+begin
+  Result := Self.Visible();
+  if Result then
+    Mouse.Click(Self.Bounds, MouseButton);
+end;
+
+function TGameButton.Enable(): Boolean; constref;
+begin
+  Result := Self.Enabled() or Self.Click();
+end;
+
+function TGameButton.Disable(): Boolean; constref;
+begin
+  Result := not Self.Enabled() or Self.Click();
+end;
+
+function TGameButton.FindText(constref text: String; constref font: TFontSet; colors: TIntegerArray = [$0]): Boolean; constref;
+begin
+  Result := OCR.LocateText(Self.Bounds, text, font, TOCRColorFilter.Create(colors), 1);
+end;
+
+function TGameButton.FindText(text: TStringArray; constref font: TFontSet; out found: String; colors: TIntegerArray = [$0]): Boolean; constref; overload;
+var
+  i: Int32;
+begin
+  for I := 0 to High(text) do
+    if Self.FindText(text[I], font, colors) then
+    begin
+      found := Text[i];
+      Exit(True);
+    end;
+end;
+
+function TGameButton.FindText(constref text: String; constref font: TFontSet; color: Int32): Boolean; constref; overload;
+begin
+  Result := Self.FindText(text, font, [color]);
+end;
+
+function TGameButton.FindText(text: TStringArray; constref font: TFontSet; color: Int32; out found: String): Boolean; constref; overload;
+begin
+  Result := Self.FindText(text, font, found, [color]);
+end;
+
+
+procedure TGameButton.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FFFF);
+var
+  fontSize: Single;
+  antiAliasing: Boolean;
+begin
+  fontSize := bitmap.getFontSize();
+  antiAliasing := bitmap.getFontAntialiasing();
+
+  bitmap.SetFontSize(20);
+  bitmap.SetFontAntialiasing(False);
+
+  bitmap.DrawBox(Self.Bounds, color);
+  bitmap.DrawText(ToStr(Self.Index), Self.Bounds, True, $00FF00);
+
+  bitmap.SetFontSize(fontSize);
+  bitmap.SetFontAntialiasing(antiAliasing);
+end;
+
+procedure TGameButtonArray.Draw(bitmap: TMufasaBitmap; color: Int32 = $00FFFF); constref;
+var
+  button: TGameButton;
+  fontSize: Single;
+  antiAliasing: Boolean;
+begin
+  fontSize := bitmap.getFontSize();
+  antiAliasing := bitmap.getFontAntialiasing();
+
+  bitmap.SetFontSize(20);
+  bitmap.SetFontAntialiasing(False);
+
+  for button in Self do
+  begin
+    bitmap.DrawBox(button.Bounds, color);
+    bitmap.DrawText(ToStr(button.Index), button.Bounds, True, $00FF00);
+  end;
+
+  bitmap.SetFontSize(fontSize);
+  bitmap.SetFontAntialiasing(antiAliasing);
+end;
+
+
+type
+  TGameScrollBar = record
+    SliderRegion: TBox;
+    Slider: TBox;
+    Position: Int32;
+  end;
+
+procedure TGameScrollBar.Draw(Bitmap: TMufasaBitmap); constref;
+begin
+  Bitmap.DrawBox(Self.SliderRegion, $00FFFF);
+  Bitmap.DrawBox(Self.Slider, $00FFFF);
+  Bitmap.SetFontAntialiasing(False);
+  Bitmap.SetFontSize(30);
+  with Bitmap.TextSize(ToStr(Self.Position)) do
+    Bitmap.DrawText(ToStr(Self.Position), [Self.SliderRegion.Middle.X - (X div 2), Self.Slider.Middle.Y - (Y div 3)], $00FF00);
+end;
+
+function TGameScrollBar.IsVisible(): Boolean;
+begin
+  Result := Self <> [];
+end;
+
+
+function TInterface.GetScrollArea(scrollBar: TGameScrollBar): TBox;
+begin
+  if Self.ScrollArea = [] then
+    Exit(scrollBar.SliderRegion);
+  Result := Self.ScrollArea;
+end;
+
+function TInterface.GetScrollBar(): TGameScrollBar;
+const
+  COLOR_ARROW := CTS2(5206147, 15, 0.03, 0.28);
+  COLOR_BORDER := 65536;
+var
+  tpa: TPointArray;
+  arrows: TBoxArray;
+  b: TBox;
+begin
+  if SRL.FindColors(tpa, COLOR_ARROW, Self.Bounds) = 0 then Exit;
+
+  for b in tpa.Cluster(1).ToTBA() do
+    if (b.Width = 14) and (b.Height = 14) and (SRL.CountColor(COLOR_BORDER, b.Expand(1, Self.Bounds)) = 62) then
+      arrows += b;
+
+  arrows.SortByX(False);
+
+  if (Length(arrows) >= 2) and (arrows[0].X1 = arrows[1].X1) and (arrows[1].X2 = arrows[1].X2) then
+  begin
+    if (arrows[0].Y1 > arrows[1].Y1) then
+      Swap(arrows[0], arrows[1]);
+
+    b.X1 := arrows[0].X1;
+    b.Y1 := arrows[0].Y2 + 2;
+    b.X2 := arrows[1].X2;
+    b.Y2 := arrows[1].Y1 - 2;
+
+    if SRL.FindColors(tpa, COLOR_BORDER, b) > 0 then
+    begin
+      Result.SliderRegion := b;
+      Result.Slider := tpa.Bounds();
+      Result.Position := Round((Result.Slider.Y1 - Result.SliderRegion.Y1) * 100 / (Result.SliderRegion.Height - Result.Slider.Height));
+    end;
+  end;
+end;
+
+function TInterface.CanScroll(): Boolean;
+var
+  ScrollBar: TGameScrollBar := Self.GetScrollBar();
+begin
+  Result := Scrollbar.IsVisible() and (ScrollBar.Slider <> ScrollBar.SliderRegion);
+end;
+
+function TInterface.GetScrollPosition(): Int32;
+var
+  ScrollBar: TGameScrollBar;
+begin
+  Result := -1;
+
+  ScrollBar := Self.GetScrollBar();
+  if ScrollBar.IsVisible() then
+    Result := ScrollBar.Position;
+end;
+
+procedure TInterface.SetScrollPosition(value: Int32);
+var
+  oldPos: Int32;
+  scrollBar: TGameScrollBar;
+  scrollTimeout: TCountdown;
+begin
+  value := EnsureRange(value, 0, 100);
+
+  scrollBar := Self.GetScrollBar();
+  oldPos := scrollBar.Position;
+
+  if not scrollBar.IsVisible() or not Self.CanScroll() then
+    Exit;
+
+  if scrollBar.Position = value then
+    Exit;
+
+  scrollTimeout.Init(20000);
+
+  if (scrollBar.Position < value) then
+  begin
+    while scrollBar.IsVisible() and (scrollBar.Position < value) do
+    begin
+      Mouse.Scroll(Self.GetScrollArea(scrollBar), Random(1, 3), True);
+
+      scrollBar := Self.GetScrollBar();
+      if oldPos = scrollBar.Position then
+        Mouse.Move(Self.GetScrollArea(scrollBar), True);
+
+      oldPos := scrollBar.Position;
+
+      if scrollTimeout.IsFinished then
+        Exit;
+    end;
+    Exit;
+  end;
+
+  while scrollBar.IsVisible() and (scrollBar.Position > value) and not scrollTimeout.IsFinished do
+  begin
+    Mouse.Scroll(Self.GetScrollArea(scrollBar), Random(1, 3), False);
+
+    scrollBar := Self.GetScrollBar();
+    if oldPos = scrollBar.Position then
+      Mouse.Move(scrollBar.SliderRegion, True);
+
+    oldPos := scrollBar.Position;
+
+    if scrollTimeout.IsFinished then
+      Exit;
+  end;
+end;
+
+procedure TInterface.Draw(Bitmap: TMufasaBitmap);
+var
+  ScrollBar: TGameScrollBar;
+begin
+  WriteLn('Drawing: ', + Self.Name);
+  Bitmap.DrawBox(Self.Bounds, $00FFFF);
+
+  ScrollBar := Self.GetScrollBar();
+  if ScrollBar.IsVisible() then
+    ScrollBar.Draw(Bitmap);
+end;
+
+type
+  TTitledInterface = record(TInterface)
+    CloseButtonBounds: TBox;
+  end;
+
+function TTitledInterface.GetTitle(): String;
+var
+  B: TBox;
+begin
+  B := Self.Bounds;
+  B.X1 += 50;
+  B.Y1 += 10;
+  B.X2 -= 50;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
+
+  Result := OCR.Recognize(B, TOCRThresholdFilter.Create(15), FONT_BOLD_12);
+end;
+
+function TTitledInterface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
+begin
+
+  if (SRL.CountColor(65536, Self.CloseButtonBounds) > 80) or (SRL.CountColor(CTS2(1250841, 6, 1.47, 2.40), Self.CloseButtonBounds) > 80) then
+    Result := True;
+
+  if Result then
+  begin
+    case PressEscape of
+      False: Mouse.Click(Self.CloseButtonBounds, MOUSE_LEFT);
+      True:  Keyboard.PressKey(VK_ESCAPE);
+    end;
+  end;
+end;
+
+function TTitledInterface.IsTitle(Text: String): Boolean; overload;
+begin
+  Result := Text in Self.GetTitle();
+end;
+
+function TTitledInterface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
+begin
+  Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
+end;
+
+procedure TTitledInterface.SetupAlignment(alignment: TInterfaceAlignment); override;
+begin
+  inherited;
+
+  Self.CloseButtonBounds.X1 := Self.Bounds.X2-28;
+  Self.CloseButtonBounds.X2 := Self.Bounds.X2-6;
+  Self.CloseButtonBounds.Y1 := Self.Bounds.Y1+6;
+  Self.CloseButtonBounds.Y2 := Self.Bounds.Y1+28;
+end;
+
+type
+  TRootInterface = type TInterface;
+
+var
+  RootInterface: TRootInterface;
+
+procedure TSRL.Setup(); override;
+begin
+  RootInterface.Name := 'RootInterface';
+  inherited;
+end;
+
+procedure TGameClient.ClientModeChanged(); override;
+var
+  alignment: TInterfaceAlignment;
+begin
+  inherited;
+
+  alignment.Left   := Self.Bounds.X1;
+  alignment.Top    := Self.Bounds.Y1;
+  alignment.Right  := Self.Bounds.X2;
+  alignment.Bottom := Self.Bounds.Y2;
+
+  RootInterface.SetupAlignment(alignment);
+end;
+
+procedure Debug(buttons: TGameButtonArray); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    buttons.Draw(GameClient.Image());
+    Exit;
+  end;
+  {$ENDIF}
+  bitmap.FromClient();
+  buttons.Draw(bitmap);
+  bitmap.Debug();
+  bitmap.Free();
+end;
+
+procedure Debug(scroll: TGameScrollBar); overload;
+var
+  bitmap: TMufasaBitmap;
+begin
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if GameClient.DebugOnClient then
+  begin
+    GameClient.Image().Clear();
+    scroll.Draw(GameClient.Image());
+    Exit;
+  end;
+  {$ENDIF}
+  bitmap.FromClient();
+  scroll.Draw(bitmap);
+  bitmap.Debug();
+  bitmap.Free();
+end;

@@ -1,0 +1,184 @@
+{$DEFINE SRL_EMOTES_INCLUDED}
+{$IFNDEF SRL_MAIN}
+  {$I SRL-T/main.simba}
+{$ENDIF}
+
+type
+  EEmote = (
+    YES, NO, BOW, ANGRY, THINK, WAVE, SHRUG, CHEER, BECKON, LAUGH,
+    JUMP_FOR_JOY, YAWN, DANCE, JIG, SPIN, HEADBANG, CRY, BLOW_KISS,
+    PANIC, RASPBERRY, CLAP, SALUTE
+  );
+
+  TEmotes = record(TInterface)
+    Area: TBox;
+    Slots: TBoxArray;
+  end;
+
+procedure TEmotes.Setup(); override;
+begin
+  inherited;
+  Self.Name := 'Emotes';
+end;
+
+function TEmotes.GetEmoteUpText(emote: EEmote): String;
+begin
+  case emote of
+    EEmote.YES: Result := 'Yes';
+    EEmote.NO: Result := 'No';
+    EEmote.BOW: Result := 'Bow';
+    EEmote.ANGRY: Result := 'Angry';
+    EEmote.THINK: Result := 'Think';
+    EEmote.WAVE: Result := 'Wave';
+    EEmote.SHRUG: Result := 'Shrug';
+    EEmote.CHEER: Result := 'Cheer';
+    EEmote.BECKON: Result := 'Beckon';
+    EEmote.LAUGH: Result := 'Laugh';
+    EEmote.JUMP_FOR_JOY: Result := 'Jump for Joy';
+    EEmote.YAWN: Result := 'Yawn';
+    EEmote.DANCE: Result := 'Dance';
+    EEmote.JIG: Result := 'Jig';
+    EEmote.SPIN: Result := 'Spin';
+    EEmote.HEADBANG: Result := 'Headbang';
+    EEmote.CRY: Result := 'Cry';
+    EEmote.BLOW_KISS: Result := 'Blow Kiss';
+    EEmote.PANIC: Result := 'Panic';
+    EEmote.RASPBERRY: Result := 'Raspberry';
+    EEmote.CLAP: Result := 'Clap';
+    EEmote.SALUTE: Result := 'Salute';
+  else
+    Result := '';
+  end;
+end;
+
+
+procedure TEmotes.SetupAlignment(); overload;
+var
+  alignment: TInterfaceAlignment;
+  i: Int32;
+begin
+  alignment.Left   := GameTab.Bounds.X1;
+  alignment.Right  := GameTab.Bounds.X2 + 5;
+  alignment.Top    := GameTab.Bounds.Y1;
+  alignment.Bottom := GameTab.Bounds.Y2;
+
+  Self.SetupAlignment(alignment);
+
+  Self.ScrollArea := Self.Bounds;
+  Self.Area := [Self.Bounds.X1, Self.Bounds.Y1, Self.Bounds.X2-19, Self.Bounds.Y2];
+  Self.Slots := Grid(4, 14, 40, 47, [1,2], [Self.Area.X1-1, Self.Area.Y1+7]);
+
+  for i := 0 to High(Self.Slots) do
+    Self.Slots[i] := Self.Slots[i].Expand(-5); //shrink boxes because calculating scrolling is not linear.
+end;
+
+
+function TEmotes.IsOpen(): Boolean;
+begin
+  Result := GameTabs.GetCurrentTab() = EGameTab.Emotes;
+end;
+
+function TEmotes.Open(): Boolean;
+begin
+  Result := GameTabs.Open(EGameTab.Emotes);
+end;
+
+
+function TEmotes._GetOffset(): Int32;
+begin
+  Result := -Round(Self.GetScrollPosition() * 4.3);
+end;
+
+function TEmotes.GetSlots(): TBoxArray;
+var
+  i: Int32;
+begin
+  Result := Self.Slots.Offset([0, Self._GetOffset()]);
+
+  for i := High(Result) downto 0 do
+  begin
+    if Self.Area.Contains([Result[i].X1, Result[i].Y1]) or
+       Self.Area.Contains([Result[i].X2, Result[i].Y2]) then
+    begin
+      Result[i].LimitTo(Self.Area);
+      Continue;
+    end;
+
+    Delete(Result, i, 1);
+  end;
+end;
+
+
+function TEmotes.Find(emote: EEmote; out bounds: TBox): Boolean;
+begin
+  bounds := Self.GetSlots[emote];
+  Result := Self.Area.Contains([bounds.X1, bounds.Y1]) or
+            Self.Area.Contains([bounds.X2, bounds.Y2]);
+
+  if Result then bounds.LimitTo(Self.Area);
+end;
+
+function TEmotes.Contains(emote: EEmote): Boolean;
+var
+  b: TBox;
+begin
+  Result := Self.Find(emote, b);
+end;
+
+function TEmotes.UseEmote(emote: EEmote): Boolean;
+var
+  b: TBox;
+  emoteText: String;
+  attempts: Int32;
+begin
+  Result := False;
+
+  if not Self.Open() then
+    Exit;
+
+  Self.SetScrollPosition(0);
+  Wait(50);
+
+  emoteText := Self.GetEmoteUpText(emote);  // Get the correct uptext for the emote
+  if emoteText = '' then
+    Exit; // Invalid emote
+
+  attempts := 0;
+  while (attempts < 5) and (not Result) do
+  begin
+    if Self.Find(emote, b) then
+    begin
+      Mouse.Move(b, True);
+      if MainScreen.IsUpText(emoteText) then
+      begin
+        Mouse.Click(b, MOUSE_LEFT);
+        Result := True;
+        Exit;
+      end;
+    end;
+
+    Inc(attempts);
+    Wait(RandomRange(150, 300)); // Add a slight delay before retrying
+  end;
+end;
+
+var
+  Emotes: TEmotes;
+
+procedure TGameClient.ClientModeChanged(); override;
+begin
+  inherited;
+  Emotes.SetupAlignment();
+end;
+
+procedure TSRL.Setup(); override;
+begin
+  inherited;
+  Emotes.Setup();
+end;
+
+procedure TSRL.Debug(bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+  Emotes.Draw(bitmap);
+end;

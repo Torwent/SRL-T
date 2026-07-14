@@ -1,0 +1,201 @@
+{$DEFINE SRL_DATABASE_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL-T/utils.simba}
+{$ENDIF}
+
+
+function TStringList.High(): Int32;
+begin
+  Result := Self.getCount() - 1;
+end;
+
+function TStringList.NameFromIndex(index: Int32): String;
+begin
+  if InRange(index, 0, Self.High()) then
+    Result := Self.GetStrings(index).Before('=');
+end;
+
+function TStringList.ValueFromIndex(index: Int32): String;
+begin
+  if InRange(index, 0, Self.High()) then
+    Result := Self.GetStrings(index).After('=');
+end;
+
+
+function TStringList.GetStrings(indices: TIntegerArray): array of Variant; overload;
+var
+  i: Int32;
+begin
+  for i in indices do
+    Result += Self.GetStrings(i);
+end;
+
+
+function TStringList.ValueFromName(name: String): String;
+begin
+  Result := Self.ValueFromIndex(Self.IndexOfName(name));
+end;
+
+function TStringList.ValueFromName(name: String): Int32; overload;
+begin
+  Result := StrToInt(Self.ValueFromIndex(Self.IndexOfName(name)));
+end;
+
+function TStringList.ValuesFromName(name: String): TStringArray;
+var
+  index: Int32;
+begin
+  index := Self.IndexOfName(name);
+  while SameText(name, Self.NameFromIndex(index)) do
+  begin
+    Result += Self.ValueFromIndex(index);
+    Inc(index);
+  end;
+end;
+
+function TStringList.ValuesFromName(name: String): TIntegerArray; overload;
+var
+  index: Int32;
+begin
+  index := Self.IndexOfName(name);
+
+  while SameText(name, Self.NameFromIndex(index)) do
+  begin
+    Result += StrToInt(Self.ValueFromIndex(index));
+    Inc(index);
+  end;
+end;
+
+
+type
+  TSimpleDatabase = record
+    Columns: TStringArray;
+    Data: array of TStringList;
+    Maps: array of TStringList;
+  end;
+
+procedure TSimpleDatabase.Free();
+var
+  i: Int32;
+begin
+  for i := 0 to High(Self.Data) do
+  begin
+    Self.Data[i].Free();
+    Self.Maps[i].Free();
+  end;
+end;
+
+procedure TSimpleDatabase.Setup(name: String; columns: TStringArray; path: String; cache: String = '');
+var
+  i, j: Int32;
+begin
+  SetLength(Self.Data, Length(columns));
+  SetLength(Self.Maps, Length(columns));
+
+  if cache = '' then
+    cache := CACHE_DIR + name + DirectorySeparator;
+  if not ForceDirectories(cache) then
+    TerminateScript('Failed to create cache directory for the ' + name + ' database.');
+
+  for i := 0 to High(Self.Data) do
+  begin
+    Self.Columns += columns[i];
+
+    if not FileExists(path + columns[i] + '.txt') then
+      TerminateScript(columns[i] + '.txt file is missing.');
+
+    Self.Data[i].Init();
+    Self.Data[i].LoadFromFile(path + columns[i] + '.txt');
+
+    Self.Maps[i].Init();
+    Self.Maps[i].SetSorted(True);
+    Self.Maps[i].setCaseSensitive(False);
+
+    if FileExists(cache + columns[i] + '.txt') then
+    begin
+      Self.Maps[i].LoadFromFile(cache + columns[i] + '.txt');
+      Continue;
+    end;
+
+    for j := 0 to Self.Data[i].High() do
+      Self.Maps[i].Add(Self.Data[i].GetStrings(j) + '=' + ToStr(j));
+
+    Self.Maps[i].SaveToFile(cache + columns[i] + '.txt');
+  end;
+
+  AddOnTerminate(@Self.Free);
+end;
+
+
+function TSimpleDatabase.GetColumn(column: String): TStringList;
+var
+  k: Int32;
+begin
+  k := Self.Columns.Find(column);
+  if k = -1 then
+    TerminateScript('Column ' + column + ' does not exist!');
+
+  Result := Self.Data[k];
+end;
+
+
+function TSimpleDatabase.Has(search, key: String): Boolean;
+var
+  k, index: Int32;
+begin
+  k := Self.Columns.Find(key);
+  if k = -1 then
+    TerminateScript('Column ' + key + ' does not exist!');
+
+  try
+    index := Self.Maps[k].ValueFromName(search);
+  except
+  end;
+  Result := index > 0;
+end;
+
+function TSimpleDatabase.Get(search, key, value: String): Variant;
+var
+  k, v, index: Int32;
+begin
+  k := Self.Columns.Find(key);
+  if k = -1 then
+    TerminateScript('Column ' + key + ' does not exist!');
+
+  v := Self.Columns.Find(value);
+  if v = -1 then
+    TerminateScript('Column ' + value +' does not exist!');
+
+  index := Self.Maps[k].ValueFromName(search);
+  Result := Self.Data[v].getStrings(index);
+end;
+
+function TSimpleDatabase.GetAll(search, key, value: String): array of Variant;
+var
+  k, v: Int32;
+  indices: TIntegerArray;
+begin
+  k := Self.Columns.Find(key);
+  if k = -1 then
+    TerminateScript('Column ' + key + ' does not exist!');
+
+  v := Self.Columns.Find(value);
+  if v = -1 then
+    TerminateScript('Column ' + value +' does not exist!');
+
+  indices := Self.Maps[k].ValuesFromName(search);
+  Result := Self.Data[v].GetStrings(indices);
+end;
+
+procedure TSimpleDatabase.AddRow(values: TStringArray);
+var
+  i: Int32;
+  str: String;
+begin
+  for i := 0 to High(values) do
+  begin
+    str := LowerCase(values[i]);
+    Self.Data[i].Add(str);
+    Self.Maps[i].Add(str + '=' + ToStr(Self.Data[i].High()));
+  end;
+end;

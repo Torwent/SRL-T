@@ -1,0 +1,93 @@
+{$DEFINE SRL_UTILS}
+
+type
+  TSRL = record
+    IsSetup: Boolean;
+  end;
+
+const
+  SIMBA_DATA_DIR = AppPath + 'Data' + DirectorySeparator;
+  CACHE_DIR = SIMBA_DATA_DIR + 'cache' + DirectorySeparator;
+  ASSETS_DIR = SIMBA_DATA_DIR + 'Assets' + DirectorySeparator;
+
+  {$IFDEF WINDOWS}
+  WINAPI_CC = {$IFDEF CPU386}'stdcall'{$ELSE}'win64'{$ENDIF};
+  {$ENDIF}
+
+type
+  PWideChar = ^WideChar;
+
+var
+  SRL: TSRL;
+
+{$IFNDEF SRL_WRAPPERS_INCLUDED}      {$I utils/wrappers.simba}
+{$IFNDEF SRL_MATH_INCLUDED}          {$I utils/math/math.simba}
+{$IFNDEF SRL_OTP_INCLUDED}           {$I utils/math/otp.simba}
+{$IFNDEF SRL_EXTENDEDARRAY_INCLUDED} {$I utils/math/extendedarrays.simba}
+{$IFNDEF SRL_INTEGERARRAY_INCLUDED}  {$I utils/math/integerarrays.simba}
+{$IFNDEF SRL_MATRIX_INCLUDED}        {$I utils/math/matrix.simba}
+{$IFNDEF SRL_COLOR_INCLUDED}         {$I utils/math/color.simba}
+{$IFNDEF SRL_PIXELSHIFT_INCLUDED}    {$I utils/math/pixelshift.simba}
+
+{$IFNDEF SRL_TBOX_INCLUDED}          {$I utils/geometry/tbox.simba}
+{$IFNDEF SRL_TBOXARRAY_INCLUDED}     {$I utils/geometry/tboxarrays.simba}
+{$IFNDEF SRL_TRECTANGLE_INCLUDED}    {$I utils/geometry/trectangle.simba}
+{$IFNDEF SRL_TCIRCLE_INCLUDED}       {$I utils/geometry/tcircle.simba}
+{$IFNDEF SRL_VECTOR_INCLUDED}        {$I utils/geometry/vector.simba}
+{$IFNDEF SRL_TPOINT_INCLUDED}        {$I utils/geometry/tpoint.simba}
+{$IFNDEF SRL_TPOINTARRAY_INCLUDED}   {$I utils/geometry/tpointarrays.simba}
+{$IFNDEF SRL_TCUBOID_INCLUDED}       {$I utils/geometry/tcuboid.simba}
+
+{$IFNDEF SRL_RANDOM_INCLUDED}        {$I utils/math/random.simba}
+
+{$IFNDEF SRL_STRING_INCLUDED}        {$I utils/string.simba}
+{$IFNDEF SRL_STRINGARRAY_INCLUDED}   {$I utils/stringarrays.simba}
+{$IFNDEF SRL_ITEMS_INCLUDED}         {$I utils/items.simba}
+
+{$IFNDEF SRL_TIME_INCLUDED}          {$I utils/system/time.simba}
+{$IFNDEF SRL_BASE_INCLUDED}          {$I utils/base.simba}
+{$IFNDEF SRL_FILE_INCLUDED}          {$I utils/system/file.simba}
+{$IFNDEF SRL_DATABASE_INCLUDED}      {$I utils/system/database.simba}
+{$IFNDEF SRL_HTTP_INCLUDED}          {$I utils/system/http.simba}
+
+
+{$IFNDEF SRL_MOUSE_INCLUDED}         {$I utils/input/mouse.simba}
+{$IFNDEF SRL_KEYBOARD_INCLUDED}      {$I utils/input/keyboard.simba}
+
+{$IFNDEF SRL_WEBGRAPH_INCLUDED}      {$I utils/webgraph.simba}
+{$IFNDEF SRL_DRAWING_INCLUDED}       {$I utils/drawing.simba}
+{$IFNDEF SRL_TRANSLATOR_INCLUDED}    {$I utils/math/translator.simba}
+{$IFNDEF SRL_WEBGRAPHV2_INCLUDED}    {$I utils/webgraphv2.simba}
+
+
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
