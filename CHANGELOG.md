@@ -1,4 +1,9 @@
-## 7.20.12 (2026-07-14)
+# 0.1.0 (2026-07-14)
+
+
+### Bug Fixes
+
+* remove fallback version ([e4f60b8](https://github.com/Torwent/SRL-T/commit/e4f60b886dd42678836513ee6c11389c6fadc123))
 
 
 ### Features
