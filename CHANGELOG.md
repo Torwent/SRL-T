@@ -1,3 +1,12 @@
+## [0.1.2](https://github.com/Torwent/SRL-T/compare/v0.1.1...v0.1.2) (2026-07-17)
+
+
+### Bug Fixes
+
+* small fix to how TRSMap npcs are loaded ([002cc8e](https://github.com/Torwent/SRL-T/commit/002cc8edc1308a051d80288735eb980f3e5fcec8))
+
+
+
 ## [0.1.1](https://github.com/Torwent/SRL-T/compare/v0.1.0...v0.1.1) (2026-07-15)
 
 
