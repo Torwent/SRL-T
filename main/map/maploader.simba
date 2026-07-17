@@ -203,15 +203,27 @@ function TChunkLoader.GetJSONFile(chunk: String; plane: UInt32; jsonType: EGameM
 var
   name, cacheroot, cachename, zipFile, zipPath, contents: String;
 begin
+
   case jsonType of
-    EGameMapJSON.OBJECTS: name := 'objects1400';
-    EGameMapJSON.NPCS:    name := 'npcs1400';
+    EGameMapJSON.OBJECTS:
+    begin
+      name := 'objects1400';
+      cacheroot := Self.Cache + name + DirectorySeparator;
+      cachename := cacheroot + ToStr(plane) + '-' + chunk;
+      zipPath := MAP_PATH + 'zips' + DirectorySeparator + name + '.zip';
+      zipFile := ToStr(plane) + '-' + chunk + '.json';
+    end;
+
+    EGameMapJSON.NPCS:
+    begin
+      name := 'npcs1400';
+      cacheroot := Self.Cache + name + DirectorySeparator;
+      cachename := cacheroot + ToStr(plane) + DirectorySeparator + chunk;
+      zipPath := MAP_PATH + 'zips' + DirectorySeparator + name + '.zip';
+      zipFile := ToStr(plane) + '/' + chunk + '.json';
+    end;
   end;
 
-  cacheroot := Self.Cache + name + DirectorySeparator;
-  cachename := cacheroot + ToStr(plane) + '-' + chunk;
-  zipPath := MAP_PATH + 'zips' + DirectorySeparator + name + '.zip';
-  zipFile := ToStr(plane) + '-' + chunk + '.json';
 
   if not FileExists(cachename + '.json') then
   begin
