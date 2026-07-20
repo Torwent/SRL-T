@@ -1,3 +1,12 @@
+## [0.1.3](https://github.com/Torwent/SRL-T/compare/v0.1.2...v0.1.3) (2026-07-20)
+
+
+### Bug Fixes
+
+* add assets missing error ([384b931](https://github.com/Torwent/SRL-T/commit/384b931404a98974d69da51db121d7d34b5079b3))
+
+
+
 ## [0.1.2](https://github.com/Torwent/SRL-T/compare/v0.1.1...v0.1.2) (2026-07-17)
 
 
