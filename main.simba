@@ -41,6 +41,9 @@ begin
 end;
 
 begin
+  if not DirectoryExists(ASSETS_DIR) or (FindFiles(ASSETS_DIR, True) = []) then
+    raise 'You are missing the game assets. You need the game assets to use SRL-T or WaspLib.';
+
   SRL.Setup();
 end;
 
